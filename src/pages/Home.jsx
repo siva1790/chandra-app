@@ -73,11 +73,24 @@ const Home = () => {
         moonset = Astronomy.SearchRiseSet('Moon', observer, -1, startOfDay, 2)
       } catch (e) { moonset = null }
 
-      // Tithi calculation — sample at LOCAL SUNRISE per Drik Panchang convention.
+      // Tithi calculation — primary sample at LOCAL SUNRISE per Drik Panchang convention.
+      // However, if the tithi changes during the morning (i.e. sunrise tithi ≠ noon tithi),
+      // the noon (Madhyahna) tithi prevails for the day — this is the traditional rule that
+      // determines festival observance (e.g. Ganesh Chaturthi on Sep 14 when Chaturthi
+      // begins after sunrise but is present at midday). This correctly handles all future
+      // dates where a tithi boundary falls between sunrise and noon.
       // (Visual + illumination above stay at `now` so they animate through the day.)
       const sunriseTime = getSunriseForDate(now, location.lat, location.lon)
-      const tithiPhaseAngle = Astronomy.MoonPhase(sunriseTime)
-      const tithi = getTithi(tithiPhaseAngle)
+      const sunriseTithiAngle = Astronomy.MoonPhase(sunriseTime)
+      const sunriseTithi = getTithi(sunriseTithiAngle)
+
+      const noonTime = new Date(now)
+      noonTime.setHours(12, 0, 0, 0)
+      const noonTithiAngle = Astronomy.MoonPhase(noonTime)
+      const noonTithi = getTithi(noonTithiAngle)
+
+      // If tithi changed between sunrise and noon, the noon (Madhyahna) tithi rules the day
+      const tithi = sunriseTithi.number !== noonTithi.number ? noonTithi : sunriseTithi
 
       setMoonData({
         phase,

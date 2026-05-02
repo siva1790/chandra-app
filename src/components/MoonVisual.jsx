@@ -24,10 +24,16 @@ const MoonVisual = ({ phase }) => {
     // Normalize t: 0 at new moon edge, 1 at full moon
     const t = isWaxing ? phase / 0.5 : (phase - 0.5) / 0.5
 
-    // Terminator ellipse x-radius
-    // At t=0 (crescent): rx ≈ r → wide ellipse covering the lit half → thin crescent
-    // At t=1 (gibbous): rx ≈ 0 → flat → nearly full circle lit
-    const rx = Math.max(0.5, r * Math.abs(Math.cos(t * Math.PI / 2)))
+    // Terminator ellipse x-radius — formula differs for waxing vs waning:
+    //
+    // WAXING (cos): t=0 (new moon) → rx=r (wide ellipse, dark), t=1 (full moon) → rx=0 (flat, fully lit) ✓
+    // WANING (sin): t=0 (full moon) → rx=0 (flat, fully lit), t=1 (new moon) → rx=r (wide ellipse, dark) ✓
+    //
+    // Using cos for waning was the bug: at t≈0 (just past full moon), cos gives rx≈r,
+    // making the lit area nearly zero — the moon looked like a new moon right after Purnima.
+    const rx = isWaxing
+      ? Math.max(0.5, r * Math.abs(Math.cos(t * Math.PI / 2)))
+      : Math.max(0.5, r * Math.abs(Math.sin(t * Math.PI / 2)))
 
     // Sweep direction of terminator determines waxing vs waning
     const terminatorSweep = isWaxing ? 0 : 1
