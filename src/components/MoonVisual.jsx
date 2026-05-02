@@ -22,23 +22,6 @@ const CX   = SIZE / 2   // 100
 const CY   = SIZE / 2   // 100
 const R    = 82
 
-/**
- * Approximate positions of real lunar mare as seen from Earth (North up,
- * East = right).  All coordinates are fractions of the moon radius R.
- *   x > 0 → right (east),  y > 0 → down (south)
- */
-const MARIA = [
-  { x: -0.22, y: -0.20, rx: 0.22, ry: 0.18, o: 0.23 }, // Mare Tranquillitatis
-  { x: -0.10, y: -0.38, rx: 0.18, ry: 0.14, o: 0.20 }, // Mare Serenitatis
-  { x:  0.48, y: -0.24, rx: 0.13, ry: 0.10, o: 0.25 }, // Mare Crisium  (east edge)
-  { x: -0.34, y:  0.06, rx: 0.26, ry: 0.22, o: 0.17 }, // Oceanus Procellarum
-  { x: -0.08, y:  0.35, rx: 0.13, ry: 0.10, o: 0.17 }, // Mare Nubium
-  { x:  0.18, y: -0.08, rx: 0.09, ry: 0.08, o: 0.15 }, // Copernicus region
-  { x:  0.05, y: -0.56, rx: 0.16, ry: 0.09, o: 0.17 }, // Mare Frigoris (north)
-  { x:  0.38, y:  0.22, rx: 0.12, ry: 0.09, o: 0.15 }, // Mare Fecunditatis
-  { x: -0.08, y:  0.52, rx: 0.10, ry: 0.08, o: 0.14 }, // Southern highlands
-  { x:  0.12, y:  0.10, rx: 0.07, ry: 0.06, o: 0.12 }, // Mare Vaporum (small)
-]
 
 /**
  * Build the SVG path string for the dark shadow that covers the unlit half.
@@ -169,17 +152,7 @@ const MoonVisual = ({ phase }) => {
             <circle cx={CX} cy={CY} r={R} fill="url(#chandra-lit)" />
           )}
 
-          {/* 3. Lunar maria — dark ellipses at approximate real positions */}
-          {!isNewMoon && MARIA.map((m, i) => (
-            <ellipse
-              key={i}
-              cx={CX + m.x * R}
-              cy={CY + m.y * R}
-              rx={m.rx * R}
-              ry={m.ry * R}
-              fill={`rgba(50, 32, 0, ${m.o})`}
-            />
-          ))}
+          {/* 3. No surface texture — clean plain sphere */}
 
           {/* 4. Shadow overlay — covers the unlit lune */}
           {shadow && (
