@@ -146,6 +146,7 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | Empty calendar leading tiles had yellow border/bg — null day cells now render as transparent divs with no styling | `Calendar.jsx` |
 | 2026-05 | "Coming Soon" language buttons were focusable/clickable — added disabled + aria-disabled attributes | `Settings.jsx` |
 | 2026-05 | Fixed bottom nav obscuring page content — added pb-28 to all four page root containers | `Home.jsx`, `Calendar.jsx`, `Panchang.jsx`, `Settings.jsx` |
+| 2026-05 | Added persistent top bar (🌙 Chandra logo + bell icon) and subscription system — SubscriptionContext, SubscribeSheet, Google Apps Script backend | `App.jsx`, `main.jsx`, `SubscriptionContext.jsx`, `SubscribeSheet.jsx`, `Settings.jsx` |
 
 ---
 
