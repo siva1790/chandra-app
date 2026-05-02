@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import * as Astronomy from 'astronomy-engine'
+import { getSunriseForDate } from '../moonUtils'
 
 const AYANAMSHA = 23.15
 
@@ -65,7 +66,11 @@ const Panchang = ({ location }) => {
 
   const calculatePanchang = (date) => {
     try {
-      const phaseAngle = Astronomy.MoonPhase(date)
+      // Sample tithi/karana/yoga/longitudes at LOCAL SUNRISE for the given date
+      // (Drik Panchang convention). Nakshatra still uses full-day scan below to
+      // show all transitions during the day.
+      const sunriseTime = getSunriseForDate(date, location?.lat, location?.lon)
+      const phaseAngle = Astronomy.MoonPhase(sunriseTime)
 
       // --- Tithi ---
       const tithiNames = [
@@ -80,8 +85,8 @@ const Panchang = ({ location }) => {
       const tithiName = tithiNames[Math.min(tithiIndex, 29)]
       const paksha = tithiIndex < 15 ? 'Shukla Paksha' : 'Krishna Paksha'
 
-      // --- Moon longitude (sidereal) — used for Nakshatra and Yoga ---
-      const moonLongitude = getMoonSiderealLongitude(date)
+      // --- Moon longitude (sidereal at sunrise) — used for Yoga + display ---
+      const moonLongitude = getMoonSiderealLongitude(sunriseTime)
 
       // --- Nakshatra with start/end times ---
       const dayStart = new Date(date)
@@ -146,8 +151,8 @@ const Panchang = ({ location }) => {
       const nakshatraName = nakshatraList[0]?.name || nakshatras[currentIdx % 27]
       const nakshatraPada = nakshatraList[0]?.pada || 1
 
-      // --- Yoga ---
-      const sunPos = Astronomy.GeoVector('Sun', date, true)
+      // --- Yoga (sun longitude at sunrise) ---
+      const sunPos = Astronomy.GeoVector('Sun', sunriseTime, true)
       const sunEcliptic = Astronomy.Ecliptic(sunPos)
       const sunLongitude = ((sunEcliptic.elon - AYANAMSHA + 360) % 360)
       const yogaNames = [

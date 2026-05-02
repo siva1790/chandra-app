@@ -71,6 +71,36 @@ export const getFestivalsForDate = (date, festivals) => {
   })
 }
 
+// Compute local sunrise time for a given Gregorian date and lat/lon.
+// Falls back to 06:00 local on the date if Astronomy can't find sunrise
+// (polar regions, missing inputs, etc.).
+export const getSunriseForDate = (date, lat, lon) => {
+  try {
+    if (typeof lat === 'number' && typeof lon === 'number') {
+      const observer = new Astronomy.Observer(lat, lon, 0)
+      const dayStart = new Date(date)
+      dayStart.setHours(0, 0, 0, 0)
+      const sunrise = Astronomy.SearchRiseSet('Sun', observer, +1, dayStart, 1)
+      if (sunrise) return sunrise.date
+    }
+  } catch (e) {
+    // fall through to fallback
+  }
+  const fallback = new Date(date)
+  fallback.setHours(6, 0, 0, 0)
+  return fallback
+}
+
+// Sample tithi at local sunrise — matches Drik Panchang convention that the
+// day's tithi is whichever tithi is running at sunrise (not midnight, not "now").
+// Without this, Sep 14 2026 reads as Tritiya at 00:00 IST even though it's
+// Ganesh Chaturthi by tradition (Chaturthi tithi begins shortly before sunrise).
+export const getTithiAtSunrise = (date, lat, lon) => {
+  const sunriseTime = getSunriseForDate(date, lat, lon)
+  const phaseAngle = Astronomy.MoonPhase(sunriseTime)
+  return getTithiFromAngle(phaseAngle)
+}
+
 // Get short phase emoji for calendar
 export const getPhaseEmoji = (phaseAngle) => {
   const phase = phaseAngle / 360

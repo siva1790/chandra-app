@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import * as Astronomy from 'astronomy-engine'
 import MoonVisual from '../components/MoonVisual'
 import { useSettings } from '../SettingsContext'
+import { getSunriseForDate } from '../moonUtils'
 
 const Home = () => {
   const { settings } = useSettings()
@@ -72,8 +73,11 @@ const Home = () => {
         moonset = Astronomy.SearchRiseSet('Moon', observer, -1, startOfDay, 2)
       } catch (e) { moonset = null }
 
-      // Tithi calculation
-      const tithi = getTithi(phaseAngle)
+      // Tithi calculation — sample at LOCAL SUNRISE per Drik Panchang convention.
+      // (Visual + illumination above stay at `now` so they animate through the day.)
+      const sunriseTime = getSunriseForDate(now, location.lat, location.lon)
+      const tithiPhaseAngle = Astronomy.MoonPhase(sunriseTime)
+      const tithi = getTithi(tithiPhaseAngle)
 
       setMoonData({
         phase,

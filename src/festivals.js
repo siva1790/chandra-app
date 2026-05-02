@@ -26,7 +26,7 @@ export const DATED_FESTIVALS_2026 = [
   { date: '2026-10-20', name: 'Dussehra (Vijayadashami)', emoji: '🏹', description: 'Victory of Lord Rama over Ravana' },
   { date: '2026-10-29', name: 'Karwa Chauth', emoji: '🌙', description: "Fasting by married women for husband's long life" },
   { date: '2026-11-08', name: 'Diwali (Deepavali)', emoji: '🪔', description: 'Festival of lights — most celebrated Hindu festival' },
-  { date: '2026-11-14', name: 'Chhath Puja', emoji: '🌅', description: 'Sun god worship — sacred bathing and offerings' }, // VERIFY: user said "Mid-November", Sandhya Arghya day to confirm against DrikPanchang
+  { date: '2026-11-13', name: 'Chhath Puja', emoji: '🌅', description: 'Sun god worship — sacred bathing and offerings' },
 ]
 
 // Recurring lunar observances. tithi is 1-15 within the paksha.
@@ -37,7 +37,8 @@ export const MONTHLY_FESTIVALS = [
   { name: 'Amavasya', paksha: 'Krishna', tithi: 15, emoji: '🌑', description: 'New moon — day for ancestral offerings' },
   { name: 'Pradosh Vrat', paksha: 'Shukla', tithi: 13, emoji: '🕉️', description: 'Fasting dedicated to Lord Shiva' },
   { name: 'Pradosh Vrat', paksha: 'Krishna', tithi: 13, emoji: '🕉️', description: 'Fasting dedicated to Lord Shiva' },
-  { name: 'Vinayaka Chaturthi', paksha: 'Shukla', tithi: 4, emoji: '🐘', description: 'Dedicated to Lord Ganesha' },
+  // Vinayaka Chaturthi removed — annual Ganesh Chaturthi (Sep 14, 2026) is the
+  // observance most users expect; monthly recurrence created confusing duplicates.
   { name: 'Sankashti Chaturthi', paksha: 'Krishna', tithi: 4, emoji: '🐘', description: 'Ganesha fast for removal of obstacles' },
   { name: 'Masik Shivaratri', paksha: 'Krishna', tithi: 14, emoji: '🕉️', description: 'Monthly night of Lord Shiva' },
   { name: 'Kalashtami', paksha: 'Krishna', tithi: 8, emoji: '⚔️', description: 'Dedicated to Lord Bhairava / Goddess Durga' },
@@ -70,14 +71,15 @@ export const getMonthlyFestivalsForTithi = (tithiNumber, paksha) => {
   return MONTHLY_FESTIVALS.filter(f => f.tithi === tithiNumber && f.paksha === paksha)
 }
 
-// Combined helper. Dated festivals take precedence; a monthly observance is
-// dropped if its name already appears inside a dated entry's name (e.g. drop
-// the generic "Purnima" entry on Kartik Purnima day).
+// Combined helper. If any dated festival lands on this day, monthly observances
+// are suppressed entirely — annual festivals take visual precedence so users
+// don't see Diwali + Amavasya, Karwa Chauth + Sankashti Chaturthi, etc., on
+// the same day.
 export const getFestivalsForDate = (date, tithiNumber, paksha) => {
   const dated = getDatedFestivalsForDate(date)
-  const monthly = getMonthlyFestivalsForTithi(tithiNumber, paksha).filter(
-    m => !dated.some(d => d.name.includes(m.name))
-  )
+  const monthly = dated.length > 0
+    ? []
+    : getMonthlyFestivalsForTithi(tithiNumber, paksha)
   return [...dated, ...monthly]
 }
 

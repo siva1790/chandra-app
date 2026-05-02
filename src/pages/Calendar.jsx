@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { getDatedFestivalsForDate, getMonthlyFestivalsForTithi } from '../festivals'
-import { getMoonPhaseAngle, getTithiFromAngle, getPhaseEmoji } from '../moonUtils'
+import { getMoonPhaseAngle, getTithiFromAngle, getPhaseEmoji, getSunriseForDate } from '../moonUtils'
+import { useSettings } from '../SettingsContext'
 
 const Calendar = () => {
+  const { settings } = useSettings()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [calendarDays, setCalendarDays] = useState([])
   const [selectedDay, setSelectedDay] = useState(null)
@@ -15,7 +17,7 @@ const Calendar = () => {
 
   useEffect(() => {
     buildCalendar()
-  }, [currentDate])
+  }, [currentDate, settings])
 
   const buildCalendar = () => {
     const year = currentDate.getFullYear()
@@ -34,13 +36,22 @@ const Calendar = () => {
     // Build each day with moon data
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(year, month, d)
-      const phaseAngle = getMoonPhaseAngle(date)
+      // Sample tithi + phase emoji at LOCAL SUNRISE (Drik Panchang convention).
+      // Without this, Sep 14 reads as Tritiya at midnight even though Chaturthi
+      // is running by sunrise (so Ganesh Chaturthi appeared on the wrong day,
+      // and tithis spanning midnight created spurious duplicate festivals).
+      const sunriseTime = getSunriseForDate(date, settings?.lat, settings?.lon)
+      const phaseAngle = getMoonPhaseAngle(sunriseTime)
       const tithi = getTithiFromAngle(phaseAngle)
-      // New festival API: combine exact-dated festivals with monthly observances,
-      // deduping monthly entries already covered by a dated festival on the same day.
+      // New festival API: combine exact-dated festivals with monthly observances.
+      // Suppress all monthly entries on days that have any dated festival, so
+      // annual festivals (Diwali, Karwa Chauth, Maha Shivaratri, etc.) don't
+      // double-up with their monthly equivalents (Amavasya, Sankashti Chaturthi,
+      // Masik Shivaratri).
       const dated = getDatedFestivalsForDate(date)
-      const monthly = getMonthlyFestivalsForTithi(tithi.adjustedNumber, tithi.paksha)
-        .filter(m => !dated.some(df => df.name.includes(m.name)))
+      const monthly = dated.length > 0
+        ? []
+        : getMonthlyFestivalsForTithi(tithi.adjustedNumber, tithi.paksha)
       const dayFestivals = [...dated, ...monthly]
       const isToday = d === today.getDate() &&
         month === today.getMonth() &&
