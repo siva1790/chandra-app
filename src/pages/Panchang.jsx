@@ -1,6 +1,42 @@
 import { useState, useEffect } from 'react'
 import * as Astronomy from 'astronomy-engine'
 
+const AYANAMSHA = 23.15
+
+const nakshatras = [
+  'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
+  'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha', 'Magha',
+  'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati',
+  'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
+  'Uttara Ashadha', 'Shravana', 'Dhanishtha', 'Shatabhisha',
+  'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati'
+]
+
+const getMoonSiderealLongitude = (d) => {
+  const pos = Astronomy.GeoVector('Moon', d, true)
+  const ecl = Astronomy.Ecliptic(pos)
+  return ((ecl.elon - AYANAMSHA + 360) % 360)
+}
+
+const getNakshatraIndex = (d) => {
+  return Math.floor(getMoonSiderealLongitude(d) / (360 / 27))
+}
+
+const findNakshatraTransition = (startTime, endTime, startIdx) => {
+  let lo = startTime.getTime()
+  let hi = endTime.getTime()
+  for (let i = 0; i < 30; i++) {
+    const mid = (lo + hi) / 2
+    const midDate = new Date(mid)
+    if (getNakshatraIndex(midDate) === startIdx) {
+      lo = mid
+    } else {
+      hi = mid
+    }
+  }
+  return new Date((lo + hi) / 2)
+}
+
 const Panchang = ({ location }) => {
   const [panchang, setPanchang] = useState(null)
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -9,132 +45,11 @@ const Panchang = ({ location }) => {
     calculatePanchang(selectedDate)
   }, [selectedDate, location])
 
-  const calculatePanchang = (date) => {
-    const phaseAngle = Astronomy.MoonPhase(date)
-
-    // --- Tithi ---
-    const tithiNames = [
-      'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
-      'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
-      'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Purnima',
-      'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
-      'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
-      'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Amavasya'
-    ]
-    const tithiIndex = Math.floor(phaseAngle / 12)
-    const tithiName = tithiNames[Math.min(tithiIndex, 29)]
-    const paksha = tithiIndex < 15 ? 'Shukla Paksha' : 'Krishna Paksha'
-
-    // --- Nakshatra ---
-    // Moon travels through 27 Nakshatras in ~27.3 days
-    // Each Nakshatra spans 13°20' (360/27 degrees)
-    const nakshatras = [
-      'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
-      'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha', 'Magha',
-      'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati',
-      'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
-      'Uttara Ashadha', 'Shravana', 'Dhanishtha', 'Shatabhisha',
-      'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati'
-    ]
-    const moonPos = Astronomy.GeoVector('Moon', date, true)
-    const moonEcliptic = Astronomy.Ecliptic(moonPos)
-    const AYANAMSHA = 23.15
-    const moonLongitude = ((moonEcliptic.elon - AYANAMSHA + 360) % 360)
-    const nakshatraIndex = Math.floor(moonLongitude / (360 / 27))
-    const nakshatraName = nakshatras[nakshatraIndex % 27]
-    const nakshatraPada = Math.floor((moonLongitude % (360 / 27)) / (360 / 108)) + 1
-
-    // --- Yoga ---
-    // Yoga = (Sun longitude + Moon longitude) / (360/27)
-    const sunPos = Astronomy.GeoVector('Sun', date, true)
-    const sunEcliptic = Astronomy.Ecliptic(sunPos)
-    const sunLongitude = ((sunEcliptic.elon - AYANAMSHA + 360) % 360)
-    const yogaNames = [
-      'Vishkambha', 'Priti', 'Ayushman', 'Saubhagya', 'Shobhana',
-      'Atiganda', 'Sukarma', 'Dhriti', 'Shula', 'Ganda',
-      'Vriddhi', 'Dhruva', 'Vyaghata', 'Harshana', 'Vajra',
-      'Siddhi', 'Vyatipata', 'Variyan', 'Parigha', 'Shiva',
-      'Siddha', 'Sadhya', 'Shubha', 'Shukla', 'Brahma',
-      'Indra', 'Vaidhriti'
-    ]
-    const yogaIndex = Math.floor(((sunLongitude + moonLongitude) % 360) / (360 / 27))
-    const yogaName = yogaNames[yogaIndex % 27]
-
-    // --- Karana ---
-    // Karana = half of Tithi (each Tithi has 2 Karanas)
-    const karanaNames = [
-      'Bava', 'Balava', 'Kaulava', 'Taitila', 'Garija',
-      'Vanija', 'Vishti', 'Shakuni', 'Chatushpada', 'Naga', 'Kimstughna'
-    ]
-    const karanaIndex = Math.floor((phaseAngle / 6) % 11)
-    const karanaName = karanaNames[karanaIndex]
-
-    // --- Vara (Day of week) ---
-    const varaNames = ['Ravivar', 'Somvar', 'Mangalvar', 'Budhvar', 'Guruvar', 'Shukravar', 'Shanivar']
-    const varaDeva = ['Sun ☀️', 'Moon 🌙', 'Mars ♂️', 'Mercury ☿', 'Jupiter ♃', 'Venus ♀️', 'Saturn ♄']
-    const varaIndex = date.getDay()
-    const varaName = varaNames[varaIndex]
-    const varaDeity = varaDeva[varaIndex]
-
-    // --- Rahu Kaal ---
-    // Rahu Kaal is 1/8th of the day, varies by weekday
-    // Order: Mon, Sat, Fri, Wed, Thu, Tue, Sun (index by day)
-    const rahuOrder = [7, 1, 6, 4, 5, 3, 2] // slot number for each weekday
-    const sunrise = 6 * 60 // 6:00 AM in minutes
-    const sunset = 18 * 60 // 6:00 PM in minutes
-    const dayDuration = sunset - sunrise
-    const slotDuration = dayDuration / 8
-    const rahuSlot = rahuOrder[varaIndex]
-    const rahuStart = sunrise + (rahuSlot - 1) * slotDuration
-    const rahuEnd = rahuStart + slotDuration
-    const formatMinutes = (mins) => {
-      const h = Math.floor(mins / 60)
-      const m = Math.round(mins % 60)
-      const ampm = h >= 12 ? 'PM' : 'AM'
-      const hour = h > 12 ? h - 12 : h === 0 ? 12 : h
-      return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`
-    }
-    const rahuKaal = `${formatMinutes(rahuStart)} – ${formatMinutes(rahuEnd)}`
-
-    // --- Abhijit Muhurta (most auspicious time of day) ---
-    // Middle of the day ± 24 minutes
-    const midday = (sunrise + sunset) / 2
-    const abhijitStart = midday - 24
-    const abhijitEnd = midday + 24
-    const abhijitMuhurta = `${formatMinutes(abhijitStart)} – ${formatMinutes(abhijitEnd)}`
-
-    // --- Brahma Muhurta ---
-    // 1.5 hours before sunrise
-    const brahmaStart = sunrise - 96
-    const brahmaEnd = sunrise - 48
-    const brahmaMuhurta = `${formatMinutes(brahmaStart)} – ${formatMinutes(brahmaEnd)}`
-
-    // --- Auspiciousness flags ---
-    const isShubaYoga = ['Siddhi', 'Amrita', 'Sarvartha Siddhi'].includes(yogaName)
-    const isEkadashi = tithiName === 'Ekadashi'
-    const isPurnima = tithiName === 'Purnima'
-    const isAmavasya = tithiName === 'Amavasya'
-    const isVishti = karanaName === 'Vishti' // Bhadra — inauspicious
-
-    setPanchang({
-      tithi: tithiName,
-      paksha,
-      nakshatra: nakshatraName,
-      nakshatraPada,
-      yoga: yogaName,
-      karana: karanaName,
-      vara: varaName,
-      varaDeity,
-      rahuKaal,
-      abhijitMuhurta,
-      brahmaMuhurta,
-      moonLongitude: moonLongitude.toFixed(2),
-      sunLongitude: sunLongitude.toFixed(2),
-      isEkadashi,
-      isPurnima,
-      isAmavasya,
-      isVishti,
-      isShubaYoga,
+  const formatTime = (date) => {
+    return date.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
     })
   }
 
@@ -146,6 +61,179 @@ const Panchang = ({ location }) => {
     const newDate = new Date(selectedDate)
     newDate.setDate(newDate.getDate() + days)
     setSelectedDate(newDate)
+  }
+
+  const calculatePanchang = (date) => {
+    try {
+      const phaseAngle = Astronomy.MoonPhase(date)
+
+      // --- Tithi ---
+      const tithiNames = [
+        'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
+        'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
+        'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Purnima',
+        'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
+        'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
+        'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Amavasya'
+      ]
+      const tithiIndex = Math.floor(phaseAngle / 12)
+      const tithiName = tithiNames[Math.min(tithiIndex, 29)]
+      const paksha = tithiIndex < 15 ? 'Shukla Paksha' : 'Krishna Paksha'
+
+      // --- Moon longitude (sidereal) — used for Nakshatra and Yoga ---
+      const moonLongitude = getMoonSiderealLongitude(date)
+
+      // --- Nakshatra with start/end times ---
+      const dayStart = new Date(date)
+      dayStart.setHours(0, 0, 0, 0)
+      const dayEnd = new Date(date)
+      dayEnd.setHours(23, 59, 59, 999)
+
+      const nakshatraList = []
+      let cursor = new Date(dayStart)
+      let currentIdx = getNakshatraIndex(cursor)
+
+      while (cursor < dayEnd) {
+        const searchEnd = new Date(Math.min(cursor.getTime() + 24 * 60 * 60 * 1000, dayEnd.getTime()))
+        let transitionFound = false
+
+        let scanner = new Date(cursor.getTime() + 30 * 60 * 1000)
+        while (scanner <= searchEnd) {
+          const scanIdx = getNakshatraIndex(scanner)
+          if (scanIdx !== currentIdx) {
+            const transitionTime = findNakshatraTransition(
+              new Date(scanner.getTime() - 30 * 60 * 1000),
+              scanner,
+              currentIdx
+            )
+            const midPoint = new Date(cursor.getTime() + (transitionTime.getTime() - cursor.getTime()) / 2)
+            const pada = Math.floor(
+              (getMoonSiderealLongitude(midPoint) % (360 / 27)) / (360 / 108)
+            ) + 1
+
+            nakshatraList.push({
+              name: nakshatras[currentIdx % 27],
+              pada,
+              start: cursor.getTime() <= dayStart.getTime() ? dayStart : cursor,
+              end: transitionTime,
+              endsToday: true
+            })
+
+            cursor = transitionTime
+            currentIdx = scanIdx
+            transitionFound = true
+            break
+          }
+          scanner = new Date(scanner.getTime() + 30 * 60 * 1000)
+        }
+
+        if (!transitionFound) {
+          const midPoint = new Date((cursor.getTime() + dayEnd.getTime()) / 2)
+          const pada = Math.floor(
+            (getMoonSiderealLongitude(midPoint) % (360 / 27)) / (360 / 108)
+          ) + 1
+          nakshatraList.push({
+            name: nakshatras[currentIdx % 27],
+            pada,
+            start: cursor.getTime() <= dayStart.getTime() ? dayStart : cursor,
+            end: dayEnd,
+            endsToday: false
+          })
+          break
+        }
+      }
+
+      const nakshatraName = nakshatraList[0]?.name || nakshatras[currentIdx % 27]
+      const nakshatraPada = nakshatraList[0]?.pada || 1
+
+      // --- Yoga ---
+      const sunPos = Astronomy.GeoVector('Sun', date, true)
+      const sunEcliptic = Astronomy.Ecliptic(sunPos)
+      const sunLongitude = ((sunEcliptic.elon - AYANAMSHA + 360) % 360)
+      const yogaNames = [
+        'Vishkambha', 'Priti', 'Ayushman', 'Saubhagya', 'Shobhana',
+        'Atiganda', 'Sukarma', 'Dhriti', 'Shula', 'Ganda',
+        'Vriddhi', 'Dhruva', 'Vyaghata', 'Harshana', 'Vajra',
+        'Siddhi', 'Vyatipata', 'Variyan', 'Parigha', 'Shiva',
+        'Siddha', 'Sadhya', 'Shubha', 'Shukla', 'Brahma',
+        'Indra', 'Vaidhriti'
+      ]
+      const yogaIndex = Math.floor(((sunLongitude + moonLongitude) % 360) / (360 / 27))
+      const yogaName = yogaNames[yogaIndex % 27]
+
+      // --- Karana ---
+      const karanaNames = [
+        'Bava', 'Balava', 'Kaulava', 'Taitila', 'Garija',
+        'Vanija', 'Vishti', 'Shakuni', 'Chatushpada', 'Naga', 'Kimstughna'
+      ]
+      const karanaIndex = Math.floor((phaseAngle / 6) % 11)
+      const karanaName = karanaNames[karanaIndex]
+
+      // --- Vara (Day of week) ---
+      const varaNames = ['Ravivar', 'Somvar', 'Mangalvar', 'Budhvar', 'Guruvar', 'Shukravar', 'Shanivar']
+      const varaDeva = ['Sun ☀️', 'Moon 🌙', 'Mars ♂️', 'Mercury ☿', 'Jupiter ♃', 'Venus ♀️', 'Saturn ♄']
+      const varaIndex = date.getDay()
+      const varaName = varaNames[varaIndex]
+      const varaDeity = varaDeva[varaIndex]
+
+      // --- Rahu Kaal ---
+      const rahuOrder = [7, 1, 6, 4, 5, 3, 2]
+      const sunrise = 6 * 60
+      const sunset = 18 * 60
+      const dayDuration = sunset - sunrise
+      const slotDuration = dayDuration / 8
+      const rahuSlot = rahuOrder[varaIndex]
+      const rahuStart = sunrise + (rahuSlot - 1) * slotDuration
+      const rahuEnd = rahuStart + slotDuration
+      const formatMinutes = (mins) => {
+        const h = Math.floor(mins / 60)
+        const m = Math.round(mins % 60)
+        const ampm = h >= 12 ? 'PM' : 'AM'
+        const hour = h > 12 ? h - 12 : h === 0 ? 12 : h
+        return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`
+      }
+      const rahuKaal = `${formatMinutes(rahuStart)} – ${formatMinutes(rahuEnd)}`
+
+      // --- Abhijit Muhurta ---
+      const midday = (sunrise + sunset) / 2
+      const abhijitStart = midday - 24
+      const abhijitEnd = midday + 24
+      const abhijitMuhurta = `${formatMinutes(abhijitStart)} – ${formatMinutes(abhijitEnd)}`
+
+      // --- Brahma Muhurta ---
+      const brahmaStart = sunrise - 96
+      const brahmaEnd = sunrise - 48
+      const brahmaMuhurta = `${formatMinutes(brahmaStart)} – ${formatMinutes(brahmaEnd)}`
+
+      // --- Auspiciousness flags ---
+      const isEkadashi = tithiName === 'Ekadashi'
+      const isPurnima = tithiName === 'Purnima'
+      const isAmavasya = tithiName === 'Amavasya'
+      const isVishti = karanaName === 'Vishti'
+
+      setPanchang({
+        tithi: tithiName,
+        paksha,
+        nakshatra: nakshatraName,
+        nakshatraPada,
+        nakshatraList,
+        yoga: yogaName,
+        karana: karanaName,
+        vara: varaName,
+        varaDeity,
+        rahuKaal,
+        abhijitMuhurta,
+        brahmaMuhurta,
+        moonLongitude: moonLongitude.toFixed(2),
+        sunLongitude: sunLongitude.toFixed(2),
+        isEkadashi,
+        isPurnima,
+        isAmavasya,
+        isVishti,
+      })
+    } catch (err) {
+      console.error('Panchang calculation error:', err)
+    }
   }
 
   return (
@@ -171,7 +259,7 @@ const Panchang = ({ location }) => {
           className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800">›</button>
       </div>
 
-      {panchang && (
+      {panchang ? (
         <div className="flex flex-col gap-4">
 
           {/* Special Day Banners */}
@@ -206,8 +294,40 @@ const Panchang = ({ location }) => {
               Pancha Anga — Five Limbs
             </p>
             <div className="flex flex-col gap-3">
-              <PanchangRow icon="🌙" label="Tithi" value={`${panchang.tithi}`} sub={panchang.paksha} />
-              <PanchangRow icon="⭐" label="Nakshatra" value={panchang.nakshatra} sub={`Pada ${panchang.nakshatraPada}`} />
+
+              <PanchangRow icon="🌙" label="Tithi" value={panchang.tithi} sub={panchang.paksha} />
+
+              {/* Nakshatra with timing */}
+              {panchang.nakshatraList && panchang.nakshatraList.length > 0 ? (
+                <div className="py-2 border-b border-gray-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-base">⭐</span>
+                    <span className="text-gray-400 text-sm">Nakshatra</span>
+                  </div>
+                  {panchang.nakshatraList.map((n, i) => (
+                    <div key={i} className="ml-6 mb-2 bg-gray-800 rounded-xl px-3 py-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-white text-sm font-semibold">{n.name}</p>
+                          <p className="text-gray-400 text-xs">Pada {n.pada}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-yellow-300 text-xs font-medium">
+                            {n.start.getHours() === 0 && n.start.getMinutes() === 0
+                              ? 'From midnight'
+                              : formatTime(n.start)}
+                            {' → '}
+                            {n.endsToday ? formatTime(n.end) : 'Next day'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <PanchangRow icon="⭐" label="Nakshatra" value={panchang.nakshatra} sub={`Pada ${panchang.nakshatraPada}`} />
+              )}
+
               <PanchangRow icon="☯️" label="Yoga" value={panchang.yoga} />
               <PanchangRow icon="½" label="Karana" value={panchang.karana} />
               <PanchangRow icon="📅" label="Vara" value={panchang.vara} sub={panchang.varaDeity} />
@@ -232,21 +352,31 @@ const Panchang = ({ location }) => {
               Planetary Positions
             </p>
             <div className="flex flex-col gap-3">
-              <PanchangRow icon="🌙" label="Moon Longitude" value={`${panchang.moonLongitude}°`} sub="Ecliptic position" />
-              <PanchangRow icon="☀️" label="Sun Longitude" value={`${panchang.sunLongitude}°`} sub="Ecliptic position" />
+              <PanchangRow icon="🌙" label="Moon Longitude" value={`${panchang.moonLongitude}°`} sub="Sidereal (Lahiri)" />
+              <PanchangRow icon="☀️" label="Sun Longitude" value={`${panchang.sunLongitude}°`} sub="Sidereal (Lahiri)" />
             </div>
           </div>
 
-          {/* Nakshatra Guide */}
-          <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-            <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">
-              Today's Nakshatra — {panchang.nakshatra}
-            </p>
-            <p className="text-gray-300 text-sm leading-relaxed">
-              {getNakshatraDescription(panchang.nakshatra)}
-            </p>
-          </div>
+          {/* Nakshatra Descriptions */}
+          {panchang.nakshatraList && panchang.nakshatraList.map((n, i) => (
+            <div key={i} className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+              <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">
+                {n.name}
+                {panchang.nakshatraList.length > 1
+                  ? ` (${formatTime(n.start)} – ${n.endsToday ? formatTime(n.end) : 'Next day'})`
+                  : " — Today's Nakshatra"}
+              </p>
+              <p className="text-gray-300 text-sm leading-relaxed">
+                {getNakshatraDescription(n.name)}
+              </p>
+            </div>
+          ))}
 
+        </div>
+      ) : (
+        <div className="text-center text-gray-400 mt-20">
+          <p className="text-4xl mb-4">📿</p>
+          <p>Calculating Panchang...</p>
         </div>
       )}
     </div>
@@ -269,7 +399,6 @@ const PanchangRow = ({ icon, label, value, sub, highlight }) => (
   </div>
 )
 
-// Short Nakshatra descriptions
 const getNakshatraDescription = (name) => {
   const descriptions = {
     'Ashwini': 'Ruled by Ketu. Associated with healing, speed and new beginnings. Deity: Ashwini Kumaras.',

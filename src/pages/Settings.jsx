@@ -182,38 +182,41 @@ const Settings = () => {
           <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">
             📅 Calendar System
           </p>
-          <p className="text-gray-400 text-xs mb-3">
-            Amavasyant ends the month on new moon (South India). Purnimant ends on full moon (North India).
+          <p className="text-gray-400 text-xs mb-4">
+            Choose the lunar calendar tradition followed in your region
           </p>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             {[
               {
                 code: 'Amavasyant',
-                label: 'Amavasyant',
-                desc: 'South Indian — Karnataka, Tamil Nadu, Andhra, Kerala, Maharashtra'
+                label: 'Amavasyant (Amanta)',
+                tag: 'Ends month on 🌑 New Moon',
+                desc: 'Followed in South & West India — Karnataka, Tamil Nadu, Andhra Pradesh, Telangana, Kerala, Maharashtra, Gujarat'
               },
               {
                 code: 'Purnimant',
-                label: 'Purnimant',
-                desc: 'North Indian — UP, Bihar, Rajasthan, Punjab, Haryana'
+                label: 'Purnimant (Purnimanta)',
+                tag: 'Ends month on 🌕 Full Moon',
+                desc: 'Followed in North & Central India — Uttar Pradesh, Bihar, Rajasthan, Punjab, Haryana, Madhya Pradesh, Himachal Pradesh'
               }
             ].map(system => (
               <button
                 key={system.code}
                 onClick={() => handleCalendarChange(system.code)}
-                className={`text-left px-4 py-3 rounded-xl border transition-all ${
+                className={`text-left px-4 py-4 rounded-xl border transition-all ${
                   settings.calendarSystem === system.code
                     ? 'bg-yellow-900 border-yellow-600'
                     : 'bg-gray-800 border-gray-700 hover:border-gray-600'
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <p className="text-white text-sm font-medium">{system.label}</p>
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-white text-sm font-semibold">{system.label}</p>
                   {settings.calendarSystem === system.code && (
                     <span className="text-yellow-400 text-sm">✓</span>
                   )}
                 </div>
-                <p className="text-gray-400 text-xs mt-1">{system.desc}</p>
+                <p className="text-yellow-400 text-xs mb-2">{system.tag}</p>
+                <p className="text-gray-400 text-xs leading-relaxed">{system.desc}</p>
               </button>
             ))}
           </div>

@@ -8,35 +8,33 @@ const Home = () => {
   const [moonData, setMoonData] = useState(null)
   const [location, setLocation] = useState({ lat: 12.9716, lon: 77.5946, city: 'Bengaluru' })
   const [loading, setLoading] = useState(true)
-  const [time, setTime] = useState(new Date())
 
-useEffect(() => {
-  if (settings?.lat && settings?.lon) {
-    setLocation({
-      lat: settings.lat,
-      lon: settings.lon,
-      city: settings.city
-    })
-  } else if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocation(prev => ({
-          ...prev,
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude
-        }))
-      },
-      () => {}
-    )
-  }
-}, [settings])
+  useEffect(() => {
+    if (settings?.lat && settings?.lon) {
+      setLocation({
+        lat: settings.lat,
+        lon: settings.lon,
+        city: settings.city
+      })
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocation(prev => ({
+            ...prev,
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude
+          }))
+        },
+        () => {}
+      )
+    }
+  }, [settings])
 
   useEffect(() => {
     calculateMoonData()
     const interval = setInterval(() => {
-      setTime(new Date())
       calculateMoonData()
-    }, 60000) // refresh every minute
+    }, 60000)
     return () => clearInterval(interval)
   }, [location])
 
@@ -45,17 +43,35 @@ useEffect(() => {
       const now = new Date()
       const observer = new Astronomy.Observer(location.lat, location.lon, 0)
 
-      // Moon phase (0 to 1)
+      // Moon phase angle (0–360 degrees)
       const phaseAngle = Astronomy.MoonPhase(now)
+
+      // FIX: phase fraction for MoonVisual
+      // 0 = new moon, 0.5 = full moon, 1 = new moon again
+      // MoonPhase returns 0–360 where 0/360=new, 180=full
       const phase = phaseAngle / 360
 
       // Illumination percentage
       const illum = Astronomy.Illumination('Moon', now)
       const illuminationPct = Math.round(illum.phase_fraction * 100)
 
-      // Moonrise and moonset
-      const moonrise = Astronomy.SearchRiseSet('Moon', observer, +1, now, 1)
-      const moonset = Astronomy.SearchRiseSet('Moon', observer, -1, now, 1)
+      // FIX: Moonrise — search from start of current day to catch rise
+      // that may have already passed or is upcoming
+      const startOfDay = new Date(now)
+      startOfDay.setHours(0, 0, 0, 0)
+
+      let moonrise = null
+      let moonset = null
+
+      // Search moonrise from start of day forward (up to 2 days)
+      try {
+        moonrise = Astronomy.SearchRiseSet('Moon', observer, +1, startOfDay, 2)
+      } catch (e) { moonrise = null }
+
+      // Search moonset from start of day forward (up to 2 days)
+      try {
+        moonset = Astronomy.SearchRiseSet('Moon', observer, -1, startOfDay, 2)
+      } catch (e) { moonset = null }
 
       // Tithi calculation
       const tithi = getTithi(phaseAngle)
@@ -84,7 +100,6 @@ useEffect(() => {
   }
 
   const getTithi = (phaseAngle) => {
-    // Each Tithi spans 12 degrees of the Moon's elongation from the Sun
     const tithiNumber = Math.floor(phaseAngle / 12) + 1
     const tithiNames = [
       'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
