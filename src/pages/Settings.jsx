@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useSettings } from '../SettingsContext'
+import { useSubscription } from '../SubscriptionContext'
 import { cities } from '../cities'
 
-const Settings = () => {
+const Settings = ({ onOpenSubscribe }) => {
   const { settings, updateSettings } = useSettings()
+  const { subscription } = useSubscription()
   const [citySearch, setCitySearch] = useState('')
   const [showCityList, setShowCityList] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -222,6 +224,43 @@ const Settings = () => {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Festival Alerts */}
+        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">
+            🔔 Festival Alerts
+          </p>
+          {subscription ? (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white text-sm font-medium">
+                  {subscription.name ? `Hi, ${subscription.name}` : "You're subscribed"}
+                </p>
+                <p className="text-green-400 text-xs mt-0.5">
+                  ✓ {subscription.mobile || subscription.email}
+                </p>
+              </div>
+              <button
+                onClick={onOpenSubscribe}
+                className="text-yellow-400 text-sm font-medium px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all"
+              >
+                Manage
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <p className="text-gray-400 text-sm leading-relaxed flex-1 mr-4">
+                Get reminders for upcoming festivals and new feature updates.
+              </p>
+              <button
+                onClick={onOpenSubscribe}
+                className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-all shrink-0"
+              >
+                Subscribe
+              </button>
+            </div>
+          )}
         </div>
 
         {/* About */}
