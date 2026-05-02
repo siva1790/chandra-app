@@ -5,71 +5,57 @@ const MoonVisual = ({ phase }) => {
   const r = 80
 
   // phase: 0 = new moon, 0.5 = full moon, 1 = new moon again
-  // We need to draw the illuminated portion correctly:
-  // Waxing (0 to 0.5): right side lit, crescent grows to full
-  // Waning (0.5 to 1): left side lit, full shrinks to crescent
+  // Waxing (0–0.5): right side lit, grows from crescent to full
+  // Waning (0.5–1): left side lit, shrinks from full to crescent
 
-  const getMoonPath = () => {
-    if (phase <= 0.01 || phase >= 0.99) return null // new moon — no lit path
-    if (phase >= 0.49 && phase <= 0.51) return 'full' // full moon
+  const renderMoon = () => {
+    // New moon
+    if (phase < 0.02 || phase > 0.98) {
+      return <circle cx={cx} cy={cy} r={r} fill="#1a1a2e" />
+    }
+
+    // Full moon
+    if (phase >= 0.48 && phase <= 0.52) {
+      return <circle cx={cx} cy={cy} r={r} fill="#f5e642" />
+    }
 
     const isWaxing = phase < 0.5
 
-    // How far through the half-cycle are we (0 to 1)
-    const halfPhase = isWaxing ? phase * 2 : (phase - 0.5) * 2
+    // Normalize t: 0 at new moon edge, 1 at full moon
+    const t = isWaxing ? phase / 0.5 : (phase - 0.5) / 0.5
 
-    // The terminator ellipse x-radius
-    // At halfPhase=0: terminator is at full width (crescent)
-    // At halfPhase=1: terminator is at 0 (full)
-    const terminatorRx = Math.abs(r * Math.cos(halfPhase * Math.PI))
+    // Terminator ellipse x-radius
+    // At t=0 (crescent): rx ≈ r → wide ellipse covering the lit half → thin crescent
+    // At t=1 (gibbous): rx ≈ 0 → flat → nearly full circle lit
+    const rx = Math.max(0.5, r * Math.abs(Math.cos(t * Math.PI / 2)))
 
-    if (isWaxing) {
-      // Waxing: right half always lit, left half defined by terminator
-      // Draw right semicircle + terminator ellipse (curving left = dark side)
-      return `
-        M ${cx} ${cy - r}
-        A ${r} ${r} 0 0 1 ${cx} ${cy + r}
-        A ${terminatorRx} ${r} 0 0 0 ${cx} ${cy - r}
-        Z
-      `
-    } else {
-      // Waning: left half always lit, right half defined by terminator
-      return `
-        M ${cx} ${cy - r}
-        A ${r} ${r} 0 0 0 ${cx} ${cy + r}
-        A ${terminatorRx} ${r} 0 0 1 ${cx} ${cy - r}
-        Z
-      `
-    }
+    // Sweep direction of terminator determines waxing vs waning
+    const terminatorSweep = isWaxing ? 0 : 1
+    const outerSweep = isWaxing ? 1 : 0
+
+    const path = `
+      M ${cx} ${cy - r}
+      A ${r} ${r} 0 0 ${outerSweep} ${cx} ${cy + r}
+      A ${rx.toFixed(4)} ${r} 0 0 ${terminatorSweep} ${cx} ${cy - r}
+      Z
+    `
+
+    return <path d={path} fill="#f5e642" />
   }
 
-  const moonPath = getMoonPath()
   const phaseName = getPhaseName(phase)
 
   return (
     <div className="flex flex-col items-center gap-3">
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        {/* Outer glow */}
-        <circle cx={cx} cy={cy} r={r + 8} fill="rgba(245,230,66,0.05)" />
-
-        {/* Dark moon base */}
-        <circle cx={cx} cy={cy} r={r} fill="#1a1a2e" stroke="#333" strokeWidth="1" />
-
+        {/* Glow */}
+        <circle cx={cx} cy={cy} r={r + 10} fill="rgba(245,230,66,0.04)" />
+        {/* Dark base */}
+        <circle cx={cx} cy={cy} r={r} fill="#1a1a2e" stroke="#2a2a3e" strokeWidth="1" />
         {/* Lit portion */}
-        {moonPath === 'full' ? (
-          <circle cx={cx} cy={cy} r={r} fill="#f5e642" />
-        ) : moonPath ? (
-          <path d={moonPath} fill="#f5e642" />
-        ) : null}
-
-        {/* Subtle rim */}
-        <circle
-          cx={cx} cy={cy} r={r}
-          fill="none"
-          stroke="#f5e642"
-          strokeWidth="1.5"
-          opacity="0.25"
-        />
+        {renderMoon()}
+        {/* Rim */}
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f5e642" strokeWidth="1.5" opacity="0.2" />
       </svg>
       <p className="text-yellow-300 text-lg font-semibold">{phaseName}</p>
     </div>
@@ -77,15 +63,14 @@ const MoonVisual = ({ phase }) => {
 }
 
 const getPhaseName = (phase) => {
-  if (phase < 0.03 || phase > 0.97) return '🌑 Amavasya (New Moon)'
-  if (phase < 0.10) return '🌒 Waxing Crescent'
-  if (phase < 0.23) return '🌒 Waxing Crescent'
-  if (phase < 0.27) return '🌓 First Quarter'
-  if (phase < 0.47) return '🌔 Waxing Gibbous'
-  if (phase < 0.53) return '🌕 Purnima (Full Moon)'
+  if (phase < 0.02 || phase > 0.98) return '🌑 Amavasya (New Moon)'
+  if (phase < 0.27) return '🌒 Waxing Crescent'
+  if (phase < 0.30) return '🌓 First Quarter'
+  if (phase < 0.48) return '🌔 Waxing Gibbous'
+  if (phase < 0.52) return '🌕 Purnima (Full Moon)'
   if (phase < 0.73) return '🌖 Waning Gibbous'
-  if (phase < 0.77) return '🌗 Last Quarter'
-  if (phase < 0.97) return '🌘 Waning Crescent'
+  if (phase < 0.76) return '🌗 Last Quarter'
+  if (phase < 0.98) return '🌘 Waning Crescent'
   return '🌑 Amavasya (New Moon)'
 }
 

@@ -53,8 +53,7 @@ const Home = () => {
 
       // Illumination percentage
       const illum = Astronomy.Illumination('Moon', now)
-      const illuminationPct = Math.round(illum.phase_fraction * 100)
-
+      const illuminationPct = (illum.phase_fraction * 100).toFixed(1)
       // FIX: Moonrise — search from start of current day to catch rise
       // that may have already passed or is upcoming
       const startOfDay = new Date(now)
