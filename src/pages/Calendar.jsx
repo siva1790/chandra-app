@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { festivals } from '../festivals'
-import { getMoonPhaseAngle, getTithiFromAngle, getFestivalsForDate, getPhaseEmoji } from '../moonUtils'
+import { getDatedFestivalsForDate, getMonthlyFestivalsForTithi } from '../festivals'
+import { getMoonPhaseAngle, getTithiFromAngle, getPhaseEmoji } from '../moonUtils'
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -36,7 +36,12 @@ const Calendar = () => {
       const date = new Date(year, month, d)
       const phaseAngle = getMoonPhaseAngle(date)
       const tithi = getTithiFromAngle(phaseAngle)
-      const dayFestivals = getFestivalsForDate(date, festivals)
+      // New festival API: combine exact-dated festivals with monthly observances,
+      // deduping monthly entries already covered by a dated festival on the same day.
+      const dated = getDatedFestivalsForDate(date)
+      const monthly = getMonthlyFestivalsForTithi(tithi.adjustedNumber, tithi.paksha)
+        .filter(m => !dated.some(df => df.name.includes(m.name)))
+      const dayFestivals = [...dated, ...monthly]
       const isToday = d === today.getDate() &&
         month === today.getMonth() &&
         year === today.getFullYear()
