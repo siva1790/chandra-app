@@ -117,8 +117,8 @@ const MoonVisual = ({ phase }) => {
            */}
           <radialGradient
             id="chandra-lit"
-            cx={`${CX * 0.82}px`} cy={`${CY * 0.72}px`}
-            r={`${R * 1.25}px`}
+            cx={CX * 0.82} cy={CY * 0.72}
+            r={R * 1.25}
             gradientUnits="userSpaceOnUse"
           >
             <stop offset="0%"   stopColor="#fffef5" />
@@ -135,8 +135,8 @@ const MoonVisual = ({ phase }) => {
            */}
           <radialGradient
             id="chandra-shadow"
-            cx={`${CX}px`} cy={`${CY}px`}
-            r={`${R}px`}
+            cx={CX} cy={CY}
+            r={R}
             gradientUnits="userSpaceOnUse"
           >
             <stop offset="0%"   stopColor="#0b1420" stopOpacity="0.97" />
