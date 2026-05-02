@@ -136,7 +136,7 @@ const Home = () => {
   })
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-md mx-auto">
+    <div className="min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
 
       {/* Header */}
       <div className="text-center mb-8">

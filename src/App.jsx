@@ -22,7 +22,7 @@ function App() {
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 flex justify-around items-center px-4 py-3 z-50">
         <button
-          onClick={() => setScreen('home')}
+          onClick={() => { setScreen('home'); window.scrollTo(0, 0) }}
           className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
             screen === 'home' ? 'text-yellow-300' : 'text-gray-500'
           }`}
@@ -32,7 +32,7 @@ function App() {
         </button>
 
         <button
-          onClick={() => setScreen('calendar')}
+          onClick={() => { setScreen('calendar'); window.scrollTo(0, 0) }}
           className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
             screen === 'calendar' ? 'text-yellow-300' : 'text-gray-500'
           }`}
@@ -42,7 +42,7 @@ function App() {
         </button>
 
         <button
-          onClick={() => setScreen('panchang')}
+          onClick={() => { setScreen('panchang'); window.scrollTo(0, 0) }}
           className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
             screen === 'panchang' ? 'text-yellow-300' : 'text-gray-500'
           }`}
@@ -52,7 +52,7 @@ function App() {
         </button>
 
         <button
-          onClick={() => setScreen('settings')}
+          onClick={() => { setScreen('settings'); window.scrollTo(0, 0) }}
           className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
             screen === 'settings' ? 'text-yellow-300' : 'text-gray-500'
           }`}

@@ -142,6 +142,10 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | All 30 moon phase shapes wrong — terminator arc sweep flags were inverted for all four phase types (waxing/waning × crescent/gibbous); fixed by swapping 0↔1 in terminatorSweep logic | `MoonVisual.jsx` |
 | 2026-05 | Added Pratipada alternate name: now shown as "Pratipada (Prathama)" in all tithi arrays | `moonUtils.js`, `Panchang.jsx` |
 | 2026-05 | Added Yamagandam to Panchang Daily Timings (slot order [Sun–Sat]: 5,4,3,2,1,6,7; same 8-slot day division as Rahu Kaal) | `Panchang.jsx` |
+| 2026-05 | Tab switch preserved scroll position — added window.scrollTo(0,0) to all four nav buttons | `App.jsx` |
+| 2026-05 | Empty calendar leading tiles had yellow border/bg — null day cells now render as transparent divs with no styling | `Calendar.jsx` |
+| 2026-05 | "Coming Soon" language buttons were focusable/clickable — added disabled + aria-disabled attributes | `Settings.jsx` |
+| 2026-05 | Fixed bottom nav obscuring page content — added pb-28 to all four page root containers | `Home.jsx`, `Calendar.jsx`, `Panchang.jsx`, `Settings.jsx` |
 
 ---
 

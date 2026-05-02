@@ -86,7 +86,7 @@ const Calendar = () => {
     .slice(0, 5)
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-md mx-auto">
+    <div className="min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
 
       {/* Header */}
       <div className="text-center mb-6">
@@ -123,11 +123,16 @@ const Calendar = () => {
             key={idx}
             onClick={() => day && setSelectedDay(day)}
             className={`
-              relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14 cursor-pointer
+              relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14
               transition-all duration-150
-              ${!day ? '' : 'hover:bg-gray-800'}
-              ${day?.isToday ? 'bg-yellow-900 border border-yellow-500' : 'bg-gray-900'}
-              ${selectedDay?.day === day?.day ? 'ring-2 ring-yellow-400' : ''}
+              ${!day
+                ? ''
+                : `cursor-pointer hover:bg-gray-800 ${
+                    day.isToday
+                      ? 'bg-yellow-900 border border-yellow-500'
+                      : 'bg-gray-900'
+                  } ${selectedDay?.day === day?.day ? 'ring-2 ring-yellow-400' : ''}`
+              }
             `}
           >
             {day && (

@@ -38,7 +38,7 @@ const Settings = () => {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-md mx-auto">
+    <div className="min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
 
       {/* Header */}
       <div className="text-center mb-6">
@@ -159,10 +159,12 @@ const Settings = () => {
             ].map(lang => (
               <button
                 key={lang.code}
-                onClick={() => !lang.disabled && handleLanguageChange(lang.code)}
+                onClick={() => handleLanguageChange(lang.code)}
+                disabled={!!lang.disabled}
+                aria-disabled={!!lang.disabled}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all ${
                   lang.disabled
-                    ? 'opacity-40 cursor-not-allowed border-gray-800 bg-gray-800'
+                    ? 'opacity-40 border-gray-800 bg-gray-800 cursor-not-allowed'
                     : settings.language === lang.code
                     ? 'bg-yellow-900 border-yellow-600'
                     : 'bg-gray-800 border-gray-700 hover:border-gray-600'
