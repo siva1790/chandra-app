@@ -82,8 +82,8 @@ const shadowPath = (phase) => {
   //   waning gibbous:   sweep 1
   //   waning crescent:  sweep 0
   let terminatorSweep
-  if (isWaxing) terminatorSweep = isGibbous ? 0 : 1
-  else          terminatorSweep = isGibbous ? 1 : 0
+  if (isWaxing) terminatorSweep = isGibbous ? 1 : 0
+  else          terminatorSweep = isGibbous ? 0 : 1
 
   return (
     `M ${CX} ${CY - R} ` +

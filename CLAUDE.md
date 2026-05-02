@@ -138,6 +138,8 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | Sep 14 showing Tritiya instead of Chaturthi — tithi was sampled at midnight instead of sunrise/noon | `Home.jsx`, `moonUtils.js` |
 | 2026-05 | Full moon visual rendering as new moon — waning phase used `cos` instead of `sin` for terminator rx | `MoonVisual.jsx` |
 | 2026-05 | Full moon rendering as half moon (and other phase errors) — entire MoonVisual rewritten with shadow-overlay approach; adds lunar maria texture, radial gradient, earthshine hint, and glow | `MoonVisual.jsx` |
+| 2026-05 | Moon always appeared dark — SVG gradient attributes had invalid "px" suffix in userSpaceOnUse mode; browsers silently fall back to black fill | `MoonVisual.jsx` |
+| 2026-05 | All 30 moon phase shapes wrong — terminator arc sweep flags were inverted for all four phase types (waxing/waning × crescent/gibbous); fixed by swapping 0↔1 in terminatorSweep logic | `MoonVisual.jsx` |
 
 ---
 
