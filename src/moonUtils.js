@@ -11,10 +11,10 @@ export const getMoonPhaseAngle = (date) => {
 // Get Tithi info from phase angle
 export const getTithiFromAngle = (phaseAngle) => {
   const tithiNames = [
-    'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
+    'Pratipada (Prathama)', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
     'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
     'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Purnima',
-    'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
+    'Pratipada (Prathama)', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
     'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
     'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Amavasya'
   ]

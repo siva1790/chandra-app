@@ -74,10 +74,10 @@ const Panchang = ({ location }) => {
 
       // --- Tithi ---
       const tithiNames = [
-        'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
+        'Pratipada (Prathama)', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
         'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
         'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Purnima',
-        'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
+        'Pratipada (Prathama)', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
         'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
         'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Amavasya'
       ]
@@ -199,6 +199,14 @@ const Panchang = ({ location }) => {
       }
       const rahuKaal = `${formatMinutes(rahuStart)} – ${formatMinutes(rahuEnd)}`
 
+      // --- Yamagandam ---
+      // Slot order by day of week [Sun, Mon, Tue, Wed, Thu, Fri, Sat] (1-based slot index)
+      const yamOrder = [5, 4, 3, 2, 1, 6, 7]
+      const yamSlot = yamOrder[varaIndex]
+      const yamStart = sunrise + (yamSlot - 1) * slotDuration
+      const yamEnd = yamStart + slotDuration
+      const yamagandam = `${formatMinutes(yamStart)} – ${formatMinutes(yamEnd)}`
+
       // --- Abhijit Muhurta ---
       const midday = (sunrise + sunset) / 2
       const abhijitStart = midday - 24
@@ -227,6 +235,7 @@ const Panchang = ({ location }) => {
         vara: varaName,
         varaDeity,
         rahuKaal,
+        yamagandam,
         abhijitMuhurta,
         brahmaMuhurta,
         moonLongitude: moonLongitude.toFixed(2),
@@ -348,6 +357,7 @@ const Panchang = ({ location }) => {
               <PanchangRow icon="🌅" label="Brahma Muhurta" value={panchang.brahmaMuhurta} sub="Most auspicious for meditation" />
               <PanchangRow icon="✨" label="Abhijit Muhurta" value={panchang.abhijitMuhurta} sub="Auspicious for new beginnings" />
               <PanchangRow icon="🐍" label="Rahu Kaal" value={panchang.rahuKaal} sub="Avoid important work" highlight="red" />
+              <PanchangRow icon="⏳" label="Yamagandam" value={panchang.yamagandam} sub="Avoid auspicious activities" highlight="red" />
             </div>
           </div>
 

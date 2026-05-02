@@ -140,6 +140,8 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | Full moon rendering as half moon (and other phase errors) — entire MoonVisual rewritten with shadow-overlay approach; adds lunar maria texture, radial gradient, earthshine hint, and glow | `MoonVisual.jsx` |
 | 2026-05 | Moon always appeared dark — SVG gradient attributes had invalid "px" suffix in userSpaceOnUse mode; browsers silently fall back to black fill | `MoonVisual.jsx` |
 | 2026-05 | All 30 moon phase shapes wrong — terminator arc sweep flags were inverted for all four phase types (waxing/waning × crescent/gibbous); fixed by swapping 0↔1 in terminatorSweep logic | `MoonVisual.jsx` |
+| 2026-05 | Added Pratipada alternate name: now shown as "Pratipada (Prathama)" in all tithi arrays | `moonUtils.js`, `Panchang.jsx` |
+| 2026-05 | Added Yamagandam to Panchang Daily Timings (slot order [Sun–Sat]: 5,4,3,2,1,6,7; same 8-slot day division as Rahu Kaal) | `Panchang.jsx` |
 
 ---
 
