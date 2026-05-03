@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import * as Astronomy from 'astronomy-engine'
 import { getSunriseForDate } from '../moonUtils'
+import DatePickerSheet from '../components/DatePickerSheet'
 
 const AYANAMSHA = 23.15
 
@@ -41,6 +42,7 @@ const findNakshatraTransition = (startTime, endTime, startIdx) => {
 const Panchang = ({ location }) => {
   const [panchang, setPanchang] = useState(null)
   const [selectedDate, setSelectedDate] = useState(new Date())
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   useEffect(() => {
     calculatePanchang(selectedDate)
@@ -261,17 +263,47 @@ const Panchang = ({ location }) => {
 
       {/* Date Navigator */}
       <div className="flex items-center justify-between mb-6 bg-gray-900 rounded-2xl p-3 border border-gray-800">
-        <button onClick={() => changeDate(-1)}
-          className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800">‹</button>
-        <div className="text-center">
+        <button
+          onClick={() => changeDate(-1)}
+          className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800"
+        >‹</button>
+
+        {/* Tappable date — opens calendar picker */}
+        <button
+          onClick={() => setPickerOpen(true)}
+          className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl hover:bg-gray-800 transition-all"
+        >
           <p className="text-white text-sm font-medium">{formatDate(selectedDate)}</p>
-          {selectedDate.toDateString() === new Date().toDateString() && (
+          {selectedDate.toDateString() === new Date().toDateString() ? (
             <p className="text-yellow-500 text-xs">Today</p>
+          ) : (
+            <p className="text-yellow-400 text-xs font-medium">📅 Change date</p>
           )}
-        </div>
-        <button onClick={() => changeDate(1)}
-          className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800">›</button>
+        </button>
+
+        <button
+          onClick={() => changeDate(1)}
+          className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800"
+        >›</button>
       </div>
+
+      {/* Today pill — visible only when not on today */}
+      {selectedDate.toDateString() !== new Date().toDateString() && (
+        <button
+          onClick={() => setSelectedDate(new Date())}
+          className="w-full mb-4 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-gray-950 text-sm font-bold transition-all"
+        >
+          ↩ Back to Today
+        </button>
+      )}
+
+      {/* Date Picker Sheet */}
+      <DatePickerSheet
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        selectedDate={selectedDate}
+        onSelect={(date) => setSelectedDate(date)}
+      />
 
       {panchang ? (
         <div className="flex flex-col gap-4">
