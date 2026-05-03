@@ -2,7 +2,7 @@
  * MoonVisual — renders a textured SVG moon for any phase (0–1).
  *
  * Approach (shadow-overlay):
- *   1. Draw the full lit disc (radial gradient, gold-white).
+ *   1. Draw the full lit disc (radial gradient, silver-white).
  *   2. Overlay lunar maria (dark ellipses at real approximate positions).
  *   3. Draw a dark shadow "lune" shape on top to cover the unlit portion.
  *      The shadow path = one semicircle arc + one terminator ellipse arc.
@@ -104,11 +104,11 @@ const MoonVisual = ({ phase }) => {
             r={R * 1.25}
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0%"   stopColor="#fffef5" />
-            <stop offset="25%"  stopColor="#fdf0a0" />
-            <stop offset="60%"  stopColor="#d9a81c" />
-            <stop offset="90%"  stopColor="#9a7010" />
-            <stop offset="100%" stopColor="#6b4c08" />
+            <stop offset="0%"   stopColor="#ffffe4" />
+            <stop offset="30%"  stopColor="#e8e8d0" />
+            <stop offset="65%"  stopColor="#b0b0b0" />
+            <stop offset="90%"  stopColor="#787878" />
+            <stop offset="100%" stopColor="#505050" />
           </radialGradient>
 
           {/*
@@ -136,8 +136,8 @@ const MoonVisual = ({ phase }) => {
         {/* ── Outer glow ── */}
         {!isNewMoon && glowOpacity > 0 && (
           <>
-            <circle cx={CX} cy={CY} r={R + 18} fill={`rgba(255,240,90,${(glowOpacity * 0.5).toFixed(3)})`} />
-            <circle cx={CX} cy={CY} r={R +  9} fill={`rgba(255,240,90,${glowOpacity.toFixed(3)})`} />
+            <circle cx={CX} cy={CY} r={R + 18} fill={`rgba(220,230,255,${(glowOpacity * 0.5).toFixed(3)})`} />
+            <circle cx={CX} cy={CY} r={R +  9} fill={`rgba(220,230,255,${glowOpacity.toFixed(3)})`} />
           </>
         )}
 
@@ -165,7 +165,7 @@ const MoonVisual = ({ phase }) => {
         <circle
           cx={CX} cy={CY} r={R}
           fill="none"
-          stroke="rgba(255,235,140,0.18)"
+          stroke="rgba(200,210,255,0.25)"
           strokeWidth="1.5"
         />
       </svg>
