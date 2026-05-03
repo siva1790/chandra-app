@@ -41,10 +41,17 @@ const findNakshatraTransition = (startTime, endTime, startIdx) => {
   return new Date((lo + hi) / 2)
 }
 
-const Panchang = ({ location }) => {
+const Panchang = ({ location, initialDate }) => {
   const [panchang, setPanchang] = useState(null)
-  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState(initialDate ? new Date(initialDate) : new Date())
   const [pickerOpen, setPickerOpen] = useState(false)
+
+  // Sync to the date that was navigated in from Calendar / Home highlight strip
+  useEffect(() => {
+    if (initialDate) {
+      setSelectedDate(new Date(initialDate))
+    }
+  }, [initialDate])
 
   useEffect(() => {
     calculatePanchang(selectedDate)

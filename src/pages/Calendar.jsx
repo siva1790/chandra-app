@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react'
 import { getDatedFestivalsForDate, getMonthlyFestivalsForTithi } from '../festivals'
 import { getMoonPhaseAngle, getTithiFromAngle, getPhaseEmoji, getSunriseForDate } from '../moonUtils'
-import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
+import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { useSettings } from '../SettingsContext'
 
-const Calendar = () => {
+const Calendar = ({ onSelectDate }) => {
   const { settings } = useSettings()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [calendarDays, setCalendarDays] = useState([])
-  const [selectedDay, setSelectedDay] = useState(null)
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -76,12 +75,10 @@ const Calendar = () => {
 
   const prevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
-    setSelectedDay(null)
   }
 
   const nextMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
-    setSelectedDay(null)
   }
 
   const upcomingFestivals = calendarDays
@@ -125,17 +122,17 @@ const Calendar = () => {
         {calendarDays.map((day, idx) => (
           <div
             key={idx}
-            onClick={() => day && setSelectedDay(day)}
+            onClick={() => day && onSelectDate?.(day.date)}
             className={`
               relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14
               transition-all duration-150
               ${!day
                 ? ''
-                : `cursor-pointer hover:bg-gray-800 ${
+                : `cursor-pointer hover:bg-gray-800 active:bg-gray-700 ${
                     day.isToday
                       ? 'bg-yellow-900 border border-yellow-500'
                       : 'bg-gray-900'
-                  } ${selectedDay?.day === day?.day ? 'ring-2 ring-yellow-400' : ''}`
+                  }`
               }
             `}
           >
@@ -156,63 +153,6 @@ const Calendar = () => {
         ))}
       </div>
 
-      {/* Selected Day Detail */}
-      {selectedDay && (
-        <div className="bg-gray-900 rounded-2xl p-5 border border-yellow-900 mb-6">
-          <div className="flex justify-between items-start mb-3">
-            <div>
-              <p className="text-white font-bold text-lg">
-                {selectedDay.date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
-              </p>
-              <p className="text-yellow-400 text-sm">
-                {selectedDay.tithi.name} · {selectedDay.tithi.paksha}
-              </p>
-            </div>
-            <span className="text-3xl">{selectedDay.phaseEmoji}</span>
-          </div>
-
-          {/* Eclipse card — shown above festivals if present */}
-          {selectedDay.eclipse && (
-            <div className="mt-3 bg-indigo-950 border border-indigo-700 rounded-xl p-4">
-              <div className="flex items-center gap-3">
-                <EclipseIcon eclipse={selectedDay.eclipse} size={32} />
-                <div>
-                  <p className="text-indigo-200 font-semibold text-sm">
-                    {selectedDay.eclipse.hinduName}
-                  </p>
-                  <p className="text-indigo-400 text-xs mt-0.5">
-                    {eclipseTypeLabel(selectedDay.eclipse)}
-                  </p>
-                  <p className="text-indigo-400 text-xs mt-0.5">
-                    Peak: {selectedDay.eclipse.peakTime.toLocaleTimeString('en-IN', {
-                      hour: '2-digit', minute: '2-digit', hour12: true
-                    })}
-                  </p>
-                  {lunarTotalityLabel(selectedDay.eclipse) && (
-                    <p className="text-indigo-500 text-xs mt-0.5">
-                      {lunarTotalityLabel(selectedDay.eclipse)}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {selectedDay.festivals.length > 0 ? (
-            <div className="flex flex-col gap-3 mt-3">
-              {selectedDay.festivals.map((f, i) => (
-                <div key={i} className="bg-gray-800 rounded-xl p-3">
-                  <p className="text-white font-semibold">{f.emoji} {f.name}</p>
-                  <p className="text-gray-400 text-xs mt-1">{f.description}</p>
-                </div>
-              ))}
-            </div>
-          ) : !selectedDay.eclipse ? (
-            <p className="text-gray-500 text-sm mt-2">No festivals on this day</p>
-          ) : null}
-        </div>
-      )}
-
       {/* Upcoming Festivals */}
       {upcomingFestivals.length > 0 && (
         <div>
@@ -223,8 +163,8 @@ const Calendar = () => {
             {upcomingFestivals.map((day, i) => (
               <div
                 key={i}
-                onClick={() => setSelectedDay(day)}
-                className="bg-gray-900 rounded-xl p-4 border border-gray-800 flex items-center gap-4 cursor-pointer hover:border-yellow-800 transition-all"
+                onClick={() => onSelectDate?.(day.date)}
+                className="bg-gray-900 rounded-xl p-4 border border-gray-800 flex items-center gap-4 cursor-pointer hover:border-yellow-800 active:bg-gray-800 transition-all"
               >
                 <div className="text-center min-w-10">
                   <p className="text-yellow-300 font-bold text-lg">{day.day}</p>

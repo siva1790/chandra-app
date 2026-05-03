@@ -12,11 +12,21 @@ import SubscribeSheet from './components/SubscribeSheet'
 function App() {
   const [screen, setScreen] = useState('home')
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [panchangDate, setPanchangDate] = useState(new Date())
   const { settings } = useSettings()
   const { subscription } = useSubscription()
 
+  // Direct tab tap — always resets Panchang to today
   const navigate = (tab) => {
+    if (tab === 'panchang') setPanchangDate(new Date())
     setScreen(tab)
+    window.scrollTo(0, 0)
+  }
+
+  // Called from Home highlight strip or Calendar day tap — jumps to a specific date
+  const navigateToPanchang = (date) => {
+    setPanchangDate(new Date(date))
+    setScreen('panchang')
     window.scrollTo(0, 0)
   }
 
@@ -54,9 +64,9 @@ function App() {
       {/* ── Page content — pushed below top bar and above bottom nav ── */}
       <div className="pt-14 pb-20">
         <InstallPrompt />
-        {screen === 'home'     && <Home location={settings} />}
-        {screen === 'calendar' && <Calendar />}
-        {screen === 'panchang' && <Panchang location={settings} />}
+        {screen === 'home'     && <Home location={settings} onNavigateToPanchang={navigateToPanchang} />}
+        {screen === 'calendar' && <Calendar onSelectDate={navigateToPanchang} />}
+        {screen === 'panchang' && <Panchang location={settings} initialDate={panchangDate} />}
         {screen === 'settings' && <Settings onOpenSubscribe={() => setSheetOpen(true)} />}
       </div>
 

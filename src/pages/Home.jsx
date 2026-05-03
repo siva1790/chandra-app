@@ -2,21 +2,21 @@ import { useEffect, useState } from 'react'
 import * as Astronomy from 'astronomy-engine'
 import MoonVisual from '../components/MoonVisual'
 import { useSettings } from '../SettingsContext'
-import { getSunriseForDate } from '../moonUtils'
+import { getSunriseForDate, getMoonPhaseAngle, getTithiFromAngle } from '../moonUtils'
+import { getDatedFestivalsForDate, getMonthlyFestivalsForTithi } from '../festivals'
+import { getEclipseForDate } from '../eclipseUtils'
+import { EclipseIcon } from '../components/EclipseIcons'
 
-const Home = () => {
+const Home = ({ onNavigateToPanchang }) => {
   const { settings } = useSettings()
   const [moonData, setMoonData] = useState(null)
   const [location, setLocation] = useState({ lat: 12.9716, lon: 77.5946, city: 'Bengaluru' })
   const [loading, setLoading] = useState(true)
+  const [todayHighlight, setTodayHighlight] = useState(null)
 
   useEffect(() => {
     if (settings?.lat && settings?.lon) {
-      setLocation({
-        lat: settings.lat,
-        lon: settings.lon,
-        city: settings.city
-      })
+      setLocation({ lat: settings.lat, lon: settings.lon, city: settings.city })
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -33,9 +33,7 @@ const Home = () => {
 
   useEffect(() => {
     calculateMoonData()
-    const interval = setInterval(() => {
-      calculateMoonData()
-    }, 60000)
+    const interval = setInterval(calculateMoonData, 60000)
     return () => clearInterval(interval)
   }, [location])
 
@@ -44,61 +42,49 @@ const Home = () => {
       const now = new Date()
       const observer = new Astronomy.Observer(location.lat, location.lon, 0)
 
-      // Moon phase angle (0–360 degrees)
+      // Phase fraction for MoonVisual (0 = new, 0.5 = full, 1 = new again)
       const phaseAngle = Astronomy.MoonPhase(now)
-
-      // FIX: phase fraction for MoonVisual
-      // 0 = new moon, 0.5 = full moon, 1 = new moon again
-      // MoonPhase returns 0–360 where 0/360=new, 180=full
       const phase = phaseAngle / 360
 
-      // Illumination percentage
+      // Illumination %
       const illum = Astronomy.Illumination('Moon', now)
       const illuminationPct = (illum.phase_fraction * 100).toFixed(1)
-      // FIX: Moonrise — search from start of current day to catch rise
-      // that may have already passed or is upcoming
+
+      // Moonrise / moonset from start of day
       const startOfDay = new Date(now)
       startOfDay.setHours(0, 0, 0, 0)
-
       let moonrise = null
       let moonset = null
+      try { moonrise = Astronomy.SearchRiseSet('Moon', observer, +1, startOfDay, 2) } catch (_) {}
+      try { moonset = Astronomy.SearchRiseSet('Moon', observer, -1, startOfDay, 2) } catch (_) {}
 
-      // Search moonrise from start of day forward (up to 2 days)
-      try {
-        moonrise = Astronomy.SearchRiseSet('Moon', observer, +1, startOfDay, 2)
-      } catch (e) { moonrise = null }
-
-      // Search moonset from start of day forward (up to 2 days)
-      try {
-        moonset = Astronomy.SearchRiseSet('Moon', observer, -1, startOfDay, 2)
-      } catch (e) { moonset = null }
-
-      // Tithi calculation — primary sample at LOCAL SUNRISE per Drik Panchang convention.
-      // However, if the tithi changes during the morning (i.e. sunrise tithi ≠ noon tithi),
-      // the noon (Madhyahna) tithi prevails for the day — this is the traditional rule that
-      // determines festival observance (e.g. Ganesh Chaturthi on Sep 14 when Chaturthi
-      // begins after sunrise but is present at midday). This correctly handles all future
-      // dates where a tithi boundary falls between sunrise and noon.
-      // (Visual + illumination above stay at `now` so they animate through the day.)
+      // ── Today's highlight (festival or eclipse) ──────────────────
+      // Use Drik Panchang convention: tithi at sunrise, but noon overrides if different
       const sunriseTime = getSunriseForDate(now, location.lat, location.lon)
-      const sunriseTithiAngle = Astronomy.MoonPhase(sunriseTime)
-      const sunriseTithi = getTithi(sunriseTithiAngle)
+      const sunriseTithi = getTithiFromAngle(getMoonPhaseAngle(sunriseTime))
 
       const noonTime = new Date(now)
       noonTime.setHours(12, 0, 0, 0)
-      const noonTithiAngle = Astronomy.MoonPhase(noonTime)
-      const noonTithi = getTithi(noonTithiAngle)
+      const noonTithi = getTithiFromAngle(getMoonPhaseAngle(noonTime))
 
-      // If tithi changed between sunrise and noon, the noon (Madhyahna) tithi rules the day
-      const tithi = sunriseTithi.number !== noonTithi.number ? noonTithi : sunriseTithi
+      const effectiveTithi = sunriseTithi.adjustedNumber !== noonTithi.adjustedNumber
+        ? noonTithi
+        : sunriseTithi
+
+      const dated = getDatedFestivalsForDate(now)
+      const monthly = dated.length > 0
+        ? []
+        : getMonthlyFestivalsForTithi(effectiveTithi.adjustedNumber, effectiveTithi.paksha)
+      const festivals = [...dated, ...monthly]
+      const eclipse = getEclipseForDate(now)
+
+      setTodayHighlight({ festivals, eclipse })
 
       setMoonData({
         phase,
-        phaseAngle,
         illuminationPct,
         moonrise: moonrise ? formatTime(moonrise.date) : 'N/A',
-        moonset: moonset ? formatTime(moonset.date) : 'N/A',
-        tithi,
+        moonset:  moonset  ? formatTime(moonset.date)  : 'N/A',
       })
       setLoading(false)
     } catch (err) {
@@ -107,28 +93,8 @@ const Home = () => {
     }
   }
 
-  const formatTime = (date) => {
-    return date.toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-  }
-
-  const getTithi = (phaseAngle) => {
-    const tithiNumber = Math.floor(phaseAngle / 12) + 1
-    const tithiNames = [
-      'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
-      'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
-      'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Purnima',
-      'Pratipada', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
-      'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
-      'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Amavasya'
-    ]
-    const paksha = tithiNumber <= 15 ? 'Shukla Paksha ☀️' : 'Krishna Paksha 🌑'
-    const name = tithiNames[Math.min(tithiNumber - 1, 29)]
-    return { number: tithiNumber, name, paksha }
-  }
+  const formatTime = (date) =>
+    date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
 
   const today = new Date()
   const dateString = today.toLocaleDateString('en-IN', {
@@ -136,12 +102,11 @@ const Home = () => {
   })
 
   return (
-    <div className="min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
+    <div className="min-h-screen px-4 py-6 pb-28 max-w-md mx-auto">
 
       {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-yellow-300 mb-1">🌙 Chandra</h1>
-        <p className="text-gray-400 text-sm">{dateString}</p>
+      <div className="text-center mb-6">
+        <p className="text-gray-300 text-sm font-medium">{dateString}</p>
         <p className="text-gray-500 text-xs mt-1">📍 {location.city}</p>
       </div>
 
@@ -151,57 +116,70 @@ const Home = () => {
           <p>Calculating moon data...</p>
         </div>
       ) : moonData ? (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
 
-          {/* Moon Visual */}
+          {/* Moon Visual Card — includes illumination + compact moonrise/moonset */}
           <div className="bg-gray-900 rounded-2xl p-6 flex flex-col items-center border border-gray-800">
             <MoonVisual phase={moonData.phase} />
+
             <p className="text-gray-400 text-sm mt-4">
               {moonData.illuminationPct}% illuminated
             </p>
-          </div>
 
-          {/* Tithi Card */}
-          <div className="bg-gray-900 rounded-2xl p-5 border border-yellow-900">
-            <p className="text-yellow-500 text-xs uppercase tracking-widest mb-2">
-              Today's Tithi
-            </p>
-            <p className="text-white text-2xl font-bold">{moonData.tithi.name}</p>
-            <p className="text-gray-400 text-sm mt-1">{moonData.tithi.paksha}</p>
-          </div>
-
-          {/* Moonrise / Moonset */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800 text-center">
-              <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">
-                🌙 Moonrise
-              </p>
-              <p className="text-white text-xl font-semibold">{moonData.moonrise}</p>
-            </div>
-            <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800 text-center">
-              <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">
-                🌘 Moonset
-              </p>
-              <p className="text-white text-xl font-semibold">{moonData.moonset}</p>
+            {/* Compact moonrise / moonset row */}
+            <div className="flex items-center gap-8 mt-5 pt-4 border-t border-gray-800 w-full justify-center">
+              <div className="text-center">
+                <p className="text-gray-500 text-xs mb-1">🌙 Moonrise</p>
+                <p className="text-white text-sm font-semibold">{moonData.moonrise}</p>
+              </div>
+              <div className="w-px h-8 bg-gray-700" />
+              <div className="text-center">
+                <p className="text-gray-500 text-xs mb-1">🌘 Moonset</p>
+                <p className="text-white text-sm font-semibold">{moonData.moonset}</p>
+              </div>
             </div>
           </div>
 
-          {/* Ekadashi reminder */}
-          {moonData.tithi.name === 'Dashami' && (
-            <div className="bg-orange-950 border border-orange-700 rounded-2xl p-4 text-center">
-              <p className="text-orange-300 text-sm">
-                🔔 Ekadashi is tomorrow — a day of fasting and devotion
-              </p>
-            </div>
-          )}
-
-          {/* Amavasya / Purnima reminder */}
-          {(moonData.tithi.name === 'Amavasya' || moonData.tithi.name === 'Purnima') && (
-            <div className="bg-purple-950 border border-purple-700 rounded-2xl p-4 text-center">
-              <p className="text-purple-300 text-sm">
-                ✨ {moonData.tithi.name === 'Purnima' ? 'Full Moon — Purnima today' : 'New Moon — Amavasya today'}
-              </p>
-            </div>
+          {/* Today's Highlight Strip — festival or eclipse, taps to Panchang */}
+          {todayHighlight && (todayHighlight.eclipse || todayHighlight.festivals.length > 0) && (
+            <button
+              onClick={() => onNavigateToPanchang?.(new Date())}
+              className="w-full bg-gray-900 border border-yellow-900 rounded-2xl p-4 flex items-center gap-3 hover:border-yellow-600 active:bg-gray-800 transition-all text-left"
+            >
+              {todayHighlight.eclipse ? (
+                <>
+                  <EclipseIcon eclipse={todayHighlight.eclipse} size={30} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">
+                      Today's Highlight
+                    </p>
+                    <p className="text-indigo-200 font-semibold text-sm">
+                      {todayHighlight.eclipse.hinduName}
+                    </p>
+                    <p className="text-gray-500 text-xs mt-0.5">Tap to view full Panchang →</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl flex-shrink-0">{todayHighlight.festivals[0].emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">
+                      Today's Highlight
+                    </p>
+                    <p className="text-white font-semibold text-sm truncate">
+                      {todayHighlight.festivals[0].name}
+                    </p>
+                    {todayHighlight.festivals.length > 1 ? (
+                      <p className="text-gray-500 text-xs mt-0.5">
+                        +{todayHighlight.festivals.length - 1} more · Tap for full Panchang →
+                      </p>
+                    ) : (
+                      <p className="text-gray-500 text-xs mt-0.5">Tap to view full Panchang →</p>
+                    )}
+                  </div>
+                </>
+              )}
+            </button>
           )}
 
         </div>
