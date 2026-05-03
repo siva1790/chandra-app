@@ -38,7 +38,11 @@ function App() {
 
         {/* Logo — left */}
         <div className="flex items-center gap-2">
-          <span className="text-xl">🌙</span>
+          <img
+            src="/icons/icon-192.png"
+            alt="Chandra"
+            className="w-8 h-8 rounded-lg"
+          />
           <span className="text-yellow-300 font-bold text-lg tracking-wide">Chandra</span>
         </div>
 
