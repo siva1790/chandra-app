@@ -147,6 +147,7 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | "Coming Soon" language buttons were focusable/clickable — added disabled + aria-disabled attributes | `Settings.jsx` |
 | 2026-05 | Fixed bottom nav obscuring page content — added pb-28 to all four page root containers | `Home.jsx`, `Calendar.jsx`, `Panchang.jsx`, `Settings.jsx` |
 | 2026-05 | Added persistent top bar (🌙 Chandra logo + bell icon) and subscription system — SubscriptionContext, SubscribeSheet, Google Apps Script backend | `App.jsx`, `main.jsx`, `SubscriptionContext.jsx`, `SubscribeSheet.jsx`, `Settings.jsx` |
+| 2026-05 | Added lunar and solar eclipse support — eclipseUtils.js calculates all eclipses for a year using astronomy-engine; EclipseIcons.jsx has blood moon + corona SVG icons; Calendar and Panchang both show eclipse details | `eclipseUtils.js`, `EclipseIcons.jsx`, `Calendar.jsx`, `Panchang.jsx` |
 
 ---
 

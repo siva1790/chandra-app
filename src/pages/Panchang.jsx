@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import * as Astronomy from 'astronomy-engine'
 import { getSunriseForDate } from '../moonUtils'
+import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DatePickerSheet from '../components/DatePickerSheet'
+import { EclipseIcon } from '../components/EclipseIcons'
 
 const AYANAMSHA = 23.15
 
@@ -226,6 +228,9 @@ const Panchang = ({ location }) => {
       const isAmavasya = tithiName === 'Amavasya'
       const isVishti = karanaName === 'Vishti'
 
+      // --- Eclipse ---
+      const eclipse = getEclipseForDate(date)
+
       setPanchang({
         tithi: tithiName,
         paksha,
@@ -246,6 +251,7 @@ const Panchang = ({ location }) => {
         isPurnima,
         isAmavasya,
         isVishti,
+        eclipse,
       })
     } catch (err) {
       console.error('Panchang calculation error:', err)
@@ -307,6 +313,43 @@ const Panchang = ({ location }) => {
 
       {panchang ? (
         <div className="flex flex-col gap-4">
+
+          {/* Eclipse Banner */}
+          {panchang.eclipse && (
+            <div className="bg-indigo-950 border border-indigo-600 rounded-2xl p-5">
+              <div className="flex items-center gap-4">
+                <EclipseIcon eclipse={panchang.eclipse} size={44} />
+                <div className="flex-1">
+                  <p className="text-indigo-200 font-bold text-base">
+                    {panchang.eclipse.hinduName}
+                  </p>
+                  <p className="text-indigo-400 text-xs mt-0.5">
+                    {eclipseTypeLabel(panchang.eclipse)}
+                  </p>
+                  <p className="text-indigo-300 text-sm mt-1.5 font-medium">
+                    Peak: {panchang.eclipse.peakTime.toLocaleTimeString('en-IN', {
+                      hour: '2-digit', minute: '2-digit', hour12: true
+                    })} IST
+                  </p>
+                  {lunarTotalityLabel(panchang.eclipse) && (
+                    <p className="text-indigo-400 text-xs mt-0.5">
+                      {lunarTotalityLabel(panchang.eclipse)}
+                    </p>
+                  )}
+                  {panchang.eclipse.type === 'lunar' && (
+                    <p className="text-indigo-500 text-xs mt-1.5 leading-relaxed">
+                      Avoid auspicious activities during the eclipse. Perform ritual bath after eclipse ends.
+                    </p>
+                  )}
+                  {panchang.eclipse.type === 'solar' && (
+                    <p className="text-indigo-500 text-xs mt-1.5 leading-relaxed">
+                      Surya Grahan — avoid eating during the eclipse period. Chant mantras and pray.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Special Day Banners */}
           {panchang.isPurnima && (

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { getDatedFestivalsForDate, getMonthlyFestivalsForTithi } from '../festivals'
 import { getMoonPhaseAngle, getTithiFromAngle, getPhaseEmoji, getSunriseForDate } from '../moonUtils'
+import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
+import { EclipseIcon } from '../components/EclipseIcons'
 import { useSettings } from '../SettingsContext'
 
 const Calendar = () => {
@@ -56,6 +58,7 @@ const Calendar = () => {
       const isToday = d === today.getDate() &&
         month === today.getMonth() &&
         year === today.getFullYear()
+      const eclipse = getEclipseForDate(date)
 
       days.push({
         day: d,
@@ -64,7 +67,8 @@ const Calendar = () => {
         phaseEmoji: getPhaseEmoji(phaseAngle),
         tithi,
         festivals: dayFestivals,
-        isToday
+        isToday,
+        eclipse,
       })
     }
     setCalendarDays(days)
@@ -81,7 +85,7 @@ const Calendar = () => {
   }
 
   const upcomingFestivals = calendarDays
-    .filter(d => d && d.festivals.length > 0)
+    .filter(d => d && (d.festivals.length > 0 || d.eclipse))
     .filter(d => d.date >= new Date(new Date().setHours(0, 0, 0, 0)))
     .slice(0, 5)
 
@@ -141,9 +145,11 @@ const Calendar = () => {
                   {day.day}
                 </span>
                 <span className="text-xs">{day.phaseEmoji}</span>
-                {day.festivals.length > 0 && (
+                {day.eclipse ? (
+                  <EclipseIcon eclipse={day.eclipse} size={13} />
+                ) : day.festivals.length > 0 ? (
                   <span className="text-xs">{day.festivals[0].emoji}</span>
-                )}
+                ) : null}
               </>
             )}
           </div>
@@ -165,6 +171,33 @@ const Calendar = () => {
             <span className="text-3xl">{selectedDay.phaseEmoji}</span>
           </div>
 
+          {/* Eclipse card — shown above festivals if present */}
+          {selectedDay.eclipse && (
+            <div className="mt-3 bg-indigo-950 border border-indigo-700 rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                <EclipseIcon eclipse={selectedDay.eclipse} size={32} />
+                <div>
+                  <p className="text-indigo-200 font-semibold text-sm">
+                    {selectedDay.eclipse.hinduName}
+                  </p>
+                  <p className="text-indigo-400 text-xs mt-0.5">
+                    {eclipseTypeLabel(selectedDay.eclipse)}
+                  </p>
+                  <p className="text-indigo-400 text-xs mt-0.5">
+                    Peak: {selectedDay.eclipse.peakTime.toLocaleTimeString('en-IN', {
+                      hour: '2-digit', minute: '2-digit', hour12: true
+                    })}
+                  </p>
+                  {lunarTotalityLabel(selectedDay.eclipse) && (
+                    <p className="text-indigo-500 text-xs mt-0.5">
+                      {lunarTotalityLabel(selectedDay.eclipse)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {selectedDay.festivals.length > 0 ? (
             <div className="flex flex-col gap-3 mt-3">
               {selectedDay.festivals.map((f, i) => (
@@ -174,9 +207,9 @@ const Calendar = () => {
                 </div>
               ))}
             </div>
-          ) : (
+          ) : !selectedDay.eclipse ? (
             <p className="text-gray-500 text-sm mt-2">No festivals on this day</p>
-          )}
+          ) : null}
         </div>
       )}
 
@@ -198,6 +231,12 @@ const Calendar = () => {
                   <p className="text-gray-500 text-xs">{monthNames[currentDate.getMonth()].slice(0, 3)}</p>
                 </div>
                 <div className="flex-1">
+                  {day.eclipse && (
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <EclipseIcon eclipse={day.eclipse} size={14} />
+                      <p className="text-indigo-300 text-sm font-medium">{day.eclipse.hinduName}</p>
+                    </div>
+                  )}
                   {day.festivals.map((f, fi) => (
                     <p key={fi} className="text-white text-sm font-medium">{f.emoji} {f.name}</p>
                   ))}
