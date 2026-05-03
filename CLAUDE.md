@@ -149,6 +149,7 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | Added persistent top bar (🌙 Chandra logo + bell icon) and subscription system — SubscriptionContext, SubscribeSheet, Google Apps Script backend | `App.jsx`, `main.jsx`, `SubscriptionContext.jsx`, `SubscribeSheet.jsx`, `Settings.jsx` |
 | 2026-05 | Added lunar and solar eclipse support — eclipseUtils.js calculates all eclipses for a year using astronomy-engine; EclipseIcons.jsx has blood moon + corona SVG icons; Calendar and Panchang both show eclipse details | `eclipseUtils.js`, `EclipseIcons.jsx`, `Calendar.jsx`, `Panchang.jsx` |
 | 2026-05 | Restructured three-tab navigation to eliminate overlap — Today is now purely the moon screen (visual + moonrise/moonset + tappable Today's Highlight strip); Calendar is now a pure planning grid (tapping any day navigates directly to Panchang with that date pre-selected); Panchang is the single source of truth for any date | `App.jsx`, `Home.jsx`, `Calendar.jsx`, `Panchang.jsx` |
+| 2026-05 | Home highlight strip now always visible — shows eclipse → festival → tithi/paksha fallback on plain days; Calendar day tap now opens a bottom-sheet modal with Pancha Anga summary + "View Full Panchang" CTA instead of navigating directly | `Home.jsx`, `Calendar.jsx` |
 
 ---
 

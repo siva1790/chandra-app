@@ -78,7 +78,7 @@ const Home = ({ onNavigateToPanchang }) => {
       const festivals = [...dated, ...monthly]
       const eclipse = getEclipseForDate(now)
 
-      setTodayHighlight({ festivals, eclipse })
+      setTodayHighlight({ festivals, eclipse, tithi: effectiveTithi })
 
       setMoonData({
         phase,
@@ -140,42 +140,44 @@ const Home = ({ onNavigateToPanchang }) => {
             </div>
           </div>
 
-          {/* Today's Highlight Strip — festival or eclipse, taps to Panchang */}
-          {todayHighlight && (todayHighlight.eclipse || todayHighlight.festivals.length > 0) && (
+          {/* Today's Highlight Strip — always visible once data loads; taps to Panchang */}
+          {todayHighlight && (
             <button
               onClick={() => onNavigateToPanchang?.(new Date())}
               className="w-full bg-gray-900 border border-yellow-900 rounded-2xl p-4 flex items-center gap-3 hover:border-yellow-600 active:bg-gray-800 transition-all text-left"
             >
               {todayHighlight.eclipse ? (
+                /* ── Eclipse day ── */
                 <>
                   <EclipseIcon eclipse={todayHighlight.eclipse} size={30} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">
-                      Today's Highlight
-                    </p>
-                    <p className="text-indigo-200 font-semibold text-sm">
-                      {todayHighlight.eclipse.hinduName}
-                    </p>
+                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">Today's Highlight</p>
+                    <p className="text-indigo-200 font-semibold text-sm">{todayHighlight.eclipse.hinduName}</p>
                     <p className="text-gray-500 text-xs mt-0.5">Tap to view full Panchang →</p>
                   </div>
                 </>
-              ) : (
+              ) : todayHighlight.festivals.length > 0 ? (
+                /* ── Festival day ── */
                 <>
                   <span className="text-2xl flex-shrink-0">{todayHighlight.festivals[0].emoji}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">
-                      Today's Highlight
-                    </p>
-                    <p className="text-white font-semibold text-sm truncate">
-                      {todayHighlight.festivals[0].name}
-                    </p>
+                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">Today's Highlight</p>
+                    <p className="text-white font-semibold text-sm truncate">{todayHighlight.festivals[0].name}</p>
                     {todayHighlight.festivals.length > 1 ? (
-                      <p className="text-gray-500 text-xs mt-0.5">
-                        +{todayHighlight.festivals.length - 1} more · Tap for full Panchang →
-                      </p>
+                      <p className="text-gray-500 text-xs mt-0.5">+{todayHighlight.festivals.length - 1} more · Tap for full Panchang →</p>
                     ) : (
                       <p className="text-gray-500 text-xs mt-0.5">Tap to view full Panchang →</p>
                     )}
+                  </div>
+                </>
+              ) : (
+                /* ── Plain day — show tithi as highlight ── */
+                <>
+                  <span className="text-2xl flex-shrink-0">🌙</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">Today's Tithi</p>
+                    <p className="text-white font-semibold text-sm">{todayHighlight.tithi.name}</p>
+                    <p className="text-gray-500 text-xs mt-0.5">{todayHighlight.tithi.paksha} · Tap for full Panchang →</p>
                   </div>
                 </>
               )}
