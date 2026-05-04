@@ -47,40 +47,46 @@ const Settings = ({ onOpenSubscribe }) => {
     }
   }, [])
 
-  // Fires a welcome notification through the service worker (required when SW is present)
+  // Fires a welcome notification — tries SW first, falls back to direct Notification API
   const showWelcomeNotification = async () => {
-    // Show "sending" immediately — confirms the function was called
     setNotifTestMsg('sending')
+    let success = false
 
-    try {
-      if ('serviceWorker' in navigator) {
-        // Race against a 6 s timeout so serviceWorker.ready never hangs silently
-        const reg = await Promise.race([
-          navigator.serviceWorker.ready,
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('SW not ready within 6 s')), 6000)
-          ),
-        ])
-        await reg.showNotification('🌙 Chandra alerts are on', {
-          body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
-          icon: '/icons/icon-192.png',
-          badge: '/icons/icon-192.png',
-          tag: 'chandra-welcome',
-        })
-      } else {
+    // Attempt 1 — service worker showNotification (immediate registration check, no waiting)
+    if ('serviceWorker' in navigator) {
+      try {
+        const reg = await navigator.serviceWorker.getRegistration('/')
+        if (reg?.active) {
+          await reg.showNotification('🌙 Chandra alerts are on', {
+            body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
+            icon: '/icons/icon-192.png',
+            badge: '/icons/icon-192.png',
+            tag: 'chandra-welcome',
+          })
+          success = true
+        }
+      } catch (e) {
+        console.warn('Chandra: SW notification failed, trying direct —', e)
+      }
+    }
+
+    // Attempt 2 — direct Notification API (works when SW isn't controlling the page)
+    if (!success) {
+      try {
         new Notification('🌙 Chandra alerts are on', {
           body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
           icon: '/icons/icon-192.png',
         })
+        success = true
+      } catch (e) {
+        console.warn('Chandra: direct notification failed —', e)
+        const msg = e?.name ? `${e.name}: ${e.message}` : String(e)
+        setNotifTestMsg('failed:' + msg)
       }
-      setNotifTestMsg('sent')
-    } catch (e) {
-      console.warn('Chandra: welcome notification failed —', e)
-      const msg = e?.name ? `${e.name}: ${e.message}` : String(e)
-      setNotifTestMsg('failed:' + msg)
-    } finally {
-      setTimeout(() => setNotifTestMsg(''), 8000)
     }
+
+    if (success) setNotifTestMsg('sent')
+    setTimeout(() => setNotifTestMsg(''), 8000)
   }
 
   const requestPermission = async () => {
