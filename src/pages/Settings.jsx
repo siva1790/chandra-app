@@ -46,6 +46,29 @@ const Settings = ({ onOpenSubscribe }) => {
     }
   }, [])
 
+  // Fires a welcome notification through whichever path the browser supports
+  const showWelcomeNotification = async () => {
+    try {
+      // Prefer service worker path — required when a SW is controlling the page
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        const reg = await navigator.serviceWorker.ready
+        await reg.showNotification('🌙 Chandra alerts are on', {
+          body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
+          icon: '/icons/icon-192.png',
+          badge: '/icons/icon-192.png',
+        })
+      } else {
+        // Fallback: no active SW controller yet (e.g. very first load)
+        new Notification('🌙 Chandra alerts are on', {
+          body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
+          icon: '/icons/icon-192.png',
+        })
+      }
+    } catch (e) {
+      console.warn('Chandra: welcome notification failed —', e)
+    }
+  }
+
   const requestPermission = async () => {
     if (!('Notification' in window)) return
     const result = await Notification.requestPermission()
@@ -53,30 +76,18 @@ const Settings = ({ onOpenSubscribe }) => {
     if (result === 'granted') {
       setNotifEnabled(true)
       localStorage.setItem(NOTIF_ENABLED_KEY, 'true')
-      // Welcome notification — must go through the service worker when one is registered,
-      // because browsers block new Notification() from the main thread in that context.
-      try {
-        if ('serviceWorker' in navigator) {
-          const reg = await navigator.serviceWorker.ready
-          await reg.showNotification('🌙 Chandra alerts are on', {
-            body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
-            icon: '/icons/icon-192.png',
-            badge: '/icons/icon-192.png',
-          })
-        } else {
-          // Fallback for browsers without a service worker
-          new Notification('🌙 Chandra alerts are on', {
-            body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
-            icon: '/icons/icon-192.png',
-          })
-        }
-      } catch {}
+      await showWelcomeNotification()
     }
   }
 
-  const toggleNotifMaster = (val) => {
+  const toggleNotifMaster = async (val) => {
     setNotifEnabled(val)
     localStorage.setItem(NOTIF_ENABLED_KEY, val ? 'true' : 'false')
+    // Fire welcome notification whenever alerts are turned on,
+    // covering users whose permission was already granted before this session
+    if (val && notifPermission === 'granted') {
+      await showWelcomeNotification()
+    }
   }
 
   const toggleNotifPref = (key) => {
