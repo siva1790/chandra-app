@@ -37,6 +37,7 @@ const Settings = ({ onOpenSubscribe }) => {
   const [notifPermission, setNotifPermission] = useState('default')
   const [notifEnabled, setNotifEnabled] = useState(false)
   const [notifPrefs, setNotifPrefs] = useState(loadNotifPrefs)
+  const [notifTestSent, setNotifTestSent] = useState(false)
 
   useEffect(() => {
     if ('Notification' in window) {
@@ -46,24 +47,28 @@ const Settings = ({ onOpenSubscribe }) => {
     }
   }, [])
 
-  // Fires a welcome notification through whichever path the browser supports
+  // Fires a welcome notification through the service worker (required when SW is present)
   const showWelcomeNotification = async () => {
     try {
-      // Prefer service worker path — required when a SW is controlling the page
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      if ('serviceWorker' in navigator) {
+        // Always use serviceWorker.ready — resolves once SW is active,
+        // regardless of whether it has taken control of the current page yet
         const reg = await navigator.serviceWorker.ready
         await reg.showNotification('🌙 Chandra alerts are on', {
           body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
           icon: '/icons/icon-192.png',
           badge: '/icons/icon-192.png',
+          tag: 'chandra-welcome',  // prevents stacking duplicates
         })
       } else {
-        // Fallback: no active SW controller yet (e.g. very first load)
         new Notification('🌙 Chandra alerts are on', {
           body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
           icon: '/icons/icon-192.png',
         })
       }
+      // Show in-app confirmation so it's clear the notification fired
+      setNotifTestSent(true)
+      setTimeout(() => setNotifTestSent(false), 4000)
     } catch (e) {
       console.warn('Chandra: welcome notification failed —', e)
     }
@@ -346,9 +351,19 @@ const Settings = ({ onOpenSubscribe }) => {
 
           {/* Permission granted — green confirmation */}
           {notifPermission === 'granted' && (
-            <div className="bg-green-950 border border-green-800 rounded-xl px-4 py-2.5 mb-4 flex items-center gap-2">
+            <div className="bg-green-950 border border-green-800 rounded-xl px-4 py-2.5 mb-3 flex items-center gap-2">
               <span className="text-green-400 text-sm">✓</span>
               <p className="text-green-300 text-xs">Notifications enabled for this device</p>
+            </div>
+          )}
+
+          {/* In-app confirmation after test notification fires */}
+          {notifTestSent && (
+            <div className="bg-yellow-950 border border-yellow-700 rounded-xl px-4 py-2.5 mb-3 flex items-center gap-2">
+              <span className="text-yellow-400 text-sm">🔔</span>
+              <p className="text-yellow-200 text-xs">
+                Notification sent — pull down your notification bar to see it
+              </p>
             </div>
           )}
 
