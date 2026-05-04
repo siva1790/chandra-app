@@ -76,7 +76,8 @@ const Settings = ({ onOpenSubscribe }) => {
       setNotifTestMsg('sent')
     } catch (e) {
       console.warn('Chandra: welcome notification failed —', e)
-      setNotifTestMsg('failed')
+      const msg = e?.name ? `${e.name}: ${e.message}` : String(e)
+      setNotifTestMsg('failed:' + msg)
     } finally {
       setTimeout(() => setNotifTestMsg(''), 8000)
     }
@@ -379,11 +380,11 @@ const Settings = ({ onOpenSubscribe }) => {
               </p>
             </div>
           )}
-          {notifTestMsg === 'failed' && (
-            <div className="bg-red-950 border border-red-800 rounded-xl px-4 py-2.5 mb-3 flex items-center gap-2">
-              <span className="text-red-400 text-sm">✕</span>
-              <p className="text-red-300 text-xs">
-                Notification blocked by your device. Check Android Settings → Apps → Chrome → Notifications.
+          {notifTestMsg.startsWith('failed') && (
+            <div className="bg-red-950 border border-red-800 rounded-xl px-4 py-2.5 mb-3">
+              <p className="text-red-300 text-xs font-medium mb-1">Notification failed</p>
+              <p className="text-red-400 text-xs break-all">
+                {notifTestMsg.replace('failed:', '') || 'Unknown error'}
               </p>
             </div>
           )}
