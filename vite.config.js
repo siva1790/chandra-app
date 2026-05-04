@@ -12,6 +12,8 @@ export default defineConfig({
       },
       manifest: false,
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {

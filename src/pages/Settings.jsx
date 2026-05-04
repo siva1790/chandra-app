@@ -52,25 +52,31 @@ const Settings = ({ onOpenSubscribe }) => {
     setNotifTestMsg('sending')
     let success = false
 
-    // Attempt 1 — service worker showNotification (immediate registration check, no waiting)
+    // getRegistrations() returns ALL registrations — avoids the scope mismatch
+    // that caused getRegistration('/') to silently return undefined
     if ('serviceWorker' in navigator) {
       try {
-        const reg = await navigator.serviceWorker.getRegistration('/')
-        if (reg?.active) {
-          await reg.showNotification('🌙 Chandra alerts are on', {
-            body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
-            icon: '/icons/icon-192.png',
-            badge: '/icons/icon-192.png',
-            tag: 'chandra-welcome',
-          })
-          success = true
+        const regs = await navigator.serviceWorker.getRegistrations()
+        for (const reg of regs) {
+          try {
+            await reg.showNotification('🌙 Chandra alerts are on', {
+              body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
+              icon: '/icons/icon-192.png',
+              badge: '/icons/icon-192.png',
+              tag: 'chandra-welcome',
+            })
+            success = true
+            break
+          } catch (e) {
+            console.warn('Chandra: reg.showNotification failed —', e)
+          }
         }
       } catch (e) {
-        console.warn('Chandra: SW notification failed, trying direct —', e)
+        console.warn('Chandra: getRegistrations failed —', e)
       }
     }
 
-    // Attempt 2 — direct Notification API (works when SW isn't controlling the page)
+    // Fallback — direct Notification API (only works when no SW is registered)
     if (!success) {
       try {
         new Notification('🌙 Chandra alerts are on', {
@@ -79,7 +85,7 @@ const Settings = ({ onOpenSubscribe }) => {
         })
         success = true
       } catch (e) {
-        console.warn('Chandra: direct notification failed —', e)
+        console.warn('Chandra: direct notification also failed —', e)
         const msg = e?.name ? `${e.name}: ${e.message}` : String(e)
         setNotifTestMsg('failed:' + msg)
       }
