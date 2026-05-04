@@ -37,7 +37,7 @@ const Settings = ({ onOpenSubscribe }) => {
   const [notifPermission, setNotifPermission] = useState('default')
   const [notifEnabled, setNotifEnabled] = useState(false)
   const [notifPrefs, setNotifPrefs] = useState(loadNotifPrefs)
-  const [notifTestSent, setNotifTestSent] = useState(false)
+  const [notifTestMsg, setNotifTestMsg] = useState('')   // '' | 'sending' | 'sent' | 'failed'
 
   useEffect(() => {
     if ('Notification' in window) {
@@ -49,16 +49,23 @@ const Settings = ({ onOpenSubscribe }) => {
 
   // Fires a welcome notification through the service worker (required when SW is present)
   const showWelcomeNotification = async () => {
+    // Show "sending" immediately — confirms the function was called
+    setNotifTestMsg('sending')
+
     try {
       if ('serviceWorker' in navigator) {
-        // Always use serviceWorker.ready — resolves once SW is active,
-        // regardless of whether it has taken control of the current page yet
-        const reg = await navigator.serviceWorker.ready
+        // Race against a 6 s timeout so serviceWorker.ready never hangs silently
+        const reg = await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('SW not ready within 6 s')), 6000)
+          ),
+        ])
         await reg.showNotification('🌙 Chandra alerts are on', {
           body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
           icon: '/icons/icon-192.png',
           badge: '/icons/icon-192.png',
-          tag: 'chandra-welcome',  // prevents stacking duplicates
+          tag: 'chandra-welcome',
         })
       } else {
         new Notification('🌙 Chandra alerts are on', {
@@ -66,11 +73,12 @@ const Settings = ({ onOpenSubscribe }) => {
           icon: '/icons/icon-192.png',
         })
       }
-      // Show in-app confirmation so it's clear the notification fired
-      setNotifTestSent(true)
-      setTimeout(() => setNotifTestSent(false), 4000)
+      setNotifTestMsg('sent')
     } catch (e) {
       console.warn('Chandra: welcome notification failed —', e)
+      setNotifTestMsg('failed')
+    } finally {
+      setTimeout(() => setNotifTestMsg(''), 8000)
     }
   }
 
@@ -357,12 +365,25 @@ const Settings = ({ onOpenSubscribe }) => {
             </div>
           )}
 
-          {/* In-app confirmation after test notification fires */}
-          {notifTestSent && (
+          {/* In-app notification test feedback */}
+          {notifTestMsg === 'sending' && (
+            <div className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 mb-3 flex items-center gap-2">
+              <span className="text-gray-400 text-xs">⏳ Sending test notification…</span>
+            </div>
+          )}
+          {notifTestMsg === 'sent' && (
             <div className="bg-yellow-950 border border-yellow-700 rounded-xl px-4 py-2.5 mb-3 flex items-center gap-2">
               <span className="text-yellow-400 text-sm">🔔</span>
               <p className="text-yellow-200 text-xs">
                 Notification sent — pull down your notification bar to see it
+              </p>
+            </div>
+          )}
+          {notifTestMsg === 'failed' && (
+            <div className="bg-red-950 border border-red-800 rounded-xl px-4 py-2.5 mb-3 flex items-center gap-2">
+              <span className="text-red-400 text-sm">✕</span>
+              <p className="text-red-300 text-xs">
+                Notification blocked by your device. Check Android Settings → Apps → Chrome → Notifications.
               </p>
             </div>
           )}
