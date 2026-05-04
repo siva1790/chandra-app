@@ -60,7 +60,7 @@ function App() {
               <span className="text-green-400 text-xs font-medium">Subscribed</span>
             </>
           ) : (
-            <span className="text-gray-300 text-xs font-medium">Get alerts</span>
+            <span className="text-gray-300 text-xs font-medium">Subscribe</span>
           )}
         </button>
       </div>

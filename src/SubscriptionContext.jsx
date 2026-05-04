@@ -35,13 +35,16 @@ export const SubscriptionProvider = ({ children }) => {
   }
 
   // Create new subscription row in the Sheet
-  const subscribe = (name, mobile, email, city) => {
+  const subscribe = (name, email, city, lat, lon, calendarSystem, emailFrequency = 'all') => {
     const data = {
       id: crypto.randomUUID(),
       name,
-      mobile,
       email,
       city,
+      lat,
+      lon,
+      calendarSystem,
+      emailFrequency,
       subscribedAt: new Date().toISOString(),
     }
     save(data)
@@ -49,10 +52,17 @@ export const SubscriptionProvider = ({ children }) => {
   }
 
   // Update existing row by UUID
-  const update = (name, mobile, email, city) => {
-    const data = { ...subscription, name, mobile, email, city }
+  const update = (name, email, city, emailFrequency) => {
+    const data = { ...subscription, name, email, city, emailFrequency }
     save(data)
-    post({ action: 'update', id: subscription.id, name, mobile, email, city })
+    post({ action: 'update', id: subscription.id, name, email, city, emailFrequency })
+  }
+
+  // Update email frequency preference only
+  const updateFrequency = (emailFrequency) => {
+    const data = { ...subscription, emailFrequency }
+    save(data)
+    post({ action: 'update', id: subscription.id, emailFrequency })
   }
 
   // Mark row as unsubscribed in Sheet, clear local state
@@ -65,7 +75,7 @@ export const SubscriptionProvider = ({ children }) => {
   }
 
   return (
-    <SubscriptionContext.Provider value={{ subscription, subscribe, update, unsubscribe }}>
+    <SubscriptionContext.Provider value={{ subscription, subscribe, update, updateFrequency, unsubscribe }}>
       {children}
     </SubscriptionContext.Provider>
   )

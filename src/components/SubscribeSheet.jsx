@@ -7,19 +7,17 @@ const SubscribeSheet = ({ open, onClose }) => {
   const { settings } = useSettings()
 
   // ── Subscribe form state ──
-  const [name, setName]     = useState('')
-  const [mobile, setMobile] = useState('')
-  const [email, setEmail]   = useState('')
-  const [error, setError]   = useState('')
+  const [name, setName]   = useState('')
+  const [email, setEmail] = useState('')
+  const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
   // ── Edit mode state ──
-  const [isEditing, setIsEditing]     = useState(false)
-  const [editName, setEditName]       = useState('')
-  const [editMobile, setEditMobile]   = useState('')
-  const [editEmail, setEditEmail]     = useState('')
-  const [editError, setEditError]     = useState('')
-  const [editSaved, setEditSaved]     = useState(false)
+  const [isEditing, setIsEditing]   = useState(false)
+  const [editName, setEditName]     = useState('')
+  const [editEmail, setEditEmail]   = useState('')
+  const [editError, setEditError]   = useState('')
+  const [editSaved, setEditSaved]   = useState(false)
 
   // ── Unsubscribe confirmation ──
   const [confirmUnsub, setConfirmUnsub] = useState(false)
@@ -40,37 +38,40 @@ const SubscribeSheet = ({ open, onClose }) => {
   }, [open])
 
   // ── Validation ──
-  const validate = (mob, eml) => {
-    if (!mob && !eml) return 'Please enter a mobile number or email address.'
-    if (mob && !/^[0-9]{10}$/.test(mob)) return 'Enter a valid 10-digit mobile number.'
-    if (eml && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eml)) return 'Enter a valid email address.'
+  const validate = (eml) => {
+    if (!eml) return 'Please enter your email address.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eml)) return 'Enter a valid email address.'
     return ''
   }
 
   // ── Handlers ──
   const handleSubscribe = () => {
-    const err = validate(mobile, email)
+    const err = validate(email)
     if (err) { setError(err); return }
-    subscribe(name.trim(), mobile.trim(), email.trim(), settings.city)
+    subscribe(
+      name.trim(),
+      email.trim(),
+      settings.city,
+      settings.lat,
+      settings.lon,
+      settings.calendarSystem
+    )
     setSuccess(true)
-    setTimeout(() => {
-      onClose()
-    }, 2200)
+    setTimeout(() => onClose(), 2200)
   }
 
   const startEdit = () => {
-    setEditName(subscription?.name   || '')
-    setEditMobile(subscription?.mobile || '')
-    setEditEmail(subscription?.email  || '')
+    setEditName(subscription?.name  || '')
+    setEditEmail(subscription?.email || '')
     setEditError('')
     setEditSaved(false)
     setIsEditing(true)
   }
 
   const handleSaveEdit = () => {
-    const err = validate(editMobile, editEmail)
+    const err = validate(editEmail)
     if (err) { setEditError(err); return }
-    update(editName.trim(), editMobile.trim(), editEmail.trim(), settings.city)
+    update(editName.trim(), editEmail.trim(), settings.city, subscription?.emailFrequency || 'all')
     setIsEditing(false)
     setEditSaved(true)
   }
@@ -113,9 +114,10 @@ const SubscribeSheet = ({ open, onClose }) => {
           ══════════════════════════════ */}
           {!subscription && !success && (
             <>
-              <h2 className="text-white text-xl font-bold mb-1">🔔 Get Festival Alerts</h2>
+              <h2 className="text-white text-xl font-bold mb-1">🔔 Get Festival Guides</h2>
               <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-                Subscribe to receive upcoming festival reminders and early access to new features.
+                Receive rich festival guides in your inbox — stories, mythology, puja timings and moonrise
+                times personalised for {settings.city}.
               </p>
 
               <div className="flex flex-col gap-4">
@@ -130,18 +132,6 @@ const SubscribeSheet = ({ open, onClose }) => {
                     placeholder="Your name"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none placeholder-gray-500"
-                  />
-                </div>
-
-                {/* Mobile */}
-                <div>
-                  <label className="text-gray-400 text-xs mb-1.5 block">Mobile number</label>
-                  <input
-                    type="tel"
-                    placeholder="10-digit mobile number"
-                    value={mobile}
-                    onChange={e => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none placeholder-gray-500"
                   />
                 </div>
@@ -172,7 +162,7 @@ const SubscribeSheet = ({ open, onClose }) => {
                 )}
 
                 <p className="text-gray-600 text-xs text-center leading-relaxed">
-                  Enter at least a mobile number or email. We never share your details.
+                  We never share your details. Unsubscribe anytime.
                 </p>
 
                 <button
@@ -181,6 +171,11 @@ const SubscribeSheet = ({ open, onClose }) => {
                 >
                   Subscribe
                 </button>
+
+                <p className="text-gray-600 text-xs text-center -mt-2">
+                  Want push notifications instead? Enable them in{' '}
+                  <span className="text-yellow-600">Settings → Push Notifications</span>
+                </p>
               </div>
             </>
           )}
@@ -193,7 +188,7 @@ const SubscribeSheet = ({ open, onClose }) => {
               <p className="text-5xl mb-4">🎉</p>
               <p className="text-white text-xl font-bold mb-2">You're subscribed!</p>
               <p className="text-gray-400 text-sm leading-relaxed">
-                We'll send you festival reminders and feature updates.
+                Festival guides, stories and personalised timings for {settings.city} — straight to your inbox.
               </p>
             </div>
           )}
@@ -231,13 +226,16 @@ const SubscribeSheet = ({ open, onClose }) => {
                   {subscription.name && (
                     <DetailRow label="Name" value={subscription.name} />
                   )}
-                  {subscription.mobile && (
-                    <DetailRow label="Mobile" value={subscription.mobile} />
-                  )}
-                  {subscription.email && (
-                    <DetailRow label="Email" value={subscription.email} />
-                  )}
+                  <DetailRow label="Email" value={subscription.email} />
                   <DetailRow label="City" value={subscription.city} />
+                  <DetailRow
+                    label="Frequency"
+                    value={
+                      subscription.emailFrequency === 'major' ? 'Major festivals only' :
+                      subscription.emailFrequency === 'monthly' ? 'Monthly digest' :
+                      'All festivals'
+                    }
+                  />
                 </div>
               )}
 
@@ -250,15 +248,6 @@ const SubscribeSheet = ({ open, onClose }) => {
                       type="text"
                       value={editName}
                       onChange={e => setEditName(e.target.value)}
-                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-gray-400 text-xs mb-1.5 block">Mobile</label>
-                    <input
-                      type="tel"
-                      value={editMobile}
-                      onChange={e => setEditMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
                       className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none"
                     />
                   </div>
@@ -304,7 +293,7 @@ const SubscribeSheet = ({ open, onClose }) => {
                       Remove your subscription?
                     </p>
                     <p className="text-red-400 text-xs mb-5 leading-relaxed">
-                      You'll stop receiving festival alerts. We'll process the removal within 24 hours.
+                      You'll stop receiving festival guides. We'll process the removal within 24 hours.
                     </p>
                     <div className="flex gap-3">
                       <button

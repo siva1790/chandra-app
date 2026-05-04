@@ -1,14 +1,58 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSettings } from '../SettingsContext'
 import { useSubscription } from '../SubscriptionContext'
 import { cities } from '../cities'
 
+// ── Notification toggle helpers ──
+const NOTIF_KEY = 'chandra-notif-prefs'
+const DEFAULT_PREFS = { festivals: true, eclipses: true, moonrise: true, ekadashi: false }
+
+const loadNotifPrefs = () => {
+  try {
+    const saved = localStorage.getItem(NOTIF_KEY)
+    return saved ? { ...DEFAULT_PREFS, ...JSON.parse(saved) } : DEFAULT_PREFS
+  } catch { return DEFAULT_PREFS }
+}
+
+const saveNotifPrefs = (prefs) => {
+  try { localStorage.setItem(NOTIF_KEY, JSON.stringify(prefs)) } catch {}
+}
+
 const Settings = ({ onOpenSubscribe }) => {
   const { settings, updateSettings } = useSettings()
-  const { subscription } = useSubscription()
+  const { subscription, updateFrequency } = useSubscription()
   const [citySearch, setCitySearch] = useState('')
   const [showCityList, setShowCityList] = useState(false)
   const [saved, setSaved] = useState(false)
+
+  // ── Push notification state ──
+  const [notifPermission, setNotifPermission] = useState('default')
+  const [notifEnabled, setNotifEnabled] = useState(false)
+  const [notifPrefs, setNotifPrefs] = useState(loadNotifPrefs)
+
+  useEffect(() => {
+    if ('Notification' in window) {
+      setNotifPermission(Notification.permission)
+      setNotifEnabled(Notification.permission === 'granted')
+    }
+  }, [])
+
+  const requestPermission = async () => {
+    if (!('Notification' in window)) return
+    const result = await Notification.requestPermission()
+    setNotifPermission(result)
+    setNotifEnabled(result === 'granted')
+  }
+
+  const toggleNotifMaster = (val) => {
+    setNotifEnabled(val)
+  }
+
+  const toggleNotifPref = (key) => {
+    const updated = { ...notifPrefs, [key]: !notifPrefs[key] }
+    setNotifPrefs(updated)
+    saveNotifPrefs(updated)
+  }
 
   const filteredCities = cities.filter(c =>
     c.name.toLowerCase().includes(citySearch.toLowerCase()) ||
@@ -226,32 +270,132 @@ const Settings = ({ onOpenSubscribe }) => {
           </div>
         </div>
 
-        {/* Festival Alerts */}
-        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+        {/* Push Notifications */}
+        <div className="bg-gray-900 rounded-2xl p-5 border border-yellow-900">
           <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">
-            🔔 Festival Alerts
+            🔔 Push Notifications
           </p>
-          {subscription ? (
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white text-sm font-medium">
-                  {subscription.name ? `Hi, ${subscription.name}` : "You're subscribed"}
-                </p>
-                <p className="text-green-400 text-xs mt-0.5">
-                  ✓ {subscription.mobile || subscription.email}
-                </p>
-              </div>
+
+          {/* Permission denied state */}
+          {notifPermission === 'denied' && (
+            <div className="bg-red-950 border border-red-800 rounded-xl p-4 mb-3">
+              <p className="text-red-300 text-sm font-medium mb-1">Notifications blocked</p>
+              <p className="text-red-400 text-xs leading-relaxed">
+                You've blocked notifications for this site. To enable them, open your browser's
+                site settings and allow notifications for Chandra, then return here.
+              </p>
+            </div>
+          )}
+
+          {/* Permission not yet asked */}
+          {notifPermission === 'default' && (
+            <div className="bg-yellow-950 border border-yellow-800 rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3">
+              <p className="text-yellow-200 text-xs leading-relaxed flex-1">
+                Allow Chandra to send festival and eclipse alerts to this device.
+              </p>
               <button
-                onClick={onOpenSubscribe}
-                className="text-yellow-400 text-sm font-medium px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all"
+                onClick={requestPermission}
+                className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold text-xs px-4 py-2 rounded-lg shrink-0 transition-all"
               >
-                Manage
+                Allow
               </button>
             </div>
+          )}
+
+          {/* Permission granted — green confirmation */}
+          {notifPermission === 'granted' && (
+            <div className="bg-green-950 border border-green-800 rounded-xl px-4 py-2.5 mb-4 flex items-center gap-2">
+              <span className="text-green-400 text-sm">✓</span>
+              <p className="text-green-300 text-xs">Notifications enabled for this device</p>
+            </div>
+          )}
+
+          {/* Master toggle + sub-toggles — locked until permission granted */}
+          <div className={notifPermission !== 'granted' ? 'opacity-30 pointer-events-none' : ''}>
+            {notifPermission !== 'granted' && (
+              <p className="text-gray-500 text-xs mb-3 flex items-center gap-1.5">
+                <span>🔒</span> Grant permission above to configure alerts
+              </p>
+            )}
+
+            {/* Master toggle */}
+            <div className="flex items-center justify-between py-2 border-b border-gray-800 mb-2">
+              <span className="text-white text-sm">Enable all alerts</span>
+              <Toggle on={notifEnabled} onToggle={() => toggleNotifMaster(!notifEnabled)} />
+            </div>
+
+            {/* Sub-toggles */}
+            <div className={notifEnabled ? '' : 'opacity-40 pointer-events-none'}>
+              {[
+                { key: 'festivals', label: 'Festival alerts',    hint: 'Morning of the festival' },
+                { key: 'eclipses', label: 'Eclipse alerts',      hint: '1 hour before eclipse begins' },
+                { key: 'moonrise', label: 'Moonrise reminder',   hint: '30 min before moonrise' },
+                { key: 'ekadashi', label: 'Ekadashi & Pradosh',  hint: 'Evening before' },
+              ].map(({ key, label, hint }) => (
+                <div key={key} className="flex items-center justify-between py-2.5 pl-3 border-b border-gray-800 last:border-0">
+                  <div>
+                    <p className="text-gray-200 text-sm">{label}</p>
+                    <p className="text-gray-500 text-xs">{hint}</p>
+                  </div>
+                  <SubToggle on={notifPrefs[key]} onToggle={() => toggleNotifPref(key)} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Email Alerts */}
+        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-1">
+            ✉️ Email Alerts
+          </p>
+          <p className="text-gray-500 text-xs mb-4 leading-relaxed">
+            Rich festival guides with stories, puja timings and moonrise times for {settings.city}.
+          </p>
+
+          {subscription ? (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-white text-sm font-medium">
+                    {subscription.name ? `Hi, ${subscription.name}` : 'Subscribed'}
+                  </p>
+                  <p className="text-green-400 text-xs mt-0.5">✓ {subscription.email}</p>
+                </div>
+                <button
+                  onClick={onOpenSubscribe}
+                  className="text-yellow-400 text-sm font-medium px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all"
+                >
+                  Manage
+                </button>
+              </div>
+
+              {/* Frequency chips */}
+              <p className="text-gray-500 text-xs mb-2">Send me guides for</p>
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { value: 'all',     label: 'All festivals' },
+                  { value: 'major',   label: 'Major only' },
+                  { value: 'monthly', label: 'Monthly digest' },
+                ].map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => updateFrequency(value)}
+                    className={`px-3 py-1.5 rounded-full text-xs border transition-all ${
+                      (subscription.emailFrequency || 'all') === value
+                        ? 'bg-yellow-900 border-yellow-600 text-yellow-300'
+                        : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </>
           ) : (
             <div className="flex items-center justify-between">
               <p className="text-gray-400 text-sm leading-relaxed flex-1 mr-4">
-                Get reminders for upcoming festivals and new feature updates.
+                Subscribe to get personalised festival guides in your inbox.
               </p>
               <button
                 onClick={onOpenSubscribe}
@@ -290,5 +434,29 @@ const Settings = ({ onOpenSubscribe }) => {
     </div>
   )
 }
+
+const Toggle = ({ on, onToggle }) => (
+  <button
+    onClick={onToggle}
+    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${on ? 'bg-yellow-400' : 'bg-gray-700'}`}
+    aria-pressed={on}
+  >
+    <span
+      className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${on ? 'translate-x-6' : 'translate-x-1'}`}
+    />
+  </button>
+)
+
+const SubToggle = ({ on, onToggle }) => (
+  <button
+    onClick={onToggle}
+    className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${on ? 'bg-yellow-400' : 'bg-gray-700'}`}
+    aria-pressed={on}
+  >
+    <span
+      className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${on ? 'translate-x-4' : 'translate-x-0.5'}`}
+    />
+  </button>
+)
 
 export default Settings
