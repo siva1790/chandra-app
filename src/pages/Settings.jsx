@@ -4,7 +4,8 @@ import { useSubscription } from '../SubscriptionContext'
 import { cities } from '../cities'
 
 // ── Notification toggle helpers ──
-const NOTIF_KEY = 'chandra-notif-prefs'
+const NOTIF_KEY         = 'chandra-notif-prefs'
+const NOTIF_ENABLED_KEY = 'chandra-notif-enabled'
 const DEFAULT_PREFS = { festivals: true, eclipses: true, moonrise: true, ekadashi: false }
 
 const loadNotifPrefs = () => {
@@ -16,6 +17,13 @@ const loadNotifPrefs = () => {
 
 const saveNotifPrefs = (prefs) => {
   try { localStorage.setItem(NOTIF_KEY, JSON.stringify(prefs)) } catch {}
+}
+
+const loadNotifEnabled = () => {
+  try {
+    const saved = localStorage.getItem(NOTIF_ENABLED_KEY)
+    return saved === null ? true : saved === 'true'  // default on when permission granted
+  } catch { return true }
 }
 
 const Settings = ({ onOpenSubscribe }) => {
@@ -32,8 +40,9 @@ const Settings = ({ onOpenSubscribe }) => {
 
   useEffect(() => {
     if ('Notification' in window) {
-      setNotifPermission(Notification.permission)
-      setNotifEnabled(Notification.permission === 'granted')
+      const perm = Notification.permission
+      setNotifPermission(perm)
+      if (perm === 'granted') setNotifEnabled(loadNotifEnabled())
     }
   }, [])
 
@@ -41,11 +50,22 @@ const Settings = ({ onOpenSubscribe }) => {
     if (!('Notification' in window)) return
     const result = await Notification.requestPermission()
     setNotifPermission(result)
-    setNotifEnabled(result === 'granted')
+    if (result === 'granted') {
+      setNotifEnabled(true)
+      localStorage.setItem(NOTIF_ENABLED_KEY, 'true')
+      // Welcome notification — shows the user exactly how alerts will look
+      try {
+        new Notification('🌙 Chandra alerts are on', {
+          body: 'You\'ll get festival and eclipse alerts right here. Namaste! 🙏',
+          icon: '/icons/icon-192.png',
+        })
+      } catch {}
+    }
   }
 
   const toggleNotifMaster = (val) => {
     setNotifEnabled(val)
+    localStorage.setItem(NOTIF_ENABLED_KEY, val ? 'true' : 'false')
   }
 
   const toggleNotifPref = (key) => {
@@ -319,10 +339,15 @@ const Settings = ({ onOpenSubscribe }) => {
             )}
 
             {/* Master toggle */}
-            <div className="flex items-center justify-between py-2 border-b border-gray-800 mb-2">
+            <div className="flex items-center justify-between py-2 border-b border-gray-800">
               <span className="text-white text-sm">Enable all alerts</span>
               <Toggle on={notifEnabled} onToggle={() => toggleNotifMaster(!notifEnabled)} />
             </div>
+            {!notifEnabled && notifPermission === 'granted' && (
+              <p className="text-gray-500 text-xs leading-relaxed mt-2 mb-1">
+                Alerts paused. To fully revoke, open your browser's site settings and block notifications for Chandra.
+              </p>
+            )}
 
             {/* Sub-toggles */}
             <div className={notifEnabled ? '' : 'opacity-40 pointer-events-none'}>
@@ -435,27 +460,67 @@ const Settings = ({ onOpenSubscribe }) => {
   )
 }
 
+// Toggle — 44×24px container, 20×20px knob
 const Toggle = ({ on, onToggle }) => (
   <button
     onClick={onToggle}
-    className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${on ? 'bg-yellow-400' : 'bg-gray-700'}`}
     aria-pressed={on}
+    style={{
+      position: 'relative',
+      width: '44px',
+      height: '24px',
+      borderRadius: '12px',
+      background: on ? '#fbbf24' : '#374151',
+      border: 'none',
+      cursor: 'pointer',
+      flexShrink: 0,
+      transition: 'background 0.2s',
+      padding: 0,
+    }}
   >
-    <span
-      className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${on ? 'translate-x-6' : 'translate-x-1'}`}
-    />
+    <span style={{
+      position: 'absolute',
+      top: '2px',
+      left: on ? '22px' : '2px',
+      width: '20px',
+      height: '20px',
+      background: '#ffffff',
+      borderRadius: '50%',
+      transition: 'left 0.2s',
+      display: 'block',
+    }} />
   </button>
 )
 
+// SubToggle — 36×20px container, 16×16px knob
 const SubToggle = ({ on, onToggle }) => (
   <button
     onClick={onToggle}
-    className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${on ? 'bg-yellow-400' : 'bg-gray-700'}`}
     aria-pressed={on}
+    style={{
+      position: 'relative',
+      width: '36px',
+      height: '20px',
+      borderRadius: '10px',
+      background: on ? '#fbbf24' : '#374151',
+      border: 'none',
+      cursor: 'pointer',
+      flexShrink: 0,
+      transition: 'background 0.2s',
+      padding: 0,
+    }}
   >
-    <span
-      className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${on ? 'translate-x-4' : 'translate-x-0.5'}`}
-    />
+    <span style={{
+      position: 'absolute',
+      top: '2px',
+      left: on ? '18px' : '2px',
+      width: '16px',
+      height: '16px',
+      background: '#ffffff',
+      borderRadius: '50%',
+      transition: 'left 0.2s',
+      display: 'block',
+    }} />
   </button>
 )
 
