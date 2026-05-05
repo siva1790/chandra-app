@@ -27,6 +27,9 @@ It shows daily moon phase, Tithi, Panchang, Nakshatra, moonrise/moonset times, a
 | Astronomy calculations | astronomy-engine 2.x |
 | PWA | vite-plugin-pwa |
 | Package manager | npm |
+| Subscriber database | Firebase Firestore |
+| Email delivery (planned) | Resend |
+| Scheduled jobs (planned) | Firebase Cloud Functions + Cloud Scheduler |
 
 ---
 
@@ -48,11 +51,13 @@ chandra-app/
 │   │   └── Settings.jsx       # City picker, language, calendar system, notifications
 │   └── components/
 │       ├── MoonVisual.jsx     # SVG moon phase renderer (waxing/waning terminator)
-│       └── InstallPrompt.jsx  # PWA install banner
+│       ├── InstallPrompt.jsx  # PWA install banner
+│       └── SubscribeSheet.jsx # Bottom sheet for email subscription (subscribe / manage / unsubscribe)
 ├── public/
 │   ├── favicon.svg
 │   └── icons.svg
 ├── vite.config.js             # Vite + PWA plugin config
+├── firestore.rules            # Firestore security rules (allow public create/update, block reads)
 ├── package.json
 ├── CLAUDE.md                  # ← this file
 └── .gitignore
@@ -129,6 +134,30 @@ npm run preview    # preview the dist/ build locally
 - Settings are managed via `SettingsContext.jsx` and accessed anywhere via `useSettings()`.
 - Default city: **Bengaluru** (lat: 12.9716, lon: 77.5946).
 
+## Subscription & Notifications
+
+### Email Subscriptions (live)
+- Subscriber data is stored in **Firebase Firestore** (`subscribers` collection).
+- Each subscriber document contains: `id` (UUID), `name`, `email`, `city`, `lat`, `lon`, `calendarSystem`, `emailFrequency`, `active`, `subscribedAt`.
+- `emailFrequency` values: `'all'` (default) | `'major'` | `'monthly'`.
+- Unsubscribes are **soft-deletes** — document stays in Firestore with `active: false` and `unsubscribedAt` timestamp.
+- Local state is mirrored in **localStorage** under `chandra-subscription` as the local source of truth.
+- Security rules in `firestore.rules`: public creates + self-updates allowed; all reads and deletes blocked from client.
+- `SubscriptionContext.jsx` exposes: `subscribe()`, `update()`, `updateFrequency()`, `unsubscribe()`.
+- UI entry point: bell icon in top bar → `SubscribeSheet.jsx` bottom sheet.
+
+### Push Notifications (frontend only — backend pending)
+- Permission state managed in `Settings.jsx` via `Notification.requestPermission()`.
+- Toggle prefs persisted in localStorage under `chandra-notif-prefs` and `chandra-notif-enabled`.
+- In-app preview notification (`NotificationPreview` component) fires on permission grant — **no OS notification API used** (Chrome blocks `new Notification()` when a SW is registered).
+- Actual push delivery via FCM + Cloud Functions is **not yet implemented** (requires Firebase Blaze plan upgrade).
+
+### Automated Email (planned)
+- Strategy: hybrid — pre-written festival stories + dynamically injected city-specific timing data.
+- Delivery via **Resend** API.
+- Triggered by **Firebase Cloud Functions + Cloud Scheduler**.
+- Requires Firebase Blaze plan upgrade before Cloud Functions can be deployed.
+
 ---
 
 ## Known Issues Fixed (History)
@@ -150,6 +179,7 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | Added lunar and solar eclipse support — eclipseUtils.js calculates all eclipses for a year using astronomy-engine; EclipseIcons.jsx has blood moon + corona SVG icons; Calendar and Panchang both show eclipse details | `eclipseUtils.js`, `EclipseIcons.jsx`, `Calendar.jsx`, `Panchang.jsx` |
 | 2026-05 | Restructured three-tab navigation to eliminate overlap — Today is now purely the moon screen (visual + moonrise/moonset + tappable Today's Highlight strip); Calendar is now a pure planning grid (tapping any day navigates directly to Panchang with that date pre-selected); Panchang is the single source of truth for any date | `App.jsx`, `Home.jsx`, `Calendar.jsx`, `Panchang.jsx` |
 | 2026-05 | Home highlight strip now always visible — shows eclipse → festival → tithi/paksha fallback on plain days; Calendar day tap now opens a bottom-sheet modal with Pancha Anga summary + "View Full Panchang" CTA instead of navigating directly | `Home.jsx`, `Calendar.jsx` |
+| 2026-05 | Migrated subscription backend from Google Apps Script to Firebase Firestore — subscribers now stored as individual documents with full data model; soft-delete unsubscribe; security rules block client reads | `src/firebase.js` (new), `src/SubscriptionContext.jsx`, `firestore.rules` (new) |
 
 ---
 
