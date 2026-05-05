@@ -14,7 +14,10 @@ export default defineConfig({
       workbox: {
         skipWaiting: true,
         clientsClaim: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // Only precache the app shell — broad globs caused SW install failures
+        // when any matched file returned a non-200 response during precaching
+        globPatterns: ['index.html', 'assets/**/*.{js,css}'],
+        navigateFallback: 'index.html',
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

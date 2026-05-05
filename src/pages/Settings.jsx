@@ -37,7 +37,7 @@ const Settings = ({ onOpenSubscribe }) => {
   const [notifPermission, setNotifPermission] = useState('default')
   const [notifEnabled, setNotifEnabled] = useState(false)
   const [notifPrefs, setNotifPrefs] = useState(loadNotifPrefs)
-  const [notifTestMsg, setNotifTestMsg] = useState('')   // '' | 'sending' | 'sent' | 'failed'
+  const [showPreview, setShowPreview] = useState(false)
 
   useEffect(() => {
     if ('Notification' in window) {
@@ -47,52 +47,10 @@ const Settings = ({ onOpenSubscribe }) => {
     }
   }, [])
 
-  // Fires a welcome notification — tries SW first, falls back to direct Notification API
-  const showWelcomeNotification = async () => {
-    setNotifTestMsg('sending')
-    let success = false
-
-    // getRegistrations() returns ALL registrations — avoids the scope mismatch
-    // that caused getRegistration('/') to silently return undefined
-    if ('serviceWorker' in navigator) {
-      try {
-        const regs = await navigator.serviceWorker.getRegistrations()
-        for (const reg of regs) {
-          try {
-            await reg.showNotification('🌙 Chandra alerts are on', {
-              body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
-              icon: '/icons/icon-192.png',
-              badge: '/icons/icon-192.png',
-              tag: 'chandra-welcome',
-            })
-            success = true
-            break
-          } catch (e) {
-            console.warn('Chandra: reg.showNotification failed —', e)
-          }
-        }
-      } catch (e) {
-        console.warn('Chandra: getRegistrations failed —', e)
-      }
-    }
-
-    // Fallback — direct Notification API (only works when no SW is registered)
-    if (!success) {
-      try {
-        new Notification('🌙 Chandra alerts are on', {
-          body: "You'll get festival and eclipse alerts right here. Namaste! 🙏",
-          icon: '/icons/icon-192.png',
-        })
-        success = true
-      } catch (e) {
-        console.warn('Chandra: direct notification also failed —', e)
-        const msg = e?.name ? `${e.name}: ${e.message}` : String(e)
-        setNotifTestMsg('failed:' + msg)
-      }
-    }
-
-    if (success) setNotifTestMsg('sent')
-    setTimeout(() => setNotifTestMsg(''), 8000)
+  // Shows the in-app notification preview for 5 seconds
+  const triggerPreview = () => {
+    setShowPreview(true)
+    setTimeout(() => setShowPreview(false), 5000)
   }
 
   const requestPermission = async () => {
@@ -102,18 +60,14 @@ const Settings = ({ onOpenSubscribe }) => {
     if (result === 'granted') {
       setNotifEnabled(true)
       localStorage.setItem(NOTIF_ENABLED_KEY, 'true')
-      await showWelcomeNotification()
+      triggerPreview()
     }
   }
 
-  const toggleNotifMaster = async (val) => {
+  const toggleNotifMaster = (val) => {
     setNotifEnabled(val)
     localStorage.setItem(NOTIF_ENABLED_KEY, val ? 'true' : 'false')
-    // Fire welcome notification whenever alerts are turned on,
-    // covering users whose permission was already granted before this session
-    if (val && notifPermission === 'granted') {
-      await showWelcomeNotification()
-    }
+    if (val && notifPermission === 'granted') triggerPreview()
   }
 
   const toggleNotifPref = (key) => {
@@ -153,6 +107,8 @@ const Settings = ({ onOpenSubscribe }) => {
 
   return (
     <div className="min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
+
+      <NotificationPreview visible={showPreview} onDismiss={() => setShowPreview(false)} />
 
       {/* Header */}
       <div className="text-center mb-6">
@@ -378,28 +334,6 @@ const Settings = ({ onOpenSubscribe }) => {
             </div>
           )}
 
-          {/* In-app notification test feedback */}
-          {notifTestMsg === 'sending' && (
-            <div className="bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 mb-3 flex items-center gap-2">
-              <span className="text-gray-400 text-xs">⏳ Sending test notification…</span>
-            </div>
-          )}
-          {notifTestMsg === 'sent' && (
-            <div className="bg-yellow-950 border border-yellow-700 rounded-xl px-4 py-2.5 mb-3 flex items-center gap-2">
-              <span className="text-yellow-400 text-sm">🔔</span>
-              <p className="text-yellow-200 text-xs">
-                Notification sent — pull down your notification bar to see it
-              </p>
-            </div>
-          )}
-          {notifTestMsg.startsWith('failed') && (
-            <div className="bg-red-950 border border-red-800 rounded-xl px-4 py-2.5 mb-3">
-              <p className="text-red-300 text-xs font-medium mb-1">Notification failed</p>
-              <p className="text-red-400 text-xs break-all">
-                {notifTestMsg.replace('failed:', '') || 'Unknown error'}
-              </p>
-            </div>
-          )}
 
           {/* Master toggle + sub-toggles — locked until permission granted */}
           <div className={notifPermission !== 'granted' ? 'opacity-30 pointer-events-none' : ''}>
@@ -530,6 +464,51 @@ const Settings = ({ onOpenSubscribe }) => {
     </div>
   )
 }
+
+// Slides in from the top like a real Android notification banner
+const NotificationPreview = ({ visible, onDismiss }) => (
+  <div style={{
+    position: 'fixed',
+    top: visible ? '64px' : '-140px',
+    left: '12px',
+    right: '12px',
+    zIndex: 999,
+    transition: 'top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+    background: '#1e1e30',
+    border: '0.5px solid #3a3a5c',
+    borderRadius: '16px',
+    padding: '12px 14px',
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '10px',
+    maxWidth: '480px',
+    margin: '0 auto',
+  }}>
+    <img
+      src="/icons/icon-192.png"
+      alt=""
+      style={{ width: 36, height: 36, borderRadius: 8, flexShrink: 0 }}
+    />
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+        <span style={{ fontSize: 11, color: '#9ca3af', fontWeight: 500 }}>Chandra</span>
+        <span style={{ fontSize: 11, color: '#6b7280' }}>now</span>
+      </div>
+      <p style={{ fontSize: 13, color: '#ffffff', fontWeight: 500, margin: '0 0 3px' }}>
+        🌙 Chandra alerts are on
+      </p>
+      <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.5 }}>
+        You'll get festival and eclipse alerts right here. Namaste! 🙏
+      </p>
+    </div>
+    <button
+      onClick={onDismiss}
+      style={{ background: 'none', border: 'none', color: '#6b7280',
+        cursor: 'pointer', fontSize: 16, padding: '0 0 0 4px', flexShrink: 0 }}
+      aria-label="Dismiss"
+    >✕</button>
+  </div>
+)
 
 // Toggle — 44×24px container, 20×20px knob
 const Toggle = ({ on, onToggle }) => (
