@@ -1,23 +1,10 @@
 import { createContext, useContext, useState } from 'react'
+import { db } from './firebase'
+import { doc, setDoc, updateDoc } from 'firebase/firestore'
 
 const SubscriptionContext = createContext()
 
 export const useSubscription = () => useContext(SubscriptionContext)
-
-const ENDPOINT =
-  'https://script.google.com/macros/s/AKfycbyWMbLrSxuVUOaTzHK_HuZMe01xgwYWQsKZGBR9wIEHpV_g25RjO5ctYQ70Ac_ORnafWg/exec'
-
-// Fire-and-forget POST to Apps Script.
-// mode: 'no-cors' means we can't read the response, but the request
-// reaches the server and the Sheet is updated correctly.
-const post = (data) => {
-  fetch(ENDPOINT, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  }).catch(() => {})
-}
 
 export const SubscriptionProvider = ({ children }) => {
   const [subscription, setSubscription] = useState(() => {
@@ -29,15 +16,17 @@ export const SubscriptionProvider = ({ children }) => {
     }
   })
 
+  // Always keep localStorage in sync as the local source of truth
   const save = (data) => {
     localStorage.setItem('chandra-subscription', JSON.stringify(data))
     setSubscription(data)
   }
 
-  // Create new subscription row in the Sheet
-  const subscribe = (name, email, city, lat, lon, calendarSystem, emailFrequency = 'all') => {
+  // Create a new subscriber document in Firestore
+  const subscribe = async (name, email, city, lat, lon, calendarSystem, emailFrequency = 'all') => {
+    const id = crypto.randomUUID()
     const data = {
-      id: crypto.randomUUID(),
+      id,
       name,
       email,
       city,
@@ -45,37 +34,62 @@ export const SubscriptionProvider = ({ children }) => {
       lon,
       calendarSystem,
       emailFrequency,
+      active: true,
       subscribedAt: new Date().toISOString(),
     }
     save(data)
-    post({ action: 'subscribe', ...data })
+    try {
+      await setDoc(doc(db, 'subscribers', id), data)
+    } catch (e) {
+      console.error('Firestore subscribe error:', e)
+    }
   }
 
-  // Update existing row by UUID
-  const update = (name, email, city, emailFrequency) => {
+  // Update subscriber details
+  const update = async (name, email, city, emailFrequency) => {
     const data = { ...subscription, name, email, city, emailFrequency }
     save(data)
-    post({ action: 'update', id: subscription.id, name, email, city, emailFrequency })
+    try {
+      await updateDoc(doc(db, 'subscribers', subscription.id), {
+        name, email, city, emailFrequency
+      })
+    } catch (e) {
+      console.error('Firestore update error:', e)
+    }
   }
 
-  // Update email frequency preference only
-  const updateFrequency = (emailFrequency) => {
+  // Update email frequency preference only (called from Settings frequency chips)
+  const updateFrequency = async (emailFrequency) => {
     const data = { ...subscription, emailFrequency }
     save(data)
-    post({ action: 'update', id: subscription.id, emailFrequency })
+    try {
+      await updateDoc(doc(db, 'subscribers', subscription.id), { emailFrequency })
+    } catch (e) {
+      console.error('Firestore updateFrequency error:', e)
+    }
   }
 
-  // Mark row as unsubscribed in Sheet, clear local state
-  const unsubscribe = () => {
+  // Soft-delete — marks inactive in Firestore, clears local state
+  // We keep the Firestore document so the backend can honour the unsubscribe
+  const unsubscribe = async () => {
     if (subscription?.id) {
-      post({ action: 'unsubscribe', id: subscription.id })
+      try {
+        await updateDoc(doc(db, 'subscribers', subscription.id), {
+          active: false,
+          unsubscribedAt: new Date().toISOString(),
+        })
+      } catch (e) {
+        console.error('Firestore unsubscribe error:', e)
+      }
     }
     localStorage.removeItem('chandra-subscription')
     setSubscription(null)
   }
 
   return (
-    <SubscriptionContext.Provider value={{ subscription, subscribe, update, updateFrequency, unsubscribe }}>
+    <SubscriptionContext.Provider
+      value={{ subscription, subscribe, update, updateFrequency, unsubscribe }}
+    >
       {children}
     </SubscriptionContext.Provider>
   )
