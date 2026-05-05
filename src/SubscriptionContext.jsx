@@ -38,11 +38,7 @@ export const SubscriptionProvider = ({ children }) => {
       subscribedAt: new Date().toISOString(),
     }
     save(data)
-    try {
-      await setDoc(doc(db, 'subscribers', id), data)
-    } catch (e) {
-      console.error('Firestore subscribe error:', e)
-    }
+    await setDoc(doc(db, 'subscribers', id), data)
   }
 
   // Update subscriber details

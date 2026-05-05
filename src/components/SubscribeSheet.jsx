@@ -45,19 +45,23 @@ const SubscribeSheet = ({ open, onClose }) => {
   }
 
   // ── Handlers ──
-  const handleSubscribe = () => {
+  const handleSubscribe = async () => {
     const err = validate(email)
     if (err) { setError(err); return }
-    subscribe(
-      name.trim(),
-      email.trim(),
-      settings.city,
-      settings.lat,
-      settings.lon,
-      settings.calendarSystem
-    )
-    setSuccess(true)
-    setTimeout(() => onClose(), 2200)
+    try {
+      await subscribe(
+        name.trim(),
+        email.trim(),
+        settings.city,
+        settings.lat,
+        settings.lon,
+        settings.calendarSystem
+      )
+      setSuccess(true)
+      setTimeout(() => onClose(), 2200)
+    } catch (e) {
+      setError('Could not save your subscription: ' + (e?.message || 'unknown error'))
+    }
   }
 
   const startEdit = () => {
