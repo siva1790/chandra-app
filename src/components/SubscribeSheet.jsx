@@ -118,10 +118,10 @@ const SubscribeSheet = ({ open, onClose }) => {
           ══════════════════════════════ */}
           {!subscription && !success && (
             <>
-              <h2 className="text-white text-xl font-bold mb-1">🔔 Get Festival Guides</h2>
+              <h2 className="text-white text-xl font-bold mb-1">🔔 Get Festival Updates</h2>
               <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-                Receive rich festival guides in your inbox — stories, mythology, puja timings and moonrise
-                times personalised for {settings.city}.
+                Sign up to receive festival guides, stories, puja timings and moonrise times
+                personalised for {settings.city} — coming soon to your inbox.
               </p>
 
               <div className="flex flex-col gap-4">
@@ -190,9 +190,9 @@ const SubscribeSheet = ({ open, onClose }) => {
           {success && (
             <div className="py-12 text-center">
               <p className="text-5xl mb-4">🎉</p>
-              <p className="text-white text-xl font-bold mb-2">You're subscribed!</p>
+              <p className="text-white text-xl font-bold mb-2">You're on the list!</p>
               <p className="text-gray-400 text-sm leading-relaxed">
-                Festival guides, stories and personalised timings for {settings.city} — straight to your inbox.
+                We'll send festival guides and personalised timings for {settings.city} when email updates launch.
               </p>
             </div>
           )}
@@ -297,7 +297,7 @@ const SubscribeSheet = ({ open, onClose }) => {
                       Remove your subscription?
                     </p>
                     <p className="text-red-400 text-xs mb-5 leading-relaxed">
-                      You'll stop receiving festival guides. We'll process the removal within 24 hours.
+                      You'll be removed from our festival updates list.
                     </p>
                     <div className="flex gap-3">
                       <button
