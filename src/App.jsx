@@ -9,6 +9,7 @@ import { useSubscription } from './SubscriptionContext'
 import InstallPrompt from './components/InstallPrompt'
 import SubscribeSheet from './components/SubscribeSheet'
 import { trackPageView } from './analytics'
+import { Bell, Moon, Calendar as CalendarIcon, Clock, Settings as SettingsIcon } from 'lucide-react'
 
 function App() {
   const [screen, setScreen] = useState('home')
@@ -39,6 +40,7 @@ function App() {
 
   return (
     <div className="min-h-screen">
+      <a href="#main-content" className="skip-link">Skip to content</a>
 
       {/* ── Persistent Top Bar ── */}
       <div className="fixed top-0 left-0 right-0 h-14 bg-gray-950 border-b border-gray-800 flex items-center justify-between px-4 z-40">
@@ -59,7 +61,7 @@ function App() {
           className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 transition-all"
           aria-label={subscription ? 'View subscription' : 'Subscribe to alerts'}
         >
-          <span className="text-base">🔔</span>
+          <Bell size={16} aria-hidden="true" />
           {subscription ? (
             <>
               {/* Green dot for subscribed state */}
@@ -73,56 +75,35 @@ function App() {
       </div>
 
       {/* ── Page content — pushed below top bar and above bottom nav ── */}
-      <div className="pt-14 pb-20">
+      <main id="main-content" className="pt-14 pb-20">
         <InstallPrompt />
         {screen === 'home'     && <Home location={settings} onNavigateToPanchang={navigateToPanchang} />}
         {screen === 'calendar' && <Calendar onSelectDate={navigateToPanchang} />}
         {screen === 'panchang' && <Panchang location={settings} initialDate={panchangDate} />}
         {screen === 'settings' && <Settings onOpenSubscribe={() => setSheetOpen(true)} />}
-      </div>
+      </main>
 
       {/* ── Bottom Navigation ── */}
-      <div className="fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 flex justify-around items-center px-4 py-3 z-40">
-        <button
-          onClick={() => navigate('home')}
-          className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
-            screen === 'home' ? 'text-yellow-300' : 'text-gray-500'
-          }`}
-        >
-          <span className="text-xl">🌙</span>
-          <span className="text-xs">Today</span>
-        </button>
-
-        <button
-          onClick={() => navigate('calendar')}
-          className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
-            screen === 'calendar' ? 'text-yellow-300' : 'text-gray-500'
-          }`}
-        >
-          <span className="text-xl">🗓️</span>
-          <span className="text-xs">Calendar</span>
-        </button>
-
-        <button
-          onClick={() => navigate('panchang')}
-          className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
-            screen === 'panchang' ? 'text-yellow-300' : 'text-gray-500'
-          }`}
-        >
-          <span className="text-xl">📿</span>
-          <span className="text-xs">Panchang</span>
-        </button>
-
-        <button
-          onClick={() => navigate('settings')}
-          className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all ${
-            screen === 'settings' ? 'text-yellow-300' : 'text-gray-500'
-          }`}
-        >
-          <span className="text-xl">⚙️</span>
-          <span className="text-xs">Settings</span>
-        </button>
-      </div>
+      <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 flex justify-around items-center px-4 py-3 z-40">
+        {[
+          { id: 'home',     label: 'Today',    Icon: Moon },
+          { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
+          { id: 'panchang', label: 'Panchang', Icon: Clock },
+          { id: 'settings', label: 'Settings', Icon: SettingsIcon },
+        ].map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            onClick={() => navigate(id)}
+            aria-current={screen === id ? 'page' : undefined}
+            className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all min-h-[44px] justify-center ${
+              screen === id ? 'text-[#DDBB6A]' : 'text-gray-500'
+            }`}
+          >
+            <Icon size={22} aria-hidden="true" strokeWidth={1.75} />
+            <span className="text-xs">{label}</span>
+          </button>
+        ))}
+      </nav>
 
       {/* ── Subscribe / Details Bottom Sheet ── */}
       <SubscribeSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />

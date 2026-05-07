@@ -4,6 +4,7 @@ import { getSunriseForDate } from '../moonUtils'
 import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DatePickerSheet from '../components/DatePickerSheet'
 import { EclipseIcon } from '../components/EclipseIcons'
+import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sparkles, AlertTriangle, Timer } from 'lucide-react'
 
 const AYANAMSHA = 23.15
 
@@ -270,7 +271,9 @@ const Panchang = ({ location, initialDate }) => {
 
       {/* Header */}
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-yellow-300 mb-1">📿 Panchang</h1>
+        <h1 className="text-2xl font-bold text-yellow-300 mb-1 flex items-center justify-center gap-2">
+          <Clock size={22} aria-hidden="true" strokeWidth={1.75} /> Panchang
+        </h1>
         <p className="text-gray-400 text-sm">Daily Hindu Almanac</p>
       </div>
 
@@ -278,12 +281,14 @@ const Panchang = ({ location, initialDate }) => {
       <div className="flex items-center justify-between mb-6 bg-gray-900 rounded-2xl p-3 border border-gray-800">
         <button
           onClick={() => changeDate(-1)}
-          className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800"
+          aria-label="Previous day"
+          className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800 min-h-[44px] min-w-[44px]"
         >‹</button>
 
         {/* Tappable date — opens calendar picker */}
         <button
           onClick={() => setPickerOpen(true)}
+          aria-label={`Selected date: ${formatDate(selectedDate)}. Tap to change.`}
           className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl hover:bg-gray-800 transition-all"
         >
           <p className="text-white text-sm font-medium">{formatDate(selectedDate)}</p>
@@ -296,7 +301,8 @@ const Panchang = ({ location, initialDate }) => {
 
         <button
           onClick={() => changeDate(1)}
-          className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800"
+          aria-label="Next day"
+          className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800 min-h-[44px] min-w-[44px]"
         >›</button>
       </div>
 
@@ -361,25 +367,25 @@ const Panchang = ({ location, initialDate }) => {
           {/* Special Day Banners */}
           {panchang.isPurnima && (
             <div className="bg-yellow-950 border border-yellow-600 rounded-2xl p-4 text-center">
-              <p className="text-yellow-300 font-semibold">🌕 Purnima — Full Moon Day</p>
+              <p className="text-yellow-300 font-semibold"><span role="img" aria-label="Full moon">🌕</span> Purnima — Full Moon Day</p>
               <p className="text-yellow-500 text-xs mt-1">Auspicious for prayers, charity and fasting</p>
             </div>
           )}
           {panchang.isAmavasya && (
             <div className="bg-indigo-950 border border-indigo-600 rounded-2xl p-4 text-center">
-              <p className="text-indigo-300 font-semibold">🌑 Amavasya — New Moon Day</p>
+              <p className="text-indigo-300 font-semibold"><span role="img" aria-label="New moon">🌑</span> Amavasya — New Moon Day</p>
               <p className="text-indigo-400 text-xs mt-1">Sacred for ancestral offerings (Pitru Tarpan)</p>
             </div>
           )}
           {panchang.isEkadashi && (
             <div className="bg-orange-950 border border-orange-600 rounded-2xl p-4 text-center">
-              <p className="text-orange-300 font-semibold">🙏 Ekadashi — Fasting Day</p>
+              <p className="text-orange-300 font-semibold"><span role="img" aria-label="Folded hands">🙏</span> Ekadashi — Fasting Day</p>
               <p className="text-orange-400 text-xs mt-1">Dedicated to Lord Vishnu — avoid grains today</p>
             </div>
           )}
           {panchang.isVishti && (
             <div className="bg-red-950 border border-red-800 rounded-2xl p-4 text-center">
-              <p className="text-red-400 font-semibold">⚠️ Bhadra (Vishti Karana)</p>
+              <p className="text-red-400 font-semibold"><span role="img" aria-label="Warning">⚠️</span> Bhadra (Vishti Karana)</p>
               <p className="text-red-500 text-xs mt-1">Avoid auspicious activities during this period</p>
             </div>
           )}
@@ -391,13 +397,13 @@ const Panchang = ({ location, initialDate }) => {
             </p>
             <div className="flex flex-col gap-3">
 
-              <PanchangRow icon="🌙" label="Tithi" value={panchang.tithi} sub={panchang.paksha} />
+              <PanchangRow icon={Moon} label="Tithi" value={panchang.tithi} sub={panchang.paksha} />
 
               {/* Nakshatra with timing */}
               {panchang.nakshatraList && panchang.nakshatraList.length > 0 ? (
                 <div className="py-2 border-b border-gray-800">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-base">⭐</span>
+                    <Star size={16} aria-hidden="true" strokeWidth={1.75} className="text-gray-400 shrink-0" />
                     <span className="text-gray-400 text-sm">Nakshatra</span>
                   </div>
                   {panchang.nakshatraList.map((n, i) => (
@@ -421,12 +427,12 @@ const Panchang = ({ location, initialDate }) => {
                   ))}
                 </div>
               ) : (
-                <PanchangRow icon="⭐" label="Nakshatra" value={panchang.nakshatra} sub={`Pada ${panchang.nakshatraPada}`} />
+                <PanchangRow icon={Star} label="Nakshatra" value={panchang.nakshatra} sub={`Pada ${panchang.nakshatraPada}`} />
               )}
 
-              <PanchangRow icon="☯️" label="Yoga" value={panchang.yoga} />
+              <PanchangRow icon={Clock} label="Yoga" value={panchang.yoga} />
               <PanchangRow icon="½" label="Karana" value={panchang.karana} />
-              <PanchangRow icon="📅" label="Vara" value={panchang.vara} sub={panchang.varaDeity} />
+              <PanchangRow icon={CalendarIcon} label="Vara" value={panchang.vara} sub={panchang.varaDeity} />
             </div>
           </div>
 
@@ -436,10 +442,10 @@ const Panchang = ({ location, initialDate }) => {
               Daily Timings
             </p>
             <div className="flex flex-col gap-3">
-              <PanchangRow icon="🌅" label="Brahma Muhurta" value={panchang.brahmaMuhurta} sub="Most auspicious for meditation" />
-              <PanchangRow icon="✨" label="Abhijit Muhurta" value={panchang.abhijitMuhurta} sub="Auspicious for new beginnings" />
-              <PanchangRow icon="🐍" label="Rahu Kaal" value={panchang.rahuKaal} sub="Avoid important work" highlight="red" />
-              <PanchangRow icon="⏳" label="Yamagandam" value={panchang.yamagandam} sub="Avoid auspicious activities" highlight="red" />
+              <PanchangRow icon={Sunrise} label="Brahma Muhurta" value={panchang.brahmaMuhurta} sub="Most auspicious for meditation" />
+              <PanchangRow icon={Sparkles} label="Abhijit Muhurta" value={panchang.abhijitMuhurta} sub="Auspicious for new beginnings" />
+              <PanchangRow icon={AlertTriangle} label="Rahu Kaal" value={panchang.rahuKaal} sub="Avoid important work" highlight="red" />
+              <PanchangRow icon={Timer} label="Yamagandam" value={panchang.yamagandam} sub="Avoid auspicious activities" highlight="red" />
             </div>
           </div>
 
@@ -449,8 +455,8 @@ const Panchang = ({ location, initialDate }) => {
               Planetary Positions
             </p>
             <div className="flex flex-col gap-3">
-              <PanchangRow icon="🌙" label="Moon Longitude" value={`${panchang.moonLongitude}°`} sub="Sidereal (Lahiri)" />
-              <PanchangRow icon="☀️" label="Sun Longitude" value={`${panchang.sunLongitude}°`} sub="Sidereal (Lahiri)" />
+              <PanchangRow icon={Moon} label="Moon Longitude" value={`${panchang.moonLongitude}°`} sub="Sidereal (Lahiri)" />
+              <PanchangRow icon={Sun} label="Sun Longitude" value={`${panchang.sunLongitude}°`} sub="Sidereal (Lahiri)" />
             </div>
           </div>
 
@@ -471,8 +477,8 @@ const Panchang = ({ location, initialDate }) => {
 
         </div>
       ) : (
-        <div className="text-center text-gray-400 mt-20">
-          <p className="text-4xl mb-4">📿</p>
+        <div aria-live="polite" aria-busy="true" className="text-center text-gray-400 mt-20">
+          <p className="text-4xl mb-4" aria-hidden="true">📿</p>
           <p>Calculating Panchang...</p>
         </div>
       )}
@@ -480,11 +486,14 @@ const Panchang = ({ location, initialDate }) => {
   )
 }
 
-// Reusable row component
-const PanchangRow = ({ icon, label, value, sub, highlight }) => (
+// Reusable row component — icon can be a Lucide component or an emoji string
+const PanchangRow = ({ icon: Icon, label, value, sub, highlight }) => (
   <div className="flex items-center justify-between py-2 border-b border-gray-800 last:border-0">
     <div className="flex items-center gap-2">
-      <span className="text-base">{icon}</span>
+      {typeof Icon === 'string'
+        ? <span className="text-base" aria-hidden="true">{Icon}</span>
+        : <Icon size={16} aria-hidden="true" strokeWidth={1.75} className="text-gray-400 shrink-0" />
+      }
       <span className="text-gray-400 text-sm">{label}</span>
     </div>
     <div className="text-right">

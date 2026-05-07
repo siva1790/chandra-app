@@ -92,6 +92,8 @@ const MoonVisual = ({ phase }) => {
         height={SIZE}
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         xmlns="http://www.w3.org/2000/svg"
+        role="img"
+        aria-label={getPhaseName(phase).replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim()}
       >
         <defs>
           {/*

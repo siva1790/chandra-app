@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { CalendarDays } from 'lucide-react'
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -11,6 +12,7 @@ const THIS_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: 31 }, (_, i) => THIS_YEAR - 20 + i)
 
 const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
+  const sheetRef = useRef(null)
   const [viewYear, setViewYear]           = useState(selectedDate.getFullYear())
   const [viewMonth, setViewMonth]         = useState(selectedDate.getMonth())
   const [showYearPicker, setShowYearPicker] = useState(false)
@@ -21,6 +23,22 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
       setViewYear(selectedDate.getFullYear())
       setViewMonth(selectedDate.getMonth())
       setShowYearPicker(false)
+    }
+  }, [open])
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
+  // Focus first interactive element when sheet opens
+  useEffect(() => {
+    if (open && sheetRef.current) {
+      const first = sheetRef.current.querySelector('button, [href], input, [tabindex]')
+      first?.focus()
     }
   }, [open])
 
@@ -90,6 +108,10 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
 
       {/* ── Sheet ── */}
       <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Select date"
         className={`fixed bottom-0 left-0 right-0 z-50 bg-gray-950 rounded-t-3xl border-t border-gray-800
           transition-transform duration-300 ease-out ${open ? 'translate-y-0' : 'translate-y-full'}`}
       >
@@ -117,6 +139,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
               <>
                 <button
                   onClick={prevMonth}
+                  aria-label="Previous month"
                   className="w-10 h-10 flex items-center justify-center text-yellow-300 text-2xl rounded-xl hover:bg-gray-800 transition-all"
                 >
                   ‹
@@ -133,6 +156,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
 
                 <button
                   onClick={nextMonth}
+                  aria-label="Next month"
                   className="w-10 h-10 flex items-center justify-center text-yellow-300 text-2xl rounded-xl hover:bg-gray-800 transition-all"
                 >
                   ›
@@ -184,7 +208,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
                 onClick={handleToday}
                 className="w-full py-3.5 rounded-2xl bg-gray-800 hover:bg-gray-700 text-yellow-300 font-semibold text-sm transition-all border border-gray-700"
               >
-                📅 Go to Today
+                <CalendarDays size={14} aria-hidden="true" className="inline mr-1" /> Go to Today
               </button>
             </>
           )}

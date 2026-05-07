@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSubscription } from '../SubscriptionContext'
 import { useSettings } from '../SettingsContext'
 import { cities } from '../cities'
 import { trackEvent } from '../analytics'
 
 const SubscribeSheet = ({ open, onClose }) => {
+  const sheetRef = useRef(null)
   const { subscription, subscribe, update, unsubscribe } = useSubscription()
   const { settings } = useSettings()
 
@@ -37,6 +38,22 @@ const SubscribeSheet = ({ open, onClose }) => {
 
   // ── Unsubscribe confirmation ──
   const [confirmUnsub, setConfirmUnsub] = useState(false)
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open, onClose])
+
+  // Focus first interactive element when sheet opens
+  useEffect(() => {
+    if (open && sheetRef.current) {
+      const first = sheetRef.current.querySelector('button, [href], input, [tabindex]')
+      first?.focus()
+    }
+  }, [open])
 
   // Reset transient UI state each time the sheet closes
   useEffect(() => {
@@ -144,6 +161,10 @@ const SubscribeSheet = ({ open, onClose }) => {
 
       {/* ── Bottom sheet ── */}
       <div
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="subscribe-sheet-title"
         className={`fixed bottom-0 left-0 right-0 z-50 bg-gray-950 rounded-t-3xl border-t border-gray-800
           transition-transform duration-300 ease-out ${open ? 'translate-y-0' : 'translate-y-full'}`}
       >
@@ -159,7 +180,7 @@ const SubscribeSheet = ({ open, onClose }) => {
           ══════════════════════════════ */}
           {!subscription && !success && (
             <>
-              <h2 className="text-white text-xl font-bold mb-1">🔔 Get Festival Updates</h2>
+              <h2 id="subscribe-sheet-title" className="text-white text-xl font-bold mb-1">Get Festival Updates</h2>
               <p className="text-gray-400 text-sm mb-6 leading-relaxed">
                 Sign up to receive festival guides, stories, puja timings and moonrise times
                 personalised for your city — coming soon to your inbox.
@@ -177,7 +198,7 @@ const SubscribeSheet = ({ open, onClose }) => {
                     placeholder="Your name"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none placeholder-gray-500"
+                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
                   />
                 </div>
 
@@ -189,7 +210,7 @@ const SubscribeSheet = ({ open, onClose }) => {
                     placeholder="you@example.com"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none placeholder-gray-500"
+                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
                   />
                 </div>
 
@@ -202,7 +223,7 @@ const SubscribeSheet = ({ open, onClose }) => {
                     value={citySearch}
                     onChange={e => { setCitySearch(e.target.value); setShowCityList(true) }}
                     onFocus={() => setShowCityList(true)}
-                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none placeholder-gray-400"
+                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-400"
                   />
                   {showCityList && citySearch.length > 0 && (
                     <div className="mt-1 bg-gray-800 rounded-xl border border-gray-700 max-h-40 overflow-y-auto">
@@ -316,7 +337,7 @@ const SubscribeSheet = ({ open, onClose }) => {
                       type="text"
                       value={editName}
                       onChange={e => setEditName(e.target.value)}
-                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none"
+                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -325,7 +346,7 @@ const SubscribeSheet = ({ open, onClose }) => {
                       type="email"
                       value={editEmail}
                       onChange={e => setEditEmail(e.target.value)}
-                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none"
+                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none"
                     />
                   </div>
                   {/* Edit city picker */}
@@ -337,7 +358,7 @@ const SubscribeSheet = ({ open, onClose }) => {
                       value={editCitySearch}
                       onChange={e => { setEditCitySearch(e.target.value); setShowEditCityList(true) }}
                       onFocus={() => setShowEditCityList(true)}
-                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none placeholder-gray-400"
+                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-400"
                     />
                     {showEditCityList && editCitySearch.length > 0 && (
                       <div className="mt-1 bg-gray-800 rounded-xl border border-gray-700 max-h-40 overflow-y-auto">

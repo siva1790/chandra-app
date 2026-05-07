@@ -4,6 +4,7 @@ import { useSubscription } from '../SubscriptionContext'
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
+import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail } from 'lucide-react'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
@@ -144,13 +145,15 @@ const Settings = ({ onOpenSubscribe }) => {
 
       {/* Header */}
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-yellow-300 mb-1">⚙️ Settings</h1>
+        <h1 className="text-2xl font-bold text-yellow-300 mb-1 flex items-center justify-center gap-2">
+          <SettingsIcon size={22} aria-hidden="true" strokeWidth={1.75} /> Settings
+        </h1>
         <p className="text-gray-400 text-sm">Personalise your Chandra experience</p>
       </div>
 
       {/* Saved Badge */}
       {saved && (
-        <div className="bg-green-900 border border-green-600 rounded-xl p-3 text-center mb-4 transition-all">
+        <div role="status" aria-live="polite" className="bg-green-900 border border-green-600 rounded-xl p-3 text-center mb-4 transition-all">
           <p className="text-green-300 text-sm">✓ Settings saved</p>
         </div>
       )}
@@ -162,15 +165,15 @@ const Settings = ({ onOpenSubscribe }) => {
           <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">Current Settings</p>
           <div className="flex flex-col gap-2">
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm">📍 City</span>
+              <span className="text-gray-400 text-sm flex items-center gap-1"><MapPin size={13} aria-hidden="true" /> City</span>
               <span className="text-white text-sm font-medium">{settings.city}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm">🌐 Language</span>
+              <span className="text-gray-400 text-sm flex items-center gap-1"><Globe size={13} aria-hidden="true" /> Language</span>
               <span className="text-white text-sm font-medium">{settings.language}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm">📅 Calendar</span>
+              <span className="text-gray-400 text-sm flex items-center gap-1"><CalendarIcon size={13} aria-hidden="true" /> Calendar</span>
               <span className="text-white text-sm font-medium">{settings.calendarSystem}</span>
             </div>
           </div>
@@ -178,15 +181,17 @@ const Settings = ({ onOpenSubscribe }) => {
 
         {/* City Selector */}
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">
-            📍 Your City
+          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3 flex items-center gap-1.5">
+            <MapPin size={13} aria-hidden="true" /> Your City
           </p>
           <p className="text-gray-400 text-xs mb-3">
             Used for accurate moonrise, moonset and Rahu Kaal timings
           </p>
 
           {/* Search Input */}
+          <label htmlFor="city-search" className="sr-only">Search for a city</label>
           <input
+            id="city-search"
             type="text"
             placeholder="Search city or state..."
             value={citySearch}
@@ -195,7 +200,7 @@ const Settings = ({ onOpenSubscribe }) => {
               setShowCityList(true)
             }}
             onFocus={() => setShowCityList(true)}
-            className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none placeholder-gray-500"
+            className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
           />
 
           {/* City Dropdown */}
@@ -246,8 +251,8 @@ const Settings = ({ onOpenSubscribe }) => {
 
         {/* Language Selector */}
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">
-            🌐 Language
+          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3 flex items-center gap-1.5">
+            <Globe size={13} aria-hidden="true" /> Language
           </p>
           <p className="text-gray-400 text-xs mb-3">
             More languages coming soon
@@ -283,8 +288,8 @@ const Settings = ({ onOpenSubscribe }) => {
 
         {/* Calendar System */}
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">
-            📅 Calendar System
+          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3 flex items-center gap-1.5">
+            <CalendarIcon size={13} aria-hidden="true" /> Calendar System
           </p>
           <p className="text-gray-400 text-xs mb-4">
             Choose the lunar calendar tradition followed in your region
@@ -328,8 +333,8 @@ const Settings = ({ onOpenSubscribe }) => {
 
         {/* Push Notifications */}
         <div className="bg-gray-900 rounded-2xl p-5 border border-yellow-900">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">
-            🔔 Push Notifications
+          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3 flex items-center gap-1.5">
+            <Bell size={13} aria-hidden="true" /> Push Notifications
           </p>
 
           {/* Permission denied state */}
@@ -378,7 +383,7 @@ const Settings = ({ onOpenSubscribe }) => {
             {/* Master toggle */}
             <div className="flex items-center justify-between py-2 border-b border-gray-800">
               <span className="text-white text-sm">Enable all alerts</span>
-              <Toggle on={notifEnabled} onToggle={() => toggleNotifMaster(!notifEnabled)} />
+              <Toggle on={notifEnabled} onToggle={() => toggleNotifMaster(!notifEnabled)} label="Enable all alerts" />
             </div>
             {!notifEnabled && notifPermission === 'granted' && (
               <p className="text-gray-500 text-xs leading-relaxed mt-2 mb-1">
@@ -399,7 +404,7 @@ const Settings = ({ onOpenSubscribe }) => {
                     <p className="text-gray-200 text-sm">{label}</p>
                     <p className="text-gray-500 text-xs">{hint}</p>
                   </div>
-                  <SubToggle on={notifPrefs[key]} onToggle={() => toggleNotifPref(key)} />
+                  <SubToggle on={notifPrefs[key]} onToggle={() => toggleNotifPref(key)} label={label} />
                 </div>
               ))}
             </div>
@@ -408,8 +413,8 @@ const Settings = ({ onOpenSubscribe }) => {
 
         {/* Email Alerts */}
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-1">
-            ✉️ Email Alerts
+          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-1 flex items-center gap-1.5">
+            <Mail size={13} aria-hidden="true" /> Email Alerts
           </p>
           <p className="text-gray-500 text-xs mb-4 leading-relaxed">
             Rich festival guides with stories, puja timings and moonrise times for {settings.city}.
@@ -499,7 +504,7 @@ const Settings = ({ onOpenSubscribe }) => {
 
 // Slides in from the top like a real Android notification banner
 const NotificationPreview = ({ visible, onDismiss }) => (
-  <div style={{
+  <div role="alert" aria-live="assertive" style={{
     position: 'fixed',
     top: visible ? '64px' : '-140px',
     left: '12px',
@@ -543,22 +548,27 @@ const NotificationPreview = ({ visible, onDismiss }) => (
 )
 
 // Toggle — 44×24px container, 20×20px knob
-const Toggle = ({ on, onToggle }) => (
+const Toggle = ({ on, onToggle, label }) => (
   <button
     onClick={onToggle}
-    aria-pressed={on}
+    role="switch"
+    aria-checked={on}
+    aria-label={label}
     style={{
       position: 'relative',
       width: '44px',
       height: '24px',
       borderRadius: '12px',
-      background: on ? '#fbbf24' : '#374151',
-      border: 'none',
+      background: on ? '#DDBB6A' : '#374151',
+      border: '1.5px solid rgba(255,255,255,0.15)',
       cursor: 'pointer',
       flexShrink: 0,
       transition: 'background 0.2s',
       padding: 0,
+      outline: 'none',
     }}
+    onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 2px #8EA8FF' }}
+    onBlur={e => { e.currentTarget.style.boxShadow = 'none' }}
   >
     <span style={{
       position: 'absolute',
@@ -568,29 +578,35 @@ const Toggle = ({ on, onToggle }) => (
       height: '20px',
       background: '#ffffff',
       borderRadius: '50%',
-      transition: 'left 0.2s',
+      transition: 'left 0.2s cubic-bezier(0.34,1.56,0.64,1)',
       display: 'block',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
     }} />
   </button>
 )
 
 // SubToggle — 36×20px container, 16×16px knob
-const SubToggle = ({ on, onToggle }) => (
+const SubToggle = ({ on, onToggle, label }) => (
   <button
     onClick={onToggle}
-    aria-pressed={on}
+    role="switch"
+    aria-checked={on}
+    aria-label={label}
     style={{
       position: 'relative',
       width: '36px',
       height: '20px',
       borderRadius: '10px',
-      background: on ? '#fbbf24' : '#374151',
-      border: 'none',
+      background: on ? '#DDBB6A' : '#374151',
+      border: '1.5px solid rgba(255,255,255,0.15)',
       cursor: 'pointer',
       flexShrink: 0,
       transition: 'background 0.2s',
       padding: 0,
+      outline: 'none',
     }}
+    onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 2px #8EA8FF' }}
+    onBlur={e => { e.currentTarget.style.boxShadow = 'none' }}
   >
     <span style={{
       position: 'absolute',
@@ -600,8 +616,9 @@ const SubToggle = ({ on, onToggle }) => (
       height: '16px',
       background: '#ffffff',
       borderRadius: '50%',
-      transition: 'left 0.2s',
+      transition: 'left 0.2s cubic-bezier(0.34,1.56,0.64,1)',
       display: 'block',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
     }} />
   </button>
 )

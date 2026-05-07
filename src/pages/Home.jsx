@@ -6,6 +6,7 @@ import { getSunriseForDate, getMoonPhaseAngle, getTithiFromAngle } from '../moon
 import { getDatedFestivalsForDate, getMonthlyFestivalsForTithi } from '../festivals'
 import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
+import { MapPin } from 'lucide-react'
 
 const Home = ({ onNavigateToPanchang }) => {
   const { settings } = useSettings()
@@ -107,12 +108,14 @@ const Home = ({ onNavigateToPanchang }) => {
       {/* Header */}
       <div className="text-center mb-6">
         <p className="text-gray-300 text-sm font-medium">{dateString}</p>
-        <p className="text-gray-500 text-xs mt-1">📍 {location.city}</p>
+        <p className="text-gray-500 text-xs mt-1 flex items-center justify-center gap-1">
+          <MapPin size={12} aria-hidden="true" /> {location.city}
+        </p>
       </div>
 
       {loading ? (
-        <div className="text-center text-gray-400 mt-20">
-          <p className="text-4xl mb-4">🌙</p>
+        <div aria-live="polite" aria-busy="true" className="text-center text-gray-400 mt-20">
+          <p className="text-4xl mb-4" aria-hidden="true">🌙</p>
           <p>Calculating moon data...</p>
         </div>
       ) : moonData ? (
@@ -129,12 +132,12 @@ const Home = ({ onNavigateToPanchang }) => {
             {/* Compact moonrise / moonset row */}
             <div className="flex items-center gap-8 mt-5 pt-4 border-t border-gray-800 w-full justify-center">
               <div className="text-center">
-                <p className="text-gray-500 text-xs mb-1">🌙 Moonrise</p>
+                <p className="text-gray-400 text-xs mb-1"><span role="img" aria-label="Moon">🌙</span> Moonrise</p>
                 <p className="text-white text-sm font-semibold">{moonData.moonrise}</p>
               </div>
               <div className="w-px h-8 bg-gray-700" />
               <div className="text-center">
-                <p className="text-gray-500 text-xs mb-1">🌘 Moonset</p>
+                <p className="text-gray-400 text-xs mb-1"><span role="img" aria-label="Waning crescent moon">🌘</span> Moonset</p>
                 <p className="text-white text-sm font-semibold">{moonData.moonset}</p>
               </div>
             </div>
@@ -173,7 +176,7 @@ const Home = ({ onNavigateToPanchang }) => {
               ) : (
                 /* ── Plain day — show tithi as highlight ── */
                 <>
-                  <span className="text-2xl flex-shrink-0">🌙</span>
+                  <span className="text-2xl flex-shrink-0" role="img" aria-label="Moon">🌙</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">Today's Tithi</p>
                     <p className="text-white font-semibold text-sm">{todayHighlight.tithi.name}</p>
@@ -186,7 +189,7 @@ const Home = ({ onNavigateToPanchang }) => {
 
         </div>
       ) : (
-        <p className="text-center text-red-400">Could not load moon data. Please refresh.</p>
+        <p role="alert" className="text-center text-red-400">Could not load moon data. Please refresh.</p>
       )}
     </div>
   )

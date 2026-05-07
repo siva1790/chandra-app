@@ -42,7 +42,7 @@ const InstallPrompt = () => {
   return (
     <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-4">
       <div className="bg-gray-900 border border-yellow-800 rounded-2xl p-4 flex items-center gap-3 shadow-xl">
-        <span className="text-3xl">🌙</span>
+        <span className="text-3xl" aria-hidden="true">🌙</span>
         <div className="flex-1">
           <p className="text-white text-sm font-semibold">Install Chandra</p>
           <p className="text-gray-400 text-xs">Add to home screen for quick access</p>
