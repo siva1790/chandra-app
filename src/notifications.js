@@ -28,7 +28,8 @@ export const initDevice = async (city, lat, lon, notifPrefs) => {
     const messaging = await getMessagingInstance()
     if (!messaging) return null
 
-    const token = await getToken(messaging, { vapidKey: VAPID_KEY })
+    const registration = await navigator.serviceWorker.ready
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: registration })
     if (!token) return null
 
     // Stable device ID stored in localStorage
