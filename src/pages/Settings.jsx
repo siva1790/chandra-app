@@ -572,7 +572,8 @@ const Toggle = ({ on, onToggle, label }) => (
   >
     <span style={{
       position: 'absolute',
-      top: '2px',
+      top: '50%',
+      transform: 'translateY(-50%)',
       left: on ? '22px' : '2px',
       width: '20px',
       height: '20px',
@@ -610,7 +611,8 @@ const SubToggle = ({ on, onToggle, label }) => (
   >
     <span style={{
       position: 'absolute',
-      top: '2px',
+      top: '50%',
+      transform: 'translateY(-50%)',
       left: on ? '18px' : '2px',
       width: '16px',
       height: '16px',
