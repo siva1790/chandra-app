@@ -42,12 +42,12 @@ export const SubscriptionProvider = ({ children }) => {
   }
 
   // Update subscriber details
-  const update = async (name, email, city, emailFrequency) => {
-    const data = { ...subscription, name, email, city, emailFrequency }
+  const update = async (name, email, city, lat, lon, emailFrequency) => {
+    const data = { ...subscription, name, email, city, lat, lon, emailFrequency }
     save(data)
     try {
       await updateDoc(doc(db, 'subscribers', subscription.id), {
-        name, email, city, emailFrequency
+        name, email, city, lat, lon, emailFrequency
       })
     } catch (e) {
       console.error('Firestore update error:', e)

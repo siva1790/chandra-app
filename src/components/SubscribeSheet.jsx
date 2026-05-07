@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSubscription } from '../SubscriptionContext'
 import { useSettings } from '../SettingsContext'
+import { cities } from '../cities'
 
 const SubscribeSheet = ({ open, onClose }) => {
   const { subscription, subscribe, update, unsubscribe } = useSubscription()
@@ -12,12 +13,26 @@ const SubscribeSheet = ({ open, onClose }) => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
+  // ── Subscribe city picker ──
+  const [subCity, setSubCity] = useState(settings.city)
+  const [subLat, setSubLat]   = useState(settings.lat)
+  const [subLon, setSubLon]   = useState(settings.lon)
+  const [citySearch, setCitySearch]       = useState('')
+  const [showCityList, setShowCityList]   = useState(false)
+
   // ── Edit mode state ──
   const [isEditing, setIsEditing]   = useState(false)
   const [editName, setEditName]     = useState('')
   const [editEmail, setEditEmail]   = useState('')
   const [editError, setEditError]   = useState('')
   const [editSaved, setEditSaved]   = useState(false)
+
+  // ── Edit city picker ──
+  const [editCity, setEditCity]           = useState('')
+  const [editLat, setEditLat]             = useState(0)
+  const [editLon, setEditLon]             = useState(0)
+  const [editCitySearch, setEditCitySearch]     = useState('')
+  const [showEditCityList, setShowEditCityList] = useState(false)
 
   // ── Unsubscribe confirmation ──
   const [confirmUnsub, setConfirmUnsub] = useState(false)
@@ -32,10 +47,29 @@ const SubscribeSheet = ({ open, onClose }) => {
         setConfirmUnsub(false)
         setEditError('')
         setEditSaved(false)
+        setCitySearch('')
+        setShowCityList(false)
+        setEditCitySearch('')
+        setShowEditCityList(false)
       }, 320)
       return () => clearTimeout(t)
+    } else {
+      // Reset subscribe city to current settings city each time sheet opens
+      setSubCity(settings.city)
+      setSubLat(settings.lat)
+      setSubLon(settings.lon)
     }
-  }, [open])
+  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── City filter helpers ──
+  const filteredCities = cities.filter(c =>
+    c.name.toLowerCase().includes(citySearch.toLowerCase()) ||
+    c.state.toLowerCase().includes(citySearch.toLowerCase())
+  )
+  const filteredEditCities = cities.filter(c =>
+    c.name.toLowerCase().includes(editCitySearch.toLowerCase()) ||
+    c.state.toLowerCase().includes(editCitySearch.toLowerCase())
+  )
 
   // ── Validation ──
   const validate = (eml) => {
@@ -52,9 +86,9 @@ const SubscribeSheet = ({ open, onClose }) => {
       await subscribe(
         name.trim(),
         email.trim(),
-        settings.city,
-        settings.lat,
-        settings.lon,
+        subCity,
+        subLat,
+        subLon,
         settings.calendarSystem
       )
       setSuccess(true)
@@ -67,6 +101,10 @@ const SubscribeSheet = ({ open, onClose }) => {
   const startEdit = () => {
     setEditName(subscription?.name  || '')
     setEditEmail(subscription?.email || '')
+    setEditCity(subscription?.city  || settings.city)
+    setEditLat(subscription?.lat    || settings.lat)
+    setEditLon(subscription?.lon    || settings.lon)
+    setEditCitySearch('')
     setEditError('')
     setEditSaved(false)
     setIsEditing(true)
@@ -75,7 +113,7 @@ const SubscribeSheet = ({ open, onClose }) => {
   const handleSaveEdit = () => {
     const err = validate(editEmail)
     if (err) { setEditError(err); return }
-    update(editName.trim(), editEmail.trim(), settings.city, subscription?.emailFrequency || 'all')
+    update(editName.trim(), editEmail.trim(), editCity, editLat, editLon, subscription?.emailFrequency || 'all')
     setIsEditing(false)
     setEditSaved(true)
   }
@@ -121,7 +159,7 @@ const SubscribeSheet = ({ open, onClose }) => {
               <h2 className="text-white text-xl font-bold mb-1">🔔 Get Festival Updates</h2>
               <p className="text-gray-400 text-sm mb-6 leading-relaxed">
                 Sign up to receive festival guides, stories, puja timings and moonrise times
-                personalised for {settings.city} — coming soon to your inbox.
+                personalised for your city — coming soon to your inbox.
               </p>
 
               <div className="flex flex-col gap-4">
@@ -152,13 +190,36 @@ const SubscribeSheet = ({ open, onClose }) => {
                   />
                 </div>
 
-                {/* City (read-only from Settings) */}
-                <div className="bg-gray-900 rounded-xl px-4 py-3 flex items-center gap-3 border border-gray-800">
-                  <span>📍</span>
-                  <div>
-                    <p className="text-gray-500 text-xs">City — from your Settings</p>
-                    <p className="text-white text-sm font-medium">{settings.city}</p>
-                  </div>
+                {/* City picker */}
+                <div>
+                  <label className="text-gray-400 text-xs mb-1.5 block">City</label>
+                  <input
+                    type="text"
+                    placeholder={`📍 ${subCity} — tap to change`}
+                    value={citySearch}
+                    onChange={e => { setCitySearch(e.target.value); setShowCityList(true) }}
+                    onFocus={() => setShowCityList(true)}
+                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none placeholder-gray-400"
+                  />
+                  {showCityList && citySearch.length > 0 && (
+                    <div className="mt-1 bg-gray-800 rounded-xl border border-gray-700 max-h-40 overflow-y-auto">
+                      {filteredCities.length > 0 ? filteredCities.map((city, i) => (
+                        <button
+                          key={i}
+                          onMouseDown={() => {
+                            setSubCity(city.name); setSubLat(city.lat); setSubLon(city.lon)
+                            setCitySearch(''); setShowCityList(false)
+                          }}
+                          className="w-full text-left px-4 py-2.5 hover:bg-gray-700 transition-all border-b border-gray-700 last:border-0"
+                        >
+                          <p className="text-white text-sm font-medium">{city.name}</p>
+                          <p className="text-gray-400 text-xs">{city.state}</p>
+                        </button>
+                      )) : (
+                        <p className="text-gray-500 text-sm px-4 py-3">No cities found</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {error && (
@@ -192,7 +253,7 @@ const SubscribeSheet = ({ open, onClose }) => {
               <p className="text-5xl mb-4">🎉</p>
               <p className="text-white text-xl font-bold mb-2">You're on the list!</p>
               <p className="text-gray-400 text-sm leading-relaxed">
-                We'll send festival guides and personalised timings for {settings.city} when email updates launch.
+                We'll send festival guides and personalised timings for {subCity} when email updates launch.
               </p>
             </div>
           )}
@@ -263,6 +324,37 @@ const SubscribeSheet = ({ open, onClose }) => {
                       onChange={e => setEditEmail(e.target.value)}
                       className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none"
                     />
+                  </div>
+                  {/* Edit city picker */}
+                  <div>
+                    <label className="text-gray-400 text-xs mb-1.5 block">City</label>
+                    <input
+                      type="text"
+                      placeholder={`📍 ${editCity} — tap to change`}
+                      value={editCitySearch}
+                      onChange={e => { setEditCitySearch(e.target.value); setShowEditCityList(true) }}
+                      onFocus={() => setShowEditCityList(true)}
+                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-yellow-600 focus:outline-none placeholder-gray-400"
+                    />
+                    {showEditCityList && editCitySearch.length > 0 && (
+                      <div className="mt-1 bg-gray-800 rounded-xl border border-gray-700 max-h-40 overflow-y-auto">
+                        {filteredEditCities.length > 0 ? filteredEditCities.map((city, i) => (
+                          <button
+                            key={i}
+                            onMouseDown={() => {
+                              setEditCity(city.name); setEditLat(city.lat); setEditLon(city.lon)
+                              setEditCitySearch(''); setShowEditCityList(false)
+                            }}
+                            className="w-full text-left px-4 py-2.5 hover:bg-gray-700 transition-all border-b border-gray-700 last:border-0"
+                          >
+                            <p className="text-white text-sm font-medium">{city.name}</p>
+                            <p className="text-gray-400 text-xs">{city.state}</p>
+                          </button>
+                        )) : (
+                          <p className="text-gray-500 text-sm px-4 py-3">No cities found</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {editError && <p className="text-red-400 text-sm">{editError}</p>}
                   <div className="flex gap-3">
