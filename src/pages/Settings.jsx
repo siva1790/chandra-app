@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSettings } from '../SettingsContext'
 import { useSubscription } from '../SubscriptionContext'
 import { cities } from '../cities'
+import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
@@ -47,6 +48,14 @@ const Settings = ({ onOpenSubscribe }) => {
     }
   }, [])
 
+  // Refresh FCM device registration whenever city changes (or on first mount if
+  // notifications are already enabled). This keeps the backend's city/lat/lon current.
+  useEffect(() => {
+    if (notifPermission === 'granted' && notifEnabled) {
+      initDevice(settings.city, settings.lat, settings.lon, notifPrefs).catch(() => {})
+    }
+  }, [settings.city, settings.lat, settings.lon]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Shows the in-app notification preview for 5 seconds
   const triggerPreview = () => {
     setShowPreview(true)
@@ -61,19 +70,38 @@ const Settings = ({ onOpenSubscribe }) => {
       setNotifEnabled(true)
       localStorage.setItem(NOTIF_ENABLED_KEY, 'true')
       triggerPreview()
+      // Register this device in Firestore so the backend can send push notifications
+      initDevice(settings.city, settings.lat, settings.lon, notifPrefs).catch(() => {})
     }
   }
 
   const toggleNotifMaster = (val) => {
     setNotifEnabled(val)
     localStorage.setItem(NOTIF_ENABLED_KEY, val ? 'true' : 'false')
-    if (val && notifPermission === 'granted') triggerPreview()
+    if (val && notifPermission === 'granted') {
+      triggerPreview()
+      // Re-activate device in case it was previously deactivated
+      initDevice(settings.city, settings.lat, settings.lon, notifPrefs).catch(() => {})
+    } else if (!val) {
+      // Mark device inactive — backend will skip this device until re-enabled
+      deactivateDevice().catch(() => {})
+    }
   }
 
   const toggleNotifPref = (key) => {
     const updated = { ...notifPrefs, [key]: !notifPrefs[key] }
     setNotifPrefs(updated)
     saveNotifPrefs(updated)
+    // Sync updated prefs to Firestore if device is active
+    if (notifPermission === 'granted' && notifEnabled) {
+      updateDevice({
+        notifPrefs: {
+          festivals: updated.festivals,
+          eclipses:  updated.eclipses,
+          ekadashi:  updated.ekadashi,
+        }
+      }).catch(() => {})
+    }
   }
 
   const filteredCities = cities.filter(c =>

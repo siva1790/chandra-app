@@ -8,31 +8,20 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: null,
-      devOptions: {
-        enabled: true
-      },
+      // injectManifest lets us write a custom sw.js that handles both
+      // Workbox precaching AND FCM push events in one file.
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       manifest: false,
-      workbox: {
-        skipWaiting: true,
-        clientsClaim: true,
-        // Only precache the app shell — broad globs caused SW install failures
-        // when any matched file returned a non-200 response during precaching
+      injectManifest: {
+        // Only precache the app shell
         globPatterns: ['index.html', 'assets/**/*.{js,css}'],
-        navigateFallback: 'index.html',
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              }
-            }
-          }
-        ]
-      }
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
     })
   ]
 })

@@ -1,0 +1,13 @@
+{
+  "name": "chandra-functions",
+  "description": "Cloud Functions for Chandra — push notifications and email delivery",
+  "engines": { "node": "22" },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^7.0.0",
+    "astronomy-engine": "^2.1.19",
+    "resend": "^6.0.0"
+  },
+  "private": true
+}
