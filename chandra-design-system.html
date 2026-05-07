@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chandra — Design System v1.0</title>
+<style>
+/* ── Document shell ─────────────────────────────────────────── */
+:root {
+  --doc-bg: #F7F8FA;
+  --doc-surface: #FFFFFF;
+  --doc-border: #E4E7EF;
+  --doc-text: #1A1D2E;
+  --doc-muted: #5A607A;
+  --doc-accent: #3D4ECC;
+  --doc-gold: #B8860B;
+  --pass: #1A7C3E; --pass-bg: #E8F5EE;
+  --warn: #92600A; --warn-bg: #FEF3E2;
+  --fail: #B91C1C; --fail-bg: #FEE2E2;
+  --info: #1D4ED8; --info-bg: #EFF6FF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'Segoe UI', Arial, sans-serif; background: var(--doc-bg); color: var(--doc-text); font-size: 14px; line-height: 1.65; }
+.page { max-width: 1040px; margin: 0 auto; padding: 0 0 80px; }
+
+/* ── Nav sidebar (sticky) ───────────────────────────────────── */
+.layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; }
+.sidebar {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  background: #1A1D2E; padding: 28px 0;
+  border-right: 1px solid #2A2F45;
+}
+.sidebar-logo { padding: 0 20px 24px; border-bottom: 1px solid #2A2F45; margin-bottom: 16px; }
+.sidebar-logo .name { font-size: 17px; font-weight: 700; color: #DDBB6A; }
+.sidebar-logo .ver { font-size: 11px; color: #70778B; margin-top: 2px; }
+.sidebar nav a {
+  display: block; padding: 7px 20px; font-size: 12.5px; color: #8EA8FF;
+  text-decoration: none; transition: background 0.15s;
+}
+.sidebar nav a:hover { background: rgba(142,168,255,0.1); }
+.sidebar nav a.active { color: #DDBB6A; }
+.sidebar .nav-group { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #4A5170; padding: 14px 20px 4px; font-weight: 600; }
+.main { padding: 48px 56px; }
+
+/* ── Section headers ────────────────────────────────────────── */
+.section { margin-bottom: 64px; }
+.section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; padding-bottom: 12px; border-bottom: 2px solid var(--doc-border); }
+.section-num { width: 32px; height: 32px; border-radius: 8px; background: #1A1D2E; color: #DDBB6A; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+h1.sec { font-size: 22px; font-weight: 700; color: var(--doc-text); }
+h2.sub { font-size: 16px; font-weight: 700; color: var(--doc-text); margin: 28px 0 12px; }
+h3.subsub { font-size: 13.5px; font-weight: 600; color: var(--doc-muted); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .06em; }
+
+/* ── Cover ──────────────────────────────────────────────────── */
+.cover {
+  background: linear-gradient(135deg, #0B1020 0%, #151B2F 60%, #1D2440 100%);
+  padding: 56px; margin-bottom: 0;
+  border-radius: 0;
+}
+.cover-inner { max-width: 600px; }
+.cover .badge { display: inline-block; background: rgba(221,187,106,0.15); border: 1px solid rgba(221,187,106,0.4); color: #DDBB6A; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 999px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 20px; }
+.cover h1 { font-size: 36px; font-weight: 800; color: #F5F7FA; margin-bottom: 8px; }
+.cover .tagline { font-size: 15px; color: #B5BDD1; margin-bottom: 28px; line-height: 1.5; }
+.cover-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.cover-pill { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: #B5BDD1; font-size: 12px; padding: 5px 12px; border-radius: 999px; }
+
+/* ── Callout boxes ──────────────────────────────────────────── */
+.callout { border-radius: 10px; padding: 14px 18px; margin: 14px 0; font-size: 13.5px; line-height: 1.6; }
+.callout strong { display: block; margin-bottom: 3px; font-size: 13px; }
+.callout.pass { background: var(--pass-bg); border-left: 3px solid var(--pass); color: #14532D; }
+.callout.pass strong { color: var(--pass); }
+.callout.warn { background: var(--warn-bg); border-left: 3px solid #D97706; color: #78350F; }
+.callout.warn strong { color: #92600A; }
+.callout.fail { background: var(--fail-bg); border-left: 3px solid var(--fail); color: #7F1D1D; }
+.callout.fail strong { color: var(--fail); }
+.callout.info { background: var(--info-bg); border-left: 3px solid var(--info); color: #1E3A8A; }
+.callout.info strong { color: var(--info); }
+
+/* ── Tables ─────────────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0 20px; }
+th { background: #F0F2F8; text-align: left; padding: 8px 12px; font-size: 12px; font-weight: 600; color: var(--doc-muted); text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid var(--doc-border); }
+td { padding: 9px 12px; border-bottom: 1px solid var(--doc-border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+code { font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace; font-size: 12px; background: #EEF0F8; padding: 2px 6px; border-radius: 4px; color: #2D3580; }
+pre { background: #1A1D2E; color: #E8EEFF; padding: 18px 20px; border-radius: 10px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12.5px; line-height: 1.7; overflow-x: auto; margin: 12px 0 16px; }
+pre .comment { color: #4A5585; }
+pre .key { color: #8EA8FF; }
+pre .val { color: #DDBB6A; }
+pre .str { color: #4FAF7C; }
+
+/* ── Color swatches ─────────────────────────────────────────── */
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin: 12px 0 20px; }
+.swatch { border-radius: 10px; overflow: hidden; border: 1px solid var(--doc-border); }
+.swatch-color { height: 56px; }
+.swatch-info { padding: 8px 10px; background: #fff; }
+.swatch-name { font-size: 12px; font-weight: 600; color: var(--doc-text); }
+.swatch-hex { font-family: monospace; font-size: 11px; color: var(--doc-muted); }
+.swatch-note { font-size: 10.5px; color: #888; margin-top: 2px; }
+
+/* ── Component previews ─────────────────────────────────────── */
+.preview-box {
+  background: #0B1020;
+  border-radius: 14px;
+  padding: 28px;
+  margin: 12px 0 20px;
+  border: 1px solid #2A2F45;
+}
+.preview-label { font-size: 10px; color: #4A5585; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; margin-bottom: 16px; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; border-radius: 12px; transition: all 0.2s; text-decoration: none; }
+.btn-primary { background: #DDBB6A; color: #0B1020; font-size: 14px; padding: 12px 24px; }
+.btn-primary:hover { background: #E8C87A; }
+.btn-secondary { background: #3D4ECC; color: #F5F7FA; font-size: 14px; padding: 12px 24px; }
+.btn-secondary:hover { background: #4A5BD6; }
+.btn-ghost { background: transparent; color: #DDBB6A; font-size: 14px; padding: 12px 24px; border: 1.5px solid rgba(221,187,106,0.5); }
+.btn-ghost:hover { background: rgba(221,187,106,0.08); }
+.btn-danger { background: #D45C5C; color: #F5F7FA; font-size: 14px; padding: 12px 24px; }
+.btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 10px; }
+.btn-disabled { background: #2A2F45; color: #4A5585; cursor: not-allowed; font-size: 14px; padding: 12px 24px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+/* Chips */
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; }
+.chip-tithi { background: rgba(93,169,233,0.15); color: #8EC8F5; border: 1px solid rgba(93,169,233,0.3); }
+.chip-festival { background: rgba(79,175,124,0.15); color: #7ECFA6; border: 1px solid rgba(79,175,124,0.3); }
+.chip-eclipse { background: rgba(217,144,54,0.15); color: #F0B060; border: 1px solid rgba(217,144,54,0.3); }
+.chip-nakshatra { background: rgba(142,168,255,0.12); color: #8EA8FF; border: 1px solid rgba(142,168,255,0.25); }
+
+/* Card */
+.ds-card { background: #151B2F; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; }
+.ds-card-title { color: #F5F7FA; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.ds-card-sub { color: #B5BDD1; font-size: 13px; }
+
+/* Toggle */
+.toggle-wrap { display: flex; align-items: center; gap: 12px; }
+.toggle-wrap span { color: #B5BDD1; font-size: 14px; }
+.toggle { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track { display: block; width: 44px; height: 26px; background: #2A3050; border: 1.5px solid rgba(255,255,255,0.15); border-radius: 13px; cursor: pointer; transition: background 0.2s; }
+.toggle-track.on { background: #DDBB6A; border-color: rgba(221,187,106,0.6); }
+/* Knob sits inside the track — position:relative on .toggle is the anchor */
+.toggle-knob { position: absolute; top: 50%; transform: translateY(-50%); left: 3px; width: 20px; height: 20px; background: #F5F7FA; border-radius: 50%; transition: left 0.2s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 1px 4px rgba(0,0,0,0.45); }
+.toggle-knob.on { left: 21px; }
+
+/* Input */
+.ds-input-wrap { position: relative; }
+.ds-input-label { display: block; font-size: 12px; font-weight: 600; color: #B5BDD1; margin-bottom: 6px; letter-spacing: .04em; text-transform: uppercase; }
+.ds-input { width: 100%; background: #151B2F; color: #F5F7FA; border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 11px 14px; font-size: 14px; outline: none; font-family: inherit; }
+.ds-input::placeholder { color: #4A5585; }
+.ds-input:focus { border-color: #8EA8FF; box-shadow: 0 0 0 3px rgba(142,168,255,0.25); }
+
+/* Focus ring demo */
+.focus-demo { outline: 2px solid #8EA8FF; outline-offset: 2px; }
+
+/* Nav preview */
+.nav-preview { background: #0D1122; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-around; padding: 12px 8px 8px; border-radius: 0 0 14px 14px; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 16px; border-radius: 10px; cursor: pointer; }
+.nav-item.active { background: rgba(221,187,106,0.1); }
+.nav-icon { width: 22px; height: 22px; stroke: #70778B; fill: none; stroke-width: 1.8; }
+.nav-item.active .nav-icon { stroke: #DDBB6A; }
+.nav-text { font-size: 10px; color: #70778B; font-weight: 500; }
+.nav-item.active .nav-text { color: #DDBB6A; }
+
+/* Phase cards */
+.phase-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
+.phase-card { border-radius: 12px; padding: 14px; border: 1px solid rgba(255,255,255,0.06); }
+.phase-name { font-size: 12px; font-weight: 600; color: #F5F7FA; margin-bottom: 4px; }
+.phase-sub { font-size: 11px; color: #7B8AAA; }
+
+/* Badges */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.badge-pass { background: var(--pass-bg); color: var(--pass); }
+.badge-warn { background: var(--warn-bg); color: var(--warn); }
+.badge-fail { background: var(--fail-bg); color: var(--fail); }
+.badge-new { background: #EFF6FF; color: #1D4ED8; }
+.badge-changed { background: #FEF3E2; color: #92600A; }
+
+/* Contrast row */
+.cr-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--doc-border); }
+.cr-swatch { width: 36px; height: 36px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+.cr-info { flex: 1; }
+.cr-label { font-size: 13px; font-weight: 500; }
+.cr-desc { font-size: 11.5px; color: var(--doc-muted); }
+.cr-ratio { font-family: monospace; font-size: 13px; font-weight: 700; }
+.cr-ratio.pass { color: var(--pass); }
+.cr-ratio.fail { color: var(--fail); }
+
+/* Timeline / Plan ──────────────────────────────────────────── */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before { content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px; width: 2px; background: var(--doc-border); }
+.tl-item { position: relative; margin-bottom: 28px; }
+.tl-dot { position: absolute; left: -32px; top: 4px; width: 22px; height: 22px; border-radius: 50%; background: #1A1D2E; border: 2px solid #3D4ECC; color: #DDBB6A; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.tl-dot.done { background: #1A7C3E; border-color: #1A7C3E; color: #fff; }
+.tl-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.tl-title { font-size: 15px; font-weight: 700; }
+.tl-meta { font-size: 12px; color: var(--doc-muted); }
+.tl-body { font-size: 13.5px; color: var(--doc-muted); line-height: 1.6; }
+.tl-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tl-tag { font-size: 11px; background: #EEF0F8; color: #3D4ECC; padding: 3px 9px; border-radius: 999px; font-weight: 500; }
+.tl-tag.a11y { background: #E8F5EE; color: #1A7C3E; }
+.tl-tag.visual { background: #FEF3E2; color: #92600A; }
+.tl-tag.infra { background: #F0EFFF; color: #5B3FC8; }
+
+/* Icon mapping table ────────────────────────────────────────── */
+.icon-row { display: flex; align-items: center; gap: 8px; }
+.icon-emoji { font-size: 18px; }
+.icon-arrow { color: #ccc; }
+.icon-lucide { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: #3D4ECC; font-family: monospace; }
+
+/* Spacing demos ─────────────────────────────────────────────── */
+.space-demo { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin: 12px 0; }
+.space-block { background: #3D4ECC; border-radius: 4px; }
+.space-label { font-size: 11px; color: var(--doc-muted); text-align: center; margin-top: 4px; }
+
+/* Responsive ────────────────────────────────────────────────── */
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .main { padding: 28px 20px; }
+  .phase-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media print {
+  .sidebar { display: none; }
+  .layout { display: block; }
+  .main { padding: 20px 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Cover (outside layout) -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="badge">Design System</div>
+    <h1>Chandra</h1>
+    <p class="tagline">A calm, accessible, India-first design system for the Chandra Moon Tracker PWA.<br>Version 1.0 — Revised &amp; Accessibility-Validated.</p>
+    <div class="cover-pills">
+      <span class="cover-pill">WCAG 2.1 AA</span>
+      <span class="cover-pill">React + Tailwind CSS</span>
+      <span class="cover-pill">Inter + Noto Serif Devanagari</span>
+      <span class="cover-pill">Lucide Icons</span>
+      <span class="cover-pill">Dark-First</span>
+      <span class="cover-pill">Mobile PWA</span>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="name">🌙 Chandra DS</div>
+    <div class="ver">v1.0 — For Review</div>
+  </div>
+  <nav>
+    <div class="nav-group">Foundations</div>
+    <a href="#philosophy">Philosophy</a>
+    <a href="#typography">Typography</a>
+    <a href="#color">Color System</a>
+    <a href="#spacing">Spacing</a>
+    <a href="#elevation">Elevation</a>
+    <a href="#radius">Border Radius</a>
+    <a href="#motion">Motion</a>
+    <div class="nav-group">Components</div>
+    <a href="#buttons">Buttons</a>
+    <a href="#inputs">Inputs</a>
+    <a href="#toggles">Toggles</a>
+    <a href="#cards">Cards</a>
+    <a href="#chips">Chips / Badges</a>
+    <a href="#modals">Modals &amp; Sheets</a>
+    <a href="#navigation">Navigation</a>
+    <div class="nav-group">Special</div>
+    <a href="#lunar-phases">Lunar Phases</a>
+    <a href="#iconography">Iconography</a>
+    <a href="#tokens">Token Reference</a>
+    <div class="nav-group">Planning</div>
+    <a href="#execution">Execution Plan</a>
+    <a href="#migration">Migration Plan</a>
+  </nav>
+</aside>
+
+<!-- Main content -->
+<main class="main">
+
+<!-- ── 1. PHILOSOPHY ─────────────────────────────────────────── -->
+<section class="section" id="philosophy">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <h1 class="sec">Design Philosophy</h1>
+  </div>
+
+  <p style="font-size:15px;color:#3A4060;line-height:1.7;margin-bottom:20px;max-width:640px">
+    <em>"A modern Indian astronomy companion — calm, trustworthy, and night-friendly. Deeply rooted in lunar tradition without feeling like a religious app."</em>
+  </p>
+
+  <h2 class="sub">Four Design Principles</h2>
+  <table>
+    <tr><th>Principle</th><th>What it means in practice</th><th>What to avoid</th></tr>
+    <tr><td><strong>Night-First</strong></td><td>Dark backgrounds everywhere. Moon visuals shine against depth.</td><td>Pure #000 backgrounds; harsh neon glows</td></tr>
+    <tr><td><strong>Calm Precision</strong></td><td>Clean typography, generous whitespace, clear hierarchy. Numbers and times are never ambiguous.</td><td>Dense information walls; cluttered cards</td></tr>
+    <tr><td><strong>Culturally Grounded</strong></td><td>Sanskrit terms rendered in Noto Serif Devanagari. Gold as sacred accent. Subtle celestial textures.</td><td>Temple motifs, heavy ornament, overly devotional imagery</td></tr>
+    <tr><td><strong>Accessible by Default</strong></td><td>Every component ships with WCAG AA contrast, keyboard support, and ARIA attributes baked in.</td><td>Retrofitting a11y after launch; treating it as optional</td></tr>
+  </table>
+</section>
+
+<!-- ── 2. TYPOGRAPHY ─────────────────────────────────────────── -->
+<section class="section" id="typography">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <h1 class="sec">Typography</h1>
+  </div>
+
+  <h2 class="sub">Font Stack</h2>
+  <table>
+    <tr><th>Role</th><th>Font</th><th>Usage</th><th>Loading Strategy</th></tr>
+    <tr>
+      <td><strong>Primary UI</strong></td>
+      <td><code>Inter</code></td>
+      <td>All body text, labels, numbers, navigation, forms</td>
+      <td>Preload via <code>&lt;link rel="preconnect"&gt;</code>; subset latin only in MVP</td>
+    </tr>
+    <tr>
+      <td><strong>Cultural Accent</strong></td>
+      <td><code>Noto Serif Devanagari</code></td>
+      <td>Panchang headings, Sanskrit terms, festival names</td>
+      <td><strong>Lazy-load only when Panchang tab activates.</strong> Subset to ~200 glyphs used in app. Target ≤ 150 KB after subsetting.</td>
+    </tr>
+    <tr>
+      <td><strong>Regional Expansion</strong></td>
+      <td><code>Noto Sans Tamil / Telugu / Kannada</code></td>
+      <td>Future multilingual support</td>
+      <td>Load only for selected language. Never preload all variants.</td>
+    </tr>
+    <tr>
+      <td><strong>System Fallback</strong></td>
+      <td><code>-apple-system, Segoe UI, Arial</code></td>
+      <td>Renders immediately before Inter loads</td>
+      <td>Always specified as fallback</td>
+    </tr>
+  </table>
+
+  <div class="callout warn">
+    <strong>⚠ Performance Warning — Noto Serif Devanagari</strong>
+    The full Noto Serif Devanagari font is 400–900 KB. On 3G connections (common on budget Indian Android devices), this adds 2–5 seconds of delay if loaded eagerly. Always use <code>font-display: swap</code>, and load this font only when the Panchang screen is first rendered. Use Google Fonts Unicode Range subsetting to reduce to the characters actually used.
+  </div>
+
+  <h2 class="sub">Type Scale</h2>
+  <table>
+    <tr><th>Token</th><th>Size</th><th>Weight</th><th>Line Height</th><th>Usage</th></tr>
+    <tr><td><code>--text-hero</code></td><td>32px</td><td>700</td><td>1.2</td><td>Moon phase display name, hero numbers</td></tr>
+    <tr><td><code>--text-section</code></td><td>24px</td><td>600</td><td>1.2</td><td>Page headings (Panchang, Calendar, Settings)</td></tr>
+    <tr><td><code>--text-card-title</code></td><td>18px</td><td>600</td><td>1.3</td><td>Card titles, sheet headers</td></tr>
+    <tr><td><code>--text-body</code></td><td>16px</td><td>400</td><td>1.5</td><td>Primary body text — <strong>minimum for all readable content</strong></td></tr>
+    <tr><td><code>--text-secondary</code></td><td>14px</td><td>400</td><td>1.5</td><td>Supporting labels, descriptions</td></tr>
+    <tr><td><code>--text-meta</code></td><td>12px</td><td>500</td><td>1.3</td><td>Timestamps, captions, footnotes only — never for primary info</td></tr>
+  </table>
+
+  <div class="callout info">
+    <strong>ℹ Accessibility note on 12px metadata text</strong>
+    WCAG 1.4.3 applies to all text including 12px. The 12px size is acceptable for truly secondary metadata (timestamps, version labels) <em>if and only if</em> the contrast ratio is ≥ 4.5:1. Never use it for primary information, time-critical data (moonrise/moonset times), or festival names.
+  </div>
+
+  <div class="preview-box">
+    <div class="preview-label">Type Scale Preview — Dark Surface</div>
+    <div style="font-family:'Inter',sans-serif">
+      <div style="font-size:32px;font-weight:700;color:#F5F7FA;line-height:1.2;margin-bottom:10px">Dashami Tithi</div>
+      <div style="font-size:24px;font-weight:600;color:#F5F7FA;line-height:1.2;margin-bottom:10px">Today's Panchang</div>
+      <div style="font-size:18px;font-weight:600;color:#F5F7FA;line-height:1.3;margin-bottom:10px">Shukla Paksha · Purnimant</div>
+      <div style="font-size:16px;font-weight:400;color:#F5F7FA;line-height:1.5;margin-bottom:8px">This is body text used for descriptions and supporting information in the app.</div>
+      <div style="font-size:14px;font-weight:400;color:#B5BDD1;line-height:1.5;margin-bottom:6px">Moonrise: 19:04 · Moonset: 06:21 · Sunrise: 05:42</div>
+      <div style="font-size:12px;font-weight:500;color:#B5BDD1;line-height:1.3">Updated 5 min ago</div>
+    </div>
+  </div>
+
+  <h2 class="sub">CSS Implementation</h2>
+  <pre>
+<span class="comment">/* In index.html &lt;head&gt; */</span>
+<span class="comment">/* Step 1: preconnect to Google Fonts */</span>
+&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
+&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+
+<span class="comment">/* Step 2: Load Inter eagerly — subset to latin */</span>
+&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"&gt;
+
+<span class="comment">/* Step 3: Noto Serif Devanagari — loaded lazily in Panchang.jsx */</span>
+<span class="comment">// In Panchang.jsx useEffect:</span>
+const link = document.createElement('link');
+link.href = 'https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600&amp;display=swap';
+link.rel = 'stylesheet';
+document.head.appendChild(link);</pre>
+</section>
+
+<!-- ── 3. COLOR SYSTEM ────────────────────────────────────────── -->
+<section class="section" id="color">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <h1 class="sec">Color System</h1>
+  </div>
+
+  <div class="callout fail">
+    <strong>🔴 Key change from original design system</strong>
+    The original "Cosmic Indigo" #5B6CFF with white text achieves only ~4.17:1 contrast — below the WCAG AA 4.5:1 threshold. It is retained for decorative/informational use (chips, icons, active borders) but is NO LONGER used as a button background with white text. Two new purpose-specific tokens replace it for CTAs.
+  </div>
+
+  <h2 class="sub">Background Palette</h2>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="swatch-color" style="background:#0B1020"></div><div class="swatch-info"><div class="swatch-name">Deep Night Blue</div><div class="swatch-hex">#0B1020</div><div class="swatch-note">Main app background</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#151B2F"></div><div class="swatch-info"><div class="swatch-name">Lunar Slate</div><div class="swatch-hex">#151B2F</div><div class="swatch-note">Cards, bottom sheets</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#1D2440"></div><div class="swatch-info"><div class="swatch-name">Soft Indigo</div><div class="swatch-hex">#1D2440</div><div class="swatch-note">Hover states, elevated cards</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:rgba(0,0,0,0.65);background-image:repeating-linear-gradient(45deg,#333 0,#333 1px,transparent 0,transparent 50%);background-size:6px 6px"></div><div class="swatch-info"><div class="swatch-name">Overlay</div><div class="swatch-hex">rgba(0,0,0,0.65)</div><div class="swatch-note">Modal backdrop</div></div></div>
+  </div>
+
+  <h2 class="sub">Brand Colors</h2>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="swatch-color" style="background:#DDBB6A"></div><div class="swatch-info"><div class="swatch-name">Soft Moon Gold</div><div class="swatch-hex">#DDBB6A</div><div class="swatch-note">Primary CTA bg, accents</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#3D4ECC"></div><div class="swatch-info"><div class="swatch-name">CTA Indigo <span class="badge badge-new">NEW</span></div><div class="swatch-hex">#3D4ECC</div><div class="swatch-note">Secondary CTA bg only</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#5B6CFF"></div><div class="swatch-info"><div class="swatch-name">Cosmic Indigo</div><div class="swatch-hex">#5B6CFF</div><div class="swatch-note">Chips, icons, decorative</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#8EA8FF"></div><div class="swatch-info"><div class="swatch-name">Bright Moon Blue</div><div class="swatch-hex">#8EA8FF</div><div class="swatch-note">Focus ring, links, hover text</div></div></div>
+  </div>
+
+  <h2 class="sub">Text Colors</h2>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="swatch-color" style="background:#F5F7FA;border-bottom:1px solid #ddd"></div><div class="swatch-info"><div class="swatch-name">Moon White</div><div class="swatch-hex">#F5F7FA</div><div class="swatch-note">Primary text</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#B5BDD1"></div><div class="swatch-info"><div class="swatch-name">Mist Grey</div><div class="swatch-hex">#B5BDD1</div><div class="swatch-note">Secondary text</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#70778B"></div><div class="swatch-info"><div class="swatch-name">Lunar Grey</div><div class="swatch-hex">#70778B</div><div class="swatch-note">Disabled ONLY — see note</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#0B1020;border-bottom:1px solid #555"></div><div class="swatch-info"><div class="swatch-name">Text Inverse</div><div class="swatch-hex">#0B1020</div><div class="swatch-note">Dark text on gold/light bg</div></div></div>
+  </div>
+
+  <div class="callout warn">
+    <strong>⚠ Lunar Grey #70778B — Disabled states only</strong>
+    This color achieves approximately 4.35:1 on #0B1020 — just below the WCAG AA threshold of 4.5:1. WCAG 1.4.3 exempts disabled UI components from contrast requirements, so this token is valid for disabled buttons, inactive toggles, and grayed-out form fields. It must NEVER be used for readable or active content. For all active subdued text, use Mist Grey #B5BDD1 instead.
+  </div>
+
+  <h2 class="sub">Semantic Colors</h2>
+  <div class="swatch-grid">
+    <div class="swatch"><div class="swatch-color" style="background:#4FAF7C"></div><div class="swatch-info"><div class="swatch-name">Sacred Green</div><div class="swatch-hex">#4FAF7C</div><div class="swatch-note">Success states</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#D99036"></div><div class="swatch-info"><div class="swatch-name">Eclipse Amber</div><div class="swatch-hex">#D99036</div><div class="swatch-note">Warnings, inauspicious</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#D45C5C"></div><div class="swatch-info"><div class="swatch-name">Grahan Red <span class="badge badge-changed">RENAMED</span></div><div class="swatch-hex">#D45C5C</div><div class="swatch-note">Errors, critical alerts</div></div></div>
+    <div class="swatch"><div class="swatch-color" style="background:#5DA9E9"></div><div class="swatch-info"><div class="swatch-name">Sky Blue</div><div class="swatch-hex">#5DA9E9</div><div class="swatch-note">Info, neutral alerts</div></div></div>
+  </div>
+
+  <h2 class="sub">Contrast Ratio Reference</h2>
+  <p style="font-size:13px;color:var(--doc-muted);margin-bottom:14px">All combinations verified against WCAG 2.1 SC 1.4.3. ✅ = passes AA. ❌ = fails.</p>
+
+  <div class="cr-row">
+    <div class="cr-swatch" style="background:linear-gradient(to right,#F5F7FA 50%,#0B1020 50%)"></div>
+    <div class="cr-info"><div class="cr-label">Moon White on Deep Night Blue</div><div class="cr-desc">#F5F7FA on #0B1020 — Primary body text</div></div>
+    <div class="cr-ratio pass">~18.4:1 ✅</div>
+  </div>
+  <div class="cr-row">
+    <div class="cr-swatch" style="background:linear-gradient(to right,#B5BDD1 50%,#0B1020 50%)"></div>
+    <div class="cr-info"><div class="cr-label">Mist Grey on Deep Night Blue</div><div class="cr-desc">#B5BDD1 on #0B1020 — Secondary text</div></div>
+    <div class="cr-ratio pass">~10.4:1 ✅</div>
+  </div>
+  <div class="cr-row">
+    <div class="cr-swatch" style="background:linear-gradient(to right,#B5BDD1 50%,#151B2F 50%)"></div>
+    <div class="cr-info"><div class="cr-label">Mist Grey on Lunar Slate</div><div class="cr-desc">#B5BDD1 on #151B2F — Text on cards</div></div>
+    <div class="cr-ratio pass">~9.6:1 ✅</div>
+  </div>
+  <div class="cr-row">
+    <div class="cr-swatch" style="background:linear-gradient(to right,#0B1020 50%,#DDBB6A 50%)"></div>
+    <div class="cr-info"><div class="cr-label">Deep Night Blue on Moon Gold</div><div class="cr-desc">#0B1020 on #DDBB6A — Primary CTA button text</div></div>
+    <div class="cr-ratio pass">~10.5:1 ✅</div>
+  </div>
+  <div class="cr-row">
+    <div class="cr-swatch" style="background:linear-gradient(to right,#F5F7FA 50%,#3D4ECC 50%)"></div>
+    <div class="cr-info"><div class="cr-label">Moon White on CTA Indigo</div><div class="cr-desc">#F5F7FA on #3D4ECC — Secondary CTA button text</div></div>
+    <div class="cr-ratio pass">~6.3:1 ✅</div>
+  </div>
+  <div class="cr-row">
+    <div class="cr-swatch" style="background:linear-gradient(to right,#F5F7FA 50%,#5B6CFF 50%)"></div>
+    <div class="cr-info"><div class="cr-label">Moon White on Cosmic Indigo</div><div class="cr-desc">#F5F7FA on #5B6CFF — <strong>Do NOT use as button background with white text</strong></div></div>
+    <div class="cr-ratio fail">~4.17:1 ❌</div>
+  </div>
+  <div class="cr-row">
+    <div class="cr-swatch" style="background:linear-gradient(to right,#8EA8FF 50%,#0B1020 50%)"></div>
+    <div class="cr-info"><div class="cr-label">Bright Moon Blue on Deep Night Blue</div><div class="cr-desc">#8EA8FF on #0B1020 — Focus ring, links, hover text</div></div>
+    <div class="cr-ratio pass">~8.5:1 ✅</div>
+  </div>
+  <div class="cr-row">
+    <div class="cr-swatch" style="background:linear-gradient(to right,#4FAF7C 50%,#0B1020 50%)"></div>
+    <div class="cr-info"><div class="cr-label">Sacred Green on Deep Night Blue</div><div class="cr-desc">#4FAF7C on #0B1020 — Success labels</div></div>
+    <div class="cr-ratio pass">~7.1:1 ✅</div>
+  </div>
+  <div class="cr-row">
+    <div class="cr-swatch" style="background:linear-gradient(to right,#D45C5C 50%,#0B1020 50%)"></div>
+    <div class="cr-info"><div class="cr-label">Grahan Red on Deep Night Blue</div><div class="cr-desc">#D45C5C on #0B1020 — Error labels</div></div>
+    <div class="cr-ratio pass">~5.1:1 ✅</div>
+  </div>
+  <div class="cr-row" style="border:none">
+    <div class="cr-swatch" style="background:linear-gradient(to right,#70778B 50%,#0B1020 50%)"></div>
+    <div class="cr-info"><div class="cr-label">Lunar Grey on Deep Night Blue</div><div class="cr-desc">#70778B on #0B1020 — Disabled states only (WCAG exempts disabled elements)</div></div>
+    <div class="cr-ratio fail">~4.35:1 ⚠</div>
+  </div>
+
+  <h2 class="sub">Interactive State Color Logic</h2>
+  <div class="callout info">
+    <strong>ℹ Corrected from original: active states should be DARKER, not lighter</strong>
+    The original design assigned a lighter colour (#8EA8FF) as the "active" state of the indigo (#5B6CFF). In standard interaction design, a pressed/active state should be visually deeper than the default to convey physical depression. Lighter variants belong to hover states.
+  </div>
+  <table>
+    <tr><th>Token</th><th>Hex</th><th>State</th><th>Applies to</th></tr>
+    <tr><td><code>--gold-default</code></td><td>#DDBB6A</td><td>Default</td><td>Primary CTA background</td></tr>
+    <tr><td><code>--gold-hover</code></td><td>#E8C87A</td><td>Hover / focus</td><td>Slightly lighter — warmth</td></tr>
+    <tr><td><code>--gold-active</code></td><td>#C9A85A</td><td>Pressed / active</td><td>Darker — conveying press</td></tr>
+    <tr><td><code>--indigo-cta-default</code></td><td>#3D4ECC</td><td>Default</td><td>Secondary CTA background</td></tr>
+    <tr><td><code>--indigo-cta-hover</code></td><td>#4A5BD6</td><td>Hover / focus</td><td>Slightly lighter</td></tr>
+    <tr><td><code>--indigo-cta-active</code></td><td>#3040B8</td><td>Pressed / active</td><td>Darker</td></tr>
+    <tr><td><code>--indigo-decorative</code></td><td>#5B6CFF</td><td>Static</td><td>Chips, icons, borders (decorative only)</td></tr>
+    <tr><td><code>--blue-focus</code></td><td>#8EA8FF</td><td>Focus ring</td><td>Used as outline color — never as button fill</td></tr>
+  </table>
+</section>
+
+<!-- ── 4. SPACING ─────────────────────────────────────────────── -->
+<section class="section" id="spacing">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <h1 class="sec">Spacing System</h1>
+  </div>
+  <p style="font-size:13.5px;color:var(--doc-muted);margin-bottom:16px">8px base grid. All spacing tokens are multiples or half-multiples of 8px. Touch targets are governed separately — see Accessibility Standards.</p>
+  <table>
+    <tr><th>Token</th><th>Value</th><th>Primary Usage</th></tr>
+    <tr><td><code>--space-xs</code></td><td>4px</td><td>Icon-to-text gaps, tight internal padding</td></tr>
+    <tr><td><code>--space-sm</code></td><td>8px</td><td>Between related elements within a component</td></tr>
+    <tr><td><code>--space-md</code></td><td>16px</td><td>Internal card padding, form field gaps</td></tr>
+    <tr><td><code>--space-lg</code></td><td>24px</td><td>Between card sections, sheet padding</td></tr>
+    <tr><td><code>--space-xl</code></td><td>32px</td><td>Between major sections on a page</td></tr>
+    <tr><td><code>--space-xxl</code></td><td>48px</td><td>Page top padding, hero spacing</td></tr>
+    <tr><td><code>--touch-target</code></td><td>44px</td><td>Minimum height/width for all interactive elements</td></tr>
+  </table>
+  <div class="callout info">
+    <strong>ℹ Touch target note</strong>
+    WCAG 2.5.5 (Level AAA) and Apple/Google HIG both recommend 44×44px minimum touch targets. This should be enforced on all buttons, nav items, toggles, and tappable list items — even if the visual element appears smaller. Use <code>min-height: 44px</code> combined with padding to achieve this without inflating visual size.
+  </div>
+</section>
+
+<!-- ── 5. ELEVATION ───────────────────────────────────────────── -->
+<section class="section" id="elevation">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <h1 class="sec">Elevation &amp; Shadows</h1>
+  </div>
+  <p style="font-size:13.5px;color:var(--doc-muted);margin-bottom:16px">On dark backgrounds, elevation is communicated through subtle background lightening (layer tinting) more than drop shadows. Both are provided for flexibility.</p>
+  <table>
+    <tr><th>Token</th><th>Shadow Value</th><th>Usage</th></tr>
+    <tr><td><code>--shadow-sm</code></td><td><code>0 1px 3px rgba(0,0,0,0.4)</code></td><td>Chips, small action buttons</td></tr>
+    <tr><td><code>--shadow-md</code></td><td><code>0 4px 12px rgba(0,0,0,0.5)</code></td><td>Cards floating on main background</td></tr>
+    <tr><td><code>--shadow-lg</code></td><td><code>0 8px 24px rgba(0,0,0,0.6)</code></td><td>Bottom sheets, modals</td></tr>
+    <tr><td><code>--shadow-glow-gold</code></td><td><code>0 0 20px rgba(221,187,106,0.18)</code></td><td>Full moon state — moon visual card only</td></tr>
+    <tr><td><code>--shadow-glow-blue</code></td><td><code>0 0 20px rgba(142,168,255,0.12)</code></td><td>Focus ring glow on dark surfaces</td></tr>
+  </table>
+</section>
+
+<!-- ── 6. BORDER RADIUS ──────────────────────────────────────── -->
+<section class="section" id="radius">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <h1 class="sec">Border Radius</h1>
+  </div>
+  <table>
+    <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+    <tr><td><code>--radius-sm</code></td><td>8px</td><td>Small inline elements, badges, tags</td></tr>
+    <tr><td><code>--radius-md</code></td><td>12px</td><td>Buttons, inputs, small cards</td></tr>
+    <tr><td><code>--radius-lg</code></td><td>16px</td><td>Standard cards, modals</td></tr>
+    <tr><td><code>--radius-xl</code></td><td>24px</td><td>Bottom sheets (top corners), large panels</td></tr>
+    <tr><td><code>--radius-full</code></td><td>999px</td><td>Chips, pill badges, avatar rings</td></tr>
+  </table>
+
+  <h2 class="sub">Border Colors <span class="badge badge-new">NEW</span></h2>
+  <p style="font-size:13px;color:var(--doc-muted);margin-bottom:12px">These were missing from the original system. Define them explicitly to prevent ad-hoc border color decisions.</p>
+  <table>
+    <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+    <tr><td><code>--border-subtle</code></td><td><code>rgba(255,255,255,0.06)</code></td><td>Barely visible dividers, inner card sections</td></tr>
+    <tr><td><code>--border-default</code></td><td><code>rgba(255,255,255,0.12)</code></td><td>Standard card borders, input outlines (unfocused)</td></tr>
+    <tr><td><code>--border-emphasis</code></td><td><code>rgba(221,187,106,0.35)</code></td><td>Highlighted cards, active selections, festival days</td></tr>
+    <tr><td><code>--border-focus</code></td><td><code>#8EA8FF</code></td><td>Focused input/button borders (paired with focus ring)</td></tr>
+    <tr><td><code>--border-error</code></td><td><code>#D45C5C</code></td><td>Invalid input fields</td></tr>
+  </table>
+</section>
+
+<!-- ── 7. MOTION ─────────────────────────────────────────────── -->
+<section class="section" id="motion">
+  <div class="section-header">
+    <div class="section-num">7</div>
+    <h1 class="sec">Motion &amp; Animation</h1>
+  </div>
+  <table>
+    <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+    <tr><td><code>--duration-fast</code></td><td>150ms</td><td>Hover states, color transitions</td></tr>
+    <tr><td><code>--duration-base</code></td><td>200ms</td><td>Button press, fade, small scale</td></tr>
+    <tr><td><code>--duration-slow</code></td><td>300ms</td><td>Sheet slide-up, modal entrance</td></tr>
+    <tr><td><code>--ease-out</code></td><td><code>cubic-bezier(0.0, 0.0, 0.2, 1)</code></td><td>Entrances — elements coming in feel snappy</td></tr>
+    <tr><td><code>--ease-in</code></td><td><code>cubic-bezier(0.4, 0.0, 1, 1)</code></td><td>Exits — elements leaving accelerate out</td></tr>
+    <tr><td><code>--ease-spring</code></td><td><code>cubic-bezier(0.34, 1.56, 0.64, 1)</code></td><td>Delightful bounce — used sparingly (e.g., subscription success tick)</td></tr>
+  </table>
+  <div class="callout info">
+    <strong>ℹ Respect prefers-reduced-motion</strong>
+    Always wrap non-essential animations in a <code>@media (prefers-reduced-motion: no-preference)</code> query. Users who have enabled reduced motion in their OS settings (many elderly users and people with vestibular disorders) should see instant transitions.
+  </div>
+  <pre>
+<span class="comment">/* Correct pattern */</span>
+.sheet {
+  transform: translateY(100%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sheet {
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+}</pre>
+</section>
+
+<!-- ── 8. BUTTONS ─────────────────────────────────────────────── -->
+<section class="section" id="buttons">
+  <div class="section-header">
+    <div class="section-num">8</div>
+    <h1 class="sec">Buttons</h1>
+  </div>
+
+  <div class="preview-box">
+    <div class="preview-label">Button Variants</div>
+    <div class="btn-row" style="margin-bottom:20px">
+      <button class="btn btn-primary">Subscribe Now</button>
+      <button class="btn btn-secondary">View Panchang</button>
+      <button class="btn btn-ghost">Learn More →</button>
+      <button class="btn btn-danger">Remove</button>
+    </div>
+    <div class="preview-label">Small Variant</div>
+    <div class="btn-row" style="margin-bottom:20px">
+      <button class="btn btn-primary btn-sm">Install App</button>
+      <button class="btn btn-secondary btn-sm">Manage</button>
+    </div>
+    <div class="preview-label">Disabled State</div>
+    <div class="btn-row">
+      <div class="btn btn-disabled" aria-disabled="true">Coming Soon</div>
+    </div>
+  </div>
+
+  <h2 class="sub">Button Specifications</h2>
+  <table>
+    <tr><th>Variant</th><th>Background</th><th>Text Color</th><th>Contrast</th><th>Use for</th></tr>
+    <tr><td><strong>Primary</strong></td><td>#DDBB6A (Moon Gold)</td><td>#0B1020</td><td>10.5:1 ✅</td><td>Most important action on screen. Maximum 1 per view.</td></tr>
+    <tr><td><strong>Secondary</strong></td><td>#3D4ECC (CTA Indigo)</td><td>#F5F7FA</td><td>6.3:1 ✅</td><td>Supporting actions, navigation CTAs</td></tr>
+    <tr><td><strong>Ghost</strong></td><td>Transparent</td><td>#DDBB6A (border too)</td><td>8.5:1 on bg ✅</td><td>Tertiary actions, "Learn more" links</td></tr>
+    <tr><td><strong>Danger</strong></td><td>#D45C5C (Grahan Red)</td><td>#F5F7FA</td><td>5.1:1 ✅</td><td>Destructive actions (unsubscribe, delete)</td></tr>
+    <tr><td><strong>Disabled</strong></td><td>#1D2440</td><td>#70778B</td><td>Exempt (WCAG)</td><td>Inactive / not yet available features</td></tr>
+  </table>
+
+  <h2 class="sub">Accessibility Requirements — All Buttons</h2>
+  <table>
+    <tr><th>Requirement</th><th>Implementation</th></tr>
+    <tr><td>Minimum touch target</td><td><code>min-height: 44px; min-width: 44px</code></td></tr>
+    <tr><td>Visible focus ring</td><td><code>:focus-visible { outline: 2px solid #8EA8FF; outline-offset: 2px; }</code></td></tr>
+    <tr><td>No outline suppression</td><td>Never use <code>outline: none</code> without a visible alternative</td></tr>
+    <tr><td>Disabled state</td><td>Use <code>disabled</code> attribute (not just <code>aria-disabled</code>) to remove from tab order</td></tr>
+    <tr><td>Icon-only buttons</td><td>Must have <code>aria-label</code> describing the action</td></tr>
+    <tr><td>Loading state</td><td>Add <code>aria-busy="true"</code> while loading; disable interaction</td></tr>
+  </table>
+
+  <pre>
+<span class="comment">// Correct button component template</span>
+const Button = ({ variant = 'primary', label, onClick, disabled, ariaLabel }) => (
+  &lt;button
+    onClick={onClick}
+    disabled={disabled}
+    aria-label={ariaLabel}   <span class="comment">// required for icon-only buttons</span>
+    className={`btn btn-${variant} ${disabled ? 'btn-disabled' : ''}`}
+    style={{ minHeight: 44 }}
+  &gt;
+    {label}
+  &lt;/button&gt;
+);</pre>
+</section>
+
+<!-- ── 9. INPUTS ──────────────────────────────────────────────── -->
+<section class="section" id="inputs">
+  <div class="section-header">
+    <div class="section-num">9</div>
+    <h1 class="sec">Inputs &amp; Forms</h1>
+  </div>
+
+  <div class="preview-box">
+    <div class="preview-label">Input States</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <label class="ds-input-label" for="ex-city">Your City</label>
+        <input id="ex-city" class="ds-input" type="text" placeholder="Search city or state…" />
+      </div>
+      <div>
+        <label class="ds-input-label" for="ex-city-focus">Focused State</label>
+        <input id="ex-city-focus" class="ds-input focus-demo" type="text" value="Bengaluru" />
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sub">Input Accessibility Requirements</h2>
+  <table>
+    <tr><th>Requirement</th><th>Implementation</th><th>Fixes Issue</th></tr>
+    <tr><td>Always use <code>&lt;label&gt;</code></td><td>Each input must have an associated <code>&lt;label htmlFor&gt;</code> or <code>aria-label</code></td><td>SC 3.3.2 FAIL in audit</td></tr>
+    <tr><td>Placeholder not a label</td><td>Placeholder is supplementary hint only. Label must persist when field has value.</td><td>SC 3.3.2</td></tr>
+    <tr><td>Visible focus ring</td><td>Border changes to <code>--border-focus</code> + box-shadow ring with <code>--blue-focus</code>. Never <code>outline: none</code>.</td><td>SC 2.4.7 FAIL in audit</td></tr>
+    <tr><td>Error association</td><td>Error messages use <code>id</code> + <code>aria-describedby</code> on the input</td><td>SC 3.3.1</td></tr>
+    <tr><td>Min touch target</td><td><code>min-height: 44px</code></td><td>WCAG 2.5.5</td></tr>
+  </table>
+
+  <pre>
+<span class="comment">// Correct input pattern</span>
+&lt;div&gt;
+  &lt;label htmlFor="city-search" className="sr-only"&gt;Search for a city&lt;/label&gt;
+  &lt;input
+    id="city-search"
+    type="text"
+    placeholder="Search city or state…"
+    className="... focus-visible:ring-2 focus-visible:ring-[#8EA8FF]
+               focus-visible:ring-offset-1 focus-visible:ring-offset-[#0B1020]"
+    aria-describedby={error ? "city-error" : undefined}
+  /&gt;
+  {error &amp;&amp; &lt;p id="city-error" role="alert" className="text-[#D45C5C]"&gt;{error}&lt;/p&gt;}
+&lt;/div&gt;</pre>
+</section>
+
+<!-- ── 10. TOGGLES ───────────────────────────────────────────── -->
+<section class="section" id="toggles">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <h1 class="sec">Toggles</h1>
+  </div>
+
+  <div class="preview-box">
+    <div class="preview-label">Toggle Variants — Standard pill + thumb design</div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <!-- ON state -->
+      <div class="toggle-wrap">
+        <div class="toggle">
+          <div class="toggle-track on"></div>
+          <div class="toggle-knob on"></div>
+        </div>
+        <span>Enable all alerts — <strong style="color:#4FAF7C">On</strong></span>
+      </div>
+      <!-- OFF state -->
+      <div class="toggle-wrap">
+        <div class="toggle">
+          <div class="toggle-track"></div>
+          <div class="toggle-knob"></div>
+        </div>
+        <span>Festival alerts — <strong style="color:#B5BDD1">Off</strong></span>
+      </div>
+      <!-- Disabled state -->
+      <div class="toggle-wrap" style="opacity:0.45;pointer-events:none">
+        <div class="toggle">
+          <div class="toggle-track"></div>
+          <div class="toggle-knob"></div>
+        </div>
+        <span style="color:#70778B">Push notifications — <strong>Disabled</strong></span>
+      </div>
+    </div>
+    <!-- Anatomy annotation -->
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:32px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:44px;height:26px;background:#DDBB6A;border-radius:13px;position:relative;flex-shrink:0">
+          <div style="position:absolute;top:3px;left:21px;width:20px;height:20px;background:#F5F7FA;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.45)"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#DDBB6A;font-weight:600">TRACK (pill)</div>
+          <div style="font-size:11px;color:#70778B">44 × 26 px — gold when on</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:20px;height:20px;background:#F5F7FA;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.45);flex-shrink:0"></div>
+        <div>
+          <div style="font-size:11px;color:#DDBB6A;font-weight:600">THUMB (circle)</div>
+          <div style="font-size:11px;color:#70778B">20 × 20 px — always white</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#70778B;max-width:200px">Thumb slides: left = off (3 px from edge), right = on (21 px from left edge). Spring easing on transition.</div>
+    </div>
+  </div>
+
+  <h2 class="sub">Toggle Anatomy Rules</h2>
+  <table>
+    <tr><th>Part</th><th>Spec</th><th>Notes</th></tr>
+    <tr><td>Track (pill)</td><td>44 × 26 px, border-radius 13 px</td><td>Gold (#DDBB6A) when ON; dark (#2A3050) when OFF. Always has 1.5px white border so it's visible against card backgrounds (SC 1.4.11).</td></tr>
+    <tr><td>Thumb (circle)</td><td>20 × 20 px, border-radius 50%</td><td>Always #F5F7FA (off-white). <code>top: 3px</code>. <code>left: 3px</code> when OFF, <code>left: 21px</code> when ON.</td></tr>
+    <tr><td>Transition</td><td><code>left 0.2s cubic-bezier(0.34,1.56,0.64,1)</code></td><td>Slight spring bounce for a tactile feel. Suppressed if <code>prefers-reduced-motion: reduce</code>.</td></tr>
+    <tr><td>Disabled</td><td>Entire component at <code>opacity: 0.45</code></td><td>No interaction. WCAG exempts disabled controls from contrast requirements.</td></tr>
+  </table>
+
+  <h2 class="sub">Toggle Accessibility Requirements</h2>
+  <table>
+    <tr><th>Requirement</th><th>Implementation</th><th>Fixes Issue</th></tr>
+    <tr><td>Accessible name</td><td>Every toggle must receive an <code>aria-label</code> describing what it controls</td><td>SC 4.1.2 FAIL in audit</td></tr>
+    <tr><td>Role + state</td><td><code>role="switch"</code> + <code>aria-checked={on}</code> on the button element</td><td>SC 4.1.2 — screen reader announces "on/off" automatically</td></tr>
+    <tr><td>Visible boundary</td><td>Track has <code>border: 1.5px solid rgba(255,255,255,0.15)</code> to achieve ≥ 3:1 against card background</td><td>SC 1.4.11 FAIL in audit</td></tr>
+    <tr><td>Focus ring</td><td><code>:focus-visible</code> shows 2px #8EA8FF outline around the track</td><td>SC 2.4.7</td></tr>
+    <tr><td>Min touch target</td><td>Entire button element: <code>min-height: 44px; min-width: 44px</code> via padding</td><td>WCAG 2.5.5</td></tr>
+  </table>
+
+  <pre>
+<span class="comment">// Toggle component — pill + thumb, accessible</span>
+const Toggle = ({ on, onToggle, label }) => (
+  &lt;button
+    role="switch"
+    aria-checked={on}
+    aria-label={label}
+    onClick={onToggle}
+    className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8EA8FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1020]"
+    style={{
+      position: 'relative',
+      display: 'inline-flex', alignItems: 'center',
+      width: 44, height: 26,
+      borderRadius: 13, padding: 0, border: 'none',
+      background: on ? 'var(--gold)' : '#2A3050',
+      boxShadow: '0 0 0 1.5px rgba(255,255,255,0.15)',
+      cursor: 'pointer', flexShrink: 0,
+      transition: 'background 0.2s ease',
+    }}
+  &gt;
+    &lt;span style={{
+      position: 'absolute',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      left: on ? 21 : 3,
+      width: 20, height: 20,
+      borderRadius: '50%',
+      background: '#F5F7FA',
+      boxShadow: '0 1px 4px rgba(0,0,0,0.45)',
+      transition: 'left 0.2s cubic-bezier(0.34,1.56,0.64,1)',
+    }} />
+  &lt;/button&gt;
+);
+
+<span class="comment">/* Suppress animation for users who prefer reduced motion */</span>
+<span class="comment">/* @media (prefers-reduced-motion: reduce) { transition: none !important; } */</span></pre>
+</section>
+
+<!-- ── 11. CARDS ──────────────────────────────────────────────── -->
+<section class="section" id="cards">
+  <div class="section-header">
+    <div class="section-num">11</div>
+    <h1 class="sec">Cards</h1>
+  </div>
+
+  <div class="preview-box">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="ds-card">
+        <div class="ds-card-title">Dashami Tithi</div>
+        <div class="ds-card-sub">Shukla Paksha</div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;color:#B5BDD1;font-size:13px"><span>Moonrise</span><span style="color:#F5F7FA;font-weight:600">19:04</span></div>
+          <div style="display:flex;justify-content:space-between;color:#B5BDD1;font-size:13px"><span>Moonset</span><span style="color:#F5F7FA;font-weight:600">06:21</span></div>
+        </div>
+      </div>
+      <div class="ds-card" style="border-color:rgba(221,187,106,0.3);cursor:pointer">
+        <div style="font-size:11px;color:#DDBB6A;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Today's Highlight</div>
+        <div class="ds-card-title">Ganesh Chaturthi</div>
+        <div class="ds-card-sub">Tap for full Panchang →</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sub">Card Types &amp; Usage</h2>
+  <table>
+    <tr><th>Type</th><th>Background</th><th>Border</th><th>Use for</th></tr>
+    <tr><td><strong>Standard</strong></td><td>#151B2F</td><td><code>--border-default</code></td><td>Info display, Panchang rows, settings sections</td></tr>
+    <tr><td><strong>Highlighted</strong></td><td>#151B2F</td><td><code>--border-emphasis</code> (gold)</td><td>Today's highlight, festival cards, active states</td></tr>
+    <tr><td><strong>Alert</strong></td><td>Semantic tint (e.g., indigo-950 for eclipse)</td><td>Semantic border</td><td>Eclipse banners, Ekadashi notices</td></tr>
+    <tr><td><strong>Tappable</strong></td><td>#151B2F → #1D2440 on hover</td><td><code>--border-default</code></td><td>Festival list items, calendar upcoming events</td></tr>
+  </table>
+
+  <div class="callout info">
+    <strong>ℹ Tappable cards must be keyboard accessible</strong>
+    Any card that responds to a tap/click must be a <code>&lt;button&gt;</code> element (or have <code>role="button"</code> + <code>tabIndex={0}</code> + <code>onKeyDown</code>). Plain <code>&lt;div onClick&gt;</code> is inaccessible to keyboard users. This is the fix for SC 2.1.1 in the audit.
+  </div>
+</section>
+
+<!-- ── 12. CHIPS & BADGES ────────────────────────────────────── -->
+<section class="section" id="chips">
+  <div class="section-header">
+    <div class="section-num">12</div>
+    <h1 class="sec">Chips &amp; Badges</h1>
+  </div>
+
+  <div class="preview-box">
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <span class="chip chip-tithi">Dashami</span>
+      <span class="chip chip-nakshatra">Hasta Nakshatra</span>
+      <span class="chip chip-festival">Ganesh Chaturthi</span>
+      <span class="chip chip-eclipse">🌑 Surya Grahan</span>
+    </div>
+  </div>
+
+  <h2 class="sub">Chip Color System</h2>
+  <table>
+    <tr><th>Type</th><th>Background</th><th>Text</th><th>Border</th><th>Use for</th></tr>
+    <tr><td><strong>Tithi</strong></td><td>rgba(93,169,233,0.15)</td><td>#8EC8F5</td><td>rgba(93,169,233,0.3)</td><td>Tithi names, lunar day indicators</td></tr>
+    <tr><td><strong>Nakshatra</strong></td><td>rgba(142,168,255,0.12)</td><td>#8EA8FF</td><td>rgba(142,168,255,0.25)</td><td>Nakshatra labels, pada indicators</td></tr>
+    <tr><td><strong>Festival</strong></td><td>rgba(79,175,124,0.15)</td><td>#7ECFA6</td><td>rgba(79,175,124,0.3)</td><td>Festival names, auspicious days</td></tr>
+    <tr><td><strong>Eclipse</strong></td><td>rgba(217,144,54,0.15)</td><td>#F0B060</td><td>rgba(217,144,54,0.3)</td><td>Eclipse alerts, Grahan notices</td></tr>
+  </table>
+</section>
+
+<!-- ── 13. MODALS & SHEETS ───────────────────────────────────── -->
+<section class="section" id="modals">
+  <div class="section-header">
+    <div class="section-num">13</div>
+    <h1 class="sec">Modals &amp; Bottom Sheets</h1>
+  </div>
+
+  <h2 class="sub">Accessibility Requirements</h2>
+  <table>
+    <tr><th>Requirement</th><th>Implementation</th><th>Fixes Issue</th></tr>
+    <tr><td>Auto-focus on open</td><td>Use <code>useEffect</code> to focus the first focusable element or the close button when the modal mounts</td><td>SC 2.1.2 FAIL in audit</td></tr>
+    <tr><td>Focus trap</td><td>Tab and Shift+Tab must cycle only within the open modal. Use <code>focus-trap-react</code> library.</td><td>SC 2.1.2 FAIL in audit</td></tr>
+    <tr><td>Escape key close</td><td><code>useEffect</code> adds a <code>keydown</code> listener for <kbd>Escape</kbd> that calls <code>onClose()</code></td><td>SC 2.1.2 FAIL in audit</td></tr>
+    <tr><td>Restore focus on close</td><td>Store <code>document.activeElement</code> before opening; call <code>.focus()</code> on it after closing</td><td>SC 2.4.3</td></tr>
+    <tr><td>ARIA role</td><td><code>role="dialog"</code> + <code>aria-modal="true"</code> + <code>aria-labelledby</code> pointing to the sheet title</td><td>SC 4.1.2</td></tr>
+    <tr><td>Backdrop close</td><td>Backdrop click closes the modal AND a keyboard equivalent (Escape) exists</td><td>SC 2.1.1</td></tr>
+  </table>
+
+  <pre>
+<span class="comment">// Correct Modal/BottomSheet pattern (abbreviated)</span>
+import FocusTrap from 'focus-trap-react';
+
+const BottomSheet = ({ open, onClose, title, children }) => {
+  const triggerRef = useRef(null);
+
+  useEffect(() => {
+    if (open) {
+      triggerRef.current = document.activeElement;  <span class="comment">// save focus origin</span>
+    } else {
+      triggerRef.current?.focus();  <span class="comment">// restore on close</span>
+    }
+  }, [open]);
+
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    if (open) document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+  return (
+    &lt;FocusTrap&gt;
+      &lt;div className="fixed inset-0 z-50 flex items-end"&gt;
+        &lt;div className="absolute inset-0 bg-black/65" onClick={onClose} /&gt;
+        &lt;div role="dialog" aria-modal="true" aria-labelledby="sheet-title"
+          className="relative w-full rounded-t-3xl bg-[#151B2F] ..."&gt;
+          &lt;h2 id="sheet-title"&gt;{title}&lt;/h2&gt;
+          {children}
+          &lt;button onClick={onClose} aria-label="Close"&gt;✕&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/FocusTrap&gt;
+  );
+};</pre>
+</section>
+
+<!-- ── 14. NAVIGATION ────────────────────────────────────────── -->
+<section class="section" id="navigation">
+  <div class="section-header">
+    <div class="section-num">14</div>
+    <h1 class="sec">Navigation</h1>
+  </div>
+
+  <div class="preview-box" style="padding:0;overflow:hidden">
+    <div style="padding:20px 20px 0">
+      <div class="preview-label">Bottom Navigation — Active: Home</div>
+    </div>
+    <div class="nav-preview">
+      <div class="nav-item active">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+        <span class="nav-text">Today</span>
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="nav-text">Calendar</span>
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        <span class="nav-text">Panchang</span>
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        <span class="nav-text">Settings</span>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="sub">Navigation Accessibility Requirements</h2>
+  <table>
+    <tr><th>Requirement</th><th>Implementation</th><th>Fixes Issue</th></tr>
+    <tr><td>Semantic landmark</td><td>Wrap bottom nav in <code>&lt;nav aria-label="Main navigation"&gt;</code></td><td>SC 1.3.1 FAIL in audit</td></tr>
+    <tr><td>Active state signal</td><td><code>aria-current="page"</code> on the active tab button</td><td>SC 2.4.3 FAIL in audit</td></tr>
+    <tr><td>Icon labels</td><td>Each nav button must have either visible text label (as shown) or an <code>aria-label</code></td><td>SC 4.1.2</td></tr>
+    <tr><td>Skip navigation</td><td>Visually hidden skip link before the top bar: <code>&lt;a href="#main"&gt;Skip to content&lt;/a&gt;</code></td><td>SC 2.4.1 FAIL in audit</td></tr>
+    <tr><td>Use Lucide icons, not emoji</td><td>Lucide SVG icons are visual-only; they are not announced by screen readers when paired with a visible text label</td><td>Verbosity issue</td></tr>
+  </table>
+</section>
+
+<!-- ── 15. LUNAR PHASES ──────────────────────────────────────── -->
+<section class="section" id="lunar-phases">
+  <div class="section-header">
+    <div class="section-num">15</div>
+    <h1 class="sec">Lunar Phase Color System</h1>
+  </div>
+
+  <p style="font-size:13.5px;color:var(--doc-muted);margin-bottom:16px">Phase-adaptive tinting provides emotional continuity as the lunar cycle progresses. These are subtle background and accent shifts — never jarring. Applied to: card border emphasis, page background tint (very low opacity), and moon visual glow.</p>
+
+  <div class="phase-grid">
+    <div class="phase-card" style="background:#100E1E;border-color:#2A2650">
+      <div class="phase-name">Amavasya</div>
+      <div class="phase-sub">New Moon</div>
+      <div style="margin-top:8px;font-size:11px;color:#4A4870">Bg tint: #100E1E</div>
+      <div style="font-size:11px;color:#6B659A">Accent: #5A547E</div>
+    </div>
+    <div class="phase-card" style="background:#0F1528;border-color:#2A3A5A">
+      <div class="phase-name">Shukla Paksha</div>
+      <div class="phase-sub">Waxing / Bright</div>
+      <div style="margin-top:8px;font-size:11px;color:#4A5C7A">Bg tint: #0F1528</div>
+      <div style="font-size:11px;color:#7B9EDB">Accent: #7B9EDB</div>
+    </div>
+    <div class="phase-card" style="background:#181428;border-color:#40360C">
+      <div class="phase-name">Purnima</div>
+      <div class="phase-sub">Full Moon</div>
+      <div style="margin-top:8px;font-size:11px;color:#605420">Bg tint: #181428</div>
+      <div style="font-size:11px;color:#DDBB6A">Accent: #DDBB6A + glow</div>
+    </div>
+    <div class="phase-card" style="background:#111524;border-color:#283050">
+      <div class="phase-name">Krishna Paksha</div>
+      <div class="phase-sub">Waning / Dark</div>
+      <div style="margin-top:8px;font-size:11px;color:#3A4268">Bg tint: #111524</div>
+      <div style="font-size:11px;color:#6E7CA8">Accent: #6E7CA8</div>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>Phase</th><th>Bg Tint</th><th>Card Accent Border</th><th>Glow</th></tr>
+    <tr><td>Amavasya (New Moon)</td><td>#100E1E</td><td>#5A547E</td><td>None</td></tr>
+    <tr><td>Shukla Paksha (Waxing)</td><td>#0F1528</td><td>#7B9EDB</td><td>rgba(123,158,219,0.08)</td></tr>
+    <tr><td>Purnima (Full Moon)</td><td>#181428</td><td>#DDBB6A</td><td>rgba(221,187,106,0.18)</td></tr>
+    <tr><td>Krishna Paksha (Waning)</td><td>#111524</td><td>#6E7CA8</td><td>None</td></tr>
+  </table>
+</section>
+
+<!-- ── 16. ICONOGRAPHY ───────────────────────────────────────── -->
+<section class="section" id="iconography">
+  <div class="section-header">
+    <div class="section-num">16</div>
+    <h1 class="sec">Iconography &amp; Emoji Migration</h1>
+  </div>
+
+  <p style="font-size:13.5px;color:var(--doc-muted);margin-bottom:16px">This system has two distinct emoji policies depending on context. <strong style="color:var(--doc-text)">UI chrome emoji</strong> (nav tabs, buttons, headings, settings) must be replaced with Lucide React SVG icons. <strong style="color:var(--doc-text)">Moon phase and cultural emoji</strong> in content contexts must be kept — Lucide has no moon phase equivalents, and the emoji representations are accurate, universally understood, and culturally appropriate for this app.</p>
+
+  <!-- RULE 1: UI CHROME — REPLACE -->
+  <div class="callout fail">
+    <strong>🔴 Rule 1 — UI Chrome Emoji: Replace with Lucide</strong>
+    Emoji used as decorative icons in navigation, buttons, headings, and form labels must be replaced with Lucide SVG icons. These emoji are read aloud by screen readers ("prayer beads", "gear", "calendar") and cause confusing announcements. Lucide icons are aria-hidden by default and get their accessible name from the surrounding label or button's aria-label.
+  </div>
+
+  <h2 class="sub">UI Chrome Emoji → Lucide Replacement Map</h2>
+  <table>
+    <tr><th>Current Emoji</th><th>Context</th><th>Lucide Replacement</th><th>aria-hidden</th></tr>
+    <tr><td>🌙</td><td>Today tab nav</td><td><code>Moon</code></td><td>true (text label present)</td></tr>
+    <tr><td>🗓️</td><td>Calendar tab nav</td><td><code>Calendar</code></td><td>true</td></tr>
+    <tr><td>📿</td><td>Panchang tab nav</td><td><code>Clock</code> or custom SVG</td><td>true</td></tr>
+    <tr><td>⚙️</td><td>Settings tab nav</td><td><code>Settings</code></td><td>true</td></tr>
+    <tr><td>🔔</td><td>Subscribe button (top bar)</td><td><code>Bell</code> / <code>BellRing</code></td><td>true (button has aria-label)</td></tr>
+    <tr><td>📍</td><td>City location label</td><td><code>MapPin</code></td><td>true (city name follows)</td></tr>
+    <tr><td>🌅</td><td>Brahma Muhurta timing label</td><td><code>Sunrise</code></td><td>true</td></tr>
+    <tr><td>✨</td><td>Abhijit Muhurta label</td><td><code>Sparkles</code></td><td>true</td></tr>
+    <tr><td>🐍</td><td>Rahu Kaal label</td><td><code>AlertTriangle</code></td><td>true</td></tr>
+    <tr><td>⏳</td><td>Yamagandam label</td><td><code>Timer</code></td><td>true</td></tr>
+    <tr><td>✓</td><td>Settings saved / selected state</td><td><code>Check</code></td><td>true</td></tr>
+    <tr><td>✕</td><td>Close modal/sheet button</td><td><code>X</code></td><td>false — button needs <code>aria-label="Close"</code></td></tr>
+  </table>
+
+  <!-- RULE 2: MOON PHASES — KEEP -->
+  <div class="callout pass">
+    <strong>✅ Rule 2 — Moon Phase Emoji: Keep As-Is</strong>
+    The eight Unicode moon phase emoji (🌑🌒🌓🌔🌕🌖🌗🌘) must be <em>retained</em> in the Calendar component and anywhere moon phases are displayed in content. Lucide does not provide moon phase icons — only a single generic crescent Moon icon. The Unicode phase emoji are accurate representations of each phase, render crisply on all platforms, and are the best available option for this use case. They are a deliberate design choice, not a workaround.
+  </div>
+
+  <h2 class="sub">Moon Phase Emoji — Retention Map</h2>
+  <table>
+    <tr><th>Emoji</th><th>Phase Name (Hindi/Sanskrit)</th><th>Usage in App</th><th>Accessibility Requirement</th></tr>
+    <tr><td style="font-size:18px">🌑</td><td>Amavasya (New Moon)</td><td>Calendar day cell, Panchang header</td><td rowspan="8">Wrap in <code>&lt;span role="img" aria-label="[Phase name]"&gt;</code> so screen readers announce the phase name, not the Unicode description</td></tr>
+    <tr><td style="font-size:18px">🌒</td><td>Waxing Crescent (Shukla Paksha)</td><td>Calendar day cell</td></tr>
+    <tr><td style="font-size:18px">🌓</td><td>First Quarter (Ashtami)</td><td>Calendar day cell</td></tr>
+    <tr><td style="font-size:18px">🌔</td><td>Waxing Gibbous</td><td>Calendar day cell</td></tr>
+    <tr><td style="font-size:18px">🌕</td><td>Purnima (Full Moon)</td><td>Calendar day cell, Panchang header, Home highlight</td></tr>
+    <tr><td style="font-size:18px">🌖</td><td>Waning Gibbous (Krishna Paksha)</td><td>Calendar day cell</td></tr>
+    <tr><td style="font-size:18px">🌗</td><td>Last Quarter</td><td>Calendar day cell</td></tr>
+    <tr><td style="font-size:18px">🌘</td><td>Waning Crescent</td><td>Calendar day cell</td></tr>
+  </table>
+
+  <div class="callout info">
+    <strong>ℹ Other cultural emoji — case by case</strong>
+    Emoji used for cultural or festival meaning (e.g., 🌸 Vasant Panchami, 🪔 Diwali, 🎋 Janmashtami) may be retained where they appear in <em>content descriptions</em>, not UI chrome. Always wrap them with <code>role="img"</code> and a descriptive <code>aria-label</code>. They must never appear in navigation, button labels, or form inputs.
+  </div>
+
+  <h2 class="sub">Icon Usage Rules (Lucide)</h2>
+  <table>
+    <tr><th>Rule</th><th>Detail</th></tr>
+    <tr><td>Size</td><td>Navigation tabs: 22×22px. Card/inline icons: 18×18px. Small inline: 16×16px.</td></tr>
+    <tr><td>Stroke width</td><td>Always <code>strokeWidth={1.75}</code>. Never use filled variants in this system.</td></tr>
+    <tr><td>Color</td><td>Inherit from parent text color via <code>currentColor</code>, or set explicitly using a design token value.</td></tr>
+    <tr><td>aria-hidden</td><td>Set <code>aria-hidden="true"</code> on all Lucide icons — the accessible name comes from the surrounding button's <code>aria-label</code> or adjacent visible text.</td></tr>
+    <tr><td>Icon-only buttons</td><td>Never rely solely on the icon for communication. The parent <code>&lt;button&gt;</code> must have an explicit <code>aria-label</code>.</td></tr>
+  </table>
+</section>
+
+<!-- ── 17. TOKEN REFERENCE ───────────────────────────────────── -->
+<section class="section" id="tokens">
+  <div class="section-header">
+    <div class="section-num">17</div>
+    <h1 class="sec">Complete Token Reference</h1>
+  </div>
+
+  <pre>
+<span class="comment">/* ── index.css — complete token set ── */</span>
+:root {
+
+  <span class="comment">/* Backgrounds */</span>
+  <span class="key">--bg-primary</span>:        <span class="val">#0B1020</span>;   <span class="comment">/* Main app background */</span>
+  <span class="key">--bg-surface</span>:        <span class="val">#151B2F</span>;   <span class="comment">/* Cards, sheets */</span>
+  <span class="key">--bg-elevated</span>:       <span class="val">#1D2440</span>;   <span class="comment">/* Hover, elevated cards */</span>
+  <span class="key">--bg-overlay</span>:        <span class="val">rgba(0,0,0,0.65)</span>; <span class="comment">/* Modal backdrop */</span>
+
+  <span class="comment">/* Brand */</span>
+  <span class="key">--gold</span>:              <span class="val">#DDBB6A</span>;
+  <span class="key">--gold-hover</span>:        <span class="val">#E8C87A</span>;
+  <span class="key">--gold-active</span>:       <span class="val">#C9A85A</span>;
+  <span class="key">--indigo-cta</span>:        <span class="val">#3D4ECC</span>;   <span class="comment">/* Button bg — white text 6.3:1 ✅ */</span>
+  <span class="key">--indigo-cta-hover</span>:  <span class="val">#4A5BD6</span>;
+  <span class="key">--indigo-cta-active</span>: <span class="val">#3040B8</span>;
+  <span class="key">--indigo-deco</span>:       <span class="val">#5B6CFF</span>;   <span class="comment">/* Decorative only — NOT button bg */</span>
+  <span class="key">--blue-light</span>:        <span class="val">#8EA8FF</span>;   <span class="comment">/* Focus ring, links — 8.5:1 on bg ✅ */</span>
+
+  <span class="comment">/* Text */</span>
+  <span class="key">--text-primary</span>:      <span class="val">#F5F7FA</span>;   <span class="comment">/* 18.4:1 on --bg-primary ✅ */</span>
+  <span class="key">--text-secondary</span>:    <span class="val">#B5BDD1</span>;   <span class="comment">/* 10.4:1 on --bg-primary ✅ */</span>
+  <span class="key">--text-disabled</span>:     <span class="val">#70778B</span>;   <span class="comment">/* Disabled states ONLY — 4.35:1 (exempt) */</span>
+  <span class="key">--text-inverse</span>:      <span class="val">#0B1020</span>;   <span class="comment">/* Dark text on gold/light backgrounds */</span>
+
+  <span class="comment">/* Semantic */</span>
+  <span class="key">--success</span>:           <span class="val">#4FAF7C</span>;   <span class="comment">/* 7.1:1 on --bg-primary ✅ */</span>
+  <span class="key">--warning</span>:           <span class="val">#D99036</span>;   <span class="comment">/* 7.5:1 on --bg-primary ✅ */</span>
+  <span class="key">--error</span>:             <span class="val">#D45C5C</span>;   <span class="comment">/* 5.1:1 on --bg-primary ✅ */</span>
+  <span class="key">--info</span>:              <span class="val">#5DA9E9</span>;
+
+  <span class="comment">/* Borders */</span>
+  <span class="key">--border-subtle</span>:     <span class="val">rgba(255,255,255,0.06)</span>;
+  <span class="key">--border-default</span>:    <span class="val">rgba(255,255,255,0.12)</span>;
+  <span class="key">--border-emphasis</span>:   <span class="val">rgba(221,187,106,0.35)</span>;
+  <span class="key">--border-focus</span>:      <span class="val">#8EA8FF</span>;
+  <span class="key">--border-error</span>:      <span class="val">#D45C5C</span>;
+
+  <span class="comment">/* Focus ring (accessibility) */</span>
+  <span class="key">--focus-ring-color</span>:  <span class="val">#8EA8FF</span>;
+  <span class="key">--focus-ring-width</span>:  <span class="val">2px</span>;
+  <span class="key">--focus-ring-offset</span>: <span class="val">2px</span>;
+
+  <span class="comment">/* Shadows */</span>
+  <span class="key">--shadow-sm</span>:         <span class="val">0 1px 3px rgba(0,0,0,0.4)</span>;
+  <span class="key">--shadow-md</span>:         <span class="val">0 4px 12px rgba(0,0,0,0.5)</span>;
+  <span class="key">--shadow-lg</span>:         <span class="val">0 8px 24px rgba(0,0,0,0.6)</span>;
+  <span class="key">--shadow-glow-gold</span>:  <span class="val">0 0 20px rgba(221,187,106,0.18)</span>;
+  <span class="key">--shadow-glow-blue</span>:  <span class="val">0 0 16px rgba(142,168,255,0.15)</span>;
+
+  <span class="comment">/* Spacing */</span>
+  <span class="key">--space-xs</span>: <span class="val">4px</span>;
+  <span class="key">--space-sm</span>: <span class="val">8px</span>;
+  <span class="key">--space-md</span>: <span class="val">16px</span>;
+  <span class="key">--space-lg</span>: <span class="val">24px</span>;
+  <span class="key">--space-xl</span>: <span class="val">32px</span>;
+  <span class="key">--space-xxl</span>: <span class="val">48px</span>;
+  <span class="key">--touch-target</span>: <span class="val">44px</span>;
+
+  <span class="comment">/* Border radius */</span>
+  <span class="key">--radius-sm</span>: <span class="val">8px</span>;
+  <span class="key">--radius-md</span>: <span class="val">12px</span>;
+  <span class="key">--radius-lg</span>: <span class="val">16px</span>;
+  <span class="key">--radius-xl</span>: <span class="val">24px</span>;
+  <span class="key">--radius-full</span>: <span class="val">999px</span>;
+
+  <span class="comment">/* Motion */</span>
+  <span class="key">--dur-fast</span>:   <span class="val">150ms</span>;
+  <span class="key">--dur-base</span>:   <span class="val">200ms</span>;
+  <span class="key">--dur-slow</span>:   <span class="val">300ms</span>;
+  <span class="key">--ease-out</span>:   <span class="val">cubic-bezier(0.0, 0.0, 0.2, 1)</span>;
+  <span class="key">--ease-in</span>:    <span class="val">cubic-bezier(0.4, 0.0, 1.0, 1)</span>;
+  <span class="key">--ease-spring</span>:<span class="val">cubic-bezier(0.34, 1.56, 0.64, 1)</span>;
+
+  <span class="comment">/* Z-index scale */</span>
+  <span class="key">--z-base</span>:    <span class="val">0</span>;
+  <span class="key">--z-sticky</span>:  <span class="val">40</span>;   <span class="comment">/* Top bar, bottom nav */</span>
+  <span class="key">--z-overlay</span>: <span class="val">50</span>;   <span class="comment">/* Bottom sheets, date picker */</span>
+  <span class="key">--z-modal</span>:   <span class="val">60</span>;   <span class="comment">/* Modals, dialogs */</span>
+  <span class="key">--z-toast</span>:   <span class="val">70</span>;   <span class="comment">/* Toast notifications, alerts */</span>
+  <span class="key">--z-top</span>:     <span class="val">80</span>;   <span class="comment">/* Critical overlays only */</span>
+
+  <span class="comment">/* Typography */</span>
+  <span class="key">--font-ui</span>:   <span class="val">'Inter', -apple-system, 'Segoe UI', Arial, sans-serif</span>;
+  <span class="key">--font-deva</span>: <span class="val">'Noto Serif Devanagari', serif</span>;   <span class="comment">/* Lazy loaded */</span>
+  <span class="key">--text-hero</span>:    <span class="val">32px</span>; <span class="key">--weight-hero</span>:    <span class="val">700</span>;
+  <span class="key">--text-section</span>: <span class="val">24px</span>; <span class="key">--weight-section</span>: <span class="val">600</span>;
+  <span class="key">--text-title</span>:   <span class="val">18px</span>; <span class="key">--weight-title</span>:   <span class="val">600</span>;
+  <span class="key">--text-body</span>:    <span class="val">16px</span>; <span class="key">--weight-body</span>:    <span class="val">400</span>;
+  <span class="key">--text-secondary-sz</span>: <span class="val">14px</span>;
+  <span class="key">--text-meta</span>:    <span class="val">12px</span>; <span class="key">--weight-meta</span>:    <span class="val">500</span>;
+}
+
+<span class="comment">/* Global focus ring — single definition */</span>
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}</pre>
+
+  <h2 class="sub">Tailwind Config Extension</h2>
+  <pre>
+<span class="comment">// tailwind.config.js</span>
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        chandra: {
+          <span class="str">'bg'</span>:         <span class="val">'#0B1020'</span>,
+          <span class="str">'surface'</span>:    <span class="val">'#151B2F'</span>,
+          <span class="str">'elevated'</span>:   <span class="val">'#1D2440'</span>,
+          <span class="str">'gold'</span>:       <span class="val">'#DDBB6A'</span>,
+          <span class="str">'gold-hover'</span>: <span class="val">'#E8C87A'</span>,
+          <span class="str">'indigo-cta'</span>: <span class="val">'#3D4ECC'</span>,
+          <span class="str">'indigo-deco'</span>:<span class="val">'#5B6CFF'</span>,
+          <span class="str">'blue-light'</span>: <span class="val">'#8EA8FF'</span>,
+          <span class="str">'text'</span>:       <span class="val">'#F5F7FA'</span>,
+          <span class="str">'muted'</span>:      <span class="val">'#B5BDD1'</span>,
+          <span class="str">'disabled'</span>:   <span class="val">'#70778B'</span>,
+          <span class="str">'success'</span>:    <span class="val">'#4FAF7C'</span>,
+          <span class="str">'warning'</span>:    <span class="val">'#D99036'</span>,
+          <span class="str">'error'</span>:      <span class="val">'#D45C5C'</span>,
+        }
+      },
+      fontFamily: {
+        ui:   [<span class="str">'Inter'</span>, <span class="str">'system-ui'</span>, <span class="str">'Arial'</span>, <span class="str">'sans-serif'</span>],
+        deva: [<span class="str">'Noto Serif Devanagari'</span>, <span class="str">'serif'</span>],
+      },
+      borderRadius: {
+        sm: <span class="val">'8px'</span>, md: <span class="val">'12px'</span>, lg: <span class="val">'16px'</span>, xl: <span class="val">'24px'</span>,
+      },
+      spacing: { <span class="str">'touch'</span>: <span class="val">'44px'</span> }
+    }
+  }
+};</pre>
+</section>
+
+<!-- ── 18. EXECUTION PLAN ────────────────────────────────────── -->
+<section class="section" id="execution">
+  <div class="section-header">
+    <div class="section-num">18</div>
+    <h1 class="sec">Execution Plan</h1>
+  </div>
+
+  <p style="font-size:13.5px;color:var(--doc-muted);margin-bottom:20px">Six phases, ordered by dependency. Each phase is independently shippable — you can pause after any phase and the app remains functional and improved. Total estimated effort for a solo developer: <strong>10–14 working days.</strong></p>
+
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-dot">0</div>
+      <div class="tl-head">
+        <div class="tl-title">Phase 0 — Design Review &amp; Sign-off</div>
+        <span class="tl-meta">1–2 days · Before any code</span>
+      </div>
+      <div class="tl-body">Review this design system document. Finalise token values, confirm button color approach (gold primary / indigo secondary), approve the emoji→icon mapping table, and confirm the Lucide icon choices for Panchang tab. No code changes until this is signed off.</div>
+      <div class="tl-tags"><span class="tl-tag infra">Design</span><span class="tl-tag">Sign-off required</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot">1</div>
+      <div class="tl-head">
+        <div class="tl-title">Phase 1 — Token Foundation</div>
+        <span class="tl-meta">1 day</span>
+      </div>
+      <div class="tl-body">Update <code>tailwind.config.js</code> with the Chandra color tokens. Add all CSS custom properties to <code>index.css</code>. Add Inter font preconnect to <code>index.html</code>. Remove <code>user-scalable=no</code> and <code>maximum-scale=1.0</code> from viewport meta. Add the global <code>:focus-visible</code> rule. This phase has no visual impact on the current app — it only adds infrastructure.</div>
+      <div class="tl-tags"><span class="tl-tag a11y">Fixes SC 1.4.4 (zoom)</span><span class="tl-tag a11y">Fixes focus ring foundation</span><span class="tl-tag infra">infra</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot">2</div>
+      <div class="tl-head">
+        <div class="tl-title">Phase 2 — Primitive Components</div>
+        <span class="tl-meta">3–4 days</span>
+      </div>
+      <div class="tl-body">Build the <code>/src/components/ui/</code> folder with accessible primitives: <strong>Button</strong>, <strong>Input</strong> (with label), <strong>Toggle</strong> (with aria-label), <strong>BottomSheet / Modal</strong> (with focus trap + Escape), <strong>Card</strong>, <strong>Chip</strong>. Install <code>lucide-react</code> and <code>focus-trap-react</code>. Each component implements the accessibility spec from this document. The existing pages are not yet changed — this is additive only.</div>
+      <div class="tl-tags"><span class="tl-tag a11y">SC 4.1.2 toggle name</span><span class="tl-tag a11y">SC 2.1.2 focus trap</span><span class="tl-tag a11y">SC 3.3.2 input label</span><span class="tl-tag infra">infra</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot">3</div>
+      <div class="tl-head">
+        <div class="tl-title">Phase 3 — App Shell Migration</div>
+        <span class="tl-meta">1–2 days</span>
+      </div>
+      <div class="tl-body">Migrate <code>App.jsx</code>: replace emoji nav icons with Lucide, add <code>&lt;nav aria-label&gt;</code> wrapper, add <code>aria-current="page"</code> to active tab, add skip-to-content link, update z-index values to use token scale. Migrate top bar: replace bell emoji with Lucide <code>Bell</code>, update colors to new tokens.</div>
+      <div class="tl-tags"><span class="tl-tag a11y">SC 1.3.1 nav landmark</span><span class="tl-tag a11y">SC 2.4.1 skip link</span><span class="tl-tag a11y">SC 2.4.3 aria-current</span><span class="tl-tag visual">Visual</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot">4</div>
+      <div class="tl-head">
+        <div class="tl-title">Phase 4 — Page-by-Page Migration</div>
+        <span class="tl-meta">4–5 days</span>
+      </div>
+      <div class="tl-body">
+        Migrate each page to the new primitives, color tokens, and typography. Recommended order:
+        <br><br>
+        <strong>Settings.jsx</strong> (most a11y issues — city input label, toggle names, contrast fixes, focus ring, notification banner aria-live) →
+        <strong>Home.jsx</strong> (gray-500 contrast, loading/error aria-live, MoonVisual aria-hidden, location pin icon) →
+        <strong>Calendar.jsx</strong> (div→button for day cells, BottomSheet primitive, grid semantics, festival list cards) →
+        <strong>Panchang.jsx</strong> (chevron aria-labels, date picker sheet, Noto Serif Devanagari lazy load) →
+        <strong>SubscribeSheet.jsx</strong> (BottomSheet primitive replaces bespoke implementation).
+      </div>
+      <div class="tl-tags"><span class="tl-tag a11y">SC 2.1.1 keyboard</span><span class="tl-tag a11y">SC 1.4.3 contrast</span><span class="tl-tag a11y">SC 4.1.3 live regions</span><span class="tl-tag visual">Visual</span></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot">5</div>
+      <div class="tl-head">
+        <div class="tl-title">Phase 5 — Validation &amp; QA</div>
+        <span class="tl-meta">1–2 days</span>
+      </div>
+      <div class="tl-body">
+        Keyboard-only navigation session through every screen. Run axe-core in Chrome DevTools against each page. Spot-check with VoiceOver on iOS (the primary deployment target). Verify all contrast ratios with the WebAIM Contrast Checker on the live rendered app (computed backgrounds may differ from CSS values). Confirm font loading performance on a throttled 3G connection. Fix any regressions found.
+      </div>
+      <div class="tl-tags"><span class="tl-tag">axe-core scan</span><span class="tl-tag">VoiceOver test</span><span class="tl-tag">Keyboard test</span><span class="tl-tag">Perf check</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── 19. MIGRATION PLAN ────────────────────────────────────── -->
+<section class="section" id="migration">
+  <div class="section-header">
+    <div class="section-num">19</div>
+    <h1 class="sec">Migration Plan</h1>
+  </div>
+
+  <p style="font-size:13.5px;color:var(--doc-muted);margin-bottom:20px">The migration is designed to be <strong>zero-downtime and incremental</strong>. At no point should you find yourself with a half-broken app that can't be deployed. The existing app stays live on Vercel throughout.</p>
+
+  <h2 class="sub">Branch Strategy</h2>
+  <pre>
+main (live on Vercel)
+└── design-system/phase-1-tokens      ← merged first, no visual change
+└── design-system/phase-2-primitives  ← merged second, additive only
+└── design-system/phase-3-app-shell   ← first visible change
+└── design-system/phase-4-pages       ← one PR per page file
+└── design-system/phase-5-qa          ← final fixes before merge to main</pre>
+
+  <h2 class="sub">File-by-File Change Map</h2>
+  <table>
+    <tr><th>File</th><th>Change Type</th><th>Notes</th></tr>
+    <tr><td><code>index.html</code></td><td>Edit</td><td>Remove zoom lock, add Inter preconnect, add skip link</td></tr>
+    <tr><td><code>tailwind.config.js</code></td><td>Edit</td><td>Add Chandra color tokens and font families</td></tr>
+    <tr><td><code>src/index.css</code></td><td>Edit</td><td>Add CSS custom properties, global :focus-visible rule</td></tr>
+    <tr><td><code>src/App.jsx</code></td><td>Edit</td><td>nav landmark, aria-current, Lucide icons, skip link target</td></tr>
+    <tr><td><code>src/pages/Settings.jsx</code></td><td>Edit</td><td>New Toggle/Input primitives, contrast fixes, aria-live toast</td></tr>
+    <tr><td><code>src/pages/Home.jsx</code></td><td>Edit</td><td>Color tokens, aria-live, MoonVisual aria-hidden, Lucide icons</td></tr>
+    <tr><td><code>src/pages/Calendar.jsx</code></td><td>Edit</td><td>div→button cells, BottomSheet primitive, grid semantics</td></tr>
+    <tr><td><code>src/pages/Panchang.jsx</code></td><td>Edit</td><td>aria-labels on chevrons, DatePickerSheet, Noto lazy load</td></tr>
+    <tr><td><code>src/components/MoonVisual.jsx</code></td><td>Edit</td><td>Add aria-hidden="true" to SVG</td></tr>
+    <tr><td><code>src/components/SubscribeSheet.jsx</code></td><td>Edit</td><td>Adopt BottomSheet primitive</td></tr>
+    <tr><td><code>src/components/InstallPrompt.jsx</code></td><td>Edit</td><td>Add role="dialog", aria-label on buttons</td></tr>
+    <tr><td><code>src/components/ui/</code></td><td><strong>New folder</strong></td><td>Button.jsx, Input.jsx, Toggle.jsx, BottomSheet.jsx, Card.jsx, Chip.jsx, Icon.jsx</td></tr>
+    <tr><td><code>src/components/DatePickerSheet.jsx</code></td><td>Edit</td><td>Adopt BottomSheet primitive, fix backdrop keyboard dismiss</td></tr>
+    <tr><td><code>CLAUDE.md</code></td><td>Update</td><td>Add design system section with token references and rules</td></tr>
+  </table>
+
+  <h2 class="sub">What Does NOT Change</h2>
+  <div class="callout pass">
+    <strong>✅ These files are untouched by this migration</strong>
+    moonUtils.js, festivals.js, cities.js, eclipseUtils.js, SettingsContext.jsx, SubscriptionContext.jsx, main.jsx, firebase.js, analytics.js, notifications.js, vite.config.js, firestore.rules. The logic layer is completely isolated from the design system. No calculation or data code changes.
+  </div>
+
+  <h2 class="sub">Rollback Plan</h2>
+  <p style="font-size:13.5px;color:var(--doc-muted);margin-bottom:10px">Since each phase is a separate branch merged to main, any phase can be reverted individually with a standard <code>git revert</code>. Vercel will automatically redeploy the previous version. No database changes are involved.</p>
+
+  <h2 class="sub">Definition of Done</h2>
+  <table>
+    <tr><th>Check</th><th>Acceptance Criteria</th></tr>
+    <tr><td>Contrast</td><td>Zero contrast failures in axe-core scan across all 4 pages</td></tr>
+    <tr><td>Keyboard</td><td>Every interactive element reachable and operable by Tab / Enter / Space / Escape</td></tr>
+    <tr><td>Screen reader</td><td>VoiceOver on iOS announces nav tabs, toggles, and modal titles correctly</td></tr>
+    <tr><td>Zoom</td><td>App is fully usable at 200% browser zoom with no content cutoff</td></tr>
+    <tr><td>Performance</td><td>Noto Serif Devanagari does not appear in initial page load. LCP unaffected.</td></tr>
+    <tr><td>Visual</td><td>All emoji UI icons replaced with Lucide equivalents</td></tr>
+    <tr><td>Tokens</td><td>No raw Tailwind color classes (gray-900, yellow-300 etc.) remain in page files — all replaced with Chandra token classes</td></tr>
+  </table>
+
+  <div class="callout info" style="margin-top:24px">
+    <strong>ℹ One final note on sequencing</strong>
+    Phases 1 and 2 (tokens + primitives) can be done by a developer independently while visual design decisions for Phase 3+ are still being finalised. The infrastructure investment pays dividends from day one — the token system alone eliminates an entire class of future accessibility regressions, regardless of which visual direction is ultimately chosen.
+  </div>
+</section>
+
+<!-- Footer -->
+<div style="border-top:2px solid var(--doc-border);padding-top:24px;margin-top:40px;text-align:center;color:var(--doc-muted);font-size:12px">
+  Chandra Design System v1.0 — For Review · Not yet implemented · May 2026
+</div>
+
+</main>
+</div>
+</body>
+</html>
