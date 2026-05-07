@@ -1,7 +1,7 @@
 {
   "name": "Chandra — Indian Moon Tracker",
   "short_name": "Chandra",
-  "description": "Daily moon phases, Tithi, Panchang and Hindu festival calendar for India",
+  "description": "Free daily Panchang, Tithi, Nakshatra, moonrise times and Hindu festival calendar for India.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a1a",

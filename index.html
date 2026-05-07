@@ -1,8 +1,16 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-IN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>Chandra — Daily Panchang, Tithi &amp; Hindu Moon Calendar for India</title>
+
+    <!-- Core SEO -->
+    <meta name="description" content="Free daily Panchang for India. Get today's Tithi, Nakshatra, moonrise &amp; moonset times, Rahu Kaal, and Hindu festival calendar — personalised for your city." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://chandra-app.vercel.app/" />
+    <meta name="geo.region" content="IN" />
 
     <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
@@ -16,11 +24,51 @@
     <link rel="icon" type="image/png" href="/icons/icon-192.png" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
 
-    <!-- SEO -->
-    <meta name="description" content="Daily moon phases, Tithi, Panchang and Hindu festival calendar for India" />
-    <meta name="keywords" content="moon tracker, panchang, tithi, nakshatra, hindu calendar, India" />
+    <!-- Open Graph (WhatsApp, Facebook, LinkedIn previews) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://chandra-app.vercel.app/" />
+    <meta property="og:title" content="Chandra — Daily Panchang, Tithi &amp; Hindu Moon Calendar" />
+    <meta property="og:description" content="Free daily Panchang for India. Today's Tithi, Nakshatra, moonrise &amp; moonset times, Rahu Kaal, and Hindu festival calendar — personalised for your city." />
+    <meta property="og:image" content="https://chandra-app.vercel.app/icons/icon-512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="Chandra — Indian Moon Tracker" />
+    <meta property="og:site_name" content="Chandra" />
+    <meta property="og:locale" content="en_IN" />
 
-    <title>Chandra — Indian Moon Tracker</title>
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Chandra — Daily Panchang, Tithi &amp; Hindu Moon Calendar" />
+    <meta name="twitter:description" content="Free daily Panchang for India. Today's Tithi, Nakshatra, moonrise times and Hindu festival calendar." />
+    <meta name="twitter:image" content="https://chandra-app.vercel.app/icons/icon-512.png" />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Chandra — Indian Moon Tracker",
+      "url": "https://chandra-app.vercel.app",
+      "description": "Free daily Panchang for India. Get today's Tithi, Nakshatra, moonrise and moonset times, Rahu Kaal, and Hindu festival calendar personalised for your city.",
+      "applicationCategory": "LifestyleApplication",
+      "operatingSystem": "Web, Android, iOS",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+      },
+      "inLanguage": "en-IN",
+      "featureList": [
+        "Daily Tithi and Panchang",
+        "Nakshatra calculator",
+        "Moonrise and moonset times",
+        "Rahu Kaal timings",
+        "Hindu festival calendar",
+        "Eclipse tracking",
+        "Push notifications for festivals"
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
