@@ -36,6 +36,8 @@ const KARANA_NAMES = [
 const VARA_NAMES = ['Ravivar', 'Somvar', 'Mangalvar', 'Budhvar', 'Guruvar', 'Shukravar', 'Shanivar']
 const VARA_DEVA  = ['Sun ☀️', 'Moon 🌙', 'Mars ♂️', 'Mercury ☿', 'Jupiter ♃', 'Venus ♀️', 'Saturn ♄']
 
+const JUMP_YEARS = Array.from({ length: 201 }, (_, i) => 1926 + i)
+
 // ─────────────────────────────────────────────────────────────────
 
 const Calendar = ({ onSelectDate }) => {
@@ -44,6 +46,12 @@ const Calendar = ({ onSelectDate }) => {
   const [calendarDays, setCalendarDays] = useState([])
   const [selectedDay, setSelectedDay] = useState(null)   // for modal
   const [dayPanchang, setDayPanchang] = useState(null)   // computed on tap
+  const [showJumpPicker, setShowJumpPicker] = useState(false)
+  const [jumpMonth, setJumpMonth] = useState(new Date().getMonth())
+  const [jumpYear, setJumpYear] = useState(new Date().getFullYear())
+  const touchStartX = useRef(null)
+  const touchStartY = useRef(null)
+  const selectedYearRef = useRef(null)
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -68,6 +76,21 @@ const Calendar = ({ onSelectDate }) => {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [selectedDay])
+
+  // Close jump picker on Escape key
+  useEffect(() => {
+    if (!showJumpPicker) return
+    const onKey = (e) => { if (e.key === 'Escape') setShowJumpPicker(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [showJumpPicker])
+
+  // Auto-scroll to selected year when jump picker opens
+  useEffect(() => {
+    if (showJumpPicker && selectedYearRef.current) {
+      selectedYearRef.current.scrollIntoView({ block: 'center', behavior: 'instant' })
+    }
+  }, [showJumpPicker])
 
   const buildCalendar = () => {
     const year = currentDate.getFullYear()
@@ -171,6 +194,32 @@ const Calendar = ({ onSelectDate }) => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
   }
 
+  const openJumpPicker = () => {
+    setJumpMonth(currentDate.getMonth())
+    setJumpYear(currentDate.getFullYear())
+    setShowJumpPicker(true)
+  }
+
+  const applyJump = () => {
+    setCurrentDate(new Date(jumpYear, jumpMonth, 1))
+    setShowJumpPicker(false)
+  }
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      deltaX < 0 ? nextMonth() : prevMonth()
+    }
+    touchStartX.current = null
+  }
+
   const upcomingFestivals = calendarDays
     .filter(d => d && (d.festivals.length > 0 || d.eclipse))
     .filter(d => d.date >= new Date(new Date().setHours(0, 0, 0, 0)))
@@ -194,9 +243,14 @@ const Calendar = ({ onSelectDate }) => {
           aria-label="Previous month"
           className="text-yellow-300 text-2xl px-3 py-1 rounded-lg hover:bg-gray-800 min-h-[44px] min-w-[44px]"
         >‹</button>
-        <h2 className="text-white text-lg font-semibold">
+        <button
+          onClick={openJumpPicker}
+          className="text-white text-lg font-semibold hover:text-yellow-300 transition-colors flex items-center gap-1.5"
+          aria-label={`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}, tap to select month and year`}
+        >
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-        </h2>
+          <span className="text-gray-500 text-xs" aria-hidden="true">▾</span>
+        </button>
         <button
           onClick={nextMonth}
           aria-label="Next month"
@@ -212,7 +266,11 @@ const Calendar = ({ onSelectDate }) => {
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-1 mb-6">
+      <div
+        className="grid grid-cols-7 gap-1 mb-6"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {calendarDays.map((day, idx) => (
           day ? (
             <button
@@ -273,6 +331,73 @@ const Calendar = ({ onSelectDate }) => {
                 <span className="text-2xl" aria-hidden="true">{day.phaseEmoji}</span>
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Month / Year Jump Picker ────────────────────────────── */}
+      {showJumpPicker && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Select month and year"
+          className="fixed inset-0 z-50 flex items-end justify-center"
+          onClick={() => setShowJumpPicker(false)}
+        >
+          <div className="absolute inset-0 bg-black/60" />
+          <div
+            className="relative w-full max-w-md bg-gray-950 rounded-t-3xl border-t border-gray-800 px-5 pt-4 pb-10"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Drag handle */}
+            <div className="w-10 h-1 bg-gray-700 rounded-full mx-auto mb-4" />
+
+            <p className="text-white font-semibold text-base text-center mb-4">Go to Month</p>
+
+            {/* Month grid */}
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {monthNames.map((m, i) => (
+                <button
+                  key={m}
+                  onClick={() => setJumpMonth(i)}
+                  className={`py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    i === jumpMonth
+                      ? 'bg-yellow-400 text-gray-950 font-bold'
+                      : 'bg-gray-800 text-white hover:bg-gray-700'
+                  }`}
+                >
+                  {m.slice(0, 3)}
+                </button>
+              ))}
+            </div>
+
+            {/* Year grid — scrollable, auto-scrolls to selected year on open */}
+            <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto mb-5 pb-1">
+              {JUMP_YEARS.map(y => (
+                <button
+                  key={y}
+                  ref={y === jumpYear ? selectedYearRef : null}
+                  onClick={() => setJumpYear(y)}
+                  className={`py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    y === jumpYear
+                      ? 'bg-yellow-400 text-gray-950 font-bold'
+                      : y === new Date().getFullYear()
+                      ? 'border border-yellow-500 text-yellow-300'
+                      : 'bg-gray-800 text-white hover:bg-gray-700'
+                  }`}
+                >
+                  {y}
+                </button>
+              ))}
+            </div>
+
+            {/* Confirm */}
+            <button
+              onClick={applyJump}
+              className="w-full py-3.5 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold text-sm transition-all"
+            >
+              Go to {monthNames[jumpMonth]} {jumpYear}
+            </button>
           </div>
         </div>
       )}

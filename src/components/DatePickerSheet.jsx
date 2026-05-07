@@ -7,12 +7,15 @@ const MONTH_NAMES = [
 ]
 const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
-// Year range shown in year picker: 20 years back → 10 years forward
+// Year range: 100 years back → 100 years forward (201 total)
 const THIS_YEAR = new Date().getFullYear()
-const YEARS = Array.from({ length: 31 }, (_, i) => THIS_YEAR - 20 + i)
+const YEARS = Array.from({ length: 201 }, (_, i) => THIS_YEAR - 100 + i)
 
 const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
   const sheetRef = useRef(null)
+  const selectedYearRef = useRef(null)
+  const touchStartX = useRef(null)
+  const touchStartY = useRef(null)
   const [viewYear, setViewYear]           = useState(selectedDate.getFullYear())
   const [viewMonth, setViewMonth]         = useState(selectedDate.getMonth())
   const [showYearPicker, setShowYearPicker] = useState(false)
@@ -90,6 +93,28 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
   const handleSelectYear = (y) => {
     setViewYear(y)
     setShowYearPicker(false)
+  }
+
+  // Auto-scroll to selected year when year picker opens
+  useEffect(() => {
+    if (showYearPicker && selectedYearRef.current) {
+      selectedYearRef.current.scrollIntoView({ block: 'center', behavior: 'instant' })
+    }
+  }, [showYearPicker])
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      deltaX < 0 ? nextMonth() : prevMonth()
+    }
+    touchStartX.current = null
   }
 
   const cells = buildDays()
@@ -179,8 +204,12 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
                 ))}
               </div>
 
-              {/* Day cells */}
-              <div className="grid grid-cols-7 gap-1 mb-5">
+              {/* Day cells — swipe left/right to change month */}
+              <div
+                className="grid grid-cols-7 gap-1 mb-5"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
                 {cells.map((cell, idx) => (
                   <button
                     key={idx}
@@ -221,6 +250,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
               {YEARS.map(y => (
                 <button
                   key={y}
+                  ref={y === viewYear ? selectedYearRef : null}
                   onClick={() => handleSelectYear(y)}
                   className={`py-3 rounded-xl text-sm font-medium transition-all ${
                     y === viewYear
