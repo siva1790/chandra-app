@@ -478,7 +478,7 @@ const Panchang = ({ location, initialDate }) => {
         </div>
       ) : (
         <div aria-live="polite" aria-busy="true" className="text-center text-gray-400 mt-20">
-          <p className="text-4xl mb-4" aria-hidden="true">📿</p>
+          <Clock size={36} aria-hidden="true" strokeWidth={1.25} className="mx-auto mb-4 text-yellow-800" />
           <p>Calculating Panchang...</p>
         </div>
       )}
