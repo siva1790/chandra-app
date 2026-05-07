@@ -3,17 +3,80 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ── Helper functions ──────────────────────────────────────────────────────
+
+    // Basic email format: something@something.something, max 254 chars
+    function isValidEmail(email) {
+      return email is string
+          && email.size() > 0
+          && email.size() <= 254
+          && email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+    }
+
+    // String with a maximum length
+    function isShortString(val, maxLen) {
+      return val is string && val.size() > 0 && val.size() <= maxLen;
+    }
+
+    // Lat/lon within valid geographic ranges
+    function isValidLatLon(data) {
+      return data.lat is number && data.lat >= -90  && data.lat <= 90
+          && data.lon is number && data.lon >= -180 && data.lon <= 180;
+    }
+
     // ── subscribers ───────────────────────────────────────────────────────────
     // Public create (email sign-up). Self-update for edits / unsubscribe.
     // No client reads — subscriber list is backend-only.
     match /subscribers/{subscriberId} {
-      allow create: if request.resource.data.keys().hasAll(['id', 'email', 'active', 'subscribedAt'])
-                    && request.resource.data.email is string
-                    && request.resource.data.email.size() > 0;
 
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-                      .hasOnly(['name', 'email', 'city', 'emailFrequency', 'active',
-                                'unsubscribedAt', 'lat', 'lon', 'calendarSystem']);
+      allow create: if
+        // Document path ID must match the id field in the payload
+        subscriberId == request.resource.data.id
+        // Required fields
+        && request.resource.data.keys().hasAll([
+             'id', 'email', 'active', 'subscribedAt',
+             'city', 'lat', 'lon', 'emailFrequency'
+           ])
+        // id: UUID (36-char string)
+        && request.resource.data.id is string
+        && request.resource.data.id.size() == 36
+        // email: valid format
+        && isValidEmail(request.resource.data.email)
+        // active: must be true on create
+        && request.resource.data.active == true
+        // subscribedAt: ISO timestamp string
+        && request.resource.data.subscribedAt is string
+        && request.resource.data.subscribedAt.size() <= 30
+        // city: non-empty, max 100 chars
+        && isShortString(request.resource.data.city, 100)
+        // lat/lon: valid coordinates
+        && isValidLatLon(request.resource.data)
+        // emailFrequency: allowlist only
+        && request.resource.data.emailFrequency in ['all', 'major', 'monthly']
+        // name: optional, max 100 chars if present
+        && (!('name' in request.resource.data)
+            || isShortString(request.resource.data.name, 100));
+
+      allow update: if
+        // Only these fields may be changed
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'email', 'city', 'lat', 'lon', 'calendarSystem',
+                    'emailFrequency', 'active', 'unsubscribedAt'])
+        // email: must still be valid if changed
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['email'])
+            || isValidEmail(request.resource.data.email))
+        // emailFrequency: allowlist if changed
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['emailFrequency'])
+            || request.resource.data.emailFrequency in ['all', 'major', 'monthly'])
+        // active: can only go true → false (unsubscribe); cannot be re-activated from client
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['active'])
+            || (resource.data.active == true && request.resource.data.active == false))
+        // city: max 100 chars if changed
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['city'])
+            || isShortString(request.resource.data.city, 100))
+        // name: max 100 chars if changed
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['name'])
+            || isShortString(request.resource.data.name, 100));
 
       allow read:   if false;
       allow delete: if false;
@@ -22,15 +85,48 @@ service cloud.firestore {
     // ── devices ───────────────────────────────────────────────────────────────
     // One document per browser that has granted push-notification permission.
     // Public create/update (device opt-in and pref changes).
-    // No client reads — device list is backend-only.
-    // No client deletes — backend marks inactive; cleanup happens server-side.
+    // No client reads or deletes — backend-only.
     match /devices/{deviceId} {
-      allow create: if request.resource.data.keys().hasAll(['token', 'city', 'active', 'updatedAt'])
-                    && request.resource.data.token is string
-                    && request.resource.data.token.size() > 0;
 
-      allow update: if request.resource.data.diff(resource.data).affectedKeys()
-                      .hasOnly(['token', 'city', 'lat', 'lon', 'notifPrefs', 'active', 'updatedAt']);
+      allow create: if
+        // Required fields
+        request.resource.data.keys().hasAll([
+          'token', 'city', 'lat', 'lon', 'active', 'updatedAt', 'notifPrefs'
+        ])
+        // token: FCM tokens are ~150–200 chars; cap at 300
+        && request.resource.data.token is string
+        && request.resource.data.token.size() > 0
+        && request.resource.data.token.size() <= 300
+        // city: non-empty, max 100 chars
+        && isShortString(request.resource.data.city, 100)
+        // lat/lon: valid coordinates
+        && isValidLatLon(request.resource.data)
+        // active: must be true on create
+        && request.resource.data.active == true
+        // updatedAt: ISO timestamp string
+        && request.resource.data.updatedAt is string
+        && request.resource.data.updatedAt.size() <= 30
+        // notifPrefs: must be a map
+        && request.resource.data.notifPrefs is map;
+
+      allow update: if
+        // Only these fields may be changed
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['token', 'city', 'lat', 'lon', 'notifPrefs', 'active', 'updatedAt'])
+        // token: valid if changed
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['token'])
+            || (request.resource.data.token is string
+                && request.resource.data.token.size() > 0
+                && request.resource.data.token.size() <= 300))
+        // active: can only go true → false (deactivate); re-enabling creates a new document
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['active'])
+            || (resource.data.active == true && request.resource.data.active == false))
+        // city: max 100 chars if changed
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['city'])
+            || isShortString(request.resource.data.city, 100))
+        // notifPrefs: must be a map if changed
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['notifPrefs'])
+            || request.resource.data.notifPrefs is map);
 
       allow read:   if false;
       allow delete: if false;

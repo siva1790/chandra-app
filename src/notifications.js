@@ -93,4 +93,7 @@ export const deactivateDevice = async () => {
   } catch (e) {
     console.error('[FCM] deactivateDevice error:', e)
   }
+  // Clear the stored ID so re-enabling notifications creates a fresh document
+  // (Firestore rules block active: false → true updates on existing documents)
+  localStorage.removeItem(DEVICE_KEY)
 }
