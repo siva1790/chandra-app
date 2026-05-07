@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './index.css'
 import Home from './pages/Home'
 import Calendar from './pages/Calendar'
@@ -8,6 +8,7 @@ import { useSettings } from './SettingsContext'
 import { useSubscription } from './SubscriptionContext'
 import InstallPrompt from './components/InstallPrompt'
 import SubscribeSheet from './components/SubscribeSheet'
+import { trackPageView } from './analytics'
 
 function App() {
   const [screen, setScreen] = useState('home')
@@ -16,11 +17,17 @@ function App() {
   const { settings } = useSettings()
   const { subscription } = useSubscription()
 
+  const TAB_NAMES = { home: 'Today', calendar: 'Calendar', panchang: 'Panchang', settings: 'Settings' }
+
+  // Track initial page view
+  useEffect(() => { trackPageView('Today') }, [])
+
   // Direct tab tap — always resets Panchang to today
   const navigate = (tab) => {
     if (tab === 'panchang') setPanchangDate(new Date())
     setScreen(tab)
     window.scrollTo(0, 0)
+    trackPageView(TAB_NAMES[tab])
   }
 
   // Called from Home highlight strip or Calendar day tap — jumps to a specific date

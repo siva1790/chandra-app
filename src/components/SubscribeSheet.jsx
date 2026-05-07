@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSubscription } from '../SubscriptionContext'
 import { useSettings } from '../SettingsContext'
 import { cities } from '../cities'
+import { trackEvent } from '../analytics'
 
 const SubscribeSheet = ({ open, onClose }) => {
   const { subscription, subscribe, update, unsubscribe } = useSubscription()
@@ -91,6 +92,7 @@ const SubscribeSheet = ({ open, onClose }) => {
         subLon,
         settings.calendarSystem
       )
+      trackEvent('subscribe', { city: subCity })
       setSuccess(true)
       setTimeout(() => onClose(), 2200)
     } catch (e) {
@@ -119,6 +121,7 @@ const SubscribeSheet = ({ open, onClose }) => {
   }
 
   const handleUnsubscribe = () => {
+    trackEvent('unsubscribe')
     unsubscribe()
     setConfirmUnsub(false)
     onClose()

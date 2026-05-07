@@ -3,6 +3,7 @@ import { useSettings } from '../SettingsContext'
 import { useSubscription } from '../SubscriptionContext'
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
+import { trackEvent } from '../analytics'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
@@ -70,6 +71,7 @@ const Settings = ({ onOpenSubscribe }) => {
       setNotifEnabled(true)
       localStorage.setItem(NOTIF_ENABLED_KEY, 'true')
       triggerPreview()
+      trackEvent('notification_enabled', { city: settings.city })
       // Register this device in Firestore so the backend can send push notifications
       initDevice(settings.city, settings.lat, settings.lon, notifPrefs).catch(() => {})
     }
@@ -78,6 +80,7 @@ const Settings = ({ onOpenSubscribe }) => {
   const toggleNotifMaster = (val) => {
     setNotifEnabled(val)
     localStorage.setItem(NOTIF_ENABLED_KEY, val ? 'true' : 'false')
+    if (!val) trackEvent('notification_disabled')
     if (val && notifPermission === 'granted') {
       triggerPreview()
       // Re-activate device in case it was previously deactivated
@@ -116,6 +119,7 @@ const Settings = ({ onOpenSubscribe }) => {
     setCitySearch('')
     setShowCityList(false)
     showSavedBadge()
+    trackEvent('city_changed', { city_name: city.name })
   }
 
   const showSavedBadge = () => {
