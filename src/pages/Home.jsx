@@ -131,7 +131,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
 
       {/* Header */}
       <div className="text-center mb-4">
-        <p className="text-gray-500 text-xs mt-1 flex items-center justify-center gap-1">
+        <p className="text-gray-400 text-xs mt-1 flex items-center justify-center gap-1">
           <MapPin size={12} aria-hidden="true" /> {location.city}
         </p>
       </div>
@@ -167,7 +167,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
                   {moonData.moonriseDate ? formatTime(moonData.moonriseDate) : 'N/A'}
                 </p>
                 {moonData.moonriseDate && (
-                  <p className="text-gray-500 text-xs mt-0.5">{formatShortDate(moonData.moonriseDate)}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">{formatShortDate(moonData.moonriseDate)}</p>
                 )}
               </div>
               <div className="w-px h-10 bg-gray-700" />
@@ -177,7 +177,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
                   {moonData.moonsetDate ? formatTime(moonData.moonsetDate) : 'N/A'}
                 </p>
                 {moonData.moonsetDate && (
-                  <p className="text-gray-500 text-xs mt-0.5">{formatShortDate(moonData.moonsetDate)}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">{formatShortDate(moonData.moonsetDate)}</p>
                 )}
               </div>
             </div>
@@ -196,7 +196,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
                   <div className="flex-1 min-w-0">
                     <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">{isToday ? "Today's Highlight" : "Day's Highlight"}</p>
                     <p className="text-indigo-200 font-semibold text-sm">{dayHighlight.eclipse.hinduName}</p>
-                    <p className="text-gray-500 text-xs mt-0.5">Tap to view full Panchang →</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Tap to view full Panchang →</p>
                   </div>
                 </>
               ) : dayHighlight.festivals.length > 0 ? (
@@ -207,9 +207,9 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
                     <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">{isToday ? "Today's Highlight" : "Day's Highlight"}</p>
                     <p className="text-white font-semibold text-sm truncate">{dayHighlight.festivals[0].name}</p>
                     {dayHighlight.festivals.length > 1 ? (
-                      <p className="text-gray-500 text-xs mt-0.5">+{dayHighlight.festivals.length - 1} more · Tap for full Panchang →</p>
+                      <p className="text-gray-400 text-xs mt-0.5">+{dayHighlight.festivals.length - 1} more · Tap for full Panchang →</p>
                     ) : (
-                      <p className="text-gray-500 text-xs mt-0.5">Tap to view full Panchang →</p>
+                      <p className="text-gray-400 text-xs mt-0.5">Tap to view full Panchang →</p>
                     )}
                   </div>
                 </>
@@ -220,7 +220,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
                   <div className="flex-1 min-w-0">
                     <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">{isToday ? "Today's Tithi" : "Day's Tithi"}</p>
                     <p className="text-white font-semibold text-sm">{dayHighlight.tithi.name}</p>
-                    <p className="text-gray-500 text-xs mt-0.5">{dayHighlight.tithi.paksha} · Tap for full Panchang →</p>
+                    <p className="text-gray-400 text-xs mt-0.5">{dayHighlight.tithi.paksha} · Tap for full Panchang →</p>
                   </div>
                 </>
               )}

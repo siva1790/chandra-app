@@ -236,7 +236,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
       {/* Day Headers */}
       <div className="grid grid-cols-7 mb-2">
         {dayNames.map(day => (
-          <div key={day} className="text-center text-gray-500 text-xs py-1">{day}</div>
+          <div key={day} className="text-center text-gray-400 text-xs py-1">{day}</div>
         ))}
       </div>
 
@@ -299,7 +299,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
               >
                 <div className="text-center min-w-10">
                   <p className="text-yellow-300 font-bold text-lg">{day.day}</p>
-                  <p className="text-gray-500 text-xs">{monthNames[day.date.getMonth()].slice(0, 3)}</p>
+                  <p className="text-gray-400 text-xs">{monthNames[day.date.getMonth()].slice(0, 3)}</p>
                 </div>
                 <div className="flex-1">
                   {day.eclipse && (
@@ -311,7 +311,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
                   {day.festivals.map((f, fi) => (
                     <p key={fi} className="text-white text-sm font-medium">{f.emoji} {f.name}</p>
                   ))}
-                  <p className="text-gray-500 text-xs mt-1">{day.tithi.name} · {day.tithi.paksha}</p>
+                  <p className="text-gray-400 text-xs mt-1">{day.tithi.name} · {day.tithi.paksha}</p>
                 </div>
                 <span className="text-2xl" aria-hidden="true">{day.phaseEmoji}</span>
               </button>
@@ -343,7 +343,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
             {/* Close button */}
             <button
               onClick={closeModal}
-              className="absolute top-5 right-5 text-gray-500 hover:text-white text-lg leading-none"
+              className="absolute top-5 right-5 text-gray-400 hover:text-white text-lg leading-none"
               aria-label="Close"
             >✕</button>
 
@@ -394,7 +394,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
                   <ModalRow icon={CalendarIcon} label="Vara"     value={dayPanchang.vara} sub={dayPanchang.varaDeity} />
                 </div>
               ) : (
-                <div className="text-center text-gray-500 py-3 text-sm">Calculating…</div>
+                <div className="text-center text-gray-400 py-3 text-sm">Calculating…</div>
               )}
             </div>
 
@@ -424,7 +424,7 @@ const ModalRow = ({ icon: Icon, label, value, sub }) => (
     </div>
     <div className="text-right">
       <p className="text-white text-sm font-semibold">{value}</p>
-      {sub && <p className="text-gray-500 text-xs">{sub}</p>}
+      {sub && <p className="text-gray-400 text-xs">{sub}</p>}
     </div>
   </div>
 )

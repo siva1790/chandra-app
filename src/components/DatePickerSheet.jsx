@@ -254,7 +254,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
               {/* Day-of-week headers */}
               <div className="grid grid-cols-7 mb-1" role="row" aria-hidden="true">
                 {DAY_NAMES.map(d => (
-                  <div key={d} className="text-center text-gray-500 text-xs py-1 font-medium">{d}</div>
+                  <div key={d} className="text-center text-gray-400 text-xs py-1 font-medium">{d}</div>
                 ))}
               </div>
 

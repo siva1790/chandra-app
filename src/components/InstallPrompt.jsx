@@ -50,7 +50,7 @@ const InstallPrompt = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setShowBanner(false)}
-            className="text-gray-500 text-xs px-2 py-1"
+            className="text-gray-400 text-xs px-2 py-1"
           >
             Later
           </button>

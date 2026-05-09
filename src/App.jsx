@@ -111,7 +111,7 @@ function App() {
             onClick={() => navigate(id)}
             aria-current={screen === id ? 'page' : undefined}
             className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all min-h-[44px] justify-center ${
-              screen === id ? 'text-[#DDBB6A]' : 'text-gray-500'
+              screen === id ? 'text-[#DDBB6A]' : 'text-gray-400'
             }`}
           >
             <Icon size={22} aria-hidden="true" strokeWidth={1.75} />

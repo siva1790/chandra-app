@@ -254,7 +254,7 @@ const Settings = ({ onOpenSubscribe }) => {
                 ))
               ) : (
                 <li role="option" aria-selected="false" aria-disabled="true"
-                    className="text-gray-500 text-sm px-4 py-3">
+                    className="text-gray-400 text-sm px-4 py-3">
                   No cities found
                 </li>
               )}
@@ -264,7 +264,7 @@ const Settings = ({ onOpenSubscribe }) => {
           {/* Quick Select Popular Cities */}
           {!showCityList || citySearch.length === 0 ? (
             <div className="mt-3">
-              <p className="text-gray-500 text-xs mb-2">Popular cities:</p>
+              <p className="text-gray-400 text-xs mb-2">Popular cities:</p>
               <div className="flex flex-wrap gap-2">
                 {['Bengaluru', 'Mumbai', 'Delhi', 'Chennai', 'Kolkata', 'Hyderabad'].map(name => {
                   const city = cities.find(c => c.name === name)
@@ -413,7 +413,7 @@ const Settings = ({ onOpenSubscribe }) => {
           {/* Master toggle + sub-toggles — locked until permission granted */}
           <div className={notifPermission !== 'granted' ? 'opacity-30 pointer-events-none' : ''}>
             {notifPermission !== 'granted' && (
-              <p className="text-gray-500 text-xs mb-3 flex items-center gap-1.5">
+              <p className="text-gray-400 text-xs mb-3 flex items-center gap-1.5">
                 <span>🔒</span> Grant permission above to configure alerts
               </p>
             )}
@@ -424,7 +424,7 @@ const Settings = ({ onOpenSubscribe }) => {
               <Toggle on={notifEnabled} onToggle={() => toggleNotifMaster(!notifEnabled)} label="Enable all alerts" />
             </div>
             {!notifEnabled && notifPermission === 'granted' && (
-              <p className="text-gray-500 text-xs leading-relaxed mt-2 mb-1">
+              <p className="text-gray-400 text-xs leading-relaxed mt-2 mb-1">
                 Alerts paused. To fully revoke, open your browser's site settings and block notifications for Chandra.
               </p>
             )}
@@ -440,7 +440,7 @@ const Settings = ({ onOpenSubscribe }) => {
                 <div key={key} className="flex items-center justify-between py-2.5 pl-3 border-b border-gray-800 last:border-0">
                   <div>
                     <p className="text-gray-200 text-sm">{label}</p>
-                    <p className="text-gray-500 text-xs">{hint}</p>
+                    <p className="text-gray-400 text-xs">{hint}</p>
                   </div>
                   <SubToggle on={notifPrefs[key]} onToggle={() => toggleNotifPref(key)} label={label} />
                 </div>
@@ -454,7 +454,7 @@ const Settings = ({ onOpenSubscribe }) => {
           <p className="text-yellow-500 text-xs uppercase tracking-widest mb-1 flex items-center gap-1.5">
             <Mail size={13} aria-hidden="true" /> Email Alerts
           </p>
-          <p className="text-gray-500 text-xs mb-4 leading-relaxed">
+          <p className="text-gray-400 text-xs mb-4 leading-relaxed">
             Rich festival guides with stories, puja timings and moonrise times for {settings.city}.
           </p>
 
@@ -476,7 +476,7 @@ const Settings = ({ onOpenSubscribe }) => {
               </div>
 
               {/* Frequency chips */}
-              <p className="text-gray-500 text-xs mb-2">Send me guides for</p>
+              <p className="text-gray-400 text-xs mb-2">Send me guides for</p>
               <div className="flex gap-2 flex-wrap">
                 {[
                   { value: 'all',     label: 'All festivals' },
@@ -567,7 +567,7 @@ const NotificationPreview = ({ visible, onDismiss }) => (
     <div style={{ flex: 1, minWidth: 0 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
         <span style={{ fontSize: 11, color: '#9ca3af', fontWeight: 500 }}>Chandra</span>
-        <span style={{ fontSize: 11, color: '#6b7280' }}>now</span>
+        <span style={{ fontSize: 11, color: '#9ca3af' }}>now</span>
       </div>
       <p style={{ fontSize: 13, color: '#ffffff', fontWeight: 500, margin: '0 0 3px' }}>
         🌙 Chandra alerts are on
@@ -578,7 +578,7 @@ const NotificationPreview = ({ visible, onDismiss }) => (
     </div>
     <button
       onClick={onDismiss}
-      style={{ background: 'none', border: 'none', color: '#6b7280',
+      style={{ background: 'none', border: 'none', color: '#9ca3af',
         cursor: 'pointer', fontSize: 16, padding: '0 0 0 4px', flexShrink: 0 }}
       aria-label="Dismiss"
     >✕</button>

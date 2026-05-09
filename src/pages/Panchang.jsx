@@ -868,7 +868,7 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
             isOpen={sections.planetary}
             onToggle={() => toggleSection('planetary')}
           >
-            <p className="text-gray-500 text-xs mb-3">Sidereal longitudes (Lahiri Ayanamsha) at sunrise</p>
+            <p className="text-gray-400 text-xs mb-3">Sidereal longitudes (Lahiri Ayanamsha) at sunrise</p>
             <div className="flex flex-col">
               {[
                 { symbol: '☀',  name: 'Sun',     sanskrit: 'Surya',      lon: panchang.navagraha.Sun     },
@@ -886,7 +886,7 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
                     <span className="text-base w-5 text-center leading-none" aria-hidden="true">{symbol}</span>
                     <div>
                       <span className="text-gray-300 text-sm">{name}</span>
-                      <span className="text-gray-600 text-xs ml-1.5">({sanskrit})</span>
+                      <span className="text-gray-400 text-xs ml-1.5">({sanskrit})</span>
                     </div>
                   </div>
                   <p className="text-white text-sm font-medium tabular-nums">{formatLongitude(lon)}</p>
@@ -942,7 +942,7 @@ const PanchangRow = ({ icon: Icon, label, value, sub, highlight }) => (
     </div>
     <div className="text-right">
       <p className={`text-sm font-semibold ${highlight === 'red' ? 'text-red-400' : 'text-white'}`}>{value}</p>
-      {sub && <p className="text-gray-500 text-xs">{sub}</p>}
+      {sub && <p className="text-gray-400 text-xs">{sub}</p>}
     </div>
   </div>
 )

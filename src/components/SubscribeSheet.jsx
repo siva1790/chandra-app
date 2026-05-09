@@ -280,7 +280,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                 {/* Name */}
                 <div>
                   <label htmlFor="sub-name" className="text-gray-400 text-xs mb-1.5 block">
-                    Name <span className="text-gray-600">— optional</span>
+                    Name <span className="text-gray-400">— optional</span>
                   </label>
                   <input
                     id="sub-name"
@@ -358,7 +358,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                         </li>
                       )) : (
                         <li role="option" aria-selected="false" aria-disabled="true"
-                            className="text-gray-500 text-sm px-4 py-3">
+                            className="text-gray-400 text-sm px-4 py-3">
                           No cities found
                         </li>
                       )}
@@ -370,7 +370,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                   <p id="sub-email-error" role="alert" className="text-red-400 text-sm">{error}</p>
                 )}
 
-                <p className="text-gray-600 text-xs text-center leading-relaxed">
+                <p className="text-gray-400 text-xs text-center leading-relaxed">
                   We never share your details. Unsubscribe anytime.
                 </p>
 
@@ -381,7 +381,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                   Subscribe
                 </button>
 
-                <p className="text-gray-600 text-xs text-center -mt-2">
+                <p className="text-gray-400 text-xs text-center -mt-2">
                   Want push notifications instead? Enable them in{' '}
                   <span className="text-yellow-600">Settings → Push Notifications</span>
                 </p>
@@ -521,7 +521,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                           </li>
                         )) : (
                           <li role="option" aria-selected="false" aria-disabled="true"
-                              className="text-gray-500 text-sm px-4 py-3">
+                              className="text-gray-400 text-sm px-4 py-3">
                             No cities found
                           </li>
                         )}
@@ -593,7 +593,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
 
 const DetailRow = ({ label, value }) => (
   <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 last:border-0">
-    <span className="text-gray-500 text-sm">{label}</span>
+    <span className="text-gray-400 text-sm">{label}</span>
     <span className="text-white text-sm font-medium">{value}</span>
   </div>
 )
