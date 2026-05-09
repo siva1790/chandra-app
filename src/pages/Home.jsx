@@ -84,8 +84,8 @@ const Home = ({ onNavigateToPanchang }) => {
       setMoonData({
         phase,
         illuminationPct,
-        moonrise: moonrise ? formatTime(moonrise.date) : 'N/A',
-        moonset:  moonset  ? formatTime(moonset.date)  : 'N/A',
+        moonriseDate: moonrise?.date ?? null,
+        moonsetDate:  moonset?.date  ?? null,
       })
       setLoading(false)
     } catch (err) {
@@ -96,6 +96,9 @@ const Home = ({ onNavigateToPanchang }) => {
 
   const formatTime = (date) =>
     date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+
+  const formatShortDate = (date) =>
+    date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
 
   const today = new Date()
   const dateString = today.toLocaleDateString('en-IN', {
@@ -133,12 +136,22 @@ const Home = ({ onNavigateToPanchang }) => {
             <div className="flex items-center gap-8 mt-5 pt-4 border-t border-gray-800 w-full justify-center">
               <div className="text-center">
                 <p className="text-gray-400 text-xs mb-1"><span role="img" aria-label="Moon">🌙</span> Moonrise</p>
-                <p className="text-white text-sm font-semibold">{moonData.moonrise}</p>
+                <p className="text-white text-sm font-semibold">
+                  {moonData.moonriseDate ? formatTime(moonData.moonriseDate) : 'N/A'}
+                </p>
+                {moonData.moonriseDate && (
+                  <p className="text-gray-500 text-xs mt-0.5">{formatShortDate(moonData.moonriseDate)}</p>
+                )}
               </div>
-              <div className="w-px h-8 bg-gray-700" />
+              <div className="w-px h-10 bg-gray-700" />
               <div className="text-center">
                 <p className="text-gray-400 text-xs mb-1"><span role="img" aria-label="Waning crescent moon">🌘</span> Moonset</p>
-                <p className="text-white text-sm font-semibold">{moonData.moonset}</p>
+                <p className="text-white text-sm font-semibold">
+                  {moonData.moonsetDate ? formatTime(moonData.moonsetDate) : 'N/A'}
+                </p>
+                {moonData.moonsetDate && (
+                  <p className="text-gray-500 text-xs mt-0.5">{formatShortDate(moonData.moonsetDate)}</p>
+                )}
               </div>
             </div>
           </div>

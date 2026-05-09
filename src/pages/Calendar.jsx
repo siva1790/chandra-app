@@ -5,7 +5,7 @@ import { getMoonPhaseAngle, getTithiFromAngle, getPhaseEmoji, getSunriseForDate 
 import { getEclipseForDate, eclipseTypeLabel } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { useSettings } from '../SettingsContext'
-import { Calendar as CalendarIcon } from 'lucide-react'
+import { Calendar as CalendarIcon, Moon, Star, Clock } from 'lucide-react'
 
 // ── Constants for on-tap Pancha Anga calculation ──────────────────
 const AYANAMSHA = 23.15
@@ -469,11 +469,11 @@ const Calendar = ({ onSelectDate }) => {
               <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">Pancha Anga</p>
               {dayPanchang ? (
                 <div className="flex flex-col gap-2">
-                  <ModalRow icon="🌙" label="Tithi"     value={selectedDay.tithi.name} />
-                  <ModalRow icon="⭐" label="Nakshatra" value={dayPanchang.nakshatra} sub={`Pada ${dayPanchang.pada}`} />
-                  <ModalRow icon="☯️" label="Yoga"      value={dayPanchang.yoga} />
-                  <ModalRow icon="½"  label="Karana"    value={dayPanchang.karana} />
-                  <ModalRow icon="📅" label="Vara"      value={dayPanchang.vara} sub={dayPanchang.varaDeity} />
+                  <ModalRow icon={Moon}        label="Tithi"     value={selectedDay.tithi.name} />
+                  <ModalRow icon={Star}        label="Nakshatra" value={dayPanchang.nakshatra} sub={`Pada ${dayPanchang.pada}`} />
+                  <ModalRow icon={Clock}       label="Yoga"      value={dayPanchang.yoga} />
+                  <ModalRow icon="½"           label="Karana"    value={dayPanchang.karana} />
+                  <ModalRow icon={CalendarIcon} label="Vara"     value={dayPanchang.vara} sub={dayPanchang.varaDeity} />
                 </div>
               ) : (
                 <div className="text-center text-gray-500 py-3 text-sm">Calculating…</div>
@@ -494,11 +494,14 @@ const Calendar = ({ onSelectDate }) => {
   )
 }
 
-// Compact row for modal Pancha Anga
-const ModalRow = ({ icon, label, value, sub }) => (
+// Compact row for modal Pancha Anga — icon can be a Lucide component or emoji string
+const ModalRow = ({ icon: Icon, label, value, sub }) => (
   <div className="flex items-center justify-between py-1.5 border-b border-gray-800 last:border-0">
     <div className="flex items-center gap-2">
-      <span className="text-sm">{icon}</span>
+      {typeof Icon === 'string'
+        ? <span className="text-sm" aria-hidden="true">{Icon}</span>
+        : <Icon size={14} aria-hidden="true" strokeWidth={1.75} className="text-gray-400 shrink-0" />
+      }
       <span className="text-gray-400 text-sm">{label}</span>
     </div>
     <div className="text-right">

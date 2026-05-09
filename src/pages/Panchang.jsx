@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import * as Astronomy from 'astronomy-engine'
-import { getSunriseForDate } from '../moonUtils'
+import { getSunriseForDate, getSunsetForDate } from '../moonUtils'
 import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DatePickerSheet from '../components/DatePickerSheet'
 import { EclipseIcon } from '../components/EclipseIcons'
@@ -65,6 +65,9 @@ const Panchang = ({ location, initialDate }) => {
       hour12: true
     })
   }
+
+  const formatShortDate = (date) =>
+    date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
 
   const formatDate = (date) => date.toLocaleDateString('en-IN', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -160,6 +163,25 @@ const Panchang = ({ location, initialDate }) => {
         }
       }
 
+      // Secondary pass: find actual end time for the last nakshatra if it extends past midnight
+      const lastNaksh = nakshatraList[nakshatraList.length - 1]
+      if (lastNaksh && !lastNaksh.endsToday) {
+        const lastIdx = getNakshatraIndex(dayEnd)
+        const searchLimit = new Date(dayEnd.getTime() + 30 * 60 * 60 * 1000) // search up to 30h ahead
+        let sc = new Date(dayEnd.getTime() + 30 * 60 * 1000)
+        while (sc <= searchLimit) {
+          if (getNakshatraIndex(sc) !== lastIdx) {
+            lastNaksh.end = findNakshatraTransition(
+              new Date(sc.getTime() - 30 * 60 * 1000),
+              sc,
+              lastIdx
+            )
+            break
+          }
+          sc = new Date(sc.getTime() + 30 * 60 * 1000)
+        }
+      }
+
       const nakshatraName = nakshatraList[0]?.name || nakshatras[currentIdx % 27]
       const nakshatraPada = nakshatraList[0]?.pada || 1
 
@@ -193,15 +215,13 @@ const Panchang = ({ location, initialDate }) => {
       const varaName = varaNames[varaIndex]
       const varaDeity = varaDeva[varaIndex]
 
-      // --- Rahu Kaal ---
-      const rahuOrder = [7, 1, 6, 4, 5, 3, 2]
-      const sunrise = 6 * 60
-      const sunset = 18 * 60
-      const dayDuration = sunset - sunrise
+      // --- Timings: use actual calculated sunrise + sunset for accurate slot boundaries ---
+      const sunsetTime = getSunsetForDate(date, location?.lat, location?.lon)
+      const sunriseMins = sunriseTime.getHours() * 60 + sunriseTime.getMinutes()
+      const sunsetMins  = sunsetTime.getHours()  * 60 + sunsetTime.getMinutes()
+      const dayDuration = sunsetMins - sunriseMins
       const slotDuration = dayDuration / 8
-      const rahuSlot = rahuOrder[varaIndex]
-      const rahuStart = sunrise + (rahuSlot - 1) * slotDuration
-      const rahuEnd = rahuStart + slotDuration
+
       const formatMinutes = (mins) => {
         const h = Math.floor(mins / 60)
         const m = Math.round(mins % 60)
@@ -209,25 +229,30 @@ const Panchang = ({ location, initialDate }) => {
         const hour = h > 12 ? h - 12 : h === 0 ? 12 : h
         return `${hour}:${m.toString().padStart(2, '0')} ${ampm}`
       }
+
+      // --- Rahu Kaal --- [Sun Mon Tue Wed Thu Fri Sat] (1-based slot, Drik Panchang order)
+      const rahuOrder = [8, 2, 7, 5, 6, 4, 3]
+      const rahuSlot = rahuOrder[varaIndex]
+      const rahuStart = sunriseMins + (rahuSlot - 1) * slotDuration
+      const rahuEnd = rahuStart + slotDuration
       const rahuKaal = `${formatMinutes(rahuStart)} – ${formatMinutes(rahuEnd)}`
 
-      // --- Yamagandam ---
-      // Slot order by day of week [Sun, Mon, Tue, Wed, Thu, Fri, Sat] (1-based slot index)
-      const yamOrder = [5, 4, 3, 2, 1, 6, 7]
+      // --- Yamagandam --- [Sun Mon Tue Wed Thu Fri Sat] (1-based slot, Drik Panchang order)
+      const yamOrder = [5, 4, 3, 2, 1, 7, 6]
       const yamSlot = yamOrder[varaIndex]
-      const yamStart = sunrise + (yamSlot - 1) * slotDuration
+      const yamStart = sunriseMins + (yamSlot - 1) * slotDuration
       const yamEnd = yamStart + slotDuration
       const yamagandam = `${formatMinutes(yamStart)} – ${formatMinutes(yamEnd)}`
 
       // --- Abhijit Muhurta ---
-      const midday = (sunrise + sunset) / 2
+      const midday = (sunriseMins + sunsetMins) / 2
       const abhijitStart = midday - 24
       const abhijitEnd = midday + 24
       const abhijitMuhurta = `${formatMinutes(abhijitStart)} – ${formatMinutes(abhijitEnd)}`
 
       // --- Brahma Muhurta ---
-      const brahmaStart = sunrise - 96
-      const brahmaEnd = sunrise - 48
+      const brahmaStart = sunriseMins - 96
+      const brahmaEnd = sunriseMins - 48
       const brahmaMuhurta = `${formatMinutes(brahmaStart)} – ${formatMinutes(brahmaEnd)}`
 
       // --- Auspiciousness flags ---
@@ -408,21 +433,15 @@ const Panchang = ({ location, initialDate }) => {
                   </div>
                   {panchang.nakshatraList.map((n, i) => (
                     <div key={i} className="ml-6 mb-2 bg-gray-800 rounded-xl px-3 py-2">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-white text-sm font-semibold">{n.name}</p>
-                          <p className="text-gray-400 text-xs">Pada {n.pada}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-yellow-300 text-xs font-medium">
-                            {n.start.getHours() === 0 && n.start.getMinutes() === 0
-                              ? 'From midnight'
-                              : formatTime(n.start)}
-                            {' → '}
-                            {n.endsToday ? formatTime(n.end) : 'Next day'}
-                          </p>
-                        </div>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-white text-sm font-semibold">{n.name}</p>
+                        <p className="text-gray-400 text-xs">Pada {n.pada}</p>
                       </div>
+                      <p className="text-yellow-300 text-xs font-medium">
+                        {formatTime(n.start)}, {formatShortDate(n.start)}
+                        {' → '}
+                        {formatTime(n.end)}, {formatShortDate(n.end)}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -466,7 +485,7 @@ const Panchang = ({ location, initialDate }) => {
               <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">
                 {n.name}
                 {panchang.nakshatraList.length > 1
-                  ? ` (${formatTime(n.start)} – ${n.endsToday ? formatTime(n.end) : 'Next day'})`
+                  ? ` (${formatTime(n.start)}, ${formatShortDate(n.start)} – ${formatTime(n.end)}, ${formatShortDate(n.end)})`
                   : " — Today's Nakshatra"}
               </p>
               <p className="text-gray-300 text-sm leading-relaxed">

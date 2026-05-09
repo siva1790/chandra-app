@@ -77,10 +77,10 @@ function App() {
       {/* ── Page content — pushed below top bar and above bottom nav ── */}
       <main id="main-content" className="pt-14 pb-20">
         <InstallPrompt />
-        {screen === 'home'     && <Home location={settings} onNavigateToPanchang={navigateToPanchang} />}
-        {screen === 'calendar' && <Calendar onSelectDate={navigateToPanchang} />}
-        {screen === 'panchang' && <Panchang location={settings} initialDate={panchangDate} />}
-        {screen === 'settings' && <Settings onOpenSubscribe={() => setSheetOpen(true)} />}
+        <div style={{ display: screen === 'home'     ? 'block' : 'none' }}><Home location={settings} onNavigateToPanchang={navigateToPanchang} /></div>
+        <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar onSelectDate={navigateToPanchang} /></div>
+        <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={panchangDate} /></div>
+        <div style={{ display: screen === 'settings' ? 'block' : 'none' }}><Settings onOpenSubscribe={() => setSheetOpen(true)} /></div>
       </main>
 
       {/* ── Bottom Navigation ── */}

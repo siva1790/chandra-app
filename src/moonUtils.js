@@ -91,6 +91,25 @@ export const getSunriseForDate = (date, lat, lon) => {
   return fallback
 }
 
+// Compute local sunset time for a given Gregorian date and lat/lon.
+// Falls back to 18:00 local on the date if Astronomy can't find sunset.
+export const getSunsetForDate = (date, lat, lon) => {
+  try {
+    if (typeof lat === 'number' && typeof lon === 'number') {
+      const observer = new Astronomy.Observer(lat, lon, 0)
+      const dayStart = new Date(date)
+      dayStart.setHours(0, 0, 0, 0)
+      const sunset = Astronomy.SearchRiseSet('Sun', observer, -1, dayStart, 1)
+      if (sunset) return sunset.date
+    }
+  } catch (e) {
+    // fall through to fallback
+  }
+  const fallback = new Date(date)
+  fallback.setHours(18, 0, 0, 0)
+  return fallback
+}
+
 // Sample tithi at local sunrise — matches Drik Panchang convention that the
 // day's tithi is whichever tithi is running at sunrise (not midnight, not "now").
 // Without this, Sep 14 2026 reads as Tritiya at 00:00 IST even though it's
