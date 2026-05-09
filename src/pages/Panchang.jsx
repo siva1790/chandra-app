@@ -85,6 +85,35 @@ const findNakshatraTransition = (startTime, endTime, startIdx) => {
   return new Date((lo + hi) / 2)
 }
 
+// ── Yoga helpers ──────────────────────────────────────────────────
+
+const YOGA_NAMES = [
+  'Vishkambha', 'Priti', 'Ayushman', 'Saubhagya', 'Shobhana',
+  'Atiganda', 'Sukarma', 'Dhriti', 'Shula', 'Ganda',
+  'Vriddhi', 'Dhruva', 'Vyaghata', 'Harshana', 'Vajra',
+  'Siddhi', 'Vyatipata', 'Variyan', 'Parigha', 'Shiva',
+  'Siddha', 'Sadhya', 'Shubha', 'Shukla', 'Brahma',
+  'Indra', 'Vaidhriti'
+]
+
+const getYogaAtTime = (d) => {
+  const sPos = Astronomy.GeoVector('Sun', d, true)
+  const sLon = ((Astronomy.Ecliptic(sPos).elon - AYANAMSHA + 360) % 360)
+  const mLon = getMoonSiderealLongitude(d)
+  return YOGA_NAMES[Math.floor(((sLon + mLon) % 360) / (360 / 27))]
+}
+
+const findYogaTransition = (startTime, endTime, startYoga) => {
+  let lo = startTime.getTime()
+  let hi = endTime.getTime()
+  for (let i = 0; i < 30; i++) {
+    const mid = (lo + hi) / 2
+    if (getYogaAtTime(new Date(mid)) === startYoga) lo = mid
+    else hi = mid
+  }
+  return new Date((lo + hi) / 2)
+}
+
 // ── Karana helpers ────────────────────────────────────────────────
 
 const MOVABLE_KARANAS = ['Bava', 'Balava', 'Kaulava', 'Taitila', 'Garija', 'Vanija', 'Vishti']
@@ -367,20 +396,64 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
       const nakshatraName = nakshatraList[0]?.name || nakshatras[currentIdx % 27]
       const nakshatraPada = nakshatraList[0]?.pada || 1
 
-      // --- Yoga ---
+      // --- Yoga (with transition times — same scan pattern as Nakshatra/Karana) ---
       const sunPos = Astronomy.GeoVector('Sun', sunriseTime, true)
       const sunEcliptic = Astronomy.Ecliptic(sunPos)
       const sunLongitude = ((sunEcliptic.elon - AYANAMSHA + 360) % 360)
-      const yogaNames = [
-        'Vishkambha', 'Priti', 'Ayushman', 'Saubhagya', 'Shobhana',
-        'Atiganda', 'Sukarma', 'Dhriti', 'Shula', 'Ganda',
-        'Vriddhi', 'Dhruva', 'Vyaghata', 'Harshana', 'Vajra',
-        'Siddhi', 'Vyatipata', 'Variyan', 'Parigha', 'Shiva',
-        'Siddha', 'Sadhya', 'Shubha', 'Shukla', 'Brahma',
-        'Indra', 'Vaidhriti'
-      ]
-      const yogaIndex = Math.floor(((sunLongitude + moonLongitude) % 360) / (360 / 27))
-      const yogaName = yogaNames[yogaIndex % 27]
+      const yogaName = getYogaAtTime(sunriseTime)
+
+      const yogaList = []
+      let yCursor = new Date(dayStart)
+      let currentYoga = getYogaAtTime(yCursor)
+
+      while (yCursor < dayEnd) {
+        const ySearchEnd = new Date(Math.min(yCursor.getTime() + 24 * 60 * 60 * 1000, dayEnd.getTime()))
+        let yTransitionFound = false
+        let yScanner = new Date(yCursor.getTime() + 30 * 60 * 1000)
+        while (yScanner <= ySearchEnd) {
+          const scanYoga = getYogaAtTime(yScanner)
+          if (scanYoga !== currentYoga) {
+            const transitionTime = findYogaTransition(
+              new Date(yScanner.getTime() - 30 * 60 * 1000), yScanner, currentYoga
+            )
+            yogaList.push({
+              name: currentYoga,
+              start: yCursor <= dayStart ? dayStart : yCursor,
+              end: transitionTime, endsToday: true
+            })
+            yCursor = transitionTime
+            currentYoga = scanYoga
+            yTransitionFound = true
+            break
+          }
+          yScanner = new Date(yScanner.getTime() + 30 * 60 * 1000)
+        }
+        if (!yTransitionFound) {
+          yogaList.push({
+            name: currentYoga,
+            start: yCursor <= dayStart ? dayStart : yCursor,
+            end: dayEnd, endsToday: false
+          })
+          break
+        }
+      }
+
+      // Secondary pass: find actual end time for Yoga extending past midnight
+      const lastYoga = yogaList[yogaList.length - 1]
+      if (lastYoga && !lastYoga.endsToday) {
+        const lyName = lastYoga.name
+        const lyLimit = new Date(dayEnd.getTime() + 30 * 60 * 60 * 1000)
+        let lySc = new Date(dayEnd.getTime() + 30 * 60 * 1000)
+        while (lySc <= lyLimit) {
+          if (getYogaAtTime(lySc) !== lyName) {
+            lastYoga.end = findYogaTransition(
+              new Date(lySc.getTime() - 30 * 60 * 1000), lySc, lyName
+            )
+            break
+          }
+          lySc = new Date(lySc.getTime() + 30 * 60 * 1000)
+        }
+      }
 
       // --- Karana (with transition times — same scan pattern as Nakshatra) ---
       const karanaList = []
@@ -500,7 +573,7 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
       setPanchang({
         tithi: tithiName, paksha,
         nakshatra: nakshatraName, nakshatraPada, nakshatraList,
-        yoga: yogaName, karana: karanaName, karanaList,
+        yoga: yogaName, yogaList, karana: karanaName, karanaList,
         vara: varaNames[varaIndex], varaDeity: varaDeva[varaIndex],
         rahuKaal, yamagandam, abhijitMuhurta, brahmaMuhurta,
         samvatsara, masa, ritu, ayana, calendarSystem,
@@ -624,7 +697,26 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
                 <PanchangRow icon={Star} label="Nakshatra" value={panchang.nakshatra} sub={`Pada ${panchang.nakshatraPada}`} />
               )}
 
-              <PanchangRow icon={Clock}        label="Yoga"   value={panchang.yoga} />
+              {panchang.yogaList?.length > 0 ? (
+                <div className="py-2 border-b border-gray-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Clock size={16} aria-hidden="true" strokeWidth={1.75} className="text-gray-400 shrink-0" />
+                    <span className="text-gray-400 text-sm">Yoga</span>
+                  </div>
+                  {panchang.yogaList.map((y, i) => (
+                    <div key={i} className="ml-6 mb-2 bg-gray-800 rounded-xl px-3 py-2">
+                      <p className="text-white text-sm font-semibold mb-1">{y.name}</p>
+                      <p className="text-yellow-300 text-xs font-medium">
+                        {formatTime(y.start)}, {formatShortDate(y.start)}
+                        {' → '}
+                        {formatTime(y.end)}, {formatShortDate(y.end)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <PanchangRow icon={Clock} label="Yoga" value={panchang.yoga} />
+              )}
               {panchang.karanaList?.length > 0 ? (
                 <div className="py-2 border-b border-gray-800">
                   <div className="flex items-center gap-2 mb-2">
