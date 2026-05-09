@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './index.css'
 import Home from './pages/Home'
 import Calendar from './pages/Calendar'
@@ -15,6 +15,7 @@ function App() {
   const [screen, setScreen] = useState('home')
   const [sheetOpen, setSheetOpen] = useState(false)
   const [globalDate, setGlobalDate] = useState(new Date())
+  const bellButtonRef = useRef(null)
   const { settings } = useSettings()
   const { subscription } = useSubscription()
 
@@ -42,7 +43,11 @@ function App() {
       <a href="#main-content" className="skip-link">Skip to content</a>
 
       {/* ── Persistent Top Bar ── */}
-      <div className="fixed top-0 left-0 right-0 h-14 bg-gray-950 border-b border-gray-800 flex items-center justify-between px-4 z-40">
+      <div
+        className="fixed top-0 left-0 right-0 h-14 bg-gray-950 border-b border-gray-800 flex items-center justify-between px-4 z-40"
+        aria-hidden={sheetOpen || undefined}
+        {...(sheetOpen ? { inert: '' } : {})}
+      >
 
         {/* Logo — left */}
         <div className="flex items-center gap-2">
@@ -56,6 +61,7 @@ function App() {
 
         {/* Bell icon — right */}
         <button
+          ref={bellButtonRef}
           onClick={() => setSheetOpen(true)}
           className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 transition-all"
           aria-label={subscription ? 'View subscription' : 'Subscribe to alerts'}
@@ -74,7 +80,12 @@ function App() {
       </div>
 
       {/* ── Page content — pushed below top bar and above bottom nav ── */}
-      <main id="main-content" className="pt-14 pb-20">
+      <main
+        id="main-content"
+        className="pt-14 pb-20"
+        aria-hidden={sheetOpen || undefined}
+        {...(sheetOpen ? { inert: '' } : {})}
+      >
         <InstallPrompt />
         <div style={{ display: screen === 'home'     ? 'block' : 'none' }}><Home location={settings} date={globalDate} onDateChange={setGlobalDate} onNavigateToPanchang={navigateToPanchang} /></div>
         <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} /></div>
@@ -83,7 +94,12 @@ function App() {
       </main>
 
       {/* ── Bottom Navigation ── */}
-      <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 flex justify-around items-center px-4 py-3 z-40">
+      <nav
+        aria-label="Main navigation"
+        className="fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 flex justify-around items-center px-4 py-3 z-40"
+        aria-hidden={sheetOpen || undefined}
+        {...(sheetOpen ? { inert: '' } : {})}
+      >
         {[
           { id: 'home',     label: 'Day View',  Icon: Moon },
           { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
@@ -105,7 +121,7 @@ function App() {
       </nav>
 
       {/* ── Subscribe / Details Bottom Sheet ── */}
-      <SubscribeSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+      <SubscribeSheet open={sheetOpen} onClose={() => setSheetOpen(false)} triggerRef={bellButtonRef} />
 
     </div>
   )

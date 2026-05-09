@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import DatePickerSheet from './DatePickerSheet'
 
 /**
@@ -13,6 +13,7 @@ import DatePickerSheet from './DatePickerSheet'
  */
 const DateStrip = ({ date, onDateChange, mode = 'day' }) => {
   const [pickerOpen, setPickerOpen] = useState(false)
+  const pickerTriggerRef = useRef(null)
 
   const isToday = date.toDateString() === new Date().toDateString()
 
@@ -63,8 +64,10 @@ const DateStrip = ({ date, onDateChange, mode = 'day' }) => {
           >‹</button>
 
           <button
+            ref={pickerTriggerRef}
             onClick={() => setPickerOpen(true)}
             aria-label={`Selected date: ${label}. Tap to change.`}
+            aria-haspopup="dialog"
             className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl hover:bg-gray-800 transition-all flex-1"
           >
             <p className="text-white text-sm font-medium text-center">{label}</p>
@@ -96,6 +99,7 @@ const DateStrip = ({ date, onDateChange, mode = 'day' }) => {
         onClose={() => setPickerOpen(false)}
         selectedDate={date}
         onSelect={(d) => { onDateChange(d); setPickerOpen(false) }}
+        triggerRef={pickerTriggerRef}
       />
     </>
   )

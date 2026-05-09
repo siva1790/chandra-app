@@ -7,18 +7,19 @@ const MONTH_NAMES = [
 ]
 const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
-// Year range: 100 years back → 100 years forward (201 total)
 const THIS_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: 201 }, (_, i) => THIS_YEAR - 100 + i)
 
-const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
-  const sheetRef = useRef(null)
-  const selectedYearRef = useRef(null)
-  const touchStartX = useRef(null)
-  const touchStartY = useRef(null)
-  const [viewYear, setViewYear]           = useState(selectedDate.getFullYear())
-  const [viewMonth, setViewMonth]         = useState(selectedDate.getMonth())
-  const [showYearPicker, setShowYearPicker] = useState(false)
+const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) => {
+  const sheetRef         = useRef(null)
+  const selectedYearRef  = useRef(null)
+  const hasBeenOpen      = useRef(false)
+  const touchStartX      = useRef(null)
+  const touchStartY      = useRef(null)
+
+  const [viewYear, setViewYear]               = useState(selectedDate.getFullYear())
+  const [viewMonth, setViewMonth]             = useState(selectedDate.getMonth())
+  const [showYearPicker, setShowYearPicker]   = useState(false)
 
   // Sync the picker view whenever the sheet opens
   useEffect(() => {
@@ -27,9 +28,9 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
       setViewMonth(selectedDate.getMonth())
       setShowYearPicker(false)
     }
-  }, [open])
+  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Close on Escape key
+  // Close on Escape
   useEffect(() => {
     if (!open) return
     const onKey = (e) => { if (e.key === 'Escape') onClose() }
@@ -40,12 +41,47 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
   // Focus first interactive element when sheet opens
   useEffect(() => {
     if (open && sheetRef.current) {
-      const first = sheetRef.current.querySelector('button, [href], input, [tabindex]')
+      const first = sheetRef.current.querySelector('button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])')
       first?.focus()
     }
   }, [open])
 
-  // ── Navigation ──────────────────────────────────────────────────
+  // Focus trap — Tab / Shift+Tab cycle within the sheet
+  useEffect(() => {
+    if (!open || !sheetRef.current) return
+    const container = sheetRef.current
+    const getFocusable = () => [
+      ...container.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), ' +
+        'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    ]
+    const handleTab = (e) => {
+      if (e.key !== 'Tab') return
+      const focusable = getFocusable()
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last  = focusable[focusable.length - 1]
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus() }
+      } else {
+        if (document.activeElement === last)  { e.preventDefault(); first.focus() }
+      }
+    }
+    document.addEventListener('keydown', handleTab)
+    return () => document.removeEventListener('keydown', handleTab)
+  }, [open])
+
+  // Focus restoration — return focus to trigger when sheet closes
+  useEffect(() => {
+    if (open) {
+      hasBeenOpen.current = true
+    } else if (hasBeenOpen.current) {
+      triggerRef?.current?.focus()
+    }
+  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Navigation ──
   const prevMonth = () => {
     if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1) }
     else setViewMonth(m => m - 1)
@@ -55,11 +91,11 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
     else setViewMonth(m => m + 1)
   }
 
-  // ── Build day grid ───────────────────────────────────────────────
+  // ── Build day grid ──
   const buildDays = () => {
-    const today      = new Date(); today.setHours(0, 0, 0, 0)
-    const selDay     = new Date(selectedDate); selDay.setHours(0, 0, 0, 0)
-    const firstDay   = new Date(viewYear, viewMonth, 1).getDay()
+    const today       = new Date(); today.setHours(0, 0, 0, 0)
+    const selDay      = new Date(selectedDate); selDay.setHours(0, 0, 0, 0)
+    const firstDay    = new Date(viewYear, viewMonth, 1).getDay()
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
 
     const cells = []
@@ -77,7 +113,17 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
     return cells
   }
 
-  // ── Handlers ────────────────────────────────────────────────────
+  // Build accessible label for a day cell
+  const dayLabel = (cell) => {
+    const base = new Date(viewYear, viewMonth, cell.day)
+      .toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+    if (cell.isSelected && cell.isToday) return `${base}, today, selected`
+    if (cell.isSelected) return `${base}, selected`
+    if (cell.isToday)    return `${base}, today`
+    return base
+  }
+
+  // ── Handlers ──
   const handleSelectDay = (cell) => {
     if (!cell) return
     onSelect(new Date(cell.date))
@@ -85,8 +131,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
   }
 
   const handleToday = () => {
-    const today = new Date()
-    onSelect(today)
+    onSelect(new Date())
     onClose()
   }
 
@@ -118,14 +163,15 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
   }
 
   const cells = buildDays()
-  const isViewingToday =
+  const isViewingCurrentMonth =
     viewYear === THIS_YEAR && viewMonth === new Date().getMonth()
 
   return (
     <>
-      {/* ── Backdrop ── */}
+      {/* ── Backdrop (visual only) ── */}
       <div
         onClick={onClose}
+        aria-hidden="true"
         className={`fixed inset-0 bg-black z-40 transition-opacity duration-300 ${
           open ? 'opacity-60 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
@@ -137,12 +183,21 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
         role="dialog"
         aria-modal="true"
         aria-label="Select date"
+        {...(!open && { inert: '' })}
         className={`fixed bottom-0 left-0 right-0 z-50 bg-gray-950 rounded-t-3xl border-t border-gray-800
           transition-transform duration-300 ease-out ${open ? 'translate-y-0' : 'translate-y-full'}`}
       >
-        {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="w-10 h-1 bg-gray-700 rounded-full" />
+        {/* Drag handle + close button row */}
+        <div className="flex items-center justify-between pt-3 pb-2 px-4">
+          <div className="w-8" />
+          <div className="w-10 h-1 bg-gray-700 rounded-full" aria-hidden="true" />
+          <button
+            onClick={onClose}
+            aria-label="Close date picker"
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all"
+          >
+            ✕
+          </button>
         </div>
 
         <div className="px-5 pb-10">
@@ -153,11 +208,12 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
               <>
                 <button
                   onClick={() => setShowYearPicker(false)}
+                  aria-label="Back to month view"
                   className="text-yellow-400 text-sm font-medium px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all"
                 >
                   ← Back
                 </button>
-                <p className="text-white font-semibold text-base">Select Year</p>
+                <p className="text-white font-semibold text-base" aria-live="polite">Select Year</p>
                 <div className="w-20" />
               </>
             ) : (
@@ -170,13 +226,13 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
                   ‹
                 </button>
 
-                {/* Tap to open year picker */}
                 <button
                   onClick={() => setShowYearPicker(true)}
+                  aria-label={`${MONTH_NAMES[viewMonth]} ${viewYear}. Tap to change year.`}
                   className="flex items-center gap-1.5 text-white font-semibold text-base hover:text-yellow-300 transition-colors"
                 >
                   {MONTH_NAMES[viewMonth]} {viewYear}
-                  <span className="text-gray-500 text-xs">▾</span>
+                  <span className="text-gray-500 text-xs" aria-hidden="true">▾</span>
                 </button>
 
                 <button
@@ -190,21 +246,19 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
             )}
           </div>
 
-          {/* ════════════════════════════════
+          {/* ════════════════════
               MONTH GRID VIEW
-          ════════════════════════════════ */}
+          ════════════════════ */}
           {!showYearPicker && (
             <>
               {/* Day-of-week headers */}
-              <div className="grid grid-cols-7 mb-1">
+              <div className="grid grid-cols-7 mb-1" role="row" aria-hidden="true">
                 {DAY_NAMES.map(d => (
-                  <div key={d} className="text-center text-gray-500 text-xs py-1 font-medium">
-                    {d}
-                  </div>
+                  <div key={d} className="text-center text-gray-500 text-xs py-1 font-medium">{d}</div>
                 ))}
               </div>
 
-              {/* Day cells — swipe left/right to change month */}
+              {/* Day cells */}
               <div
                 className="grid grid-cols-7 gap-1 mb-5"
                 onTouchStart={handleTouchStart}
@@ -215,6 +269,8 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
                     key={idx}
                     onClick={() => handleSelectDay(cell)}
                     disabled={!cell}
+                    aria-label={cell ? dayLabel(cell) : undefined}
+                    aria-pressed={cell?.isSelected || undefined}
                     className={`
                       h-10 rounded-xl text-sm font-medium transition-all
                       ${!cell ? 'invisible pointer-events-none' : ''}
@@ -235,16 +291,17 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
               {/* Today button */}
               <button
                 onClick={handleToday}
-                className="w-full py-3.5 rounded-2xl bg-gray-800 hover:bg-gray-700 text-yellow-300 font-semibold text-sm transition-all border border-gray-700"
+                disabled={isViewingCurrentMonth && cells.some(c => c?.isSelected && c?.isToday)}
+                className="w-full py-3.5 rounded-2xl bg-gray-800 hover:bg-gray-700 text-yellow-300 font-semibold text-sm transition-all border border-gray-700 disabled:opacity-50"
               >
                 <CalendarDays size={14} aria-hidden="true" className="inline mr-1" /> Go to Today
               </button>
             </>
           )}
 
-          {/* ════════════════════════════════
+          {/* ════════════════════
               YEAR PICKER VIEW
-          ════════════════════════════════ */}
+          ════════════════════ */}
           {showYearPicker && (
             <div className="grid grid-cols-4 gap-2 max-h-72 overflow-y-auto pb-2">
               {YEARS.map(y => (
@@ -252,6 +309,8 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect }) => {
                   key={y}
                   ref={y === viewYear ? selectedYearRef : null}
                   onClick={() => handleSelectYear(y)}
+                  aria-label={y === THIS_YEAR ? `${y}, current year` : `${y}`}
+                  aria-pressed={y === viewYear}
                   className={`py-3 rounded-xl text-sm font-medium transition-all ${
                     y === viewYear
                       ? 'bg-yellow-400 text-gray-950 font-bold'

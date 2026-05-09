@@ -32,8 +32,9 @@ const loadNotifEnabled = () => {
 const Settings = ({ onOpenSubscribe }) => {
   const { settings, updateSettings } = useSettings()
   const { subscription, updateFrequency } = useSubscription()
-  const [citySearch, setCitySearch] = useState('')
-  const [showCityList, setShowCityList] = useState(false)
+  const [citySearch, setCitySearch]           = useState('')
+  const [showCityList, setShowCityList]       = useState(false)
+  const [activeCityIndex, setActiveCityIndex] = useState(-1)
   const [saved, setSaved] = useState(false)
 
   // ── Push notification state ──
@@ -119,8 +120,28 @@ const Settings = ({ onOpenSubscribe }) => {
     updateSettings('lon', city.lon)
     setCitySearch('')
     setShowCityList(false)
+    setActiveCityIndex(-1)
     showSavedBadge()
     trackEvent('city_changed', { city_name: city.name })
+  }
+
+  const handleCityKeyDown = (e) => {
+    if (e.key === 'Escape' && showCityList) {
+      setShowCityList(false)
+      setActiveCityIndex(-1)
+      return
+    }
+    if (!showCityList || filteredCities.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveCityIndex(i => Math.min(i + 1, filteredCities.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveCityIndex(i => Math.max(i - 1, -1))
+    } else if (e.key === 'Enter' && activeCityIndex >= 0) {
+      e.preventDefault()
+      selectCity(filteredCities[activeCityIndex])
+    }
   }
 
   const showSavedBadge = () => {
@@ -188,39 +209,56 @@ const Settings = ({ onOpenSubscribe }) => {
             Used for accurate moonrise, moonset and Rahu Kaal timings
           </p>
 
-          {/* Search Input */}
+          {/* Search Input — combobox */}
           <label htmlFor="city-search" className="sr-only">Search for a city</label>
           <input
             id="city-search"
             type="text"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={showCityList && citySearch.length > 0}
+            aria-controls="settings-city-listbox"
+            aria-activedescendant={activeCityIndex >= 0 ? `settings-city-opt-${activeCityIndex}` : undefined}
             placeholder="Search city or state..."
             value={citySearch}
-            onChange={(e) => {
-              setCitySearch(e.target.value)
-              setShowCityList(true)
-            }}
+            onChange={(e) => { setCitySearch(e.target.value); setShowCityList(true); setActiveCityIndex(-1) }}
             onFocus={() => setShowCityList(true)}
+            onBlur={() => setTimeout(() => { setShowCityList(false); setActiveCityIndex(-1) }, 150)}
+            onKeyDown={handleCityKeyDown}
             className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
           />
 
-          {/* City Dropdown */}
+          {/* City Listbox */}
           {showCityList && citySearch.length > 0 && (
-            <div className="mt-2 bg-gray-800 rounded-xl border border-gray-700 max-h-48 overflow-y-auto">
+            <ul
+              id="settings-city-listbox"
+              role="listbox"
+              aria-label="City suggestions"
+              className="mt-2 bg-gray-800 rounded-xl border border-gray-700 max-h-48 overflow-y-auto"
+            >
               {filteredCities.length > 0 ? (
                 filteredCities.map((city, i) => (
-                  <button
+                  <li
                     key={i}
-                    onClick={() => selectCity(city)}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-700 transition-all border-b border-gray-700 last:border-0"
+                    id={`settings-city-opt-${i}`}
+                    role="option"
+                    aria-selected={i === activeCityIndex}
+                    onMouseDown={() => selectCity(city)}
+                    className={`px-4 py-3 transition-all border-b border-gray-700 last:border-0 cursor-pointer ${
+                      i === activeCityIndex ? 'bg-gray-700' : 'hover:bg-gray-700'
+                    }`}
                   >
                     <p className="text-white text-sm font-medium">{city.name}</p>
                     <p className="text-gray-400 text-xs">{city.state}</p>
-                  </button>
+                  </li>
                 ))
               ) : (
-                <p className="text-gray-500 text-sm px-4 py-3">No cities found</p>
+                <li role="option" aria-selected="false" aria-disabled="true"
+                    className="text-gray-500 text-sm px-4 py-3">
+                  No cities found
+                </li>
               )}
-            </div>
+            </ul>
           )}
 
           {/* Quick Select Popular Cities */}
