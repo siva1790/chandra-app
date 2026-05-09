@@ -549,7 +549,7 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
                 icon={Moon}
                 label="Masa"
                 value={panchang.masa}
-                sub={panchang.calendarSystem === 'purnimant' ? 'Lunar month · Purnimant' : 'Lunar month · Amavasyant'}
+                sub="Lunar month"
               />
               <PanchangRow
                 icon={Sun}
