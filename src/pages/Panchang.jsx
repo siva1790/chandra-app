@@ -393,6 +393,22 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
         }
       }
 
+      // Backward pass: find actual start time for first nakshatra of the day
+      const firstNaksh = nakshatraList[0]
+      if (firstNaksh) {
+        const firstNakshIdx = getNakshatraIndex(dayStart)
+        const nBackLimit = new Date(dayStart.getTime() - 30 * 60 * 60 * 1000)
+        let nBackSc = new Date(dayStart.getTime() - 30 * 60 * 1000)
+        while (nBackSc >= nBackLimit) {
+          const backIdx = getNakshatraIndex(nBackSc)
+          if (backIdx !== firstNakshIdx) {
+            firstNaksh.start = findNakshatraTransition(nBackSc, new Date(nBackSc.getTime() + 30 * 60 * 1000), backIdx)
+            break
+          }
+          nBackSc = new Date(nBackSc.getTime() - 30 * 60 * 1000)
+        }
+      }
+
       const nakshatraName = nakshatraList[0]?.name || nakshatras[currentIdx % 27]
       const nakshatraPada = nakshatraList[0]?.pada || 1
 
@@ -455,6 +471,22 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
         }
       }
 
+      // Backward pass: find actual start time for first yoga of the day
+      const firstYoga = yogaList[0]
+      if (firstYoga) {
+        const firstYogaName = getYogaAtTime(dayStart)
+        const yBackLimit = new Date(dayStart.getTime() - 30 * 60 * 60 * 1000)
+        let yBackSc = new Date(dayStart.getTime() - 30 * 60 * 1000)
+        while (yBackSc >= yBackLimit) {
+          const backYoga = getYogaAtTime(yBackSc)
+          if (backYoga !== firstYogaName) {
+            firstYoga.start = findYogaTransition(yBackSc, new Date(yBackSc.getTime() + 30 * 60 * 1000), backYoga)
+            break
+          }
+          yBackSc = new Date(yBackSc.getTime() - 30 * 60 * 1000)
+        }
+      }
+
       // --- Karana (with transition times — same scan pattern as Nakshatra) ---
       const karanaList = []
       let kCursor = new Date(dayStart)
@@ -506,6 +538,22 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
             break
           }
           lkSc = new Date(lkSc.getTime() + 30 * 60 * 1000)
+        }
+      }
+
+      // Backward pass: find actual start time for first karana of the day
+      const firstKarana = karanaList[0]
+      if (firstKarana) {
+        const firstKaranaName = getKaranaFromPhase(Astronomy.MoonPhase(dayStart))
+        const kBackLimit = new Date(dayStart.getTime() - 30 * 60 * 60 * 1000)
+        let kBackSc = new Date(dayStart.getTime() - 30 * 60 * 1000)
+        while (kBackSc >= kBackLimit) {
+          const backKarana = getKaranaFromPhase(Astronomy.MoonPhase(kBackSc))
+          if (backKarana !== firstKaranaName) {
+            firstKarana.start = findKaranaTransition(kBackSc, new Date(kBackSc.getTime() + 30 * 60 * 1000), backKarana)
+            break
+          }
+          kBackSc = new Date(kBackSc.getTime() - 30 * 60 * 1000)
         }
       }
 
