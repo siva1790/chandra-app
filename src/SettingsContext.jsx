@@ -8,14 +8,16 @@ export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState(() => {
     // Load saved settings from localStorage on first load
     const saved = localStorage.getItem('chandra-settings')
-    return saved ? JSON.parse(saved) : {
+    const defaults = {
       city: 'Bengaluru',
       lat: 12.9716,
       lon: 77.5946,
       language: 'English',
       calendarSystem: 'Amavasyant',
       notifications: false,
+      usingGps: false,
     }
+    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults
   })
 
   // Save to localStorage whenever settings change

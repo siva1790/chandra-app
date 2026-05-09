@@ -200,6 +200,9 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | Added Samvatsara (60-year Jupiter cycle) to Month & Year section — calculated from Ugadi anchor (Krodhi=38th, 2024); current year (post-Ugadi 2026) = Parabhava | `Panchang.jsx` |
 | 2026-05 | Added Masa (lunar month name), Ritu (6 Hindu seasons), and Ayana (Uttarayana/Dakshinayana) to Month & Year section; Masa differentiates Amavasyant vs Purnimant during Krishna Paksha | `Panchang.jsx` |
 | 2026-05 | Expanded Planetary Positions to all 9 Navagraha — Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu (mean ascending node), Ketu (South Node); sidereal longitudes with Rashi name | `Panchang.jsx` |
+| 2026-05 | WCAG accessibility pass — hidden overlays exposed to AT (inert + aria-hidden on inactive sheets); focus trap in SubscribeSheet + DatePickerSheet; full ARIA combobox/listbox/keyboard-nav on all city search inputs; form semantics (id/htmlFor, autocomplete, aria-invalid, aria-describedby); date picker day button labels + close buttons; triggerRef focus restoration on all bottom sheets | `App.jsx`, `SubscribeSheet.jsx`, `DatePickerSheet.jsx`, `DateStrip.jsx`, `Settings.jsx` |
+| 2026-05 | Contrast pass — all text-gray-500/gray-600 (failing 4.5:1 WCAG AA) upgraded to text-gray-400 across all pages and components | `Home.jsx`, `Calendar.jsx`, `Panchang.jsx`, `Settings.jsx`, `InstallPrompt.jsx`, `SubscribeSheet.jsx`, `DatePickerSheet.jsx` |
+| 2026-05 | GPS location flow — "Use my location" button in Settings snaps to nearest city via haversine; usingGps flag stored in settings; GPS active banner shown in Settings City section; Home header shows blue LocateFixed icon + "GPS — CityName" indicator when usingGps is true; selecting any city manually clears usingGps | `SettingsContext.jsx`, `Settings.jsx`, `Home.jsx` |
 
 ---
 

@@ -4,7 +4,7 @@ import { useSubscription } from '../SubscriptionContext'
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
-import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail } from 'lucide-react'
+import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed } from 'lucide-react'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
@@ -109,6 +109,61 @@ const Settings = ({ onOpenSubscribe }) => {
     }
   }
 
+  const [gpsLoading, setGpsLoading] = useState(false)
+  const [gpsError, setGpsError]     = useState(null)
+
+  // Haversine distance in km between two lat/lon pairs
+  const haversine = (lat1, lon1, lat2, lon2) => {
+    const R = 6371
+    const dLat = (lat2 - lat1) * Math.PI / 180
+    const dLon = (lon2 - lon1) * Math.PI / 180
+    const a = Math.sin(dLat / 2) ** 2
+      + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  }
+
+  const snapToNearest = (lat, lon) => {
+    let nearest = cities[0]
+    let minDist = Infinity
+    for (const city of cities) {
+      const d = haversine(lat, lon, city.lat, city.lon)
+      if (d < minDist) { minDist = d; nearest = city }
+    }
+    return nearest
+  }
+
+  const handleUseGps = () => {
+    if (!navigator.geolocation) {
+      setGpsError('Geolocation is not supported by your browser.')
+      return
+    }
+    setGpsLoading(true)
+    setGpsError(null)
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords
+        const nearest = snapToNearest(latitude, longitude)
+        updateSettings('city', nearest.name)
+        updateSettings('lat', nearest.lat)
+        updateSettings('lon', nearest.lon)
+        updateSettings('usingGps', true)
+        setGpsLoading(false)
+        showSavedBadge()
+        trackEvent('city_changed', { city_name: nearest.name, via: 'gps' })
+      },
+      (err) => {
+        setGpsLoading(false)
+        if (err.code === 1)
+          setGpsError('Location access denied. Please allow location in your browser settings.')
+        else if (err.code === 2)
+          setGpsError('Unable to detect your location. Please select a city manually.')
+        else
+          setGpsError('Location request timed out. Please try again.')
+      },
+      { timeout: 10000, maximumAge: 60000 }
+    )
+  }
+
   const filteredCities = cities.filter(c =>
     c.name.toLowerCase().includes(citySearch.toLowerCase()) ||
     c.state.toLowerCase().includes(citySearch.toLowerCase())
@@ -118,6 +173,7 @@ const Settings = ({ onOpenSubscribe }) => {
     updateSettings('city', city.name)
     updateSettings('lat', city.lat)
     updateSettings('lon', city.lon)
+    updateSettings('usingGps', false)
     setCitySearch('')
     setShowCityList(false)
     setActiveCityIndex(-1)
@@ -208,6 +264,39 @@ const Settings = ({ onOpenSubscribe }) => {
           <p className="text-gray-400 text-xs mb-3">
             Used for accurate moonrise, moonset and Rahu Kaal timings
           </p>
+
+          {/* GPS Active Banner */}
+          {settings.usingGps && (
+            <div className="flex items-center gap-2 mb-3 px-3 py-2.5 bg-blue-950 border border-blue-800 rounded-xl">
+              <LocateFixed size={13} className="text-blue-400 shrink-0" aria-hidden="true" />
+              <p className="text-blue-300 text-xs flex-1">Using GPS — {settings.city}</p>
+              <button
+                onClick={() => updateSettings('usingGps', false)}
+                className="text-blue-400 text-xs hover:text-blue-300 transition-all min-w-[44px] min-h-[44px] flex items-center justify-end"
+                aria-label="Stop using GPS location"
+              >
+                Change
+              </button>
+            </div>
+          )}
+
+          {/* GPS Error */}
+          {gpsError && (
+            <div role="alert" aria-live="assertive" className="flex items-start gap-2 mb-3 px-3 py-2.5 bg-red-950 border border-red-800 rounded-xl">
+              <p className="text-red-300 text-xs leading-relaxed">{gpsError}</p>
+            </div>
+          )}
+
+          {/* Use my location button */}
+          <button
+            onClick={handleUseGps}
+            disabled={gpsLoading}
+            aria-busy={gpsLoading}
+            className="w-full flex items-center justify-center gap-2 mb-3 px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-sm text-gray-300 hover:border-gray-600 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+          >
+            <LocateFixed size={14} aria-hidden="true" />
+            {gpsLoading ? 'Detecting location…' : 'Use my location'}
+          </button>
 
           {/* Search Input — combobox */}
           <label htmlFor="city-search" className="sr-only">Search for a city</label>

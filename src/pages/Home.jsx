@@ -7,7 +7,7 @@ import { getSunriseForDate, getMoonPhaseAngle, getTithiFromAngle } from '../moon
 import { getDatedFestivalsForDate, getMonthlyFestivalsForTithi } from '../festivals'
 import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
-import { MapPin } from 'lucide-react'
+import { MapPin, LocateFixed } from 'lucide-react'
 
 const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
   const { settings } = useSettings()
@@ -131,9 +131,18 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
 
       {/* Header */}
       <div className="text-center mb-4">
-        <p className="text-gray-400 text-xs mt-1 flex items-center justify-center gap-1">
-          <MapPin size={12} aria-hidden="true" /> {location.city}
-        </p>
+        {settings.usingGps ? (
+          <p className="text-blue-400 text-xs mt-1 flex items-center justify-center gap-1">
+            <LocateFixed size={12} aria-hidden="true" />
+            <span>GPS</span>
+            <span className="text-gray-500">—</span>
+            <span>{location.city}</span>
+          </p>
+        ) : (
+          <p className="text-gray-400 text-xs mt-1 flex items-center justify-center gap-1">
+            <MapPin size={12} aria-hidden="true" /> {location.city}
+          </p>
+        )}
       </div>
 
       {/* Date Navigator */}
