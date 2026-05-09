@@ -238,7 +238,22 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
 
         </div>
       ) : (
-        <p role="alert" className="text-center text-red-400">Could not load moon data. Please refresh.</p>
+        <div role="alert" className="bg-gray-900 rounded-2xl p-8 flex flex-col items-center gap-4 border border-red-900 mt-6 text-center">
+          <span className="text-5xl" aria-hidden="true">🌑</span>
+          <div>
+            <p className="text-red-400 font-semibold mb-1">Could not calculate moon data</p>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              This sometimes happens if your device clock is off or the calculation
+              hit an edge case. Try again or change the date.
+            </p>
+          </div>
+          <button
+            onClick={() => { setLoading(true); calculateMoonData() }}
+            className="px-5 py-2.5 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold text-sm rounded-xl transition-all"
+          >
+            Try again
+          </button>
+        </div>
       )}
     </div>
   )

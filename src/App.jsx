@@ -8,6 +8,7 @@ import { useSettings } from './SettingsContext'
 import { useSubscription } from './SubscriptionContext'
 import InstallPrompt from './components/InstallPrompt'
 import SubscribeSheet from './components/SubscribeSheet'
+import OfflineBanner from './components/OfflineBanner'
 import { trackPageView } from './analytics'
 import { Bell, Moon, Calendar as CalendarIcon, Clock, Settings as SettingsIcon } from 'lucide-react'
 
@@ -78,6 +79,8 @@ function App() {
           )}
         </button>
       </div>
+
+      <OfflineBanner sheetOpen={sheetOpen} />
 
       {/* ── Page content — pushed below top bar and above bottom nav ── */}
       <main
