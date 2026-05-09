@@ -85,6 +85,30 @@ const findNakshatraTransition = (startTime, endTime, startIdx) => {
   return new Date((lo + hi) / 2)
 }
 
+// ── Karana helpers ────────────────────────────────────────────────
+
+const MOVABLE_KARANAS = ['Bava', 'Balava', 'Kaulava', 'Taitila', 'Garija', 'Vanija', 'Vishti']
+
+const getKaranaFromPhase = (phaseAngle) => {
+  const n = Math.floor(((phaseAngle % 360) + 360) % 360 / 6) // 0–59
+  if (n === 0)  return 'Kimstughna'
+  if (n === 57) return 'Shakuni'
+  if (n === 58) return 'Chatushpada'
+  if (n === 59) return 'Naga'
+  return MOVABLE_KARANAS[(n - 1) % 7]
+}
+
+const findKaranaTransition = (startTime, endTime, startKarana) => {
+  let lo = startTime.getTime()
+  let hi = endTime.getTime()
+  for (let i = 0; i < 30; i++) {
+    const mid = (lo + hi) / 2
+    if (getKaranaFromPhase(Astronomy.MoonPhase(new Date(mid))) === startKarana) lo = mid
+    else hi = mid
+  }
+  return new Date((lo + hi) / 2)
+}
+
 // ── Calendar helpers ──────────────────────────────────────────────
 
 // Anchor: 2024 CE Ugadi → Krodhi (38th / index 37, zero-based)
@@ -358,13 +382,61 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
       const yogaIndex = Math.floor(((sunLongitude + moonLongitude) % 360) / (360 / 27))
       const yogaName = yogaNames[yogaIndex % 27]
 
-      // --- Karana ---
-      const karanaNames = [
-        'Bava', 'Balava', 'Kaulava', 'Taitila', 'Garija',
-        'Vanija', 'Vishti', 'Shakuni', 'Chatushpada', 'Naga', 'Kimstughna'
-      ]
-      const karanaIndex = Math.floor((phaseAngle / 6) % 11)
-      const karanaName = karanaNames[karanaIndex]
+      // --- Karana (with transition times — same scan pattern as Nakshatra) ---
+      const karanaList = []
+      let kCursor = new Date(dayStart)
+      let currentKarana = getKaranaFromPhase(Astronomy.MoonPhase(kCursor))
+
+      while (kCursor < dayEnd) {
+        const kSearchEnd = new Date(Math.min(kCursor.getTime() + 24 * 60 * 60 * 1000, dayEnd.getTime()))
+        let kTransitionFound = false
+        let kScanner = new Date(kCursor.getTime() + 30 * 60 * 1000)
+        while (kScanner <= kSearchEnd) {
+          const scanKarana = getKaranaFromPhase(Astronomy.MoonPhase(kScanner))
+          if (scanKarana !== currentKarana) {
+            const transitionTime = findKaranaTransition(
+              new Date(kScanner.getTime() - 30 * 60 * 1000), kScanner, currentKarana
+            )
+            karanaList.push({
+              name: currentKarana,
+              start: kCursor <= dayStart ? dayStart : kCursor,
+              end: transitionTime, endsToday: true
+            })
+            kCursor = transitionTime
+            currentKarana = scanKarana
+            kTransitionFound = true
+            break
+          }
+          kScanner = new Date(kScanner.getTime() + 30 * 60 * 1000)
+        }
+        if (!kTransitionFound) {
+          karanaList.push({
+            name: currentKarana,
+            start: kCursor <= dayStart ? dayStart : kCursor,
+            end: dayEnd, endsToday: false
+          })
+          break
+        }
+      }
+
+      // Secondary pass: find actual end time for Karana extending past midnight
+      const lastKarana = karanaList[karanaList.length - 1]
+      if (lastKarana && !lastKarana.endsToday) {
+        const lkName = lastKarana.name
+        const lkLimit = new Date(dayEnd.getTime() + 30 * 60 * 60 * 1000)
+        let lkSc = new Date(dayEnd.getTime() + 30 * 60 * 1000)
+        while (lkSc <= lkLimit) {
+          if (getKaranaFromPhase(Astronomy.MoonPhase(lkSc)) !== lkName) {
+            lastKarana.end = findKaranaTransition(
+              new Date(lkSc.getTime() - 30 * 60 * 1000), lkSc, lkName
+            )
+            break
+          }
+          lkSc = new Date(lkSc.getTime() + 30 * 60 * 1000)
+        }
+      }
+
+      const karanaName = getKaranaFromPhase(phaseAngle)
 
       // --- Vara ---
       const varaNames = ['Ravivar', 'Somvar', 'Mangalvar', 'Budhvar', 'Guruvar', 'Shukravar', 'Shanivar']
@@ -422,13 +494,13 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
       const isEkadashi = tithiName === 'Ekadashi'
       const isPurnima  = tithiName === 'Purnima'
       const isAmavasya = tithiName === 'Amavasya'
-      const isVishti   = karanaName === 'Vishti'
+      const isVishti   = karanaList.some(k => k.name === 'Vishti')
       const eclipse    = getEclipseForDate(date)
 
       setPanchang({
         tithi: tithiName, paksha,
         nakshatra: nakshatraName, nakshatraPada, nakshatraList,
-        yoga: yogaName, karana: karanaName,
+        yoga: yogaName, karana: karanaName, karanaList,
         vara: varaNames[varaIndex], varaDeity: varaDeva[varaIndex],
         rahuKaal, yamagandam, abhijitMuhurta, brahmaMuhurta,
         samvatsara, masa, ritu, ayana, calendarSystem,
@@ -553,7 +625,26 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
               )}
 
               <PanchangRow icon={Clock}        label="Yoga"   value={panchang.yoga} />
-              <PanchangRow icon="½"             label="Karana" value={panchang.karana} />
+              {panchang.karanaList?.length > 0 ? (
+                <div className="py-2 border-b border-gray-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-gray-400 text-sm font-semibold w-5 text-center shrink-0" aria-hidden="true">½</span>
+                    <span className="text-gray-400 text-sm">Karana</span>
+                  </div>
+                  {panchang.karanaList.map((k, i) => (
+                    <div key={i} className="ml-6 mb-2 bg-gray-800 rounded-xl px-3 py-2">
+                      <p className="text-white text-sm font-semibold mb-1">{k.name}</p>
+                      <p className="text-yellow-300 text-xs font-medium">
+                        {formatTime(k.start)}, {formatShortDate(k.start)}
+                        {' → '}
+                        {formatTime(k.end)}, {formatShortDate(k.end)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <PanchangRow icon="½" label="Karana" value={panchang.karana} />
+              )}
               <PanchangRow icon={CalendarIcon}  label="Vara"   value={panchang.vara} sub={panchang.varaDeity} />
             </div>
           </AccordionSection>
