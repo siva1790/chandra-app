@@ -398,7 +398,7 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
       const brahmaMuhurta  = `${fmt(sunriseMins - 96)} – ${fmt(sunriseMins - 48)}`
 
       // --- Month & Year ---
-      const calendarSystem = location?.calendarSystem || 'amavasyant'
+      const calendarSystem = (location?.calendarSystem || 'amavasyant').toLowerCase()
       const samvatsara = getSamvatsara(date)
       const masa       = getMasa(date, tithiIndex, calendarSystem)
       const ritu       = getRitu(sunLongitude)
@@ -641,7 +641,7 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
             <div className="flex flex-col">
               {[
                 { symbol: '☀',  name: 'Sun',     sanskrit: 'Surya',      lon: panchang.navagraha.Sun     },
-                { symbol: '🌙', name: 'Moon',    sanskrit: 'Chandra',    lon: panchang.navagraha.Moon    },
+                { symbol: '☽',  name: 'Moon',    sanskrit: 'Chandra',    lon: panchang.navagraha.Moon    },
                 { symbol: '♂',  name: 'Mars',    sanskrit: 'Mangala',    lon: panchang.navagraha.Mars    },
                 { symbol: '☿',  name: 'Mercury', sanskrit: 'Budha',      lon: panchang.navagraha.Mercury },
                 { symbol: '♃',  name: 'Jupiter', sanskrit: 'Guru',       lon: panchang.navagraha.Jupiter },

@@ -260,13 +260,13 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
                 relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14
                 transition-all duration-150 cursor-pointer hover:bg-gray-800 active:bg-gray-700
                 ${isSelected
-                    ? 'bg-yellow-400 border border-yellow-300'
+                    ? 'bg-indigo-600 border border-indigo-400'
                     : isToday
                     ? 'bg-yellow-900 border border-yellow-500'
                     : 'bg-gray-900'}
               `}
             >
-              <span className={`text-xs font-semibold ${isSelected ? 'text-gray-950' : isToday ? 'text-yellow-300' : 'text-white'}`}>
+              <span className={`text-xs font-semibold ${isSelected ? 'text-white' : isToday ? 'text-yellow-300' : 'text-white'}`}>
                 {day.day}
               </span>
               <span className="text-xs" aria-hidden="true">{day.phaseEmoji}</span>
