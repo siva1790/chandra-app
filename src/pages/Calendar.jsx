@@ -46,8 +46,9 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
     () => new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
   )
   const [calendarDays, setCalendarDays] = useState([])
-  const [selectedDay, setSelectedDay] = useState(null)   // for modal
-  const [dayPanchang, setDayPanchang] = useState(null)   // computed on tap
+  const [selectedDay, setSelectedDay] = useState(null)       // for modal
+  const [dayPanchang, setDayPanchang] = useState(null)       // computed on tap
+  const [tapSelectedDate, setTapSelectedDate] = useState(null) // set only on explicit tap
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
 
@@ -61,15 +62,23 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
     buildCalendar()
   }, [currentDate, settings])
 
-  // Sync viewed month when global date changes to a different month — loop guard prevents re-entry
+  // Sync viewed month when global date changes (e.g. Panchang tab changes date) — loop guard prevents re-entry
   useEffect(() => {
     if (
       selectedDate.getMonth()     !== currentDate.getMonth() ||
       selectedDate.getFullYear()  !== currentDate.getFullYear()
     ) {
       setCurrentDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1))
+      setTapSelectedDate(null)
     }
   }, [selectedDate])
+
+  // Month navigation helper — called by both DateStrip and swipe/arrow handlers.
+  // Only changes the view; does NOT update the global date or carry over a selection.
+  const handleMonthChange = (date) => {
+    setCurrentDate(new Date(date.getFullYear(), date.getMonth(), 1))
+    setTapSelectedDate(null)
+  }
 
   // Calculate Pancha Anga whenever a day is tapped
   useEffect(() => {
@@ -165,8 +174,9 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
 
   const openModal = (day) => {
     setSelectedDay(day)
-    setDayPanchang(null)   // reset while computing
-    onDateChange?.(new Date(day.date))  // update global date on tap
+    setTapSelectedDate(new Date(day.date))  // mark this date as explicitly selected
+    setDayPanchang(null)                     // reset while computing
+    onDateChange?.(new Date(day.date))       // update global date on tap
   }
 
   const closeModal = () => {
@@ -183,19 +193,13 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
   const prevMonth = () => {
     const newMonth = currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1
     const newYear  = currentDate.getMonth() === 0 ? currentDate.getFullYear() - 1 : currentDate.getFullYear()
-    const maxDay   = new Date(newYear, newMonth + 1, 0).getDate()
-    const clampedDay = Math.min(selectedDate.getDate(), maxDay)
-    setCurrentDate(new Date(newYear, newMonth, 1))
-    onDateChange?.(new Date(newYear, newMonth, clampedDay))
+    handleMonthChange(new Date(newYear, newMonth, 1))
   }
 
   const nextMonth = () => {
     const newMonth = currentDate.getMonth() === 11 ? 0 : currentDate.getMonth() + 1
     const newYear  = currentDate.getMonth() === 11 ? currentDate.getFullYear() + 1 : currentDate.getFullYear()
-    const maxDay   = new Date(newYear, newMonth + 1, 0).getDate()
-    const clampedDay = Math.min(selectedDate.getDate(), maxDay)
-    setCurrentDate(new Date(newYear, newMonth, 1))
-    onDateChange?.(new Date(newYear, newMonth, clampedDay))
+    handleMonthChange(new Date(newYear, newMonth, 1))
   }
 
   const handleTouchStart = (e) => {
@@ -208,16 +212,14 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
     const deltaX = e.changedTouches[0].clientX - touchStartX.current
     const deltaY = e.changedTouches[0].clientY - touchStartY.current
     if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      // prevMonth/nextMonth already call onDateChange
       deltaX < 0 ? nextMonth() : prevMonth()
     }
     touchStartX.current = null
   }
 
-  const upcomingFestivals = calendarDays
+  // All festival / eclipse days in the currently viewed month — no date cap, no slice
+  const monthFestivals = calendarDays
     .filter(d => d && (d.festivals.length > 0 || d.eclipse))
-    .filter(d => d.date >= new Date(new Date(selectedDate).setHours(0, 0, 0, 0)))
-    .slice(0, 5)
 
   return (
     <div className="min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
@@ -230,8 +232,8 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
         <p className="text-gray-400 text-sm">Hindu Panchang Festival View</p>
       </div>
 
-      {/* Month Navigator — DateStrip in month mode */}
-      <DateStrip date={selectedDate} onDateChange={onDateChange} mode="month" />
+      {/* Month Navigator — DateStrip in month mode; receives currentDate (view state), not globalDate */}
+      <DateStrip date={currentDate} onDateChange={handleMonthChange} mode="month" />
 
       {/* Day Headers */}
       <div className="grid grid-cols-7 mb-2">
@@ -249,7 +251,8 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
         {calendarDays.map((day, idx) => (
           day ? (
             (() => {
-              const isSelected = day.date.toDateString() === selectedDate.toDateString()
+              const isSelected = tapSelectedDate !== null &&
+                day.date.toDateString() === tapSelectedDate.toDateString()
               const isToday    = day.isToday
               return (
             <button
@@ -284,14 +287,16 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
         ))}
       </div>
 
-      {/* Upcoming Festivals */}
-      {upcomingFestivals.length > 0 && (
-        <div>
-          <p className="text-gray-400 text-xs uppercase tracking-widest mb-3">
-            Upcoming Festivals
-          </p>
+      {/* Festivals this month */}
+      <div>
+        <p className="text-gray-400 text-xs uppercase tracking-widest mb-3">
+          Festivals in {monthNames[currentDate.getMonth()]}
+        </p>
+        {monthFestivals.length === 0 ? (
+          <p className="text-gray-400 text-sm text-center py-6">No festivals this month</p>
+        ) : (
           <div className="flex flex-col gap-3">
-            {upcomingFestivals.map((day, i) => (
+            {monthFestivals.map((day, i) => (
               <button
                 key={i}
                 onClick={() => openModal(day)}
@@ -317,8 +322,8 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
               </button>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ── Day Detail Modal (bottom sheet) ─────────────────────── */}
       {selectedDay && (

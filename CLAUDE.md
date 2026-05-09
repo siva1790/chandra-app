@@ -205,6 +205,8 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | GPS location flow — "Use my location" button in Settings snaps to nearest city via haversine; usingGps flag stored in settings; GPS active banner shown in Settings City section; Home header shows blue LocateFixed icon + "GPS — CityName" indicator when usingGps is true; selecting any city manually clears usingGps | `SettingsContext.jsx`, `Settings.jsx`, `Home.jsx` |
 | 2026-05 | Offline banner — `OfflineBanner.jsx` slides in below the top bar when device goes offline; reassures user that all calculations work without internet; shows brief "Back online" green flash on reconnect; hidden when subscribe sheet is open | `src/components/OfflineBanner.jsx`, `App.jsx` |
 | 2026-05 | Home moon calc error state — replaced bare red text with a friendly card (🌑, explanation text, "Try again" button that resets loading state and retries calculation) | `Home.jsx` |
+| 2026-05 | Calendar + DatePickerSheet: swipe left/right to navigate months; tap month/year heading opens jump picker (201-year range 1926–2126); Calendar day modal Lucide icons | `Calendar.jsx`, `DatePickerSheet.jsx` |
+| 2026-05 | Calendar selection behaviour overhauled — today always shows amber/gold highlight; swiping or using month arrows clears any selection (no ghost indigo carry-over); indigo selection only appears after explicit tap; festival list renamed "Festivals in [Month]" and now shows all festivals of the viewed month (no >= today filter, no slice cap) | `Calendar.jsx` |
 
 ---
 
