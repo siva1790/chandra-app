@@ -104,14 +104,79 @@ const getSamvatsara = (date) => {
   return { name: SAMVATSARA_NAMES[index], number: index + 1 }
 }
 
-// Sun sidereal longitude → masa name
-// During Krishna Paksha, Purnimant uses the next month's name
-const getMasa = (sunLongitude, tithiIndex, calendarSystem) => {
-  const masaIndex = Math.floor(sunLongitude / 30)
-  if (tithiIndex >= 15 && calendarSystem === 'purnimant') {
-    return MASA_NAMES[(masaIndex + 1) % 12]
+// Nakshatra of the Full Moon (Purnima) → masa index (0–11)
+// Each lunar month is named after the nakshatra where its defining Purnima falls.
+const NAKSHATRA_MASA = [
+  6,  // 0  Ashwini         → Ashwin
+  6,  // 1  Bharani         → Ashwin
+  7,  // 2  Krittika        → Kartika
+  7,  // 3  Rohini          → Kartika
+  8,  // 4  Mrigashira      → Margashirsha
+  8,  // 5  Ardra           → Margashirsha
+  9,  // 6  Punarvasu       → Pausha
+  9,  // 7  Pushya          → Pausha
+  10, // 8  Ashlesha        → Magha
+  10, // 9  Magha           → Magha
+  11, // 10 Purva Phalguni  → Phalguna
+  11, // 11 Uttara Phalguni → Phalguna
+  0,  // 12 Hasta           → Chaitra
+  0,  // 13 Chitra          → Chaitra
+  1,  // 14 Swati           → Vaishakha
+  1,  // 15 Vishakha        → Vaishakha
+  2,  // 16 Anuradha        → Jyeshtha
+  2,  // 17 Jyeshtha        → Jyeshtha
+  3,  // 18 Mula            → Ashadha
+  3,  // 19 Purva Ashadha   → Ashadha
+  4,  // 20 Uttara Ashadha  → Shravana
+  4,  // 21 Shravana        → Shravana
+  5,  // 22 Dhanishtha      → Bhadrapada
+  5,  // 23 Shatabhisha     → Bhadrapada
+  5,  // 24 Purva Bhadrapada→ Bhadrapada
+  5,  // 25 Uttara Bhadrapada→ Bhadrapada
+  11, // 26 Revati          → Phalguna
+]
+
+// Determine lunar month (Masa) from the nakshatra of the defining Purnima.
+// Amavasyant: the Purnima inside the current new-moon-to-new-moon cycle names the month.
+//   Shukla Paksha → upcoming Purnima; Krishna Paksha → most recent Purnima.
+// Purnimant: same base month; but during Krishna Paksha the month name advances by one
+//   (the waning half belongs to the NEXT Purnimant month).
+const getMasa = (date, tithiIndex, calendarSystem) => {
+  try {
+    const isKrishnaPaksha = tithiIndex >= 15
+
+    // Find the Purnima that defines this lunar month
+    let purnima
+    if (isKrishnaPaksha) {
+      // Search backward: most recent full moon (within the last ~20 days)
+      const searchStart = new Date(date.getTime() - 20 * 24 * 60 * 60 * 1000)
+      purnima = Astronomy.SearchMoonPhase(180, searchStart, 20)
+    } else {
+      // Search forward: next full moon (within the next ~20 days)
+      purnima = Astronomy.SearchMoonPhase(180, date, 20)
+    }
+
+    if (!purnima) return MASA_NAMES[0]
+
+    // Moon's sidereal longitude at that Purnima
+    const moonPos = Astronomy.GeoVector('Moon', purnima.date, true)
+    const moonEcl = Astronomy.Ecliptic(moonPos)
+    const moonSidLon = ((moonEcl.elon - AYANAMSHA + 360) % 360)
+
+    // Nakshatra → masa
+    const nakshatraIdx = Math.floor(moonSidLon / (360 / 27))
+    const masaIndex = NAKSHATRA_MASA[nakshatraIdx % 27]
+
+    // Purnimant adjustment: Krishna Paksha belongs to the next calendar month
+    if (isKrishnaPaksha && calendarSystem === 'purnimant') {
+      return MASA_NAMES[(masaIndex + 1) % 12]
+    }
+
+    return MASA_NAMES[masaIndex]
+  } catch (err) {
+    console.error('getMasa error:', err)
+    return MASA_NAMES[0]
   }
-  return MASA_NAMES[masaIndex % 12]
 }
 
 // Six Hindu seasons (2 solar months each)
@@ -335,7 +400,7 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
       // --- Month & Year ---
       const calendarSystem = location?.calendarSystem || 'amavasyant'
       const samvatsara = getSamvatsara(date)
-      const masa       = getMasa(sunLongitude, tithiIndex, calendarSystem)
+      const masa       = getMasa(date, tithiIndex, calendarSystem)
       const ritu       = getRitu(sunLongitude)
       const ayana      = getAyana(sunLongitude)
 
