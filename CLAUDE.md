@@ -146,17 +146,23 @@ npm run preview    # preview the dist/ build locally
 - `SubscriptionContext.jsx` exposes: `subscribe()`, `update()`, `updateFrequency()`, `unsubscribe()`.
 - UI entry point: bell icon in top bar → `SubscribeSheet.jsx` bottom sheet.
 
-### Push Notifications (frontend only — backend pending)
+### Push Notifications (frontend complete — Cloud Functions backend pending)
 - Permission state managed in `Settings.jsx` via `Notification.requestPermission()`.
 - Toggle prefs persisted in localStorage under `chandra-notif-prefs` and `chandra-notif-enabled`.
+- FCM device registration is **fully implemented** in `notifications.js` — `initDevice()`, `updateDevice()`, `deactivateDevice()` all write to the Firestore `devices` collection with token, city, lat/lon, prefs.
 - In-app preview notification (`NotificationPreview` component) fires on permission grant — **no OS notification API used** (Chrome blocks `new Notification()` when a SW is registered).
-- Actual push delivery via FCM + Cloud Functions is **not yet implemented** (requires Firebase Blaze plan upgrade).
+- **What's missing**: a Cloud Functions backend to read the `devices` collection and send FCM pushes. Blocked on Firebase Blaze plan upgrade.
 
-### Automated Email (planned)
-- Strategy: hybrid — pre-written festival stories + dynamically injected city-specific timing data.
-- Delivery via **Resend** API.
-- Triggered by **Firebase Cloud Functions + Cloud Scheduler**.
-- Requires Firebase Blaze plan upgrade before Cloud Functions can be deployed.
+### Automated Email (frontend complete — Cloud Functions backend pending)
+- Subscriber data model is fully live in Firestore (`subscribers` collection).
+- **What's missing**: Cloud Function + Resend API sending layer. Blocked on Firebase Blaze plan upgrade.
+- Strategy when built: hybrid — pre-written festival stories + dynamically injected city-specific timing data.
+
+### Analytics (live)
+- GA4 analytics implemented in `analytics.js` — tracks page views and key events (subscribe, unsubscribe, notification_enabled, notification_disabled, city_changed).
+
+### Panchang Timings (all live)
+- Rahu Kaal, Yamagandam, Abhijit Muhurta, and Brahma Muhurta are all calculated and displayed in `Panchang.jsx`.
 
 ---
 
@@ -180,6 +186,39 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | Restructured three-tab navigation to eliminate overlap — Today is now purely the moon screen (visual + moonrise/moonset + tappable Today's Highlight strip); Calendar is now a pure planning grid (tapping any day navigates directly to Panchang with that date pre-selected); Panchang is the single source of truth for any date | `App.jsx`, `Home.jsx`, `Calendar.jsx`, `Panchang.jsx` |
 | 2026-05 | Home highlight strip now always visible — shows eclipse → festival → tithi/paksha fallback on plain days; Calendar day tap now opens a bottom-sheet modal with Pancha Anga summary + "View Full Panchang" CTA instead of navigating directly | `Home.jsx`, `Calendar.jsx` |
 | 2026-05 | Migrated subscription backend from Google Apps Script to Firebase Firestore — subscribers now stored as individual documents with full data model; soft-delete unsubscribe; security rules block client reads | `src/firebase.js` (new), `src/SubscriptionContext.jsx`, `firestore.rules` (new) |
+| 2026-05 | WCAG 2.1 AA accessibility + design system token migration — removed user-scalable=no viewport restriction; added Tailwind chandra colour tokens + CSS custom properties; global :focus-visible ring (#8EA8FF); skip-to-content link; prefers-reduced-motion rule; ARIA roles/labels/live regions across all pages; keyboard trap fixes (Escape key + focus-on-open) for all bottom sheets and modals; min 44×44px touch targets on all interactive elements; role="switch"+aria-checked on all toggles; role="dialog"+aria-modal on DatePickerSheet, SubscribeSheet, Calendar day modal | `index.html`, `tailwind.config.js`, `src/index.css`, `src/App.jsx`, `src/pages/Home.jsx`, `src/pages/Calendar.jsx`, `src/pages/Panchang.jsx`, `src/pages/Settings.jsx`, `src/components/MoonVisual.jsx`, `src/components/DatePickerSheet.jsx`, `src/components/SubscribeSheet.jsx`, `src/components/InstallPrompt.jsx` |
+| 2026-05 | UI chrome emoji replaced with Lucide React icons throughout — Bell (notifications), MapPin (location), Globe (language), CalendarIcon (calendar system/vara), Clock (panchang), Moon (tithi), Star (nakshatra), Sun (sun longitude), Sunrise, Sparkles (auspicious), AlertTriangle (inauspicious), Timer (durations), SettingsIcon (settings heading), CalendarDays (date picker); moon phase emoji 🌑🌒🌓🌔🌕🌖🌗🌘 intentionally retained (no Lucide equivalents); Karana "½" string retained | `src/App.jsx`, `src/pages/Home.jsx`, `src/pages/Calendar.jsx`, `src/pages/Panchang.jsx`, `src/pages/Settings.jsx`, `src/components/DatePickerSheet.jsx` |
+| 2026-05 | Toggle redesigned to standard pill+thumb pattern — 44×26px track, 20×20px circular thumb, gold #DDBB6A active colour, spring easing cubic-bezier(0.34,1.56,0.64,1); SubToggle at 36×20px; design system HTML updated with anatomy diagram and emoji/icon policy rules | `src/pages/Settings.jsx`, `chandra-design-system.html` |
+| 2026-05 | Fixed Rahu Kaal slot order — was off by 1 for every weekday; corrected to Drik Panchang order `[8,2,7,5,6,4,3]` | `Panchang.jsx` |
+| 2026-05 | Fixed Yamagandam slot order — Friday/Saturday were swapped; corrected to `[5,4,3,2,1,7,6]` | `Panchang.jsx` |
+| 2026-05 | Fixed hardcoded 6AM/6PM sunrise/sunset — all timings now use actual calculated values via `getSunsetForDate()` | `moonUtils.js`, `Panchang.jsx` |
+| 2026-05 | Nakshatra transition times now show actual datetime (date + time) including real end time for nakshatras continuing past midnight (30h secondary scan) | `Panchang.jsx` |
+| 2026-05 | Home moonrise/moonset now shows date alongside time (for cases where event falls on next day) | `Home.jsx` |
+| 2026-05 | Panchang tab kept mounted with CSS display:none — eliminates loading flash on tab switch | `App.jsx` |
+| 2026-05 | Calendar + DatePickerSheet: swipe left/right to navigate months; tap month/year heading opens jump picker (201-year range 1926–2126); Calendar day modal Lucide icons | `Calendar.jsx`, `DatePickerSheet.jsx` |
+| 2026-05 | Panchang tab restructured as 5 collapsible accordion sections — Pancha Anga, Daily Timings, Nakshatra Details, Month & Year, Planetary Positions; all expanded by default; state persisted in localStorage under `chandra-panchang-accordion`; Collapse All / Expand All toggle | `Panchang.jsx` |
+| 2026-05 | Added Samvatsara (60-year Jupiter cycle) to Month & Year section — calculated from Ugadi anchor (Krodhi=38th, 2024); current year (post-Ugadi 2026) = Parabhava | `Panchang.jsx` |
+| 2026-05 | Added Masa (lunar month name), Ritu (6 Hindu seasons), and Ayana (Uttarayana/Dakshinayana) to Month & Year section; Masa differentiates Amavasyant vs Purnimant during Krishna Paksha | `Panchang.jsx` |
+| 2026-05 | Expanded Planetary Positions to all 9 Navagraha — Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu (mean ascending node), Ketu (South Node); sidereal longitudes with Rashi name | `Panchang.jsx` |
+
+---
+
+## Iconography Policy (Established 2026-05)
+
+- **UI chrome emoji → Lucide React**: All emoji used as UI icons (navigation, labels, status) are replaced with Lucide components at `size={22} strokeWidth={1.75}` for nav, `size={16} strokeWidth={1.75}` for inline row icons.
+- **Moon phase emoji → KEEP**: 🌑🌒🌓🌔🌕🌖🌗🌘 have no Lucide equivalents and carry semantic meaning for Hindu users. Always retain them in content contexts.
+- **Decorative emoji** (e.g. 🌙 in InstallPrompt): add `aria-hidden="true"`.
+
+## Design Token Colours (Established 2026-05)
+
+| Token | Value | Usage |
+|---|---|---|
+| `bg-primary` | `#0B1020` | App background |
+| `gold` | `#DDBB6A` | Primary accent, toggle active, selected states |
+| `indigo-cta` | `#3D4ECC` | CTA buttons |
+| `focus` | `#8EA8FF` | Focus rings (`:focus-visible`) |
+| `text-primary` | `#F5F7FA` | Body text |
+| `text-secondary` | `#B5BDD1` | Secondary/muted text |
 
 ---
 
