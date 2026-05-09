@@ -5,6 +5,7 @@ import { getMoonPhaseAngle, getTithiFromAngle, getPhaseEmoji, getSunriseForDate 
 import { getEclipseForDate, eclipseTypeLabel } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { useSettings } from '../SettingsContext'
+import DateStrip from '../components/DateStrip'
 import { Calendar as CalendarIcon, Moon, Star, Clock } from 'lucide-react'
 
 // ── Constants for on-tap Pancha Anga calculation ──────────────────
@@ -36,22 +37,19 @@ const KARANA_NAMES = [
 const VARA_NAMES = ['Ravivar', 'Somvar', 'Mangalvar', 'Budhvar', 'Guruvar', 'Shukravar', 'Shanivar']
 const VARA_DEVA  = ['Sun ☀️', 'Moon 🌙', 'Mars ♂️', 'Mercury ☿', 'Jupiter ♃', 'Venus ♀️', 'Saturn ♄']
 
-const JUMP_YEARS = Array.from({ length: 201 }, (_, i) => 1926 + i)
-
 // ─────────────────────────────────────────────────────────────────
 
-const Calendar = ({ onSelectDate }) => {
+const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => {
   const { settings } = useSettings()
-  const [currentDate, setCurrentDate] = useState(new Date())
+  // currentDate tracks which month is displayed; initialised from selectedDate
+  const [currentDate, setCurrentDate] = useState(
+    () => new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1)
+  )
   const [calendarDays, setCalendarDays] = useState([])
   const [selectedDay, setSelectedDay] = useState(null)   // for modal
   const [dayPanchang, setDayPanchang] = useState(null)   // computed on tap
-  const [showJumpPicker, setShowJumpPicker] = useState(false)
-  const [jumpMonth, setJumpMonth] = useState(new Date().getMonth())
-  const [jumpYear, setJumpYear] = useState(new Date().getFullYear())
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
-  const selectedYearRef = useRef(null)
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -62,6 +60,16 @@ const Calendar = ({ onSelectDate }) => {
   useEffect(() => {
     buildCalendar()
   }, [currentDate, settings])
+
+  // Sync viewed month when global date changes to a different month — loop guard prevents re-entry
+  useEffect(() => {
+    if (
+      selectedDate.getMonth()     !== currentDate.getMonth() ||
+      selectedDate.getFullYear()  !== currentDate.getFullYear()
+    ) {
+      setCurrentDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1))
+    }
+  }, [selectedDate])
 
   // Calculate Pancha Anga whenever a day is tapped
   useEffect(() => {
@@ -76,21 +84,6 @@ const Calendar = ({ onSelectDate }) => {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [selectedDay])
-
-  // Close jump picker on Escape key
-  useEffect(() => {
-    if (!showJumpPicker) return
-    const onKey = (e) => { if (e.key === 'Escape') setShowJumpPicker(false) }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [showJumpPicker])
-
-  // Auto-scroll to selected year when jump picker opens
-  useEffect(() => {
-    if (showJumpPicker && selectedYearRef.current) {
-      selectedYearRef.current.scrollIntoView({ block: 'center', behavior: 'instant' })
-    }
-  }, [showJumpPicker])
 
   const buildCalendar = () => {
     const year = currentDate.getFullYear()
@@ -173,6 +166,7 @@ const Calendar = ({ onSelectDate }) => {
   const openModal = (day) => {
     setSelectedDay(day)
     setDayPanchang(null)   // reset while computing
+    onDateChange?.(new Date(day.date))  // update global date on tap
   }
 
   const closeModal = () => {
@@ -187,22 +181,21 @@ const Calendar = ({ onSelectDate }) => {
   }
 
   const prevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
+    const newMonth = currentDate.getMonth() === 0 ? 11 : currentDate.getMonth() - 1
+    const newYear  = currentDate.getMonth() === 0 ? currentDate.getFullYear() - 1 : currentDate.getFullYear()
+    const maxDay   = new Date(newYear, newMonth + 1, 0).getDate()
+    const clampedDay = Math.min(selectedDate.getDate(), maxDay)
+    setCurrentDate(new Date(newYear, newMonth, 1))
+    onDateChange?.(new Date(newYear, newMonth, clampedDay))
   }
 
   const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))
-  }
-
-  const openJumpPicker = () => {
-    setJumpMonth(currentDate.getMonth())
-    setJumpYear(currentDate.getFullYear())
-    setShowJumpPicker(true)
-  }
-
-  const applyJump = () => {
-    setCurrentDate(new Date(jumpYear, jumpMonth, 1))
-    setShowJumpPicker(false)
+    const newMonth = currentDate.getMonth() === 11 ? 0 : currentDate.getMonth() + 1
+    const newYear  = currentDate.getMonth() === 11 ? currentDate.getFullYear() + 1 : currentDate.getFullYear()
+    const maxDay   = new Date(newYear, newMonth + 1, 0).getDate()
+    const clampedDay = Math.min(selectedDate.getDate(), maxDay)
+    setCurrentDate(new Date(newYear, newMonth, 1))
+    onDateChange?.(new Date(newYear, newMonth, clampedDay))
   }
 
   const handleTouchStart = (e) => {
@@ -215,6 +208,7 @@ const Calendar = ({ onSelectDate }) => {
     const deltaX = e.changedTouches[0].clientX - touchStartX.current
     const deltaY = e.changedTouches[0].clientY - touchStartY.current
     if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      // prevMonth/nextMonth already call onDateChange
       deltaX < 0 ? nextMonth() : prevMonth()
     }
     touchStartX.current = null
@@ -222,7 +216,7 @@ const Calendar = ({ onSelectDate }) => {
 
   const upcomingFestivals = calendarDays
     .filter(d => d && (d.festivals.length > 0 || d.eclipse))
-    .filter(d => d.date >= new Date(new Date().setHours(0, 0, 0, 0)))
+    .filter(d => d.date >= new Date(new Date(selectedDate).setHours(0, 0, 0, 0)))
     .slice(0, 5)
 
   return (
@@ -231,32 +225,13 @@ const Calendar = ({ onSelectDate }) => {
       {/* Header */}
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-yellow-300 mb-1 flex items-center justify-center gap-2">
-          <CalendarIcon size={22} aria-hidden="true" strokeWidth={1.75} /> Lunar Calendar
+          Lunar Calendar
         </h1>
         <p className="text-gray-400 text-sm">Hindu Panchang Festival View</p>
       </div>
 
-      {/* Month Navigator */}
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={prevMonth}
-          aria-label="Previous month"
-          className="text-yellow-300 text-2xl px-3 py-1 rounded-lg hover:bg-gray-800 min-h-[44px] min-w-[44px]"
-        >‹</button>
-        <button
-          onClick={openJumpPicker}
-          className="text-white text-lg font-semibold hover:text-yellow-300 transition-colors flex items-center gap-1.5"
-          aria-label={`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}, tap to select month and year`}
-        >
-          {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-          <span className="text-gray-500 text-xs" aria-hidden="true">▾</span>
-        </button>
-        <button
-          onClick={nextMonth}
-          aria-label="Next month"
-          className="text-yellow-300 text-2xl px-3 py-1 rounded-lg hover:bg-gray-800 min-h-[44px] min-w-[44px]"
-        >›</button>
-      </div>
+      {/* Month Navigator — DateStrip in month mode */}
+      <DateStrip date={selectedDate} onDateChange={onDateChange} mode="month" />
 
       {/* Day Headers */}
       <div className="grid grid-cols-7 mb-2">
@@ -273,6 +248,10 @@ const Calendar = ({ onSelectDate }) => {
       >
         {calendarDays.map((day, idx) => (
           day ? (
+            (() => {
+              const isSelected = day.date.toDateString() === selectedDate.toDateString()
+              const isToday    = day.isToday
+              return (
             <button
               key={idx}
               onClick={() => openModal(day)}
@@ -280,10 +259,14 @@ const Calendar = ({ onSelectDate }) => {
               className={`
                 relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14
                 transition-all duration-150 cursor-pointer hover:bg-gray-800 active:bg-gray-700
-                ${day.isToday ? 'bg-yellow-900 border border-yellow-500' : 'bg-gray-900'}
+                ${isSelected
+                    ? 'bg-yellow-400 border border-yellow-300'
+                    : isToday
+                    ? 'bg-yellow-900 border border-yellow-500'
+                    : 'bg-gray-900'}
               `}
             >
-              <span className={`text-xs font-semibold ${day.isToday ? 'text-yellow-300' : 'text-white'}`}>
+              <span className={`text-xs font-semibold ${isSelected ? 'text-gray-950' : isToday ? 'text-yellow-300' : 'text-white'}`}>
                 {day.day}
               </span>
               <span className="text-xs" aria-hidden="true">{day.phaseEmoji}</span>
@@ -293,6 +276,8 @@ const Calendar = ({ onSelectDate }) => {
                 <span className="text-xs" aria-hidden="true">{day.festivals[0].emoji}</span>
               ) : null}
             </button>
+              )
+            })()
           ) : (
             <div key={idx} aria-hidden="true" />
           )
@@ -331,73 +316,6 @@ const Calendar = ({ onSelectDate }) => {
                 <span className="text-2xl" aria-hidden="true">{day.phaseEmoji}</span>
               </button>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Month / Year Jump Picker ────────────────────────────── */}
-      {showJumpPicker && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Select month and year"
-          className="fixed inset-0 z-50 flex items-end justify-center"
-          onClick={() => setShowJumpPicker(false)}
-        >
-          <div className="absolute inset-0 bg-black/60" />
-          <div
-            className="relative w-full max-w-md bg-gray-950 rounded-t-3xl border-t border-gray-800 px-5 pt-4 pb-10"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Drag handle */}
-            <div className="w-10 h-1 bg-gray-700 rounded-full mx-auto mb-4" />
-
-            <p className="text-white font-semibold text-base text-center mb-4">Go to Month</p>
-
-            {/* Month grid */}
-            <div className="grid grid-cols-4 gap-2 mb-4">
-              {monthNames.map((m, i) => (
-                <button
-                  key={m}
-                  onClick={() => setJumpMonth(i)}
-                  className={`py-2.5 rounded-xl text-sm font-medium transition-all ${
-                    i === jumpMonth
-                      ? 'bg-yellow-400 text-gray-950 font-bold'
-                      : 'bg-gray-800 text-white hover:bg-gray-700'
-                  }`}
-                >
-                  {m.slice(0, 3)}
-                </button>
-              ))}
-            </div>
-
-            {/* Year grid — scrollable, auto-scrolls to selected year on open */}
-            <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto mb-5 pb-1">
-              {JUMP_YEARS.map(y => (
-                <button
-                  key={y}
-                  ref={y === jumpYear ? selectedYearRef : null}
-                  onClick={() => setJumpYear(y)}
-                  className={`py-2.5 rounded-xl text-sm font-medium transition-all ${
-                    y === jumpYear
-                      ? 'bg-yellow-400 text-gray-950 font-bold'
-                      : y === new Date().getFullYear()
-                      ? 'border border-yellow-500 text-yellow-300'
-                      : 'bg-gray-800 text-white hover:bg-gray-700'
-                  }`}
-                >
-                  {y}
-                </button>
-              ))}
-            </div>
-
-            {/* Confirm */}
-            <button
-              onClick={applyJump}
-              className="w-full py-3.5 rounded-2xl bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold text-sm transition-all"
-            >
-              Go to {monthNames[jumpMonth]} {jumpYear}
-            </button>
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import * as Astronomy from 'astronomy-engine'
 import { getSunriseForDate, getSunsetForDate } from '../moonUtils'
 import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
-import DatePickerSheet from '../components/DatePickerSheet'
+import DateStrip from '../components/DateStrip'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sparkles, AlertTriangle, Timer, ChevronDown } from 'lucide-react'
 
@@ -143,10 +143,9 @@ const DEFAULT_SECTIONS = {
 
 // ── Component ─────────────────────────────────────────────────────
 
-const Panchang = ({ location, initialDate }) => {
+const Panchang = ({ location, initialDate, onDateChange }) => {
   const [panchang, setPanchang] = useState(null)
   const [selectedDate, setSelectedDate] = useState(initialDate ? new Date(initialDate) : new Date())
-  const [pickerOpen, setPickerOpen] = useState(false)
   const [sections, setSections] = useState(() => {
     try {
       const saved = localStorage.getItem('chandra-panchang-accordion')
@@ -155,8 +154,13 @@ const Panchang = ({ location, initialDate }) => {
     return { ...DEFAULT_SECTIONS }
   })
 
+  // Sync from global date — loop guard prevents circular updates
   useEffect(() => {
-    if (initialDate) setSelectedDate(new Date(initialDate))
+    if (!initialDate) return
+    const incoming = new Date(initialDate)
+    if (incoming.toDateString() !== selectedDate.toDateString()) {
+      setSelectedDate(incoming)
+    }
   }, [initialDate])
 
   useEffect(() => {
@@ -172,10 +176,9 @@ const Panchang = ({ location, initialDate }) => {
   const formatDate = (date) =>
     date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
-  const changeDate = (days) => {
-    const d = new Date(selectedDate)
-    d.setDate(d.getDate() + days)
+  const changeDate = (d) => {
     setSelectedDate(d)
+    onDateChange?.(d)
   }
 
   const toggleSection = (key) => {
@@ -385,48 +388,7 @@ const Panchang = ({ location, initialDate }) => {
       </div>
 
       {/* Date Navigator */}
-      <div className="flex items-center justify-between mb-6 bg-gray-900 rounded-2xl p-3 border border-gray-800">
-        <button
-          onClick={() => changeDate(-1)}
-          aria-label="Previous day"
-          className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800 min-h-[44px] min-w-[44px]"
-        >‹</button>
-
-        <button
-          onClick={() => setPickerOpen(true)}
-          aria-label={`Selected date: ${formatDate(selectedDate)}. Tap to change.`}
-          className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl hover:bg-gray-800 transition-all"
-        >
-          <p className="text-white text-sm font-medium">{formatDate(selectedDate)}</p>
-          {selectedDate.toDateString() === new Date().toDateString() ? (
-            <p className="text-yellow-500 text-xs">Today</p>
-          ) : (
-            <p className="text-yellow-400 text-xs font-medium">📅 Change date</p>
-          )}
-        </button>
-
-        <button
-          onClick={() => changeDate(1)}
-          aria-label="Next day"
-          className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800 min-h-[44px] min-w-[44px]"
-        >›</button>
-      </div>
-
-      {selectedDate.toDateString() !== new Date().toDateString() && (
-        <button
-          onClick={() => setSelectedDate(new Date())}
-          className="w-full mb-4 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-gray-950 text-sm font-bold transition-all"
-        >
-          ↩ Back to Today
-        </button>
-      )}
-
-      <DatePickerSheet
-        open={pickerOpen}
-        onClose={() => setPickerOpen(false)}
-        selectedDate={selectedDate}
-        onSelect={(date) => setSelectedDate(date)}
-      />
+      <DateStrip date={selectedDate} onDateChange={changeDate} mode="day" />
 
       {panchang ? (
         <div className="flex flex-col gap-4">

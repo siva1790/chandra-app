@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import * as Astronomy from 'astronomy-engine'
 import MoonVisual from '../components/MoonVisual'
+import DateStrip from '../components/DateStrip'
 import { useSettings } from '../SettingsContext'
 import { getSunriseForDate, getMoonPhaseAngle, getTithiFromAngle } from '../moonUtils'
 import { getDatedFestivalsForDate, getMonthlyFestivalsForTithi } from '../festivals'
@@ -8,12 +9,14 @@ import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { MapPin } from 'lucide-react'
 
-const Home = ({ onNavigateToPanchang }) => {
+const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
   const { settings } = useSettings()
   const [moonData, setMoonData] = useState(null)
   const [location, setLocation] = useState({ lat: 12.9716, lon: 77.5946, city: 'Bengaluru' })
   const [loading, setLoading] = useState(true)
-  const [todayHighlight, setTodayHighlight] = useState(null)
+  const [dayHighlight, setDayHighlight] = useState(null)
+  const touchStartX = useRef(null)
+  const touchStartY = useRef(null)
 
   useEffect(() => {
     if (settings?.lat && settings?.lon) {
@@ -34,37 +37,58 @@ const Home = ({ onNavigateToPanchang }) => {
 
   useEffect(() => {
     calculateMoonData()
-    const interval = setInterval(calculateMoonData, 60000)
-    return () => clearInterval(interval)
-  }, [location])
+    // Auto-refresh only when viewing today (live data)
+    const isToday = date.toDateString() === new Date().toDateString()
+    if (isToday) {
+      const interval = setInterval(calculateMoonData, 60000)
+      return () => clearInterval(interval)
+    }
+  }, [location, date])
+
+  // Swipe handlers for the moon card
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX
+    touchStartY.current = e.touches[0].clientY
+  }
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      const d = new Date(date)
+      d.setDate(d.getDate() + (deltaX < 0 ? 1 : -1))
+      onDateChange?.(d)
+    }
+    touchStartX.current = null
+  }
 
   const calculateMoonData = () => {
     try {
-      const now = new Date()
       const observer = new Astronomy.Observer(location.lat, location.lon, 0)
 
       // Phase fraction for MoonVisual (0 = new, 0.5 = full, 1 = new again)
-      const phaseAngle = Astronomy.MoonPhase(now)
+      const phaseAngle = Astronomy.MoonPhase(date)
       const phase = phaseAngle / 360
 
       // Illumination %
-      const illum = Astronomy.Illumination('Moon', now)
+      const illum = Astronomy.Illumination('Moon', date)
       const illuminationPct = (illum.phase_fraction * 100).toFixed(1)
 
-      // Moonrise / moonset from start of day
-      const startOfDay = new Date(now)
+      // Moonrise / moonset from start of selected day
+      const startOfDay = new Date(date)
       startOfDay.setHours(0, 0, 0, 0)
       let moonrise = null
       let moonset = null
       try { moonrise = Astronomy.SearchRiseSet('Moon', observer, +1, startOfDay, 2) } catch (_) {}
       try { moonset = Astronomy.SearchRiseSet('Moon', observer, -1, startOfDay, 2) } catch (_) {}
 
-      // ── Today's highlight (festival or eclipse) ──────────────────
+      // ── Day's highlight (festival or eclipse) ──────────────────
       // Use Drik Panchang convention: tithi at sunrise, but noon overrides if different
-      const sunriseTime = getSunriseForDate(now, location.lat, location.lon)
+      const sunriseTime = getSunriseForDate(date, location.lat, location.lon)
       const sunriseTithi = getTithiFromAngle(getMoonPhaseAngle(sunriseTime))
 
-      const noonTime = new Date(now)
+      const noonTime = new Date(date)
       noonTime.setHours(12, 0, 0, 0)
       const noonTithi = getTithiFromAngle(getMoonPhaseAngle(noonTime))
 
@@ -72,14 +96,14 @@ const Home = ({ onNavigateToPanchang }) => {
         ? noonTithi
         : sunriseTithi
 
-      const dated = getDatedFestivalsForDate(now)
+      const dated = getDatedFestivalsForDate(date)
       const monthly = dated.length > 0
         ? []
         : getMonthlyFestivalsForTithi(effectiveTithi.adjustedNumber, effectiveTithi.paksha)
       const festivals = [...dated, ...monthly]
-      const eclipse = getEclipseForDate(now)
+      const eclipse = getEclipseForDate(date)
 
-      setTodayHighlight({ festivals, eclipse, tithi: effectiveTithi })
+      setDayHighlight({ festivals, eclipse, tithi: effectiveTithi })
 
       setMoonData({
         phase,
@@ -100,21 +124,20 @@ const Home = ({ onNavigateToPanchang }) => {
   const formatShortDate = (date) =>
     date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
 
-  const today = new Date()
-  const dateString = today.toLocaleDateString('en-IN', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  })
+  const isToday = date.toDateString() === new Date().toDateString()
 
   return (
     <div className="min-h-screen px-4 py-6 pb-28 max-w-md mx-auto">
 
       {/* Header */}
-      <div className="text-center mb-6">
-        <p className="text-gray-300 text-sm font-medium">{dateString}</p>
+      <div className="text-center mb-4">
         <p className="text-gray-500 text-xs mt-1 flex items-center justify-center gap-1">
           <MapPin size={12} aria-hidden="true" /> {location.city}
         </p>
       </div>
+
+      {/* Date Navigator */}
+      <DateStrip date={date} onDateChange={onDateChange} mode="day" />
 
       {loading ? (
         <div aria-live="polite" aria-busy="true" className="text-center text-gray-400 mt-20">
@@ -124,8 +147,12 @@ const Home = ({ onNavigateToPanchang }) => {
       ) : moonData ? (
         <div className="flex flex-col gap-5">
 
-          {/* Moon Visual Card — includes illumination + compact moonrise/moonset */}
-          <div className="bg-gray-900 rounded-2xl p-6 flex flex-col items-center border border-gray-800">
+          {/* Moon Visual Card — swipe left/right to change date */}
+          <div
+            className="bg-gray-900 rounded-2xl p-6 flex flex-col items-center border border-gray-800"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
             <MoonVisual phase={moonData.phase} />
 
             <p className="text-gray-400 text-sm mt-4">
@@ -156,31 +183,31 @@ const Home = ({ onNavigateToPanchang }) => {
             </div>
           </div>
 
-          {/* Today's Highlight Strip — always visible once data loads; taps to Panchang */}
-          {todayHighlight && (
+          {/* Day Highlight Strip — always visible once data loads; taps to Panchang */}
+          {dayHighlight && (
             <button
-              onClick={() => onNavigateToPanchang?.(new Date())}
+              onClick={() => onNavigateToPanchang?.(date)}
               className="w-full bg-gray-900 border border-yellow-900 rounded-2xl p-4 flex items-center gap-3 hover:border-yellow-600 active:bg-gray-800 transition-all text-left"
             >
-              {todayHighlight.eclipse ? (
+              {dayHighlight.eclipse ? (
                 /* ── Eclipse day ── */
                 <>
-                  <EclipseIcon eclipse={todayHighlight.eclipse} size={30} />
+                  <EclipseIcon eclipse={dayHighlight.eclipse} size={30} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">Today's Highlight</p>
-                    <p className="text-indigo-200 font-semibold text-sm">{todayHighlight.eclipse.hinduName}</p>
+                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">{isToday ? "Today's Highlight" : "Day's Highlight"}</p>
+                    <p className="text-indigo-200 font-semibold text-sm">{dayHighlight.eclipse.hinduName}</p>
                     <p className="text-gray-500 text-xs mt-0.5">Tap to view full Panchang →</p>
                   </div>
                 </>
-              ) : todayHighlight.festivals.length > 0 ? (
+              ) : dayHighlight.festivals.length > 0 ? (
                 /* ── Festival day ── */
                 <>
-                  <span className="text-2xl flex-shrink-0">{todayHighlight.festivals[0].emoji}</span>
+                  <span className="text-2xl flex-shrink-0">{dayHighlight.festivals[0].emoji}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">Today's Highlight</p>
-                    <p className="text-white font-semibold text-sm truncate">{todayHighlight.festivals[0].name}</p>
-                    {todayHighlight.festivals.length > 1 ? (
-                      <p className="text-gray-500 text-xs mt-0.5">+{todayHighlight.festivals.length - 1} more · Tap for full Panchang →</p>
+                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">{isToday ? "Today's Highlight" : "Day's Highlight"}</p>
+                    <p className="text-white font-semibold text-sm truncate">{dayHighlight.festivals[0].name}</p>
+                    {dayHighlight.festivals.length > 1 ? (
+                      <p className="text-gray-500 text-xs mt-0.5">+{dayHighlight.festivals.length - 1} more · Tap for full Panchang →</p>
                     ) : (
                       <p className="text-gray-500 text-xs mt-0.5">Tap to view full Panchang →</p>
                     )}
@@ -191,9 +218,9 @@ const Home = ({ onNavigateToPanchang }) => {
                 <>
                   <span className="text-2xl flex-shrink-0" role="img" aria-label="Moon">🌙</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">Today's Tithi</p>
-                    <p className="text-white font-semibold text-sm">{todayHighlight.tithi.name}</p>
-                    <p className="text-gray-500 text-xs mt-0.5">{todayHighlight.tithi.paksha} · Tap for full Panchang →</p>
+                    <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">{isToday ? "Today's Tithi" : "Day's Tithi"}</p>
+                    <p className="text-white font-semibold text-sm">{dayHighlight.tithi.name}</p>
+                    <p className="text-gray-500 text-xs mt-0.5">{dayHighlight.tithi.paksha} · Tap for full Panchang →</p>
                   </div>
                 </>
               )}

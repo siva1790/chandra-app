@@ -14,26 +14,25 @@ import { Bell, Moon, Calendar as CalendarIcon, Clock, Settings as SettingsIcon }
 function App() {
   const [screen, setScreen] = useState('home')
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [panchangDate, setPanchangDate] = useState(new Date())
+  const [globalDate, setGlobalDate] = useState(new Date())
   const { settings } = useSettings()
   const { subscription } = useSubscription()
 
-  const TAB_NAMES = { home: 'Today', calendar: 'Calendar', panchang: 'Panchang', settings: 'Settings' }
+  const TAB_NAMES = { home: 'Day View', calendar: 'Calendar', panchang: 'Panchang', settings: 'Settings' }
 
   // Track initial page view
-  useEffect(() => { trackPageView('Today') }, [])
+  useEffect(() => { trackPageView('Day View') }, [])
 
-  // Direct tab tap — always resets Panchang to today
+  // Direct tab tap — preserves current globalDate (no reset)
   const navigate = (tab) => {
-    if (tab === 'panchang') setPanchangDate(new Date())
     setScreen(tab)
     window.scrollTo(0, 0)
     trackPageView(TAB_NAMES[tab])
   }
 
-  // Called from Home highlight strip or Calendar day tap — jumps to a specific date
+  // Called from Home highlight strip or Calendar day tap — jumps to a specific date in Panchang
   const navigateToPanchang = (date) => {
-    setPanchangDate(new Date(date))
+    setGlobalDate(new Date(date))
     setScreen('panchang')
     window.scrollTo(0, 0)
   }
@@ -77,16 +76,16 @@ function App() {
       {/* ── Page content — pushed below top bar and above bottom nav ── */}
       <main id="main-content" className="pt-14 pb-20">
         <InstallPrompt />
-        <div style={{ display: screen === 'home'     ? 'block' : 'none' }}><Home location={settings} onNavigateToPanchang={navigateToPanchang} /></div>
-        <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar onSelectDate={navigateToPanchang} /></div>
-        <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={panchangDate} /></div>
+        <div style={{ display: screen === 'home'     ? 'block' : 'none' }}><Home location={settings} date={globalDate} onDateChange={setGlobalDate} onNavigateToPanchang={navigateToPanchang} /></div>
+        <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} /></div>
+        <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} /></div>
         <div style={{ display: screen === 'settings' ? 'block' : 'none' }}><Settings onOpenSubscribe={() => setSheetOpen(true)} /></div>
       </main>
 
       {/* ── Bottom Navigation ── */}
       <nav aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 flex justify-around items-center px-4 py-3 z-40">
         {[
-          { id: 'home',     label: 'Today',    Icon: Moon },
+          { id: 'home',     label: 'Day View',  Icon: Moon },
           { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
           { id: 'panchang', label: 'Panchang', Icon: Clock },
           { id: 'settings', label: 'Settings', Icon: SettingsIcon },
