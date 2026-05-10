@@ -4,7 +4,7 @@ import MoonVisual from '../components/MoonVisual'
 import DateStrip from '../components/DateStrip'
 import { useSettings } from '../SettingsContext'
 import { getSunriseForDate, getMoonPhaseAngle, getTithiFromAngle } from '../moonUtils'
-import { getDatedFestivalsForDate, getMonthlyFestivalsForTithi } from '../festivals'
+import { getFestivalsForDate } from '../festivals'
 import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { MapPin, LocateFixed } from 'lucide-react'
@@ -96,11 +96,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
         ? noonTithi
         : sunriseTithi
 
-      const dated = getDatedFestivalsForDate(date)
-      const monthly = dated.length > 0
-        ? []
-        : getMonthlyFestivalsForTithi(effectiveTithi.adjustedNumber, effectiveTithi.paksha)
-      const festivals = [...dated, ...monthly]
+      const festivals = getFestivalsForDate(date, effectiveTithi.adjustedNumber, effectiveTithi.paksha)
       const eclipse = getEclipseForDate(date)
 
       setDayHighlight({ festivals, eclipse, tithi: effectiveTithi })

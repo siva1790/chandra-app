@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import * as Astronomy from 'astronomy-engine'
-import { getDatedFestivalsForDate, getMonthlyFestivalsForTithi } from '../festivals'
+import { getFestivalsForDate } from '../festivals'
 import { getMoonPhaseAngle, getTithiFromAngle, getPhaseEmoji, getSunriseForDate } from '../moonUtils'
 import { getEclipseForDate, eclipseTypeLabel } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
@@ -112,11 +112,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
       const sunriseTime = getSunriseForDate(date, settings?.lat, settings?.lon)
       const phaseAngle = getMoonPhaseAngle(sunriseTime)
       const tithi = getTithiFromAngle(phaseAngle)
-      const dated = getDatedFestivalsForDate(date)
-      const monthly = dated.length > 0
-        ? []
-        : getMonthlyFestivalsForTithi(tithi.adjustedNumber, tithi.paksha)
-      const dayFestivals = [...dated, ...monthly]
+      const dayFestivals = getFestivalsForDate(date, tithi.adjustedNumber, tithi.paksha)
       const isToday = d === today.getDate() &&
         month === today.getMonth() &&
         year === today.getFullYear()
@@ -275,9 +271,12 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
               <span className="text-xs" aria-hidden="true">{day.phaseEmoji}</span>
               {day.eclipse ? (
                 <EclipseIcon eclipse={day.eclipse} size={13} />
-              ) : day.festivals.length > 0 ? (
-                <span className="text-xs" aria-hidden="true">{day.festivals[0].emoji}</span>
-              ) : null}
+              ) : (() => {
+                const major = day.festivals.find(f => f.type === 'major')
+                if (major) return <span className="text-xs" aria-hidden="true">{major.emoji}</span>
+                if (day.festivals.length > 0) return <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 mt-0.5" aria-hidden="true" />
+                return null
+              })()}
             </button>
               )
             })()
