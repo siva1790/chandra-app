@@ -86,7 +86,8 @@ export const ANNUAL_FESTIVALS = [
     paksha: 'Shukla',
     tithi: 15,
     window: 'sunrise',
-    suppressDuplicateWithinDays: 45,
+    adhikaName: 'Adhik Vat Purnima Vrat',
+    adhikaDescription: "Adhik Jyeshtha Purnima - married women fast for husband's longevity",
   }),
 
   festival('Guru Purnima', '\uD83D\uDE4F', 'Honouring spiritual teachers - Ashadha Purnima', {
@@ -373,7 +374,36 @@ const hadPreviousTithi = (date, rule, lat, lon) => {
   return false
 }
 
-const isAnnualFestivalOnDate = (date, rule, lat, lon, calendarSystem) => {
+const searchMoonPhaseDate = (phase, start, days) => {
+  try {
+    return Astronomy.SearchMoonPhase(phase, start, days)?.date || null
+  } catch (_) {
+    return null
+  }
+}
+
+const isAdhikaMasaDate = (sampleTime, masa) => {
+  const currentMasa = getMasaForDate(sampleTime)
+  if (currentMasa !== masa) return false
+
+  const nextSearchStart = addMs(sampleTime, 2 * DAY_MS)
+  const nextPurnima = searchMoonPhaseDate(180, nextSearchStart, 35)
+  return nextPurnima ? getMasaForDate(nextPurnima) === currentMasa : false
+}
+
+const withComputedFestivalMetadata = (rule, sampleTime) => {
+  if (rule.adhikaName && rule.masa && isAdhikaMasaDate(sampleTime, rule.masa)) {
+    return {
+      ...rule,
+      name: rule.adhikaName,
+      description: rule.adhikaDescription || rule.description,
+      isAdhikaMasa: true,
+    }
+  }
+  return rule
+}
+
+const resolveAnnualFestivalForDate = (date, rule, lat, lon, calendarSystem) => {
   if (rule.kind === 'solarIngress') return false
   const sample = ruleMatchesWindow(date, rule, lat, lon)
   if (!sample) return false
@@ -386,6 +416,8 @@ const isAnnualFestivalOnDate = (date, rule, lat, lon, calendarSystem) => {
     return false
   }
   return hadPreviousTithi(date, rule, lat, lon)
+    ? withComputedFestivalMetadata(rule, sample)
+    : false
 }
 
 const getObservancesForDate = (date, tithiNumber, paksha, lat, lon) => {
@@ -413,7 +445,9 @@ export const getFestivalsForDate = (date, tithiNumberOrOptions, pakshaArg) => {
   const calendarSystem = options.calendarSystem
 
   const solar = getSolarFestivalsForDate(date)
-  const annual = ANNUAL_FESTIVALS.filter(f => isAnnualFestivalOnDate(date, f, lat, lon, calendarSystem))
+  const annual = ANNUAL_FESTIVALS
+    .map(f => resolveAnnualFestivalForDate(date, f, lat, lon, calendarSystem))
+    .filter(Boolean)
   const major = [...solar, ...annual]
   const observances = major.length > 0 ? [] : getObservancesForDate(date, tithiNumber, paksha, lat, lon)
 
