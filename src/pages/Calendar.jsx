@@ -300,32 +300,62 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
         {monthFestivals.length === 0 ? (
           <p className="text-gray-400 text-sm text-center py-6">No festivals this month</p>
         ) : (
-          <div className="flex flex-col gap-3">
-            {monthFestivals.map((day, i) => (
-              <button
-                key={i}
-                onClick={() => openModal(day)}
-                className="w-full text-left bg-gray-900 rounded-xl p-4 border border-gray-800 flex items-center gap-4 hover:border-yellow-800 active:bg-gray-800 transition-all"
-              >
-                <div className="text-center min-w-10">
-                  <p className="text-yellow-300 font-bold text-lg">{day.day}</p>
-                  <p className="text-gray-400 text-xs">{monthNames[day.date.getMonth()].slice(0, 3)}</p>
-                </div>
-                <div className="flex-1">
-                  {day.eclipse && (
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <EclipseIcon eclipse={day.eclipse} size={14} />
-                      <p className="text-indigo-300 text-sm font-medium">{day.eclipse.hinduName}</p>
-                    </div>
-                  )}
-                  {day.festivals.map((f, fi) => (
-                    <p key={fi} className="text-white text-sm font-medium">{f.emoji} {f.name}</p>
-                  ))}
-                  <p className="text-gray-400 text-xs mt-1">{day.tithi.name} · {day.tithi.paksha}</p>
-                </div>
-                <span className="text-2xl" aria-hidden="true">{day.phaseEmoji}</span>
-              </button>
-            ))}
+          <div className="flex flex-col gap-2">
+            {monthFestivals.map((day, i) => {
+              // A day is observance-only when all its festivals are monthly observances
+              // (the engine already suppresses observances when a major festival is present)
+              const isObservanceOnly = !day.eclipse &&
+                day.festivals.length > 0 &&
+                day.festivals.every(f => f.type === 'observance')
+
+              return isObservanceOnly ? (
+                /* ── Monthly observance row — amber, muted, dot-prefixed ── */
+                <button
+                  key={i}
+                  onClick={() => openModal(day)}
+                  className="w-full text-left rounded-xl px-4 py-3 border border-amber-900/40 flex items-center gap-4 hover:border-amber-700/60 active:bg-gray-900/60 transition-all"
+                >
+                  <div className="text-center min-w-10">
+                    <p className="text-yellow-300 font-semibold text-base">{day.day}</p>
+                    <p className="text-gray-500 text-xs">{monthNames[day.date.getMonth()].slice(0, 3)}</p>
+                  </div>
+                  <div className="flex-1">
+                    {day.festivals.map((f, fi) => (
+                      <div key={fi} className="flex items-center gap-2">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" aria-hidden="true" />
+                        <p className="text-amber-200 text-sm">{f.name}</p>
+                      </div>
+                    ))}
+                    <p className="text-gray-500 text-xs mt-1">{day.tithi.name} · {day.tithi.paksha}</p>
+                  </div>
+                </button>
+              ) : (
+                /* ── Major festival / eclipse row — prominent, emoji, full card ── */
+                <button
+                  key={i}
+                  onClick={() => openModal(day)}
+                  className="w-full text-left bg-gray-900 rounded-xl p-4 border border-gray-800 flex items-center gap-4 hover:border-yellow-800 active:bg-gray-800 transition-all"
+                >
+                  <div className="text-center min-w-10">
+                    <p className="text-yellow-300 font-bold text-lg">{day.day}</p>
+                    <p className="text-gray-400 text-xs">{monthNames[day.date.getMonth()].slice(0, 3)}</p>
+                  </div>
+                  <div className="flex-1">
+                    {day.eclipse && (
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <EclipseIcon eclipse={day.eclipse} size={14} />
+                        <p className="text-indigo-300 text-sm font-medium">{day.eclipse.hinduName}</p>
+                      </div>
+                    )}
+                    {day.festivals.map((f, fi) => (
+                      <p key={fi} className="text-white text-sm font-medium">{f.emoji} {f.name}</p>
+                    ))}
+                    <p className="text-gray-400 text-xs mt-1">{day.tithi.name} · {day.tithi.paksha}</p>
+                  </div>
+                  <span className="text-2xl" aria-hidden="true">{day.phaseEmoji}</span>
+                </button>
+              )
+            })}
           </div>
         )}
       </div>

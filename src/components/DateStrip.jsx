@@ -15,7 +15,10 @@ const DateStrip = ({ date, onDateChange, mode = 'day' }) => {
   const [pickerOpen, setPickerOpen] = useState(false)
   const pickerTriggerRef = useRef(null)
 
-  const isToday = date.toDateString() === new Date().toDateString()
+  const today = new Date()
+  const isToday = mode === 'month'
+    ? date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
+    : date.toDateString() === today.toDateString()
 
   const prev = () => {
     const d = new Date(date)
