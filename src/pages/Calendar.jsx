@@ -112,7 +112,13 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
       const sunriseTime = getSunriseForDate(date, settings?.lat, settings?.lon)
       const phaseAngle = getMoonPhaseAngle(sunriseTime)
       const tithi = getTithiFromAngle(phaseAngle)
-      const dayFestivals = getFestivalsForDate(date, tithi.adjustedNumber, tithi.paksha)
+      const dayFestivals = getFestivalsForDate(date, {
+        tithiNumber: tithi.adjustedNumber,
+        paksha: tithi.paksha,
+        lat: settings?.lat,
+        lon: settings?.lon,
+        calendarSystem: settings?.calendarSystem,
+      })
       const isToday = d === today.getDate() &&
         month === today.getMonth() &&
         year === today.getFullYear()

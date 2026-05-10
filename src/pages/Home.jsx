@@ -96,7 +96,13 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
         ? noonTithi
         : sunriseTithi
 
-      const festivals = getFestivalsForDate(date, effectiveTithi.adjustedNumber, effectiveTithi.paksha)
+      const festivals = getFestivalsForDate(date, {
+        tithiNumber: effectiveTithi.adjustedNumber,
+        paksha: effectiveTithi.paksha,
+        lat: location.lat,
+        lon: location.lon,
+        calendarSystem: settings?.calendarSystem,
+      })
       const eclipse = getEclipseForDate(date)
 
       setDayHighlight({ festivals, eclipse, tithi: effectiveTithi })
