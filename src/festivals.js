@@ -161,7 +161,8 @@ export const ANNUAL_FESTIVALS = [
     purnimantaMasa: 'Kartika',
     paksha: 'Krishna',
     tithi: 13,
-    window: 'pradosh',
+    window: 'pradoshOrSunrise',
+    firstOccurrence: true,
   }),
   festival('Naraka Chaturdashi', '\uD83E\uDE94', 'Choti Diwali - day before Diwali', {
     amantaMasa: 'Ashwin',
@@ -304,6 +305,8 @@ const getWindow = (date, window, lat, lon) => {
       return { start: addMs(noon, HOUR_MS), end: sunset }
     case 'pradosh':
       return { start: sunset, end: addMs(sunset, 2.4 * HOUR_MS) }
+    case 'pradoshOrSunrise':
+      return { fallbackSample: sunrise, start: sunset, end: addMs(sunset, 2.4 * HOUR_MS) }
     case 'nishita': {
       const midnight = addMs(start, DAY_MS)
       return { start: addMs(midnight, -HOUR_MS), end: addMs(midnight, HOUR_MS) }
@@ -331,10 +334,37 @@ const ruleMatchesWindow = (date, rule, lat, lon) => {
     if (tithiMatches(tithiAt(cursor), rule)) return cursor
     cursor = addMs(cursor, step)
   }
+
+  if (window.fallbackSample && tithiMatches(tithiAt(window.fallbackSample), rule)) {
+    return window.fallbackSample
+  }
+
   return null
 }
 
-const selectedMasaForRule = (date, sampleTime, rule, calendarSystem) => {
+const nextMasa = (masa) => {
+  const masaNames = [
+    'Chaitra', 'Vaishakha', 'Jyeshtha', 'Ashadha',
+    'Shravana', 'Bhadrapada', 'Ashwin', 'Kartika',
+    'Margashirsha', 'Pausha', 'Magha', 'Phalguna',
+  ]
+  const index = masaNames.indexOf(masa)
+  return index >= 0 ? masaNames[(index + 1) % masaNames.length] : masa
+}
+
+const getCalendarMasaForRule = (sampleTime, calendarSystem) => {
+  const amantaMasa = getMasaForDate(sampleTime)
+  const tithi = tithiAt(sampleTime)
+  const system = (calendarSystem || 'Amavasyant').toLowerCase()
+
+  if (system === 'purnimant' && tithi.paksha === 'Krishna') {
+    return nextMasa(amantaMasa)
+  }
+
+  return amantaMasa
+}
+
+const selectedMasaForRule = (rule, calendarSystem) => {
   if (rule.masa) return rule.masa
   const system = (calendarSystem || 'Amavasyant').toLowerCase()
   if (system === 'purnimant' && rule.purnimantaMasa) return rule.purnimantaMasa
@@ -344,8 +374,8 @@ const selectedMasaForRule = (date, sampleTime, rule, calendarSystem) => {
 const displayMasaForRule = (date, sampleTime, rule, calendarSystem) => {
   if (rule.masa) return getMasaForDate(sampleTime || date) === rule.masa
   if (rule.amantaMasa || rule.purnimantaMasa) {
-    const amantaMasa = getMasaForDate(sampleTime || date)
-    return amantaMasa === selectedMasaForRule(date, sampleTime, rule, calendarSystem)
+    const calendarMasa = getCalendarMasaForRule(sampleTime || date, calendarSystem)
+    return calendarMasa === selectedMasaForRule(rule, calendarSystem)
   }
   return true
 }
