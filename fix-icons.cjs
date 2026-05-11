@@ -23,10 +23,12 @@ async function addRoundedCorners(filename, radiusRatio = 0.18) {
   const canvas = createCanvas(w, h);
   const ctx = canvas.getContext('2d');
 
-  // Fully transparent canvas
-  ctx.clearRect(0, 0, w, h);
+  // Fill entire canvas with the app background colour (#0B1020)
+  // so corners match the icon background instead of showing white
+  ctx.fillStyle = '#0B1020';
+  ctx.fillRect(0, 0, w, h);
 
-  // Rounded-rectangle clip path
+  // Clip to rounded rectangle, then draw image inside it
   ctx.beginPath();
   ctx.moveTo(r, 0);
   ctx.lineTo(w - r, 0);
