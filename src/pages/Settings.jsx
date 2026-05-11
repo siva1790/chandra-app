@@ -538,7 +538,9 @@ const Settings = ({ onOpenSubscribe }) => {
           </div>
         </div>
 
-        {/* Email Alerts */}
+        {/* Email Alerts — hidden until ENABLE_SUBSCRIPTIONS = true in App.jsx */}
+        {/* To re-enable: set ENABLE_SUBSCRIPTIONS = true and remove this comment wrapper */}
+        {false && (
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
           <p className="text-yellow-500 text-xs uppercase tracking-widest mb-1 flex items-center gap-1.5">
             <Mail size={13} aria-hidden="true" /> Email Alerts
@@ -600,6 +602,7 @@ const Settings = ({ onOpenSubscribe }) => {
             </div>
           )}
         </div>
+        )}
 
         {/* About */}
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">

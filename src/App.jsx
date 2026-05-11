@@ -12,6 +12,9 @@ import OfflineBanner from './components/OfflineBanner'
 import { trackPageView } from './analytics'
 import { Bell, Moon, Calendar as CalendarIcon, Clock, Settings as SettingsIcon } from 'lucide-react'
 
+// Feature flag — set to true to re-enable the subscription UI
+const ENABLE_SUBSCRIPTIONS = false
+
 function App() {
   const [screen, setScreen] = useState('home')
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -60,24 +63,26 @@ function App() {
           <span className="text-yellow-300 font-bold text-lg tracking-wide">Chandra</span>
         </div>
 
-        {/* Bell icon — right */}
-        <button
-          ref={bellButtonRef}
-          onClick={() => setSheetOpen(true)}
-          className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 transition-all"
-          aria-label={subscription ? 'View subscription' : 'Subscribe to alerts'}
-        >
-          <Bell size={16} aria-hidden="true" />
-          {subscription ? (
-            <>
-              {/* Green dot for subscribed state */}
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-950" />
-              <span className="text-green-400 text-xs font-medium">Subscribed</span>
-            </>
-          ) : (
-            <span className="text-gray-300 text-xs font-medium">Subscribe</span>
-          )}
-        </button>
+        {/* Bell icon — right (hidden until ENABLE_SUBSCRIPTIONS = true) */}
+        {ENABLE_SUBSCRIPTIONS && (
+          <button
+            ref={bellButtonRef}
+            onClick={() => setSheetOpen(true)}
+            className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 transition-all"
+            aria-label={subscription ? 'View subscription' : 'Subscribe to alerts'}
+          >
+            <Bell size={16} aria-hidden="true" />
+            {subscription ? (
+              <>
+                {/* Green dot for subscribed state */}
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-950" />
+                <span className="text-green-400 text-xs font-medium">Subscribed</span>
+              </>
+            ) : (
+              <span className="text-gray-300 text-xs font-medium">Subscribe</span>
+            )}
+          </button>
+        )}
       </div>
 
       <OfflineBanner sheetOpen={sheetOpen} />
