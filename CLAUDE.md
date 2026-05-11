@@ -216,11 +216,14 @@ npm run preview    # preview the dist/ build locally
 - Toggle prefs persisted in localStorage under `chandra-notif-prefs` and `chandra-notif-enabled`.
 - FCM device registration is **fully implemented** in `notifications.js` — `initDevice()`, `updateDevice()`, `deactivateDevice()` all write to the Firestore `devices` collection with token, city, lat/lon, prefs.
 - In-app preview notification (`NotificationPreview` component) fires on permission grant — **no OS notification API used** (Chrome blocks `new Notification()` when a SW is registered).
-- **What's missing**: a Cloud Functions backend to read the `devices` collection and send FCM pushes. Blocked on Firebase Blaze plan upgrade.
+- **What's missing**: a Cloud Functions backend to read the `devices` collection and send FCM pushes.
+- **Firebase Blaze plan is already active** — Cloud Functions are unblocked and ready to build.
 
 ### Automated Email (frontend complete — Cloud Functions backend pending)
 - Subscriber data model is fully live in Firestore (`subscribers` collection).
-- **What's missing**: Cloud Function + Resend API sending layer. Blocked on Firebase Blaze plan upgrade.
+- Subscription UI (bell button + Settings section) is **intentionally hidden** behind `ENABLE_SUBSCRIPTIONS = false` in `App.jsx` — all code retained, flip to `true` to re-enable.
+- **What's missing**: Cloud Function + Resend API sending layer — this is the only remaining piece.
+- **Firebase Blaze plan is already active** — Cloud Functions are unblocked and ready to build.
 - Strategy when built: hybrid — pre-written festival stories + dynamically injected city-specific timing data.
 
 ### Analytics (live)
