@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Generate Chandra OG Image</title>
+  <style>
+    body { background: #111; color: #eee; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; gap: 20px; }
+    canvas { border: 1px solid #333; }
+    p { color: #aaa; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <p>Chandra OG Share Image — 512×512, no rounded corners</p>
+  <canvas id="c" width="512" height="512"></canvas>
+  <p id="status">Generating and downloading og-share.png…</p>
+
+  <script>
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const W = 512, H = 512;
+    // Scale factor vs the 32×32 favicon source
+    const S = W / 32;
+
+    // 1. Full-bleed background — NO rounded corners
+    ctx.fillStyle = '#0f0f23';
+    ctx.fillRect(0, 0, W, H);
+
+    // 2. Moon disc (warm cream)
+    ctx.beginPath();
+    ctx.arc(15.5 * S, 15.5 * S, 8 * S, 0, Math.PI * 2);
+    ctx.fillStyle = '#fef3c7';
+    ctx.fill();
+
+    // 3. Shadow circle cuts the crescent
+    ctx.beginPath();
+    ctx.arc(18.8 * S, 13.8 * S, 7 * S, 0, Math.PI * 2);
+    ctx.fillStyle = '#0f0f23';
+    ctx.fill();
+
+    // 4. Stars
+    const stars = [
+      { x: 24.5, y: 8.5,  r: 0.7, op: 0.9 },
+      { x: 26,   y: 19,   r: 0.5, op: 0.7 },
+      { x: 7,    y: 8,    r: 0.6, op: 0.7 },
+      { x: 5.5,  y: 21,   r: 0.4, op: 0.5 },
+    ];
+    stars.forEach(({ x, y, r, op }) => {
+      ctx.beginPath();
+      ctx.arc(x * S, y * S, r * S, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(251, 191, 36, ${op})`;
+      ctx.fill();
+    });
+
+    // Auto-download
+    const link = document.createElement('a');
+    link.download = 'og-share.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+    document.getElementById('status').textContent =
+      '✓ og-share.png downloaded. Save it to your public/ folder, then commit and push.';
+  </script>
+</body>
+</html>
