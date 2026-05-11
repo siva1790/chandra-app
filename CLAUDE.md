@@ -42,7 +42,7 @@ chandra-app/
 │   ├── App.jsx                # Root component, bottom nav (Today / Calendar / Panchang / Settings)
 │   ├── SettingsContext.jsx    # Global settings state (city, lat, lon, language, calendarSystem)
 │   ├── moonUtils.js           # Core astronomy helpers (tithi, nakshatra, sunrise, festivals)
-│   ├── festivals.js           # Festival definitions (tithi + paksha + lunar month)
+│   ├── festivals.js           # Festival rule engine (window-based tithi evaluation, Amanta/Purnimanta masa)
 │   ├── cities.js              # Indian city list with lat/lon
 │   ├── pages/
 │   │   ├── Home.jsx           # "Today" screen — moon visual, tithi, moonrise/set
@@ -68,10 +68,75 @@ chandra-app/
 ## Key Logic Rules (Critical — Do Not Break)
 
 ### Tithi Calculation Convention
-- Tithi is sampled at **local sunrise** (Drik Panchang convention).
-- **Additionally**, if the tithi at **noon (Madhyahna)** differs from sunrise, the **noon tithi is used** — this is the traditional rule for festival determination (e.g. Ganesh Chaturthi on Sep 14 when Chaturthi begins after sunrise but prevails at midday).
+- Tithi is sampled at **local sunrise** (Drik Panchang convention) for display in the UI (Panchang tab, Home highlight strip).
+- **Additionally**, if the tithi at **noon (Madhyahna)** differs from sunrise, the **noon tithi is used** — still the rule for the Home highlight and Panchang display.
 - Implemented in: `Home.jsx` → `calculateMoonData()` and `moonUtils.js` → `getTithiAtSunrise()`.
 - **Do NOT revert to midnight sampling** — it was the original bug.
+- **For festival detection, sunrise/noon sampling is NOT used** — the festival engine uses per-festival ritual windows instead (see Festival Engine section below).
+
+### Festival Engine (`src/festivals.js`)
+The festival engine was fully rewritten (git commit `67509fb`) to use rule-based, window-aware evaluation. Do not revert to simple masa+paksha+tithi matching.
+
+**Architecture:**
+- Each festival is defined as a rule object with `masa`, `paksha`, `tithi`, and a `window` field.
+- `getFestivalsForDate(date, options)` accepts an options object with `{ tithiNumber, paksha, lat, lon, calendarSystem }`. The old positional form `(date, tithiNumber, paksha)` still works for backward compat.
+- **Call sites** (`Calendar.jsx`, `Home.jsx`) pass `lat`/`lon` from settings — required for window calculations.
+
+**Window types** (ritual period the target tithi must be active during):
+- `sunrise` — tithi at local sunrise
+- `madhyahna` — midday window (±2h around solar noon)
+- `aparahna` — afternoon (noon to sunset)
+- `pradosh` — ~2.4h after sunset
+- `pradoshOrSunrise` — prefer pradosh window; fall back to sunrise if tithi is not present during pradosh (used by Dhanteras to handle the 2029 edge case where Trayodashi ends before pradosh)
+- `nishita` — midnight window (±1h around civil midnight)
+- `moonrise` — tithi at moonrise
+- `day` — anywhere within the calendar day
+
+**Dual masa for Amanta/Purnimanta boundary festivals:**
+Festivals in the October/November Krishna Paksha (Diwali cluster) have different masa names in the two systems. These use `amantaMasa` + `purnimantaMasa` fields instead of a single `masa`. The engine uses `getMasaForDate()` (always Amavasyant internally) and selects the correct target masa based on `calendarSystem`:
+- Amanta: Ashwin Krishna (Karwa Chauth, Dhanteras, Naraka Chaturdashi, Diwali)
+- Purnimanta: Kartika Krishna (same dates, different name)
+
+**Critical: Purnimant masa derivation for Krishna Paksha — do NOT compare `getMasaForDate()` directly against Purnimant masa names.** `getMasaForDate()` always returns the Amavasyant masa. For Purnimant users viewing a Krishna Paksha date, the display masa must be derived by advancing the Amavasyant result by one (`nextMasa(amantaMasa)`). This is handled by `getCalendarMasaForRule()` in `festivals.js`. Bypassing this causes Diwali to drift to December and Vat Savitri to drift to June (regression that occurred in commit `67509fb` and was fixed in `7a11a21`).
+
+**Special rule flags:**
+- `firstOccurrence: true` — suppresses the festival if an identical rule matched in the previous 2 days (prevents double-showing when a tithi spans two civil days). Used by Ugadi, Chaitra Navratri, Dussehra.
+- `suppressDuplicateWithinDays: N` — suppresses if the same rule matched within N days. Used by Vat Savitri / Vat Purnima (45 days) to prevent both variants appearing in the same season.
+- `preferFirstAfter: { paksha, tithi }` — festival only fires on the first matching day after the given tithi was seen in the preceding 16 days. Used by Govardhan Puja (must follow the Diwali Amavasya).
+
+**2026 verified output (Bengaluru, Amavasyant):**
+```
+2026-01-14  Makar Sankranti / Pongal
+2026-02-15  Maha Shivaratri
+2026-03-19  Ugadi / Gudi Padwa ; Chaitra Navratri Begins
+2026-03-26  Ram Navami
+2026-04-20  Akshaya Tritiya
+2026-05-16  Vat Savitri Vrat
+2026-05-31  Adhik Vat Purnima Vrat   ← intercalary month; labeled separately
+2026-06-29  Vat Purnima Vrat
+2026-09-14  Ganesh Chaturthi
+2026-10-11  Sharad Navratri Begins
+2026-10-20  Dussehra (Vijayadashami)
+2026-10-29  Karwa Chauth
+2026-11-06  Dhanteras
+2026-11-08  Diwali (Deepavali)
+2026-11-10  Govardhan Puja
+2026-11-24  Dev Diwali / Kartik Purnima
+```
+
+**Multi-year sweep (key affected festivals, Amavasyant):**
+```
+2027: Vat Savitri Jun 4 · Karwa Chauth Oct 18 · Dhanteras Oct 27 · Diwali Oct 29
+2028: Vat Savitri May 24 · Karwa Chauth Oct 7  · Dhanteras Oct 15 · Diwali Oct 17
+2029: Vat Savitri Jun 12 · Karwa Chauth Oct 26 · Dhanteras Nov 4  · Diwali Nov 5
+2030: Vat Savitri Jun 1  · Karwa Chauth Oct 15 · Dhanteras Oct 24 · Diwali Oct 26
+```
+Note: 2029 Dhanteras was missing under strict `pradosh` window; fixed by `pradoshOrSunrise` + `firstOccurrence: true`.
+
+**Known technical debt in the engine:**
+- Lahiri ayanamsha is still a fixed `23.15°` — should eventually be year-sensitive.
+- Window evaluation uses 20-minute interval sampling, not exact tithi-transition solving.
+- `Panchang.jsx` has its own separate panchang/masa calculation path — not yet unified with the festival engine.
 
 ### Moon Phase Visual
 - `MoonVisual.jsx` renders a textured SVG moon using a **shadow-overlay approach** — NOT a formula that draws the lit shape directly.
@@ -207,7 +272,10 @@ npm run preview    # preview the dist/ build locally
 | 2026-05 | Home moon calc error state — replaced bare red text with a friendly card (🌑, explanation text, "Try again" button that resets loading state and retries calculation) | `Home.jsx` |
 | 2026-05 | Calendar + DatePickerSheet: swipe left/right to navigate months; tap month/year heading opens jump picker (201-year range 1926–2126); Calendar day modal Lucide icons | `Calendar.jsx`, `DatePickerSheet.jsx` |
 | 2026-05 | Calendar selection behaviour overhauled — today always shows amber/gold highlight; swiping or using month arrows clears any selection (no ghost indigo carry-over); indigo selection only appears after explicit tap; festival list renamed "Festivals in [Month]" and now shows all festivals of the viewed month (no >= today filter, no slice cap) | `Calendar.jsx` |
-| 2026-05 | Festival data migration — replaced hard-coded DATED_FESTIVALS_2026 with ANNUAL_FESTIVALS (27 major festivals defined by masa+paksha+tithi rules, works for any year); added getMasaForDate() to moonUtils.js using Amavasyant ending-Amavasya convention; added getSolarFestivalsForDate() for Makar Sankranti; added type:'major'/'observance' field; calendar grid shows emoji for major festivals, amber dot for observances; added missing festivals: Janmashtami, Raksha Bandhan, Akshaya Tritiya, Dhanteras, Govardhan Puja, Bhai Dooj, Chhath Puja, Nag Panchami, Sharad Purnima, Dev Diwali, Guru Purnima, and more; corrected Maha Shivaratri masa to Magha (Amavasyant) | `moonUtils.js`, `festivals.js`, `Calendar.jsx`, `Home.jsx` |
+| 2026-05 | Festival data migration — replaced hard-coded DATED_FESTIVALS_2026 with ANNUAL_FESTIVALS (27 major festivals defined by masa+paksha+tithi rules, works for any year); added getMasaForDate() to moonUtils.js using Amavasyant ending-Amavasya convention; added getSolarFestivalsForDate() for Makar Sankranti; added type:'major'/'observance' field; calendar grid shows emoji for major festivals, amber dot for observances; added missing festivals: Janmashtami, Raksha Bandhan, Akshaya Tritiya, Dhanteras, Govardhan Puja, Bhai Dooj, Chhath Puja, Nag Panchami, Sharad Purnima, Dev Diwali, Guru Purnima, and more; corrected Maha Shivaratri masa to Magha (Amavasyant); Janmashtami masa corrected to Shravana (Amavasyant); added Chaitra Navratri Begins and Maha Navami | `moonUtils.js`, `festivals.js`, `Calendar.jsx`, `Home.jsx` |
+| 2026-05 | Festival engine rewritten with window-based ritual evaluation (git `67509fb`) — fixed multiple date offsets caused by simple sunrise-tithi matching; each festival now declares its traditional decision window (sunrise/madhyahna/aparahna/pradosh/nishita/moonrise/day); Diwali cluster (Karwa Chauth, Dhanteras, Diwali) now uses amantaMasa+purnimantaMasa dual field to correctly place these festivals in the October/November Krishna Paksha boundary; Calendar.jsx and Home.jsx updated to pass lat/lon to getFestivalsForDate; all 2026 dates verified against drikpanchang for Bengaluru/Amavasyant | `festivals.js`, `Calendar.jsx`, `Home.jsx` |
+| 2026-05 | Adhik Vat Purnima labeled separately (git `dc5b600`) — intercalary Jyeshtha in 2026 produces two Purnima candidates; May 31 now labeled "Adhik Vat Purnima Vrat", Jun 29 is the principal "Vat Purnima Vrat" | `festivals.js` |
+| 2026-05 | Purnimant Krishna Paksha regression fix (git `7a11a21`) — festival engine was comparing getMasaForDate() (always Amavasyant) directly against Purnimant masa names, causing Diwali to shift to Dec 8 and Vat Savitri to Jun 15; fixed by adding getCalendarMasaForRule() which advances Amavasyant masa by one for Purnimant users during Krishna Paksha; Dhanteras changed to pradoshOrSunrise + firstOccurrence:true to handle 2029 edge case where Trayodashi ends before Pradosh; 2026–2030 multi-year sweep verified | `festivals.js` |
 
 ---
 
@@ -236,4 +304,8 @@ npm run preview    # preview the dist/ build locally
 2. **Edit source files** in `src/` directly using the Edit/Write tools.
 3. **Deploy** by running the git commands above (or instructing the user to run them if the bash sandbox is unavailable).
 4. **Never revert** the tithi noon-check or the waning `sin` formula — these were deliberate fixes for real bugs.
-5. **Update the "Known Issues Fixed" table** above whenever a new bug is fixed.
+5. **Never revert** the rule-based festival engine in `festivals.js` to simple masa+paksha+tithi matching — the window-based evaluation is required for correct dates.
+6. **Never reintroduce fixed Gregorian festival dates** — all festival logic must stay rule-based and work for any year.
+7. **Never compare `getMasaForDate()` directly against Purnimant masa names for Krishna Paksha** — `getMasaForDate()` always returns Amavasyant; for Purnimant + Krishna Paksha, use `getCalendarMasaForRule()` which advances by one masa. Bypassing this causes Diwali and Vat Savitri to drift by a full lunar month.
+8. **Before changing any festival rule, verify the affected festival across 2026–2030** — the multi-year sweep has already caught a 2029 Dhanteras regression. Any new rule change should be checked for at least 5 years.
+7. **Update the "Known Issues Fixed" table** above whenever a new bug is fixed.
