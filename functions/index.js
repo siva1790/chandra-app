@@ -104,16 +104,20 @@ exports.sendDailyPushNotifications = onSchedule(
             title: `${e.type === 'lunar' ? '🌑' : '☀️'} ${e.hinduName}`,
             body:  `${e.kind.charAt(0).toUpperCase() + e.kind.slice(1)} ${e.type} eclipse today. Tap for details.`,
           }
-        } else if (prefs.festivals && dayInfo.festivals.length > 0) {
+        } else if (prefs.festivals && dayInfo.datedFestivals.length > 0) {
+          // Only dated/major festivals (Holi, Diwali, etc.) — not monthly observances
+          const f = dayInfo.datedFestivals[0]
+          notif = {
+            title: `${f.emoji} ${f.name}`,
+            body:  f.genZMessage || f.description,
+          }
+        } else if (prefs.ekadashi && dayInfo.festivals.length > 0) {
+          // Monthly observances (Ekadashi, Purnima, Pradosh, Amavasya, etc.)
+          // Only fires when the user has opted into "Ekadashi & Pradosh" alerts
           const f = dayInfo.festivals[0]
           notif = {
             title: `${f.emoji} ${f.name}`,
-            body:  f.description,
-          }
-        } else if (prefs.ekadashi && dayInfo.tithi.adjustedNumber === 11) {
-          notif = {
-            title: '🙏 Ekadashi Today',
-            body:  `${dayInfo.tithi.paksha} Ekadashi — a sacred day for fasting and prayer.`,
+            body:  f.genZMessage || f.description,
           }
         }
 
