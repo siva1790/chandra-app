@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chandra App — Product & Architecture Reference</title>
+  <style>
+    /* ── Screen styles ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      background: #f5f4f0;
+      color: #1a1a1a;
+      padding: 40px 20px;
+    }
+
+    .page-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 24px rgba(0,0,0,0.10);
+      overflow: hidden;
+    }
+
+    /* Cover */
+    .cover {
+      background: #0B1020;
+      color: #fff;
+      padding: 60px 56px 48px;
+    }
+    .cover .label {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #DDBB6A;
+      margin-bottom: 20px;
+    }
+    .cover h1 {
+      font-size: 32px;
+      font-weight: normal;
+      line-height: 1.25;
+      margin-bottom: 12px;
+      color: #F5F7FA;
+    }
+    .cover h1 span { color: #DDBB6A; }
+    .cover .subtitle {
+      font-family: 'Arial', sans-serif;
+      font-size: 14px;
+      color: #B5BDD1;
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+    .cover .meta {
+      font-family: 'Arial', sans-serif;
+      font-size: 12px;
+      color: #70778B;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 20px;
+      display: flex;
+      gap: 32px;
+    }
+
+    /* TOC */
+    .toc {
+      padding: 44px 56px;
+      border-bottom: 1px solid #eee;
+      background: #fafaf8;
+    }
+    .toc h2 {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 20px;
+    }
+    .toc ol {
+      list-style: none;
+      counter-reset: toc;
+    }
+    .toc ol li {
+      counter-increment: toc;
+      font-family: 'Arial', sans-serif;
+      font-size: 13px;
+      color: #333;
+      padding: 6px 0;
+      border-bottom: 1px dotted #ddd;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .toc ol li::before {
+      content: counter(toc, decimal-leading-zero);
+      color: #DDBB6A;
+      font-size: 11px;
+      font-weight: bold;
+      min-width: 24px;
+    }
+
+    /* Body */
+    .body { padding: 0 56px 60px; }
+
+    /* Section */
+    .section {
+      padding: 40px 0 0;
+      border-bottom: 1px solid #eee;
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-num {
+      font-family: 'Arial', sans-serif;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #DDBB6A;
+      margin-bottom: 10px;
+    }
+
+    .question {
+      background: #f7f6f2;
+      border-left: 3px solid #DDBB6A;
+      padding: 14px 18px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 20px;
+    }
+    .question p {
+      font-family: 'Arial', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      line-height: 1.55;
+    }
+
+    .answer p {
+      font-size: 14.5px;
+      line-height: 1.8;
+      color: #2a2a2a;
+      margin-bottom: 14px;
+    }
+    .answer p:last-child { margin-bottom: 0; }
+
+    .answer strong {
+      color: #0B1020;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .answer ul, .answer ol {
+      margin: 10px 0 14px 20px;
+    }
+    .answer li {
+      font-size: 14px;
+      line-height: 1.75;
+      color: #2a2a2a;
+      margin-bottom: 4px;
+    }
+
+    .highlight-box {
+      background: #f0f4ff;
+      border: 1px solid #c5d0f5;
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 16px 0;
+    }
+    .highlight-box p {
+      font-family: 'Arial', sans-serif;
+      font-size: 13px;
+      color: #2a3a8a;
+      line-height: 1.6;
+      margin: 0 !important;
+    }
+
+    .callout {
+      background: #fffbf0;
+      border: 1px solid #e8d5a0;
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 16px 0;
+    }
+    .callout p {
+      font-family: 'Arial', sans-serif;
+      font-size: 13px;
+      color: #6b4f00;
+      line-height: 1.6;
+      margin: 0 !important;
+    }
+
+    h3 {
+      font-family: 'Arial', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0B1020;
+      margin: 18px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Footer */
+    .doc-footer {
+      background: #0B1020;
+      padding: 20px 56px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .doc-footer span {
+      font-family: 'Arial', sans-serif;
+      font-size: 11px;
+      color: #70778B;
+    }
+    .doc-footer .brand { color: #DDBB6A; font-weight: bold; }
+
+    /* ── Print styles ── */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .page-wrap { box-shadow: none; border-radius: 0; max-width: 100%; }
+      .section { page-break-inside: avoid; }
+      .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .doc-footer { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .question { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .highlight-box { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .callout { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      @page { margin: 0; size: A4; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- Cover -->
+  <div class="cover">
+    <p class="label">Product &amp; Architecture Reference</p>
+    <h1><span>Chandra</span> — Indian Moon Tracker<br>Technical Q&amp;A Document</h1>
+    <p class="subtitle">
+      A compiled reference covering scalability, hosting, desktop optimisation,<br>
+      Gen Z product strategy, Vedic astrology features, and roadmap planning.
+    </p>
+    <div class="meta">
+      <span>Prepared: May 2026</span>
+      <span>App: chandra-app.vercel.app</span>
+      <span>Stack: React 19 · Vite · Vercel · Firebase</span>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li>How many users can Vercel handle at a time?</li>
+      <li>Can I continue hosting on Vercel long-term?</li>
+      <li>What happens if I add server-side features?</li>
+      <li>What is SSR (Server-Side Rendering)?</li>
+      <li>Should I optimise for desktop? Analysis &amp; recommendation</li>
+      <li>New features &amp; Gen Z strategy — will the app get heavy?</li>
+      <li>Ayanamsha, Shadbala, Ishta Phala &amp; Kashta Phala — explained</li>
+      <li>Full feature roadmap — performance &amp; scale impact</li>
+      <li>Google Play Store, custom domain &amp; device migration</li>
+      <li>How do app updates reach users? Versioning &amp; refresh behaviour</li>
+      <li>Ideal next steps — recommended roadmap</li>
+    </ol>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+
+    <!-- Q1 -->
+    <div class="section">
+      <p class="section-num">Question 01</p>
+      <div class="question"><p>In the current state where it is deployed on Vercel, how many users can it handle at a time?</p></div>
+      <div class="answer">
+        <h3>The key insight: almost nothing runs on the server</h3>
+        <p>Every calculation in Chandra — tithi, nakshatra, moonrise, festival detection, Panchang timings — runs entirely in the user's browser using the astronomy-engine library. Vercel is only serving static files (JS bundle, CSS, icons). There is no server doing computation per user request. This changes the scalability picture dramatically compared to a traditional server-rendered app.</p>
+
+        <h3>What Vercel's free tier actually limits</h3>
+        <p>The free tier provides 100GB of bandwidth per month. The app bundle is approximately 500KB–1MB compressed. With the service worker caching aggressively, returning users download almost nothing on subsequent visits — they run from their device cache. In practice, 100GB of bandwidth can comfortably support 50,000–100,000 monthly active users depending on visit frequency and cache hit rate. Concurrent connections to a CDN are effectively unlimited — Vercel's edge network is built to handle millions of simultaneous requests globally.</p>
+
+        <h3>The only backend that sees load is Firestore</h3>
+        <p>Since subscriptions are currently hidden, Firestore is not being hit at all during normal app usage. When subscriptions are re-enabled, Firestore writes only happen on subscribe/unsubscribe/preference changes — rare events. On the Blaze plan, Firestore pricing is pay-as-you-go and costs at this scale are negligible.</p>
+
+        <div class="highlight-box"><p><strong>Practical answer:</strong> Thousands of simultaneous users can use the app without any degradation. The bandwidth limit (not concurrency) would be hit first, and the fix is simply upgrading to Vercel Pro ($20/month) which gives 1TB bandwidth. For the foreseeable future — well into tens of thousands of users — no scaling action is needed.</p></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="section">
+      <p class="section-num">Question 02</p>
+      <div class="question"><p>So can I continue hosting on Vercel itself?</p></div>
+      <div class="answer">
+        <p>Yes, absolutely. Vercel is a great long-term home for this app — there is no reason to move.</p>
+        <p>Even when you add a custom domain, you do that through Vercel (point your domain's DNS to Vercel's servers). The deployment pipeline stays exactly as it is — push to git, Vercel deploys automatically. Nothing about that changes.</p>
+        <p>The only time you would reconsider Vercel is if you start adding server-side features like API routes or server-side rendering. But given that Chandra's architecture keeps all computation on the client, that is not on the near-term horizon. Static hosting on a CDN is exactly the right fit for this app.</p>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="section">
+      <p class="section-num">Question 03</p>
+      <div class="question"><p>In case I introduce server-side features like API routes or server-side rendering in future, how will it be affected and what is the solution?</p></div>
+      <div class="answer">
+        <h3>What Vercel supports beyond static hosting</h3>
+        <p>Vercel has first-class support for serverless functions (called Edge Functions or Serverless Functions). You write them as files inside an <strong>api/</strong> folder — Vercel automatically detects and deploys them as individual serverless endpoints. For example, <strong>api/send-email.js</strong> becomes available at <strong>https://chandra-app.vercel.app/api/send-email</strong>. This is the natural path for the Resend email sending layer — instead of Firebase Cloud Functions, you could write it as a Vercel API route and keep everything in one platform.</p>
+        <p>Server-side rendering is also supported natively if you ever switch to Next.js. Since the project currently uses Vite + React, SSR would require migrating to Next.js, but Vercel is the primary platform Next.js is built for (made by the same company).</p>
+
+        <h3>Important clarification</h3>
+        <p>Vercel itself handles all of the above natively. The nuance is that <strong>SSR specifically requires Next.js</strong> — it is not a Vercel limitation but a framework limitation. Vite is a build tool for client-side apps and does not support SSR out of the box. API routes and serverless functions, however, work with the current Vite setup with no framework change needed.</p>
+
+        <div class="callout"><p><strong>Bottom line:</strong> You can stay on Vercel long-term with confidence. The only complicated scenario is SSR, which requires a framework migration to Next.js. For everything else — custom domain, API routes, email functions, scaling — Vercel handles it without changes to the current setup.</p></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="section">
+      <p class="section-num">Question 04</p>
+      <div class="question"><p>What is SSR (Server-Side Rendering)?</p></div>
+      <div class="answer">
+        <h3>How the app works today — Client-Side Rendering</h3>
+        <p>When a user opens Chandra, Vercel sends them a nearly empty HTML file and a JavaScript bundle. The browser downloads the JS, runs it, and then builds the page — the moon visual, tithi, calendar — all assembled in the browser. The server's job was only to deliver the files. The actual rendering happened on the user's device.</p>
+
+        <h3>What SSR does differently</h3>
+        <p>With SSR, when a user requests a page, the server builds the complete HTML first and sends a fully rendered page to the browser. The user sees content faster because they do not have to wait for JavaScript to download and execute before anything appears on screen.</p>
+
+        <h3>Does Chandra need SSR?</h3>
+        <p>No. SSR is most valuable for two things: SEO (search engines reading fully rendered content) and initial load speed on slow devices. Chandra's content is entirely personalised — the tithi, moonrise time, and festivals all depend on the user's city and the current date. There is nothing the server could pre-render without knowing who the user is first. So SSR would provide no meaningful advantage.</p>
+        <p>The app's SEO is handled through the static meta tags already in index.html, and the astronomy calculations are fast enough that client-side rendering is not a problem. SSR is a concept worth knowing, but not something Chandra needs now or likely ever.</p>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="section">
+      <p class="section-num">Question 05</p>
+      <div class="question"><p>Do you suggest optimising the application for a desktop view? If yes, how much of a lift is it and how risky is it?</p></div>
+      <div class="answer">
+        <h3>Current state on desktop</h3>
+        <p>The app is entirely mobile-first. Individual pages use <strong>max-w-md</strong> (448px wide, centred), but the top bar stretches full width, the bottom navigation sits at the bottom of a wide viewport like a browser toolbar, and there are no responsive breakpoints used anywhere. On a 1440px desktop monitor, you get a narrow 448px content column in the centre of a dark screen with the nav bar at the very bottom. It is functional and readable but visually reads as a mobile app opened in a browser.</p>
+
+        <h3>Three levels of desktop optimisation</h3>
+        <p><strong>Level 1 — Cosmetic fix (1–2 hours, near-zero risk):</strong> Wrap the entire app in a max-width container and centre everything including the top bar. The app stays a narrow column but looks intentional rather than broken. No component-level changes needed, just App.jsx.</p>
+        <p><strong>Level 2 — Side navigation on wide screens (1–2 days, low-medium risk):</strong> On desktop, replace the bottom tab bar with a left sidebar. This is the standard pattern for apps that work across both mobile and desktop. The logic does not change, just the chrome around it. The risk is primarily in getting layout transitions right and ensuring bottom sheet modals still position correctly on desktop.</p>
+        <p><strong>Level 3 — Multi-column layout (1–2 weeks, high risk):</strong> On a wide screen, show Calendar on the left and Panchang detail on the right simultaneously. This requires fundamentally rethinking how the four screens relate to each other — the current architecture treats them as exclusive, full-screen views.</p>
+
+        <div class="callout"><p><strong>Recommendation:</strong> Do not prioritise this now. Chandra is a daily ritual app — the behaviour is inherently mobile. If you want a quick win, Level 1 takes under two hours and makes the desktop experience look intentional. Level 2 is reasonable after the Play Store launch if GA4 shows meaningful desktop traffic. Level 3 can be skipped entirely.</p></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="section">
+      <p class="section-num">Question 06</p>
+      <div class="question"><p>If I add features like "Learn More", embedded videos, or AR/VR — will it make the app heavier? I want this app to appeal to Gen Z users.</p></div>
+      <div class="answer">
+        <h3>On app weight — the technical reality</h3>
+        <p>"Learn more" modals and text content add virtually nothing to the bundle. YouTube links are zero weight. Embedded YouTube iframes are also essentially zero — YouTube handles everything from their CDN. AR/VR is the only one that meaningfully adds weight — WebAR libraries are 1–2MB additions. However, <strong>lazy loading</strong> solves this: someone opening the app to check today's tithi never downloads the AR code at all.</p>
+        <p>The real concern with AR/VR is not weight — it is experience quality and battery drain. On a mid-range Android, WebAR experiences are frequently buggy and choppy. The novelty wears off within a session. This is a significant engineering investment for something users typically use once.</p>
+
+        <h3>On Gen Z — critical feedback</h3>
+        <p>The right audience has been identified, but the specific features need reconsideration. Gen Z in India is genuinely experiencing a cultural spirituality revival — they are interested in moon cycles and ritual significance. But they engage through reels, short-form content, and shareable moments — not through "learn more" modals or AR experiences.</p>
+        <p>The current app speaks the language of a traditional Panchang without ever telling the user what it means for them today. That is the real Gen Z gap.</p>
+
+        <h3>Features that would genuinely move the needle</h3>
+        <p><strong>Social sharing:</strong> A beautifully designed shareable card showing today's moon phase, tithi, and one line of meaning — something they would put in their Instagram story. Moderate build, low risk, high organic reach.</p>
+        <p><strong>Plain language explanations:</strong> One sentence in plain English next to every Sanskrit term — think tooltip, not Wikipedia article.</p>
+        <p><strong>Daily meaning layer:</strong> One sentence per day translating astronomical data into practical significance. "Amavasya today — traditionally a day for ancestors and quiet reflection."</p>
+        <p><strong>Gen Z push notifications:</strong> Not "Today is Shukla Chaturthi" but "The moon is at 40% tonight — Ganesh energy today, good for removing obstacles."</p>
+
+        <div class="callout"><p><strong>Key insight:</strong> AR/VR is a last-mile feature for a mature product. The biggest thing standing between Chandra and Gen Z adoption right now is not missing AR — it is that the app speaks Sanskrit to people who think in Instagram captions.</p></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="section">
+      <p class="section-num">Question 07</p>
+      <div class="question"><p>Do you know what Ayanamsha, Shadbala, Ishta Phala, and Kashta Phala are, and how to calculate them? What details are required?</p></div>
+      <div class="answer">
+        <h3>Ayanamsha</h3>
+        <p>Already used in the app. It is the angular gap between the tropical zodiac (Western astrology, tied to the sun's position) and the sidereal zodiac (Vedic astrology, tied to fixed stars). The app currently uses Lahiri ayanamsha fixed at 23.15°, noted as technical debt — it should be year-sensitive. This is the easiest fix on this entire list: half a day's work, low risk.</p>
+
+        <h3>Shadbala — Six Strengths</h3>
+        <p>A system for calculating a planet's strength across six dimensions simultaneously. "Shad" means six, "bala" means strength.</p>
+        <ul>
+          <li><strong>Sthana Bala</strong> (Positional strength) — based on zodiac position, exaltation degree, divisional charts D1–D30, and house type (angular/succedent/cadent).</li>
+          <li><strong>Dig Bala</strong> (Directional strength) — each planet has a preferred house. Jupiter and Mercury are strongest in the 1st house, Venus/Moon in the 4th, Saturn in the 7th, Sun/Mars in the 10th.</li>
+          <li><strong>Kala Bala</strong> (Temporal strength) — strength based on time: day/night, lunar fortnight, year lord, month lord, weekday lord, and hora lord.</li>
+          <li><strong>Chesta Bala</strong> (Motional strength) — based on planetary motion: direct, retrograde, or stationary. A retrograde planet is considered stronger in this dimension.</li>
+          <li><strong>Naisargika Bala</strong> (Natural strength) — fixed inherent strength. Always: Sun > Moon > Venus > Jupiter > Mercury > Mars > Saturn.</li>
+          <li><strong>Drik Bala</strong> (Aspectual strength) — strength received or lost from aspects of other planets. Benefics aspecting add strength, malefics reduce it.</li>
+        </ul>
+        <p><strong>Data required:</strong> Precise planetary longitudes (sidereal), planetary speeds, house positions, divisional chart positions, date, time, and location. The astronomy-engine library already in the app provides longitudes and speeds for all planets.</p>
+
+        <h3>Ishta Phala and Kashta Phala</h3>
+        <p>Derived outputs from Shadbala — specifically from Uccha Bala (exaltation strength) and Chesta Bala (motional strength). Formulas:</p>
+        <ul>
+          <li>Ishta Phala = square root of (Uccha Bala x Chesta Bala)</li>
+          <li>Kashta Phala = square root of ((60 - Uccha Bala) x (60 - Chesta Bala))</li>
+        </ul>
+        <p>They always sum to 60 Shashtiamshas. Ishta Phala represents the beneficial results a planet can deliver. Kashta Phala represents the suffering or obstacles it brings.</p>
+
+        <h3>Feasibility assessment</h3>
+        <p><strong>Ayanamsha (year-sensitive):</strong> Half a day's work. Low risk.</p>
+        <p><strong>Ishta Phala / Kashta Phala for today's sky:</strong> 2–3 days. The planetary positions are already in the Panchang tab.</p>
+        <p><strong>Full Shadbala:</strong> 2–3 weeks of focused work. Naisargika Bala is a lookup table; Sapta Vargaja Bala requires calculating seven divisional charts correctly; Kala Bala requires implementing hora lords, year lords, and month lords. The formulas are well-documented in Brihat Parashara Hora Shastra and B.V. Raman's books.</p>
+        <p><strong>Natal chart feature:</strong> A product decision as much as a technical one. It transforms Chandra from a daily sky-watcher into a personal Jyotisha tool — new data storage, new UI for birth data input, new privacy considerations.</p>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="section">
+      <p class="section-num">Question 08</p>
+      <div class="question"><p>Based on research and user feedback, here is the confirmed feature roadmap. If all these are built, will the app become heavy? What is the impact at large scale?</p></div>
+      <div class="answer">
+        <p>The confirmed feature list: (1) Social sharing cards, (2) Plain language layer, (3) Daily meaning layer, (4) Gen Z push notifications, (5) Year-sensitive Ayanamsha, (6) Full Shadbala, (7) Ishta Phala / Kashta Phala, (8) Natal chart feature, (9) More cities + Hindi, Tamil, Telugu language support.</p>
+
+        <h3>Feature-by-feature weight impact</h3>
+        <p><strong>Features 1–3</strong> (sharing, plain language, daily meaning): Essentially zero infrastructure weight. Sharing card generation uses the Canvas API already in the project. The meaning and language content is a JavaScript lookup table — 300 entries gzips to negligible size.</p>
+        <p><strong>Feature 4</strong> (Gen Z notifications): Entirely in Cloud Functions. Zero frontend bundle impact.</p>
+        <p><strong>Feature 5</strong> (year-sensitive ayanamsha): A few lines of code replacing a fixed constant. Immeasurable impact.</p>
+        <p><strong>Features 6–7</strong> (Shadbala, Ishta/Kashta Phala): Pure JavaScript mathematics — no external library needed. A complete Shadbala engine adds approximately 15–25KB gzipped. CPU time is the concern, not size — but on modern devices this completes in milliseconds and can be pushed to a web worker if needed.</p>
+        <p><strong>Feature 8</strong> (natal chart): 30–40KB gzipped for new components. Fully lazy-loadable — users who never tap "My Chart" never download this code.</p>
+        <p><strong>Feature 9</strong> (more cities + languages): Cities data is manageable (5,000 cities ~ 100KB gzipped). Languages are the most nuanced — each translation file for UI strings is 30–50KB, but the daily meaning and plain language content in three languages could reach 200–400KB per language. Lazy loading ensures only the selected language is downloaded.</p>
+
+        <h3>Bundle size: before vs after</h3>
+        <p><strong>Current estimated bundle:</strong> 350–450KB gzipped (React, astronomy-engine, Firebase, app code combined).</p>
+        <p><strong>After all features, with lazy loading:</strong> Initial bundle reaches 500–600KB gzipped. Returning users on the service worker cache feel none of this growth. First-time visitors on Indian 4G download 600KB in under two seconds.</p>
+
+        <h3>Impact at large scale</h3>
+        <p>Because all calculations run in the user's browser, the server carries zero computational load regardless of whether there are 100 or 100,000 simultaneous users. Vercel's CDN distributes files and scales automatically. The cost difference between 1,000 and 100,000 users is linear on bandwidth alone — roughly the difference between $0 and $20/month.</p>
+        <p>The only costs that scale meaningfully with users are email sending and Firestore writes. On Resend's pricing, 50,000 subscribers each receiving a monthly digest costs approximately $50/month. All-festival frequency at that scale is closer to $150–200/month — healthy costs for a product with that many engaged users.</p>
+
+        <div class="highlight-box"><p><strong>Summary:</strong> No, the app will not become heavy. The architecture — client-side computation, static hosting, service worker caching — is almost perfectly suited for this kind of expansion. The constraint that will bite before performance does is content: daily meanings, plain language explanations, and three-language translations are a writing and editorial problem, not a technical one.</p></div>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="section">
+      <p class="section-num">Question 09</p>
+      <div class="question">
+        <p>How do I get Chandra into the Google Play Store? If I get a custom domain, will current users lose access? And how easy is it to migrate my dev environment to a new MacBook Air?</p>
+      </div>
+      <div class="answer">
+
+        <h3>Getting into the Google Play Store</h3>
+        <p>Since Chandra is a PWA, you do not need to rewrite it as a native Android app. Google supports a mechanism called <strong>Trusted Web Activity (TWA)</strong> which wraps a PWA into a Play Store-compatible APK. The recommended tool is <strong>PWABuilder</strong> (pwabuilder.com) — you enter your app URL, it audits your PWA, and generates a ready-to-submit Android package.</p>
+        <p>Requirements before submitting:</p>
+        <ul>
+          <li>A Google Play Developer account (one-time $25 fee)</li>
+          <li>Your PWA must score well on PWA criteria — Chandra already meets these</li>
+          <li>The TWA links your domain to the app via <strong>Digital Asset Links</strong> (a JSON file hosted at /.well-known/assetlinks.json) — PWABuilder generates this for you</li>
+          <li>Submit the APK through the Play Console like any other app</li>
+        </ul>
+        <p>The entire process from URL to submitted APK can be done in a day. The resulting app is essentially a full-screen Chrome tab pointing to your live URL — updates pushed to Vercel automatically reflect in the Play Store app with no re-submission needed.</p>
+
+        <h3>Custom domain migration — what stays, what changes</h3>
+        <p>This needs careful handling. PWA installs are <strong>origin-bound</strong> — the installed app, its service worker, localStorage data (settings, subscription state), and cached assets are all tied to the exact domain. If you move from chandra-app.vercel.app to say chandra.app, existing users who installed the PWA will find their installed shortcut broken (it still points to the old URL).</p>
+        <p><strong>What stays the same:</strong> Your Firestore subscriber data (stored in Firebase, not the domain), your codebase, and your Vercel deployment pipeline.</p>
+        <p><strong>What changes and needs handling:</strong> localStorage settings will not migrate automatically (users reconfigure city/preferences on first visit to new domain), the service worker registration is fresh, and anyone who installed the PWA needs to reinstall from the new domain.</p>
+        <div class="callout"><p><strong>Recommended approach:</strong> Keep the Vercel URL alive and add a redirect from the old domain to the new one. Old installs get forwarded, and users who follow the redirect and re-add to home screen get the new origin. Vercel makes this a one-line config. Do this migration while your user base is still small — the impact is minimal at early stage.</p></div>
+
+        <h3>Migrating development environment to MacBook Air</h3>
+        <p>Very easy — approximately 20–30 minutes total. The steps are: install <strong>Homebrew</strong>, use it to install Node.js and Git (both one-liners), install VS Code, then clone your repo, run <strong>npm install</strong>, and <strong>npm run dev</strong> — the app is running locally.</p>
+        <p>The only things to carry over are credentials: your Git identity (git config --global user.name/email), and your Firebase config (already in your source code so it comes with the clone). Since the project has no .env files currently, there is essentially nothing secret to migrate manually.</p>
+        <div class="highlight-box"><p><strong>Note:</strong> Mac is actually a smoother environment for this kind of web development than Windows — no path separator issues, bash works natively, and the canvas npm package installs without the native binary headaches encountered on Windows.</p></div>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div class="section">
+      <p class="section-num">Question 10</p>
+      <div class="question">
+        <p>Once the app is live on the Play Store, how do users get updates? How should updates be pushed? Will a git push update the app automatically, or do users need to refresh? What happens if they never refresh?</p>
+      </div>
+      <div class="answer">
+
+        <h3>How your current push-to-live flow works</h3>
+        <p>Every time you run <strong>git push</strong>, Vercel builds and deploys within about a minute. The live URL immediately serves the new files. There is no versioning step required for the web app — it is always the latest push. For tracking purposes, meaningful commit messages (which are already used) and optional git tags for significant releases (<strong>git tag v1.2.0 &amp;&amp; git push --tags</strong>) are good practice but Vercel does not require them.</p>
+
+        <h3>How updates reach users who have the PWA installed</h3>
+        <p>The service worker is configured with <strong>registerType: 'autoUpdate'</strong>, and sw.js contains <strong>self.skipWaiting()</strong> and <strong>self.clients.claim()</strong>. Here is what happens when you push:</p>
+        <p>When a user opens the app, the browser quietly checks if a new service worker exists in the background. If you have pushed since their last visit, the new service worker downloads, installs, and because of skipWaiting() it activates immediately without waiting for the old one to retire. The new assets are now cached. However, the JavaScript already running in the current tab is the old bundle loaded into memory. A single refresh picks up the new code. Most users naturally get this on their next app open since Android kills background apps regularly.</p>
+        <p>If a user never refreshes and keeps the app running continuously (unlikely on mobile), they keep running the old version indefinitely — but they will never see a crash or error, just the older UI. The next time they cold-open the app, they get the update automatically.</p>
+
+        <h3>How updates work on the Play Store (TWA)</h3>
+        <p>This is where TWA is genuinely elegant. Since the TWA is just Chrome pointing at your live URL, your Vercel push <strong>is</strong> the app update. You do not submit anything to the Play Store for feature updates, bug fixes, or UI changes. Push to Vercel, and within minutes every user who opens the Play Store app gets the new version on their next restart — no "update available" prompt, no user action needed, no Play Store review process.</p>
+        <p>The only time you need to submit a new APK to the Play Store is if you change something in the wrapper itself — app name, icon on the Play Store listing, Android permissions, or minimum SDK version. That kind of change is infrequent. Everything inside the app (all the Panchang logic, UI, festivals, settings) updates silently through your normal git push.</p>
+
+        <div class="highlight-box"><p><strong>Summary:</strong> For users today — push to Vercel, user gets it on next app open, at most one refresh needed. For Play Store users — same, except they do not even need to tap "update" in the Play Store. This is one of the biggest advantages of the PWA/TWA model over a native app.</p></div>
+      </div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="section">
+      <p class="section-num">Question 11</p>
+      <div class="question">
+        <p>Based on our discussion, what are the ideal next steps?</p>
+      </div>
+      <div class="answer">
+
+        <h3>Recommended sequence</h3>
+        <p>The sequencing below builds cleanly on each previous step. Each milestone is self-contained and does not block the others, but this order minimises rework.</p>
+
+        <h3>1. Custom domain (do this first, while user base is small)</h3>
+        <p>Pick your domain, point DNS to Vercel (a 10-minute config), and set up a redirect from the Vercel URL to the new domain. Do this before any Play Store submission — the TWA's Digital Asset Links file is tied to the domain, so you want the final domain locked in before publishing. Migrating domains later gets messier as more people install the PWA.</p>
+
+        <h3>2. Play Store listing</h3>
+        <p>Once the domain is set, go to pwabuilder.com, enter your URL, generate the TWA package, and submit. The Play Store review for a new app typically takes 3–7 days. Assets needed: a 512x512 icon (already available), a feature graphic (1024x500 banner), and 2–3 screenshots. This is a clear milestone to aim for.</p>
+
+        <h3>3. Re-enable subscriptions and build the email sending layer</h3>
+        <p>Firebase Blaze is already active and Cloud Functions are unblocked. The subscriber data model is fully live in Firestore. The only remaining piece is the Cloud Function + Resend API sending layer. Once built, flip <strong>ENABLE_SUBSCRIPTIONS = true</strong> in App.jsx and the full subscription flow goes live. Both email delivery and push notifications are unblocked by the same step.</p>
+
+        <h3>4. Gen Z content layer (can run in parallel with step 3)</h3>
+        <p>Add the plain language explanations and daily meaning layer — this is primarily a writing task, not a coding one. Then build the social sharing cards. These three features have the highest organic reach potential and the lowest technical risk of anything on the roadmap.</p>
+
+        <h3>5. Vedic features (after the above are stable)</h3>
+        <p>Year-sensitive Ayanamsha first (half a day, low risk). Then Ishta Phala / Kashta Phala for today's sky (2–3 days). Full Shadbala last (2–3 weeks, requires careful verification). Natal chart as a separate feature track once the daily-use features are mature.</p>
+
+        <h3>6. Language expansion</h3>
+        <p>Hindi, Tamil, and Telugu after the core English experience is polished and the user base gives clear signal of demand. Language work is primarily editorial — the translation infrastructure is straightforward, but the content volume is significant.</p>
+
+        <div class="callout"><p><strong>Recommended priority order: Custom domain → Play Store submission → Email sending layer + re-enable subscribe → Gen Z content layer → Vedic features → Language expansion.</strong> Each step builds on the previous one and the app grows in a controlled, verified way.</p></div>
+      </div>
+    </div>
+
+  </div><!-- /body -->
+
+  <!-- Footer -->
+  <div class="doc-footer">
+    <span class="brand">Chandra</span>
+    <span>Indian Moon Tracker — Product &amp; Architecture Reference</span>
+    <span>May 2026</span>
+  </div>
+
+</div><!-- /page-wrap -->
+</body>
+</html>

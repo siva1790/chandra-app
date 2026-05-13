@@ -107,12 +107,18 @@ service cloud.firestore {
         && request.resource.data.updatedAt is string
         && request.resource.data.updatedAt.size() <= 30
         // notifPrefs: must be a map
-        && request.resource.data.notifPrefs is map;
+        && request.resource.data.notifPrefs is map
+        // notifPrefsVersion: optional integer for backend migration semantics
+        && (!('notifPrefsVersion' in request.resource.data)
+            || request.resource.data.notifPrefsVersion == 2)
+        // calendarSystem: optional allowlist for festival rules that differ by region
+        && (!('calendarSystem' in request.resource.data)
+            || request.resource.data.calendarSystem in ['Amavasyant', 'Purnimant']);
 
       allow update: if
         // Only these fields may be changed
         request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['token', 'city', 'lat', 'lon', 'notifPrefs', 'active', 'updatedAt'])
+          .hasOnly(['token', 'city', 'lat', 'lon', 'notifPrefs', 'notifPrefsVersion', 'calendarSystem', 'active', 'updatedAt'])
         // token: valid if changed
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['token'])
             || (request.resource.data.token is string
@@ -126,7 +132,13 @@ service cloud.firestore {
             || isShortString(request.resource.data.city, 100))
         // notifPrefs: must be a map if changed
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['notifPrefs'])
-            || request.resource.data.notifPrefs is map);
+            || request.resource.data.notifPrefs is map)
+        // notifPrefsVersion: allow current version marker if changed
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['notifPrefsVersion'])
+            || request.resource.data.notifPrefsVersion == 2)
+        // calendarSystem: allowlist if changed
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['calendarSystem'])
+            || request.resource.data.calendarSystem in ['Amavasyant', 'Purnimant']);
 
       allow read:   if false;
       allow delete: if false;

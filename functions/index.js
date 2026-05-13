@@ -28,7 +28,7 @@ const { getFirestore }  = require('firebase-admin/firestore')
 const { getMessaging }  = require('firebase-admin/messaging')
 const { Resend }        = require('resend')
 
-const { getDayInfo, getUpcomingFestivals } = require('./astroUtils')
+const { getDayInfo, getUpcomingFestivals, getISTDateKey } = require('./astroUtils')
 const { festivalEmail, monthlyDigestEmail } = require('./emailTemplates')
 
 // ── Initialise Firebase Admin ─────────────────────────────────────────────────
@@ -48,6 +48,60 @@ const groupBy = (arr, keyFn) =>
     acc[key].push(item)
     return acc
   }, {})
+
+const deviceCalendarSystem = (device) =>
+  device.calendarSystem === 'Purnimant' ? 'Purnimant' : 'Amavasyant'
+
+const observanceAlertsEnabled = (device, prefs) =>
+  prefs.ekadashi !== false || device.notifPrefsVersion !== 2
+
+const pushUrl = '/'
+
+const sendMulticastNotification = async (messaging, tokens, notif, invalidTokens) => {
+  let successCount = 0
+  for (let i = 0; i < tokens.length; i += 500) {
+    const batch = tokens.slice(i, i + 500)
+    try {
+      const response = await messaging.sendEachForMulticast({
+        tokens: batch,
+        notification: { title: notif.title, body: notif.body },
+        data: {
+          title: notif.title,
+          body: notif.body,
+          url: notif.url || pushUrl,
+          kind: notif.kind || 'chandra',
+        },
+        webpush: {
+          fcmOptions: { link: notif.url || pushUrl },
+          notification: {
+            icon:    '/icons/icon-192.png',
+            badge:   '/icons/icon-72.png',
+            vibrate: [200, 100, 200],
+          },
+        },
+      })
+
+      response.responses.forEach((resp, idx) => {
+        if (
+          !resp.success &&
+          (resp.error?.code === 'messaging/registration-token-not-registered' ||
+           resp.error?.code === 'messaging/invalid-registration-token')
+        ) {
+          invalidTokens.push(batch[idx])
+        }
+      })
+      successCount += response.successCount
+
+      console.log(
+        `[Push] Sent to ${batch.length} tokens. ` +
+        `Success: ${response.successCount}, Failed: ${response.failureCount}`
+      )
+    } catch (err) {
+      console.error('[Push] Multicast error:', err)
+    }
+  }
+  return successCount
+}
 
 // ── Function 1: Push Notifications ───────────────────────────────────────────
 
@@ -75,17 +129,19 @@ exports.sendDailyPushNotifications = onSchedule(
     console.log(`[Push] Processing ${devices.length} active devices.`)
 
     // ── 2. Group by city (lat,lon) to calculate astronomy once per city ─────
-    const cityGroups = groupBy(devices, d => `${d.lat},${d.lon}`)
+    const cityGroups = groupBy(devices, d => `${d.lat},${d.lon},${deviceCalendarSystem(d)}`)
 
     const messaging      = getMessaging()
     const invalidTokens  = []  // collect expired/invalid tokens for cleanup
 
     // ── 3. Per-city: calculate day info, then send matching devices ─────────
     for (const [cityKey, cityDevices] of Object.entries(cityGroups)) {
-      const [lat, lon] = cityKey.split(',').map(Number)
+      const [latStr, lonStr, calendarSystem] = cityKey.split(',')
+      const lat = Number(latStr)
+      const lon = Number(lonStr)
       let dayInfo
       try {
-        dayInfo = getDayInfo(now, lat, lon)
+        dayInfo = getDayInfo(now, lat, lon, calendarSystem)
       } catch (err) {
         console.error(`[Push] Astronomy error for ${cityKey}:`, err)
         continue
@@ -95,7 +151,7 @@ exports.sendDailyPushNotifications = onSchedule(
       const tokenMap = {}  // token → notification payload
 
       for (const device of cityDevices) {
-        const prefs = device.notifPrefs || { festivals: true, eclipses: true, ekadashi: false }
+        const prefs = device.notifPrefs || { festivals: true, eclipses: true, moonrise: true, ekadashi: true }
         let notif   = null
 
         if (prefs.eclipses && dayInfo.eclipse) {
@@ -111,7 +167,7 @@ exports.sendDailyPushNotifications = onSchedule(
             title: `${f.emoji} ${f.name}`,
             body:  f.genZMessage || f.description,
           }
-        } else if (prefs.ekadashi && dayInfo.festivals.length > 0) {
+        } else if (observanceAlertsEnabled(device, prefs) && dayInfo.festivals.length > 0) {
           // Monthly observances (Ekadashi, Purnima, Pradosh, Amavasya, etc.)
           // Only fires when the user has opted into "Ekadashi & Pradosh" alerts
           const f = dayInfo.festivals[0]
@@ -133,41 +189,7 @@ exports.sendDailyPushNotifications = onSchedule(
         const tokens = entries.map(([t]) => t)
         const notif  = entries[0][1]
 
-        // FCM multicast: max 500 tokens per call
-        for (let i = 0; i < tokens.length; i += 500) {
-          const batch = tokens.slice(i, i + 500)
-          try {
-            const response = await messaging.sendEachForMulticast({
-              tokens,
-              notification: { title: notif.title, body: notif.body },
-              webpush: {
-                notification: {
-                  icon:    '/icons/icon-192.png',
-                  badge:   '/icons/icon-72.png',
-                  vibrate: [200, 100, 200],
-                },
-              },
-            })
-
-            // Collect invalid tokens for cleanup
-            response.responses.forEach((resp, idx) => {
-              if (
-                !resp.success &&
-                (resp.error?.code === 'messaging/registration-token-not-registered' ||
-                 resp.error?.code === 'messaging/invalid-registration-token')
-              ) {
-                invalidTokens.push(batch[idx])
-              }
-            })
-
-            console.log(
-              `[Push] Sent to ${batch.length} tokens. ` +
-              `Success: ${response.successCount}, Failed: ${response.failureCount}`
-            )
-          } catch (err) {
-            console.error('[Push] Multicast error:', err)
-          }
-        }
+        await sendMulticastNotification(messaging, tokens, notif, invalidTokens)
       }
     }
 
@@ -186,7 +208,99 @@ exports.sendDailyPushNotifications = onSchedule(
   }
 )
 
-// ── Function 2: Email Notifications ──────────────────────────────────────────
+// Moonrise Push Notifications
+
+exports.sendMoonrisePushNotifications = onSchedule(
+  {
+    schedule:  'every 15 minutes',
+    timeZone:  'Asia/Kolkata',
+    region:    'asia-south1',
+    secrets:   [],
+    memory:    '512MiB',
+    timeoutSeconds: 120,
+  },
+  async () => {
+    const now = new Date()
+    const windowStart = new Date(now.getTime() - 15 * 60 * 1000)
+
+    const snapshot = await db.collection('devices').where('active', '==', true).get()
+    if (snapshot.empty) {
+      console.log('[Moonrise Push] No active devices. Exiting.')
+      return
+    }
+
+    const devices = []
+    snapshot.forEach(d => devices.push({ docId: d.id, ref: d.ref, ...d.data() }))
+    const moonriseDevices = devices.filter(d => (d.notifPrefs || {}).moonrise !== false && d.token)
+    if (moonriseDevices.length === 0) {
+      console.log('[Moonrise Push] No devices opted into moonrise reminders.')
+      return
+    }
+
+    const cityGroups = groupBy(moonriseDevices, d => `${d.lat},${d.lon},${deviceCalendarSystem(d)}`)
+    const messaging = getMessaging()
+    const invalidTokens = []
+
+    for (const [cityKey, cityDevices] of Object.entries(cityGroups)) {
+      const [latStr, lonStr, calendarSystem] = cityKey.split(',')
+      const lat = Number(latStr)
+      const lon = Number(lonStr)
+
+      let dayInfo
+      try {
+        dayInfo = getDayInfo(now, lat, lon, calendarSystem)
+      } catch (err) {
+        console.error(`[Moonrise Push] Astronomy error for ${cityKey}:`, err)
+        continue
+      }
+
+      if (!dayInfo.moonrise) continue
+
+      const reminderTime = new Date(dayInfo.moonrise.getTime() - 30 * 60 * 1000)
+      if (reminderTime <= windowStart || reminderTime > now) continue
+
+      const dateKey = getISTDateKey(dayInfo.moonrise)
+      const notificationKey = `moonrise:${dateKey}`
+      const tokens = []
+      const notifiedRefs = []
+
+      for (const device of cityDevices) {
+        if (device.lastMoonriseNotificationKey === notificationKey) continue
+        tokens.push(device.token)
+        notifiedRefs.push(device.ref)
+      }
+
+      if (tokens.length === 0) continue
+
+      const sentCount = await sendMulticastNotification(messaging, tokens, {
+        title: 'Moonrise in 30 minutes',
+        body: `Moonrise for ${cityDevices[0].city || 'your city'} is around ${dayInfo.moonrise.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' })}.`,
+        kind: 'moonrise',
+      }, invalidTokens)
+
+      if (sentCount > 0) {
+        const writeBatch = db.batch()
+        notifiedRefs.forEach(ref => writeBatch.update(ref, {
+          lastMoonriseNotificationKey: notificationKey,
+          lastMoonriseNotificationAt: now.toISOString(),
+        }))
+        await writeBatch.commit()
+      }
+    }
+
+    if (invalidTokens.length > 0) {
+      console.log(`[Moonrise Push] Cleaning up ${invalidTokens.length} invalid tokens.`)
+      const writeBatch = db.batch()
+      for (const token of invalidTokens) {
+        const q = await db.collection('devices').where('token', '==', token).limit(1).get()
+        q.forEach(d => writeBatch.update(d.ref, { active: false }))
+      }
+      await writeBatch.commit()
+    }
+
+    console.log('[Moonrise Push] Done.')
+  }
+)
 
 exports.sendDailyEmails = onSchedule(
   {

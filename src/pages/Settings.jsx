@@ -9,7 +9,7 @@ import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
 const NOTIF_ENABLED_KEY = 'chandra-notif-enabled'
-const DEFAULT_PREFS = { festivals: true, eclipses: true, moonrise: true, ekadashi: false }
+const DEFAULT_PREFS = { festivals: true, eclipses: true, moonrise: true, ekadashi: true }
 
 const loadNotifPrefs = () => {
   try {
@@ -55,9 +55,9 @@ const Settings = ({ onOpenSubscribe }) => {
   // notifications are already enabled). This keeps the backend's city/lat/lon current.
   useEffect(() => {
     if (notifPermission === 'granted' && notifEnabled) {
-      initDevice(settings.city, settings.lat, settings.lon, notifPrefs).catch(() => {})
+      initDevice(settings.city, settings.lat, settings.lon, notifPrefs, settings.calendarSystem).catch(() => {})
     }
-  }, [settings.city, settings.lat, settings.lon]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [settings.city, settings.lat, settings.lon, settings.calendarSystem]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Shows the in-app notification preview for 5 seconds
   const triggerPreview = () => {
@@ -75,7 +75,7 @@ const Settings = ({ onOpenSubscribe }) => {
       triggerPreview()
       trackEvent('notification_enabled', { city: settings.city })
       // Register this device in Firestore so the backend can send push notifications
-      initDevice(settings.city, settings.lat, settings.lon, notifPrefs).catch(() => {})
+      initDevice(settings.city, settings.lat, settings.lon, notifPrefs, settings.calendarSystem).catch(() => {})
     }
   }
 
@@ -86,7 +86,7 @@ const Settings = ({ onOpenSubscribe }) => {
     if (val && notifPermission === 'granted') {
       triggerPreview()
       // Re-activate device in case it was previously deactivated
-      initDevice(settings.city, settings.lat, settings.lon, notifPrefs).catch(() => {})
+      initDevice(settings.city, settings.lat, settings.lon, notifPrefs, settings.calendarSystem).catch(() => {})
     } else if (!val) {
       // Mark device inactive — backend will skip this device until re-enabled
       deactivateDevice().catch(() => {})
@@ -103,8 +103,10 @@ const Settings = ({ onOpenSubscribe }) => {
         notifPrefs: {
           festivals: updated.festivals,
           eclipses:  updated.eclipses,
+          moonrise:  updated.moonrise,
           ekadashi:  updated.ekadashi,
-        }
+        },
+        notifPrefsVersion: 2,
       }).catch(() => {})
     }
   }

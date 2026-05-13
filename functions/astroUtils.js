@@ -767,13 +767,13 @@ const getEclipseForDate = (utcDate) => {
  *   datedFestivals — major annual festivals only (used for emailFrequency='major')
  *   eclipse        — eclipse object | null
  */
-const getDayInfo = (utcDate, lat, lon) => {
+const getDayInfo = (utcDate, lat, lon, calendarSystem = 'Amavasyant') => {
   const tithi     = getTithiAtSunrise(utcDate, lat, lon)
   const nakshatra = getNakshatra(utcDate)
   const moonrise  = getMoonrise(utcDate, lat, lon)
   const eclipse   = getEclipseForDate(utcDate)
 
-  const { major: datedFests, all: allFests } = getFestivalsForDate(utcDate, lat, lon)
+  const { major: datedFests, all: allFests } = getFestivalsForDate(utcDate, lat, lon, calendarSystem)
 
   return {
     tithi,

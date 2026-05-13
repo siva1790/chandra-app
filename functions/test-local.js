@@ -68,10 +68,16 @@ const assertEmpty = (label, arr) => {
 }
 
 // Simulates the push notification decision in index.js
-const wouldNotify = (dayInfo, prefs = { festivals: true, eclipses: true, ekadashi: false }) => {
+const wouldNotify = (
+  dayInfo,
+  prefs = { festivals: true, eclipses: true, moonrise: true, ekadashi: true },
+  device = { notifPrefsVersion: 2 }
+) => {
   if (prefs.eclipses && dayInfo.eclipse)                        return { reason: 'eclipse',     name: dayInfo.eclipse.hinduName }
   if (prefs.festivals && dayInfo.datedFestivals.length > 0)     return { reason: 'festival',    name: dayInfo.datedFestivals[0].name }
-  if (prefs.ekadashi  && dayInfo.festivals.length > 0)          return { reason: 'observance',  name: dayInfo.festivals[0].name }
+  if ((prefs.ekadashi !== false || device.notifPrefsVersion !== 2) && dayInfo.festivals.length > 0) {
+    return { reason: 'observance',  name: dayInfo.festivals[0].name }
+  }
   return null
 }
 
@@ -107,19 +113,21 @@ console.log('\n3. Diwali (2026-11-08)')
   assert('Diwali notification fires', wouldNotify(d)?.reason, 'festival')
 }
 
-// 4. Ekadashi — should NOT notify with default prefs (festivals:true, ekadashi:false)
-//    but SHOULD notify when ekadashi pref is on
-console.log('\n4. Ekadashi (2026-05-13) — default prefs → no notification; ekadashi pref → notifies')
+// 4. Ekadashi should notify by default and still respect explicit version-2 opt-out.
+console.log('\n4. Ekadashi (2026-05-13) - default prefs notify; explicit opt-out suppresses')
 {
   const d = getDayInfo(toIST('2026-05-13'), LAT, LON)
   console.log(`   Tithi: ${d.tithi.paksha} ${d.tithi.name} (${d.tithi.adjustedNumber})`)
-  // With default prefs (ekadashi: false) — no notification
-  assert('Ekadashi: no notification with default prefs',
-    wouldNotify(d, { festivals: true, eclipses: true, ekadashi: false }), null)
+  assert('Ekadashi observance detected', d.festivals[0]?.name, 'Ekadashi')
+  assert('Ekadashi: observance notification fires by default',
+    wouldNotify(d)?.reason, 'observance')
+  assert('Ekadashi: notification is suppressed when explicitly opted out',
+    wouldNotify(d, { festivals: true, eclipses: true, moonrise: true, ekadashi: false }), null)
+  assert('Ekadashi: old pre-version default false is migrated to notify',
+    wouldNotify(d, { festivals: true, eclipses: true, ekadashi: false }, {})?.reason, 'observance')
   // With ekadashi pref on — notification fires
-  const withEkadashi = wouldNotify(d, { festivals: true, eclipses: true, ekadashi: true })
-  assert('Ekadashi: observance notification fires when pref is on',
-    withEkadashi?.reason, 'observance')
+  assert('Moonrise exists for moonrise reminder scheduling',
+    d.moonrise instanceof Date, true)
 }
 
 // 5. Maha Shivaratri 2026 — Feb 15

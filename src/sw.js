@@ -19,7 +19,11 @@ self.addEventListener('push', (event) => {
   let payload
   try { payload = event.data.json() } catch { return }
 
-  const { title, body, icon, data } = payload
+  const notification = payload.notification || {}
+  const data = payload.data || notification.data || {}
+  const title = payload.title || notification.title
+  const body = payload.body || notification.body
+  const icon = payload.icon || notification.icon
   event.waitUntil(
     self.registration.showNotification(title || 'Chandra', {
       body:               body || '',

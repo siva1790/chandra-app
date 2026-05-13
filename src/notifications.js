@@ -23,7 +23,7 @@ const DEVICE_KEY  = 'chandra-device-id'
  * Safe to call multiple times — always upserts with the latest token + city.
  * Called: on permission grant, on city change (if notifications already on).
  */
-export const initDevice = async (city, lat, lon, notifPrefs) => {
+export const initDevice = async (city, lat, lon, notifPrefs, calendarSystem = 'Amavasyant') => {
   try {
     const messaging = await getMessagingInstance()
     if (!messaging) return null
@@ -44,15 +44,17 @@ export const initDevice = async (city, lat, lon, notifPrefs) => {
       city,
       lat,
       lon,
-      // Only store the three backend-relevant prefs (moonrise is device-side only)
       notifPrefs: {
         festivals: notifPrefs.festivals ?? true,
         eclipses:  notifPrefs.eclipses  ?? true,
-        ekadashi:  notifPrefs.ekadashi  ?? false,
+        moonrise:  notifPrefs.moonrise  ?? true,
+        ekadashi:  notifPrefs.ekadashi  ?? true,
       },
+      calendarSystem,
+      notifPrefsVersion: 2,
       active:    true,
       updatedAt: new Date().toISOString(),
-    })
+    }, { merge: true })
 
     return deviceId
   } catch (e) {
