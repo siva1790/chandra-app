@@ -2,12 +2,14 @@ import { useEffect, useState, useRef } from 'react'
 import * as Astronomy from 'astronomy-engine'
 import MoonVisual from '../components/MoonVisual'
 import DateStrip from '../components/DateStrip'
+import TodayMessageModal from '../components/TodayMessageModal'
 import { useSettings } from '../SettingsContext'
 import { getSunriseForDate, getTithiAtSunrise } from '../moonUtils'
 import { getFestivalsForDate } from '../festivals'
 import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
-import { MapPin, LocateFixed } from 'lucide-react'
+import { MapPin, LocateFixed, Sparkles } from 'lucide-react'
+import { TITHI_MESSAGES, getVara } from '../tithiMessages'
 
 const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
   const { settings } = useSettings()
@@ -15,6 +17,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
   const [location, setLocation] = useState({ lat: 12.9716, lon: 77.5946, city: 'Bengaluru' })
   const [loading, setLoading] = useState(true)
   const [dayHighlight, setDayHighlight] = useState(null)
+  const [showModal, setShowModal] = useState(false)
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
 
@@ -159,11 +162,31 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <MoonVisual phase={moonData.phase} />
+            <MoonVisual
+              phase={moonData.phase}
+              tithiLabel={dayHighlight ? `${dayHighlight.tithi.name} · ${dayHighlight.tithi.paksha} Paksha` : undefined}
+            />
 
             <p className="text-gray-400 text-sm mt-4">
               {moonData.illuminationPct}% illuminated
             </p>
+
+            {/* View today's message trigger */}
+            {dayHighlight && (
+              <button
+                onClick={() => setShowModal(true)}
+                className="mt-3 flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-opacity active:opacity-70"
+                style={{
+                  background: 'rgba(221,187,106,0.10)',
+                  border: '1px solid rgba(221,187,106,0.35)',
+                  color: '#DDBB6A',
+                }}
+                aria-label="View today's message"
+              >
+                <Sparkles size={13} strokeWidth={1.75} aria-hidden="true" />
+                View today's message
+              </button>
+            )}
 
             {/* Compact moonrise / moonset row */}
             <div className="flex items-center gap-8 mt-5 pt-4 border-t border-gray-800 w-full justify-center">
@@ -251,6 +274,22 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
             Try again
           </button>
         </div>
+      )}
+      {/* Today's Message Modal */}
+      {dayHighlight && moonData && (
+        <TodayMessageModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          vara={getVara(date)}
+          dateLabel={date.toLocaleDateString('en-IN', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+          })}
+          tithiName={dayHighlight.tithi.name}
+          paksha={dayHighlight.tithi.paksha}
+          illuminationPct={moonData.illuminationPct}
+          message={TITHI_MESSAGES[dayHighlight.tithi.number] ?? TITHI_MESSAGES[1]}
+          phase={moonData.phase}
+        />
       )}
     </div>
   )

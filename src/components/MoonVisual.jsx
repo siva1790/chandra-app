@@ -80,7 +80,7 @@ const shadowPath = (phase) => {
   )
 }
 
-const MoonVisual = ({ phase }) => {
+const MoonVisual = ({ phase, tithiLabel }) => {
   const isNewMoon  = phase < 0.02 || phase > 0.98
   const isFullMoon = phase > 0.48 && phase < 0.52
   const shadow     = shadowPath(phase)
@@ -185,14 +185,33 @@ const MoonVisual = ({ phase }) => {
       </svg>
 
       <p className="text-yellow-300 text-lg font-semibold">
-        {getPhaseName(phase)}
+        {tithiLabel
+          ? `${getPhaseEmoji(phase)} ${tithiLabel}`
+          : getPhaseName(phase)
+        }
       </p>
     </div>
   )
 }
 
 /**
- * Human-readable phase name with emoji.
+ * Returns only the moon phase emoji for a given phase value.
+ * Used when tithiLabel is provided — we keep the emoji but swap the text.
+ */
+const getPhaseEmoji = (phase) => {
+  if (phase > 29 / 30) return '🌑'
+  if (phase < 0.27)    return '🌒'
+  if (phase < 0.30)    return '🌓'
+  if (phase < 0.48)    return '🌔'
+  if (phase < 0.52)    return '🌕'
+  if (phase < 0.73)    return '🌖'
+  if (phase < 0.76)    return '🌗'
+  if (phase <= 29 / 30) return '🌘'
+  return '🌑'
+}
+
+/**
+ * Human-readable phase name with emoji (Western fallback).
  * Boundaries are aligned to the 30-tithi system (each tithi ≈ 12° = 1/30).
  */
 const getPhaseName = (phase) => {
