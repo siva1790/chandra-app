@@ -3,7 +3,7 @@ import * as Astronomy from 'astronomy-engine'
 import MoonVisual from '../components/MoonVisual'
 import DateStrip from '../components/DateStrip'
 import { useSettings } from '../SettingsContext'
-import { getSunriseForDate, getMoonPhaseAngle, getTithiFromAngle } from '../moonUtils'
+import { getTithiAtSunrise } from '../moonUtils'
 import { getFestivalsForDate } from '../festivals'
 import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
@@ -84,17 +84,8 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
       try { moonset = Astronomy.SearchRiseSet('Moon', observer, -1, startOfDay, 2) } catch (_) {}
 
       // ── Day's highlight (festival or eclipse) ──────────────────
-      // Use Drik Panchang convention: tithi at sunrise, but noon overrides if different
-      const sunriseTime = getSunriseForDate(date, location.lat, location.lon)
-      const sunriseTithi = getTithiFromAngle(getMoonPhaseAngle(sunriseTime))
-
-      const noonTime = new Date(date)
-      noonTime.setHours(12, 0, 0, 0)
-      const noonTithi = getTithiFromAngle(getMoonPhaseAngle(noonTime))
-
-      const effectiveTithi = sunriseTithi.adjustedNumber !== noonTithi.adjustedNumber
-        ? noonTithi
-        : sunriseTithi
+      // Match Panchang: the civil day's tithi is sampled at local sunrise.
+      const effectiveTithi = getTithiAtSunrise(date, location.lat, location.lon)
 
       const festivals = getFestivalsForDate(date, {
         tithiNumber: effectiveTithi.adjustedNumber,
