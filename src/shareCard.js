@@ -14,6 +14,7 @@
  *   - Bottom strip: Chandra wordmark + chandrapanchang.app URL
  */
 
+import QRCode from 'qrcode'
 import moonTexture from './assets/moon-texture.png'
 
 const W = 540
@@ -213,23 +214,40 @@ export const generateShareCard = async ({
   const lineH = 34
   wrapText(ctx, `"${message}"`, msgX, msgY, maxW, lineH)
 
-  // ── 10. Bottom strip ──────────────────────────────────────────────────────
-  const bottomDivY = H - 110
+  // ── 10. Bottom strip — QR code + wordmark ─────────────────────────────────
+  const bottomDivY = H - 148
   ctx.fillStyle = 'rgba(221,187,106,0.2)'
   ctx.fillRect(60, bottomDivY, W - 120, 1)
 
+  // Generate QR code as a data URL (gold on dark)
+  const qrSize = 80
+  const qrX    = CX - qrSize / 2    // centred horizontally
+  const qrY    = bottomDivY + 14
+
+  try {
+    const qrDataUrl = await QRCode.toDataURL('https://chandrapanchang.app', {
+      width:  qrSize * 2,   // 2× for crisp rendering, then scale down
+      margin: 1,
+      color: {
+        dark:  '#DDBB6A',   // gold modules
+        light: '#0B1020',   // dark background matches card
+      },
+    })
+    const qrImg = await loadImage(qrDataUrl)
+    ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize)
+  } catch (_) {
+    // QR generation failed — fall back to URL text only
+  }
+
+  // Wordmark below QR code
   ctx.textAlign = 'center'
   ctx.fillStyle = 'rgba(221,187,106,0.75)'
-  ctx.font = '500 24px Arial, sans-serif'
-  ctx.fillText('CHANDRA', CX, bottomDivY + 34)
+  ctx.font = '500 20px Arial, sans-serif'
+  ctx.fillText('CHANDRA', CX, qrY + qrSize + 22)
 
-  ctx.fillStyle = 'rgba(181,189,209,0.5)'
-  ctx.font = '400 17px Arial, sans-serif'
-  ctx.fillText('Indian Moon Tracker', CX, bottomDivY + 57)
-
-  ctx.fillStyle = 'rgba(107,116,148,0.7)'
-  ctx.font = '400 15px Arial, sans-serif'
-  ctx.fillText('chandrapanchang.app', CX, bottomDivY + 80)
+  ctx.fillStyle = 'rgba(107,116,148,0.65)'
+  ctx.font = '400 14px Arial, sans-serif'
+  ctx.fillText('chandrapanchang.app', CX, qrY + qrSize + 40)
 
   // ── 11. Export ────────────────────────────────────────────────────────────
   return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'))
