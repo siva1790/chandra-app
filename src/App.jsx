@@ -6,6 +6,7 @@ import Panchang from './pages/Panchang'
 import Settings from './pages/Settings'
 import { useSettings } from './SettingsContext'
 import { useSubscription } from './SubscriptionContext'
+import { ENABLE_SUBSCRIPTIONS } from './featureFlags'
 import InstallPrompt from './components/InstallPrompt'
 import SubscribeSheet from './components/SubscribeSheet'
 import OfflineBanner from './components/OfflineBanner'
@@ -13,8 +14,6 @@ import { trackPageView } from './analytics'
 import { Bell, Moon, Calendar as CalendarIcon, Clock, Settings as SettingsIcon } from 'lucide-react'
 
 // Feature flag — set to true to re-enable the subscription UI
-const ENABLE_SUBSCRIPTIONS = false
-
 function App() {
   const [screen, setScreen] = useState('home')
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -98,7 +97,7 @@ function App() {
         <div style={{ display: screen === 'home'     ? 'block' : 'none' }}><Home location={settings} date={globalDate} onDateChange={setGlobalDate} onNavigateToPanchang={navigateToPanchang} /></div>
         <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} /></div>
         <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} /></div>
-        <div style={{ display: screen === 'settings' ? 'block' : 'none' }}><Settings onOpenSubscribe={() => setSheetOpen(true)} /></div>
+        <div style={{ display: screen === 'settings' ? 'block' : 'none' }}><Settings onOpenSubscribe={ENABLE_SUBSCRIPTIONS ? () => setSheetOpen(true) : undefined} /></div>
       </main>
 
       {/* ── Bottom Navigation ── */}
@@ -129,7 +128,9 @@ function App() {
       </nav>
 
       {/* ── Subscribe / Details Bottom Sheet ── */}
-      <SubscribeSheet open={sheetOpen} onClose={() => setSheetOpen(false)} triggerRef={bellButtonRef} />
+      {ENABLE_SUBSCRIPTIONS && (
+        <SubscribeSheet open={sheetOpen} onClose={() => setSheetOpen(false)} triggerRef={bellButtonRef} />
+      )}
 
     </div>
   )

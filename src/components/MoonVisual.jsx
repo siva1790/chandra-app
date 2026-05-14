@@ -2,11 +2,11 @@
  * MoonVisual — renders a textured SVG moon for any phase (0–1).
  *
  * Approach (shadow-overlay):
- *   1. Draw the full lit disc (radial gradient, silver-white).
- *   2. Overlay lunar maria (dark ellipses at real approximate positions).
+ *   1. Draw the full lit disc with a clipped moon texture.
+ *   2. Let the texture provide lunar maria and crater detail.
  *   3. Draw a dark shadow "lune" shape on top to cover the unlit portion.
  *      The shadow path = one semicircle arc + one terminator ellipse arc.
- *   4. The craters/maria in the lit zone remain visible; those under the
+ *   4. The texture in the lit zone remains visible; details under the
  *      shadow are automatically hidden — no clip-path juggling needed.
  *
  * This gives a unique, correct image for all 30 Hindu tithis (and any
@@ -17,10 +17,15 @@
  *               1 = Amavasya again
  */
 
+import moonTexture from '../assets/moon-texture.png'
+
 const SIZE = 200
 const CX   = SIZE / 2   // 100
 const CY   = SIZE / 2   // 100
 const R    = 82
+const TEXTURE_SIZE = R * 2 * 1.1
+const TEXTURE_X    = CX - TEXTURE_SIZE / 2
+const TEXTURE_Y    = CY - TEXTURE_SIZE / 2
 
 
 /**
@@ -151,10 +156,17 @@ const MoonVisual = ({ phase }) => {
 
           {/* 2. Full lit surface — the shadow will cover the dark portion */}
           {!isNewMoon && (
-            <circle cx={CX} cy={CY} r={R} fill="url(#chandra-lit)" />
+            <image
+              href={moonTexture}
+              x={TEXTURE_X}
+              y={TEXTURE_Y}
+              width={TEXTURE_SIZE}
+              height={TEXTURE_SIZE}
+              preserveAspectRatio="xMidYMid slice"
+            />
           )}
 
-          {/* 3. No surface texture — clean plain sphere */}
+          {/* 3. Texture provides the visible crater/maria detail */}
 
           {/* 4. Shadow overlay — covers the unlit lune */}
           {shadow && (
@@ -184,14 +196,14 @@ const MoonVisual = ({ phase }) => {
  * Boundaries are aligned to the 30-tithi system (each tithi ≈ 12° = 1/30).
  */
 const getPhaseName = (phase) => {
-  if (phase < 0.02 || phase > 0.98) return '🌑 Amavasya (New Moon)'
+  if (phase > 29 / 30) return '🌑 Amavasya (New Moon)'
   if (phase < 0.27) return '🌒 Waxing Crescent'
   if (phase < 0.30) return '🌓 First Quarter'
   if (phase < 0.48) return '🌔 Waxing Gibbous'
   if (phase < 0.52) return '🌕 Purnima (Full Moon)'
   if (phase < 0.73) return '🌖 Waning Gibbous'
   if (phase < 0.76) return '🌗 Last Quarter'
-  if (phase < 0.98) return '🌘 Waning Crescent'
+  if (phase <= 29 / 30) return '🌘 Waning Crescent'
   return '🌑 Amavasya (New Moon)'
 }
 

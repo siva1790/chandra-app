@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import * as Astronomy from 'astronomy-engine'
-import { getSunriseForDate, getSunsetForDate } from '../moonUtils'
+import { getSunriseForDate, getSunsetForDate, getTithiAtSunrise } from '../moonUtils'
 import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DateStrip from '../components/DateStrip'
 import { EclipseIcon } from '../components/EclipseIcons'
@@ -320,17 +320,10 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
       const phaseAngle = Astronomy.MoonPhase(sunriseTime)
 
       // --- Tithi ---
-      const tithiNames = [
-        'Pratipada (Prathama)', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
-        'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
-        'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Purnima',
-        'Pratipada (Prathama)', 'Dwitiya', 'Tritiya', 'Chaturthi', 'Panchami',
-        'Shashthi', 'Saptami', 'Ashtami', 'Navami', 'Dashami',
-        'Ekadashi', 'Dwadashi', 'Trayodashi', 'Chaturdashi', 'Amavasya'
-      ]
-      const tithiIndex = Math.floor(phaseAngle / 12)
-      const tithiName = tithiNames[Math.min(tithiIndex, 29)]
-      const paksha = tithiIndex < 15 ? 'Shukla Paksha' : 'Krishna Paksha'
+      const tithi = getTithiAtSunrise(date, location?.lat, location?.lon)
+      const tithiIndex = tithi.number - 1
+      const tithiName = tithi.name
+      const paksha = `${tithi.paksha} Paksha`
 
       // --- Moon longitude (sidereal at sunrise) ---
       const moonLongitude = getMoonSiderealLongitude(sunriseTime)

@@ -3,7 +3,7 @@ import * as Astronomy from 'astronomy-engine'
 import MoonVisual from '../components/MoonVisual'
 import DateStrip from '../components/DateStrip'
 import { useSettings } from '../SettingsContext'
-import { getTithiAtSunrise } from '../moonUtils'
+import { getSunriseForDate, getTithiAtSunrise } from '../moonUtils'
 import { getFestivalsForDate } from '../festivals'
 import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
@@ -67,12 +67,16 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang }) => {
     try {
       const observer = new Astronomy.Observer(location.lat, location.lon, 0)
 
+      // Sample phase at sunrise so the Day View moon label follows the same
+      // civil-day tithi convention as Panchang.
+      const sunriseTime = getSunriseForDate(date, location.lat, location.lon)
+
       // Phase fraction for MoonVisual (0 = new, 0.5 = full, 1 = new again)
-      const phaseAngle = Astronomy.MoonPhase(date)
+      const phaseAngle = Astronomy.MoonPhase(sunriseTime)
       const phase = phaseAngle / 360
 
       // Illumination %
-      const illum = Astronomy.Illumination('Moon', date)
+      const illum = Astronomy.Illumination('Moon', sunriseTime)
       const illuminationPct = (illum.phase_fraction * 100).toFixed(1)
 
       // Moonrise / moonset from start of selected day

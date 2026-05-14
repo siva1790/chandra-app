@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSettings } from '../SettingsContext'
 import { useSubscription } from '../SubscriptionContext'
+import { ENABLE_SUBSCRIPTIONS } from '../featureFlags'
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
@@ -540,9 +541,8 @@ const Settings = ({ onOpenSubscribe }) => {
           </div>
         </div>
 
-        {/* Email Alerts — hidden until ENABLE_SUBSCRIPTIONS = true in App.jsx */}
-        {/* To re-enable: set ENABLE_SUBSCRIPTIONS = true and remove this comment wrapper */}
-        {false && (
+        {/* Email Alerts — hidden until ENABLE_SUBSCRIPTIONS is enabled */}
+        {ENABLE_SUBSCRIPTIONS && onOpenSubscribe && (
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
           <p className="text-yellow-500 text-xs uppercase tracking-widest mb-1 flex items-center gap-1.5">
             <Mail size={13} aria-hidden="true" /> Email Alerts
