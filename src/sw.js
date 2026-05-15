@@ -4,8 +4,10 @@ import { NavigationRoute, registerRoute } from 'workbox-routing'
 // ── Precache app shell (manifest injected by vite-plugin-pwa at build time) ──
 precacheAndRoute(self.__WB_MANIFEST)
 
-// ── SPA fallback — all navigation requests serve index.html from cache ──
-registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')))
+// ── SPA fallback — app routes serve index.html, static policy pages do not ──
+registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), {
+  denylist: [/^\/privacy\.html$/],
+}))
 
 // ── Take control of existing clients immediately on update ──
 self.skipWaiting()

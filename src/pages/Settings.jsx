@@ -5,7 +5,7 @@ import { ENABLE_SUBSCRIPTIONS } from '../featureFlags'
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
-import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed } from 'lucide-react'
+import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck } from 'lucide-react'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
@@ -626,6 +626,16 @@ const Settings = ({ onOpenSubscribe }) => {
               <span className="text-gray-400 text-sm">Calculations</span>
               <span className="text-white text-sm">On-device, no API</span>
             </div>
+            <a
+              href="/privacy.html"
+              className="flex justify-between items-center min-h-[44px] pt-2 mt-1 border-t border-gray-800 text-sm group"
+            >
+              <span className="text-gray-400 flex items-center gap-1">
+                <ShieldCheck size={13} aria-hidden="true" />
+                Privacy Policy
+              </span>
+              <span className="text-[#8EA8FF] group-hover:underline">View</span>
+            </a>
           </div>
         </div>
 
