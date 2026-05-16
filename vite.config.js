@@ -3,6 +3,15 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        entryFileNames: 'assets/[name]-[hash]-r2.js',
+        chunkFileNames: 'assets/[name]-[hash]-r2.js',
+        assetFileNames: 'assets/[name]-[hash]-r2[extname]',
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
