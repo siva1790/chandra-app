@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Chandra logo concept B</title>
+  <desc id="desc">A gold moon disc with a dark crescent shadow and a subtle lunar calendar ring.</desc>
+  <defs>
+    <linearGradient id="bg" x1="80" y1="48" x2="432" y2="464" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1D2440"/>
+      <stop offset="1" stop-color="#0B1020"/>
+    </linearGradient>
+    <radialGradient id="disc" cx="36%" cy="30%" r="70%">
+      <stop offset="0" stop-color="#F5E2A8"/>
+      <stop offset="0.62" stop-color="#DDBB6A"/>
+      <stop offset="1" stop-color="#A97922"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="168" fill="none" stroke="#DDBB6A" stroke-width="7" opacity="0.18"/>
+  <circle cx="256" cy="256" r="142" fill="url(#disc)"/>
+  <circle cx="306" cy="220" r="136" fill="#0B1020"/>
+  <path d="M244 103c-49 29-82 83-82 145 0 68 40 127 98 154-78-4-140-68-140-146 0-79 63-145 142-146-6-3-12-5-18-7Z" fill="#F5F7FA" opacity="0.08"/>
+
+  <g fill="#8EA8FF" opacity="0.92">
+    <circle cx="256" cy="64" r="6"/>
+    <circle cx="352" cy="90" r="5"/>
+    <circle cx="422" cy="160" r="5"/>
+    <circle cx="448" cy="256" r="6"/>
+    <circle cx="422" cy="352" r="5"/>
+    <circle cx="352" cy="422" r="5"/>
+    <circle cx="256" cy="448" r="6"/>
+    <circle cx="160" cy="422" r="5"/>
+    <circle cx="90" cy="352" r="5"/>
+    <circle cx="64" cy="256" r="6"/>
+    <circle cx="90" cy="160" r="5"/>
+    <circle cx="160" cy="90" r="5"/>
+  </g>
+</svg>

@@ -59,7 +59,7 @@ function App() {
           className="flex items-center gap-2 rounded-xl transition-opacity active:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8EA8FF]"
         >
           <img
-            src="/icons/icon-192.png"
+            src="/icons/chandra-mark-topbar-96.png"
             alt="Chandra"
             className="w-8 h-8 rounded-lg"
           />

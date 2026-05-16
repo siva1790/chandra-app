@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chandra Logo Concepts</title>
+  <style>
+    :root {
+      --bg-primary: #0B1020;
+      --bg-surface: #151B2F;
+      --bg-elevated: #1D2440;
+      --gold: #DDBB6A;
+      --gold-hover: #E8C87A;
+      --indigo-deco: #5B6CFF;
+      --focus-ring: #8EA8FF;
+      --text-primary: #F5F7FA;
+      --text-secondary: #B5BDD1;
+      --text-disabled: #70778B;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-default: rgba(255, 255, 255, 0.12);
+      --border-emphasis: rgba(221, 187, 106, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, rgba(91, 108, 255, 0.14), transparent 34%),
+        var(--bg-primary);
+      color: var(--text-primary);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+
+    header {
+      margin-bottom: 28px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .intro {
+      max-width: 720px;
+      margin: 12px 0 0;
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .concept {
+      background: rgba(21, 27, 47, 0.86);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .concept.recommended {
+      border-color: var(--border-emphasis);
+      box-shadow: 0 0 20px rgba(221, 187, 106, 0.12);
+    }
+
+    .stage {
+      display: grid;
+      place-items: center;
+      min-height: 320px;
+      padding: 32px;
+      background: #0D1122;
+    }
+
+    .stage img {
+      width: 210px;
+      height: 210px;
+      display: block;
+    }
+
+    .content {
+      padding: 18px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 8px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(221, 187, 106, 0.13);
+      border: 1px solid rgba(221, 187, 106, 0.3);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+
+    .samples {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+    }
+
+    .panel {
+      background: rgba(21, 27, 47, 0.86);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin-bottom: 14px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 56px;
+      padding: 0 16px;
+      background: #030712;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+    }
+
+    .topbar img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+    }
+
+    .topbar span {
+      color: var(--gold);
+      font-size: 18px;
+      font-weight: 750;
+    }
+
+    .lockup {
+      display: grid;
+      place-items: center;
+      min-height: 148px;
+      background: #0D1122;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      margin-top: 14px;
+    }
+
+    .lockup img {
+      width: min(420px, 92%);
+      height: auto;
+    }
+
+    .size-row {
+      display: flex;
+      align-items: end;
+      gap: 18px;
+      min-height: 158px;
+      padding: 20px;
+      background: #0D1122;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+    }
+
+    .size-sample {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+    }
+
+    .size-sample img {
+      display: block;
+      border-radius: 22%;
+    }
+
+    .size-sample span {
+      color: var(--text-disabled);
+      font-size: 12px;
+    }
+
+    .notes {
+      margin-top: 24px;
+      background: rgba(29, 36, 64, 0.78);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .notes ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      line-height: 1.65;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .samples {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">Logo direction</div>
+      <h1>Chandra Logo Concepts</h1>
+      <p class="intro">
+        These are isolated concept assets only. Nothing here is wired into the app yet. The goal is to choose the visual direction before generating final launcher, PWA, notification, and social-share files.
+      </p>
+    </header>
+
+    <section class="grid" aria-label="Logo concepts">
+      <article class="concept recommended">
+        <div class="stage">
+          <img src="./chandra-concept-a-mark.svg" alt="Concept A mark" />
+        </div>
+        <div class="content">
+          <h2>Concept A <span class="badge">Recommended</span></h2>
+          <p>Premium, calm, and launch-safe. The crescent stays readable at small sizes, with small celestial accents that avoid crossing or cluttering the moon form.</p>
+        </div>
+      </article>
+
+      <article class="concept">
+        <div class="stage">
+          <img src="./chandra-concept-b-mark.svg" alt="Concept B mark" />
+        </div>
+        <div class="content">
+          <h2>Concept B</h2>
+          <p>More celestial and calendar-like. The phase dots add meaning, but this is more detailed and may lose clarity in notification and favicon contexts.</p>
+        </div>
+      </article>
+
+      <article class="concept">
+        <div class="stage">
+          <img src="./chandra-concept-c-mark.svg" alt="Concept C mark" />
+        </div>
+        <div class="content">
+          <h2>Concept C</h2>
+          <p>Most explicit about calendar utility. It is clear, but the calendar base makes it feel more functional and less distinctive than the crescent-first route.</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="samples" aria-label="Usage samples">
+      <div class="panel">
+        <h2>Concept A In App Context</h2>
+        <div class="topbar">
+          <img src="./chandra-concept-a-mark.svg" alt="" />
+          <span>Chandra</span>
+        </div>
+        <div class="lockup">
+          <img src="./chandra-concept-a-lockup.svg" alt="Concept A Chandra lockup" />
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Small Size Check</h2>
+        <div class="size-row">
+          <div class="size-sample">
+            <img src="./chandra-concept-a-mark.svg" alt="" style="width: 24px; height: 24px;" />
+            <span>24</span>
+          </div>
+          <div class="size-sample">
+            <img src="./chandra-concept-a-mark.svg" alt="" style="width: 40px; height: 40px;" />
+            <span>40</span>
+          </div>
+          <div class="size-sample">
+            <img src="./chandra-concept-a-mark.svg" alt="" style="width: 72px; height: 72px;" />
+            <span>72</span>
+          </div>
+          <div class="size-sample">
+            <img src="./chandra-concept-a-mark.svg" alt="" style="width: 112px; height: 112px;" />
+            <span>112</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="notes" aria-label="Design notes">
+      <ul>
+        <li>All concepts use the design-system navy, gold, text, and indigo accent palette.</li>
+        <li>No text is embedded in the app icon mark, which keeps it suitable for launcher and Play Store use.</li>
+        <li>Concept A is the strongest candidate because it can scale down cleanly and still feel like Chandra rather than a generic moon app.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

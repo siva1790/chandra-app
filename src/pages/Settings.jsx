@@ -664,7 +664,7 @@ const NotificationPreview = ({ visible, onDismiss }) => (
     margin: '0 auto',
   }}>
     <img
-      src="/icons/icon-192.png"
+      src="/icons/chandra-mark-topbar-96.png"
       alt=""
       style={{ width: 36, height: 36, borderRadius: 8, flexShrink: 0 }}
     />

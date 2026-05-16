@@ -1,0 +1,25 @@
+{
+  "source": "..\\..\\..\\Downloads\\file_000000001cf472089dbd2737a357738c.png",
+  "output": "public\\brand",
+  "files": [
+    "source/selected-logo-source.png",
+    "master/chandra-master-2048.png",
+    "icons/google-play-icon-512.png",
+    "icons/maskable-icon-512.png",
+    "icons/maskable-icon-192.png",
+    "icons/pwa-icon-192.png",
+    "icons/notification-icon-72.png",
+    "icons/favicon-96.png",
+    "icons/favicon-48.png",
+    "icons/favicon-32.png",
+    "icons/favicon.ico",
+    "ui/chandra-mark-topbar-96.png",
+    "ui/chandra-mark-simplified.svg",
+    "ui/chandra-lockup-horizontal.png",
+    "ui/chandra-splash-1080x1920.png",
+    "social/chandra-og-square-1200.png",
+    "social/chandra-og-wide-1200x630.png",
+    "preview/chandra-logo-system-preview.html",
+    "preview/chandra-logo-system-preview.png"
+  ]
+}

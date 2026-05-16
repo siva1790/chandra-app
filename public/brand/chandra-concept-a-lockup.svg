@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 144" role="img" aria-labelledby="title desc">
+  <title id="title">Chandra logo concept A lockup</title>
+  <desc id="desc">Chandra wordmark with a clean gold crescent moon symbol.</desc>
+  <defs>
+    <linearGradient id="markBg" x1="18" y1="12" x2="126" y2="132" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#151B2F"/>
+      <stop offset="1" stop-color="#0B1020"/>
+    </linearGradient>
+    <radialGradient id="moon" cx="35%" cy="28%" r="72%">
+      <stop offset="0" stop-color="#F4D78D"/>
+      <stop offset="0.58" stop-color="#DDBB6A"/>
+      <stop offset="1" stop-color="#B88C2F"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="12" y="12" width="120" height="120" rx="30" fill="url(#markBg)"/>
+  <circle cx="72" cy="72" r="42" fill="none" stroke="#DDBB6A" stroke-width="3" opacity="0.18"/>
+  <path d="M89 106c-25 0-46-20-46-44S64 18 89 18c5 0 9 1 13 2-15 5-26 20-26 37 0 20 14 37 33 41-6 5-13 8-20 8Z" fill="url(#moon)"/>
+  <circle cx="45" cy="98" r="2.4" fill="#DDBB6A" opacity="0.78"/>
+  <circle cx="56" cy="106" r="1.8" fill="#8EA8FF" opacity="0.72"/>
+  <path d="M108 28l3 8 8 3-8 3-3 8-3-8-8-3 8-3 3-8Z" fill="#DDBB6A"/>
+
+  <text x="156" y="73" fill="#F5F7FA" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="46" font-weight="750" letter-spacing="0">Chandra</text>
+  <text x="158" y="104" fill="#B5BDD1" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="17" font-weight="500" letter-spacing="0">Indian Moon Tracker</text>
+</svg>

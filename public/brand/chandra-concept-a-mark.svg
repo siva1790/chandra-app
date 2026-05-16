@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Chandra logo concept A</title>
+  <desc id="desc">A gold crescent moon with small celestial accents on a dark navy rounded square.</desc>
+  <defs>
+    <linearGradient id="bg" x1="96" y1="32" x2="416" y2="480" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#151B2F"/>
+      <stop offset="1" stop-color="#0B1020"/>
+    </linearGradient>
+    <radialGradient id="moon" cx="35%" cy="28%" r="72%">
+      <stop offset="0" stop-color="#F4D78D"/>
+      <stop offset="0.58" stop-color="#DDBB6A"/>
+      <stop offset="1" stop-color="#B88C2F"/>
+    </radialGradient>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0.866 0 1 0 0 0.733 0 0 1 0 0.416 0 0 0 0.32 0"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="180" fill="#1D2440" opacity="0.48"/>
+  <circle cx="256" cy="256" r="146" fill="none" stroke="#DDBB6A" stroke-width="8" opacity="0.18"/>
+
+  <g filter="url(#softGlow)">
+    <path
+      d="M316 392c-89 0-162-69-162-154S227 84 316 84c16 0 31 2 46 7-54 19-92 71-92 132 0 70 49 129 116 144-21 16-46 25-70 25Z"
+      fill="url(#moon)"
+    />
+    <path
+      d="M326 372c-75 0-136-59-136-132 0-59 41-111 99-126-31 27-50 66-50 110 0 63 40 117 96 139-3 6-6 9-9 9Z"
+      fill="#F5F7FA"
+      opacity="0.08"
+    />
+  </g>
+
+  <circle cx="334" cy="164" r="10" fill="#8EA8FF"/>
+  <circle cx="154" cy="344" r="7" fill="#DDBB6A" opacity="0.78"/>
+  <circle cx="190" cy="374" r="5" fill="#8EA8FF" opacity="0.72"/>
+  <path d="M382 122l7 18 18 7-18 7-7 18-7-18-18-7 18-7 7-18Z" fill="#DDBB6A"/>
+</svg>

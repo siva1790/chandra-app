@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chandra Logo System Preview</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0B1020; --surface:#151B2F; --gold:#DDBB6A; --text:#F5F7FA; --muted:#B5BDD1; --border:rgba(255,255,255,.12); }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Inter, "Segoe UI", Arial, sans-serif; }
+    main { width:min(1120px, calc(100% - 32px)); margin:0 auto; padding:36px 0 64px; }
+    h1 { margin:0 0 8px; font-size:34px; letter-spacing:0; }
+    p { color:var(--muted); line-height:1.55; }
+    .grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin-top:24px; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:18px; }
+    .card h2 { margin:0 0 14px; color:var(--gold); font-size:18px; }
+    .sizes { display:flex; align-items:end; gap:18px; min-height:190px; flex-wrap:wrap; }
+    .sample { display:grid; gap:8px; justify-items:center; color:var(--muted); font-size:12px; }
+    img { max-width:100%; height:auto; }
+    .topbar { display:flex; align-items:center; gap:10px; height:56px; padding:0 16px; border-radius:8px; background:#030712; }
+    .topbar img { width:34px; height:34px; border-radius:8px; }
+    .topbar span { color:var(--gold); font-weight:750; font-size:18px; }
+    .mask-row { display:flex; gap:20px; align-items:center; flex-wrap:wrap; }
+    .mask { width:180px; height:180px; padding:28px; background:#061A31; border:1px solid var(--border); display:grid; place-items:center; overflow:hidden; }
+    .mask.rounded { border-radius:42px; }
+    .mask.circle { border-radius:50%; }
+    .mask img { width:100%; height:100%; }
+    .wide { grid-column:1 / -1; }
+    @media (max-width:760px) { .grid { grid-template-columns:1fr; } .wide { grid-column:auto; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Chandra Logo System Preview</h1>
+    <p>Generated from the selected logo image. These assets are staged for review only and are not wired into the live app yet.</p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Icon Scale Check</h2>
+        <div class="sizes">
+          <div class="sample"><img src="../icons/app-icon-16.png" width="16" height="16" alt="" /><span>16px</span></div><div class="sample"><img src="../icons/app-icon-32.png" width="32" height="32" alt="" /><span>32px</span></div><div class="sample"><img src="../icons/app-icon-72.png" width="72" height="72" alt="" /><span>72px</span></div><div class="sample"><img src="../icons/app-icon-192.png" width="192" height="192" alt="" /><span>192px</span></div>
+          <div class="sample"><img src="../icons/google-play-icon-512.png" width="220" height="220" alt="" /><span>512px</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Maskable / Adaptive Check</h2>
+        <div class="mask-row">
+          <div class="mask rounded"><img src="../icons/maskable-icon-512.png" alt="Rounded mask preview" /></div>
+          <div class="mask circle"><img src="../icons/maskable-icon-512.png" alt="Circle mask preview" /></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Top Bar Mark</h2>
+        <div class="topbar"><img src="../ui/chandra-mark-topbar-96.png" alt="" /><span>Chandra</span></div>
+      </article>
+
+      <article class="card">
+        <h2>Horizontal Lockup</h2>
+        <img src="../ui/chandra-lockup-horizontal.png" alt="Chandra horizontal lockup" />
+      </article>
+
+      <article class="card">
+        <h2>Loading Screen</h2>
+        <img src="../ui/chandra-splash-1080x1920.png" alt="Chandra splash screen preview" />
+      </article>
+
+      <article class="card">
+        <h2>Square Social Share</h2>
+        <img src="../social/chandra-og-square-1200.png" alt="Square social share image" />
+      </article>
+
+      <article class="card wide">
+        <h2>Wide Open Graph Share</h2>
+        <img src="../social/chandra-og-wide-1200x630.png" alt="Wide social share image" />
+      </article>
+
+      <article class="card wide">
+        <h2>One-Page Contact Sheet</h2>
+        <img src="./chandra-logo-system-preview.png" alt="Logo system preview contact sheet" />
+      </article>
+    </section>
+  </main>
+</body>
+</html>
