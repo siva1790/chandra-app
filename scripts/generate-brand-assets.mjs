@@ -130,7 +130,7 @@ const drawSimplifiedMark = (ctx, cx, cy, size, options = {}) => {
   if (options.ticks !== false) {
     ctx.strokeStyle = colors.goldLight
     ctx.lineCap = 'round'
-    for (let i = 0; i < 18; i += 1) {
+    for (let i = 0; i < 15; i += 1) {
       const angle = (142 + i * 9) * Math.PI / 180
       const inner = i % 5 === 0 ? 139 : 149
       const outer = 166
