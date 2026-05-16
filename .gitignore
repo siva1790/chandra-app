@@ -25,6 +25,11 @@ dist-ssr
 
 .vercel
 
+# Play Store listing assets generated locally
+playstore-*.html
+playstore-screenshots/
+scripts/generate-playstore-screenshots.mjs
+
 # Android / Bubblewrap
 android/.gradle/
 android/app/build/
