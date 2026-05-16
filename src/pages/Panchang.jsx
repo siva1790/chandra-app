@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import * as Astronomy from 'astronomy-engine'
-import { getSunriseForDate, getSunsetForDate, getTithiAtSunrise } from '../moonUtils'
+import { getSunriseForDate, getSunsetForDate, getTithiAtSunrise, getTithiFromAngle } from '../moonUtils'
 import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DateStrip from '../components/DateStrip'
 import { EclipseIcon } from '../components/EclipseIcons'
@@ -83,6 +83,45 @@ const findNakshatraTransition = (startTime, endTime, startIdx) => {
     else hi = mid
   }
   return new Date((lo + hi) / 2)
+}
+
+const getTithiIndexAtTime = (date) => getTithiFromAngle(Astronomy.MoonPhase(date)).number - 1
+
+const findTithiTransition = (startTime, endTime, startIdx) => {
+  let lo = startTime.getTime()
+  let hi = endTime.getTime()
+  for (let i = 0; i < 30; i++) {
+    const mid = (lo + hi) / 2
+    if (getTithiIndexAtTime(new Date(mid)) === startIdx) lo = mid
+    else hi = mid
+  }
+  return new Date((lo + hi) / 2)
+}
+
+const getTithiWindowAtTime = (date) => {
+  const tithiIndex = getTithiIndexAtTime(date)
+  const step = 30 * 60 * 1000
+  const limit = 36 * 60 * 60 * 1000
+
+  let start = null
+  for (let offset = step; offset <= limit; offset += step) {
+    const scan = new Date(date.getTime() - offset)
+    if (getTithiIndexAtTime(scan) !== tithiIndex) {
+      start = findTithiTransition(scan, new Date(scan.getTime() + step), getTithiIndexAtTime(scan))
+      break
+    }
+  }
+
+  let end = null
+  for (let offset = step; offset <= limit; offset += step) {
+    const scan = new Date(date.getTime() + offset)
+    if (getTithiIndexAtTime(scan) !== tithiIndex) {
+      end = findTithiTransition(new Date(scan.getTime() - step), scan, tithiIndex)
+      break
+    }
+  }
+
+  return { start, end }
 }
 
 // ── Yoga helpers ──────────────────────────────────────────────────
@@ -324,6 +363,7 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
       const tithiIndex = tithi.number - 1
       const tithiName = tithi.name
       const paksha = `${tithi.paksha} Paksha`
+      const tithiWindow = getTithiWindowAtTime(sunriseTime)
 
       // --- Moon longitude (sidereal at sunrise) ---
       const moonLongitude = getMoonSiderealLongitude(sunriseTime)
@@ -612,7 +652,7 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
       const eclipse    = getEclipseForDate(date)
 
       setPanchang({
-        tithi: tithiName, paksha,
+        tithi: tithiName, paksha, tithiWindow,
         nakshatra: nakshatraName, nakshatraPada, nakshatraList,
         yoga: yogaName, yogaList, karana: karanaName, karanaList,
         vara: varaNames[varaIndex], varaDeity: varaDeva[varaIndex],
@@ -712,7 +752,27 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
             onToggle={() => toggleSection('panchaAnga')}
           >
             <div className="flex flex-col gap-3">
-              <PanchangRow icon={Moon} label="Tithi" value={panchang.tithi} sub={panchang.paksha} />
+              <div className="py-2 border-b border-gray-800">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Moon size={16} aria-hidden="true" strokeWidth={1.75} className="text-gray-400 shrink-0" />
+                    <span className="text-gray-400 text-sm">Tithi</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-white">{panchang.tithi}</p>
+                    <p className="text-gray-400 text-xs">{panchang.paksha}</p>
+                  </div>
+                </div>
+                {panchang.tithiWindow?.start && panchang.tithiWindow?.end && (
+                  <div className="ml-6 mt-2 bg-gray-800 rounded-xl px-3 py-2">
+                    <p className="text-yellow-300 text-xs font-medium">
+                      {formatTime(panchang.tithiWindow.start)}, {formatShortDate(panchang.tithiWindow.start)}
+                      {' → '}
+                      {formatTime(panchang.tithiWindow.end)}, {formatShortDate(panchang.tithiWindow.end)}
+                    </p>
+                  </div>
+                )}
+              </div>
 
               {panchang.nakshatraList?.length > 0 ? (
                 <div className="py-2 border-b border-gray-800">
