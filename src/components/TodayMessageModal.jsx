@@ -3,7 +3,7 @@
  * Bottom-sheet reading experience for "View today's message".
  *
  * Shows: vara, formatted date, tithi, paksha, illumination %, daily message.
- * Two small Option-C gold-tint pill buttons: Story (Instagram) and Share.
+ * Shows a single Share action using the native share sheet.
  * Closeable via X button or overlay tap.
  */
 
@@ -26,7 +26,6 @@ const TodayMessageModal = ({
 }) => {
   const closeRef = useRef(null)
   const [sharing, setSharing] = useState(false)
-  const [storyTip, setStoryTip] = useState(false)
 
   // Focus close button when modal opens
   useEffect(() => {
@@ -73,15 +72,6 @@ const TodayMessageModal = ({
     } finally {
       setSharing(false)
     }
-  }
-
-  const handleStory = async () => {
-    // Show brief tip, then trigger share (Instagram routes image files to Stories)
-    setStoryTip(true)
-    setTimeout(async () => {
-      setStoryTip(false)
-      await buildAndShare()
-    }, 1400)
   }
 
   const handleShare = async () => {
@@ -166,48 +156,10 @@ const TodayMessageModal = ({
             </p>
           </div>
 
-          {/* Story tip */}
-          {storyTip && (
-            <div
-              className="text-center text-xs mb-3 rounded-lg px-3 py-2"
-              style={{ background: 'rgba(221,187,106,0.1)', color: '#DDBB6A' }}
-              role="status"
-              aria-live="polite"
-            >
-              Select Instagram in the next screen — your card will open in Stories
-            </div>
-          )}
 
-          {/* Action buttons */}
-          <div className="flex justify-center gap-3">
+          {/* Action button */}
+          <div className="flex justify-center">
 
-            {/* Instagram Story pill */}
-            <button
-              onClick={handleStory}
-              disabled={sharing}
-              aria-label="Add to Instagram Story"
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-opacity disabled:opacity-50"
-              style={{
-                background: 'rgba(221,187,106,0.12)',
-                border: '1px solid rgba(221,187,106,0.4)',
-                color: '#DDBB6A',
-              }}
-            >
-              {/* Instagram icon (inline SVG — Lucide doesn't have it) */}
-              <svg
-                width="14" height="14" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" strokeWidth="1.75"
-                strokeLinecap="round" strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                <circle cx="12" cy="12" r="4"/>
-                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
-              </svg>
-              <span className="font-medium text-xs">Story</span>
-            </button>
-
-            {/* Generic share pill */}
             <button
               onClick={handleShare}
               disabled={sharing}

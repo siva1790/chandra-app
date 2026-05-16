@@ -94,12 +94,43 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
     return () => document.removeEventListener('keydown', onKey)
   }, [selectedDay])
 
+  const buildCalendarDay = (date) => {
+    const today = new Date()
+    const d = date.getDate()
+    const month = date.getMonth()
+    const year = date.getFullYear()
+    const sunriseTime = getSunriseForDate(date, settings?.lat, settings?.lon)
+    const phaseAngle = getMoonPhaseAngle(sunriseTime)
+    const tithi = getTithiFromAngle(phaseAngle)
+    const dayFestivals = getFestivalsForDate(date, {
+      tithiNumber: tithi.adjustedNumber,
+      paksha: tithi.paksha,
+      lat: settings?.lat,
+      lon: settings?.lon,
+      calendarSystem: settings?.calendarSystem,
+    })
+    const isToday = d === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear()
+    const eclipse = getEclipseForDate(date)
+
+    return {
+      day: d,
+      date,
+      phaseAngle,
+      phaseEmoji: getPhaseEmoji(phaseAngle),
+      tithi,
+      festivals: dayFestivals,
+      isToday,
+      eclipse,
+    }
+  }
+
   const buildCalendar = () => {
     const year = currentDate.getFullYear()
     const month = currentDate.getMonth()
     const firstDay = new Date(year, month, 1).getDay()
     const daysInMonth = new Date(year, month + 1, 0).getDate()
-    const today = new Date()
 
     const days = []
 
@@ -109,31 +140,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
 
     for (let d = 1; d <= daysInMonth; d++) {
       const date = new Date(year, month, d)
-      const sunriseTime = getSunriseForDate(date, settings?.lat, settings?.lon)
-      const phaseAngle = getMoonPhaseAngle(sunriseTime)
-      const tithi = getTithiFromAngle(phaseAngle)
-      const dayFestivals = getFestivalsForDate(date, {
-        tithiNumber: tithi.adjustedNumber,
-        paksha: tithi.paksha,
-        lat: settings?.lat,
-        lon: settings?.lon,
-        calendarSystem: settings?.calendarSystem,
-      })
-      const isToday = d === today.getDate() &&
-        month === today.getMonth() &&
-        year === today.getFullYear()
-      const eclipse = getEclipseForDate(date)
-
-      days.push({
-        day: d,
-        date,
-        phaseAngle,
-        phaseEmoji: getPhaseEmoji(phaseAngle),
-        tithi,
-        festivals: dayFestivals,
-        isToday,
-        eclipse,
-      })
+      days.push(buildCalendarDay(date))
     }
     setCalendarDays(days)
   }
@@ -179,6 +186,26 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
     setTapSelectedDate(new Date(day.date))  // mark this date as explicitly selected
     setDayPanchang(null)                     // reset while computing
     onDateChange?.(new Date(day.date))       // update global date on tap
+  }
+
+  const handlePickerSelect = (date) => {
+    const pickedDate = new Date(date)
+    const pickedDay = buildCalendarDay(pickedDate)
+
+    setCurrentDate(new Date(pickedDate.getFullYear(), pickedDate.getMonth(), 1))
+    setSelectedDay(pickedDay)
+    setTapSelectedDate(new Date(pickedDate))
+    setDayPanchang(null)
+    onDateChange?.(pickedDate)
+  }
+
+  const handleGoToToday = (date) => {
+    const todayDate = new Date(date)
+    setCurrentDate(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1))
+    setTapSelectedDate(new Date(todayDate))
+    setSelectedDay(null)
+    setDayPanchang(null)
+    onDateChange?.(todayDate)
   }
 
   const closeModal = () => {
@@ -235,7 +262,13 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
       </div>
 
       {/* Month Navigator — DateStrip in month mode; receives currentDate (view state), not globalDate */}
-      <DateStrip date={currentDate} onDateChange={handleMonthChange} mode="month" />
+      <DateStrip
+        date={currentDate}
+        onDateChange={handleMonthChange}
+        onPickerSelect={handlePickerSelect}
+        onTodaySelect={handleGoToToday}
+        mode="month"
+      />
 
       {/* Day Headers */}
       <div className="grid grid-cols-7 mb-2">

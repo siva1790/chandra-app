@@ -11,7 +11,7 @@ import DatePickerSheet from './DatePickerSheet'
  *                   'day'   — arrows step ±1 day   (Day View, Panchang)
  *                   'month' — arrows step ±1 month with day clamping (Calendar)
  */
-const DateStrip = ({ date, onDateChange, mode = 'day' }) => {
+const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = 'day' }) => {
   const [pickerOpen, setPickerOpen] = useState(false)
   const pickerTriggerRef = useRef(null)
 
@@ -46,7 +46,11 @@ const DateStrip = ({ date, onDateChange, mode = 'day' }) => {
     onDateChange(d)
   }
 
-  const goToToday = () => onDateChange(new Date())
+  const goToToday = () => {
+    const todayDate = new Date()
+    if (onTodaySelect) onTodaySelect(todayDate)
+    else onDateChange(todayDate)
+  }
 
   // Label format:
   //   day mode   → "Saturday, 9 May 2026"
@@ -101,7 +105,11 @@ const DateStrip = ({ date, onDateChange, mode = 'day' }) => {
         open={pickerOpen}
         onClose={() => setPickerOpen(false)}
         selectedDate={date}
-        onSelect={(d) => { onDateChange(d); setPickerOpen(false) }}
+        onSelect={(d) => {
+          if (onPickerSelect) onPickerSelect(d)
+          else onDateChange(d)
+          setPickerOpen(false)
+        }}
         triggerRef={pickerTriggerRef}
       />
     </>

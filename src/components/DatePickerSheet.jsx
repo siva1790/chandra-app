@@ -137,15 +137,12 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
 
   const handleSelectYear = (y) => {
     setViewYear(y)
-    setShowYearPicker(false)
   }
 
-  // Auto-scroll to selected year when year picker opens
-  useEffect(() => {
-    if (showYearPicker && selectedYearRef.current) {
-      selectedYearRef.current.scrollIntoView({ block: 'center', behavior: 'instant' })
-    }
-  }, [showYearPicker])
+  const handleSelectMonth = (m) => {
+    setViewMonth(m)
+    setShowYearPicker(false)
+  }
 
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX
@@ -213,7 +210,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                 >
                   ← Back
                 </button>
-                <p className="text-white font-semibold text-base" aria-live="polite">Select Year</p>
+                <p className="text-white font-semibold text-base" aria-live="polite">Select Month &amp; Year</p>
                 <div className="w-20" />
               </>
             ) : (
@@ -228,7 +225,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
 
                 <button
                   onClick={() => setShowYearPicker(true)}
-                  aria-label={`${MONTH_NAMES[viewMonth]} ${viewYear}. Tap to change year.`}
+                  aria-label={`${MONTH_NAMES[viewMonth]} ${viewYear}. Tap to change month or year.`}
                   className="flex items-center gap-1.5 text-white font-semibold text-base hover:text-yellow-300 transition-colors"
                 >
                   {MONTH_NAMES[viewMonth]} {viewYear}
@@ -300,28 +297,54 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
           )}
 
           {/* ════════════════════
-              YEAR PICKER VIEW
+              MONTH & YEAR PICKER VIEW
           ════════════════════ */}
           {showYearPicker && (
-            <div className="grid grid-cols-4 gap-2 max-h-72 overflow-y-auto pb-2">
-              {YEARS.map(y => (
-                <button
-                  key={y}
-                  ref={y === viewYear ? selectedYearRef : null}
-                  onClick={() => handleSelectYear(y)}
-                  aria-label={y === THIS_YEAR ? `${y}, current year` : `${y}`}
-                  aria-pressed={y === viewYear}
-                  className={`py-3 rounded-xl text-sm font-medium transition-all ${
-                    y === viewYear
-                      ? 'bg-yellow-400 text-gray-950 font-bold'
-                      : y === THIS_YEAR
-                      ? 'border border-yellow-500 text-yellow-300'
-                      : 'bg-gray-800 text-white hover:bg-gray-700'
-                  }`}
-                >
-                  {y}
-                </button>
-              ))}
+            <div className="max-h-96 overflow-y-auto pb-2">
+              <div className="mb-5">
+                <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Month</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {MONTH_NAMES.map((month, i) => (
+                    <button
+                      key={month}
+                      onClick={() => handleSelectMonth(i)}
+                      aria-label={`${month} ${viewYear}`}
+                      aria-pressed={i === viewMonth}
+                      className={`py-3 rounded-xl text-sm font-medium transition-all ${
+                        i === viewMonth
+                          ? 'bg-yellow-400 text-gray-950 font-bold'
+                          : 'bg-gray-800 text-white hover:bg-gray-700'
+                      }`}
+                    >
+                      {month.slice(0, 3)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Year</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {YEARS.map(y => (
+                    <button
+                      key={y}
+                      ref={y === viewYear ? selectedYearRef : null}
+                      onClick={() => handleSelectYear(y)}
+                      aria-label={y === THIS_YEAR ? `${y}, current year` : `${y}`}
+                      aria-pressed={y === viewYear}
+                      className={`py-3 rounded-xl text-sm font-medium transition-all ${
+                        y === viewYear
+                          ? 'bg-yellow-400 text-gray-950 font-bold'
+                          : y === THIS_YEAR
+                          ? 'border border-yellow-500 text-yellow-300'
+                          : 'bg-gray-800 text-white hover:bg-gray-700'
+                      }`}
+                    >
+                      {y}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
