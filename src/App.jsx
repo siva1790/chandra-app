@@ -53,14 +53,18 @@ function App() {
       >
 
         {/* Logo — left */}
-        <div className="flex items-center gap-2">
+        <button
+          onClick={() => navigate('home')}
+          aria-label="Go to Day View"
+          className="flex items-center gap-2 rounded-xl transition-opacity active:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8EA8FF]"
+        >
           <img
             src="/icons/icon-192.png"
             alt="Chandra"
             className="w-8 h-8 rounded-lg"
           />
           <span className="text-yellow-300 font-bold text-lg tracking-wide">Chandra</span>
-        </div>
+        </button>
 
         {/* Bell icon — right (hidden until ENABLE_SUBSCRIPTIONS = true) */}
         {ENABLE_SUBSCRIPTIONS && (
