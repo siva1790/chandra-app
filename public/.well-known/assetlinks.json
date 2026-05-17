@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.chandrapanchang.chandra",
+      "sha256_cert_fingerprints": [
+        "6F:A6:66:FB:48:A7:C4:B0:BF:88:51:2E:9E:9E:22:4A:9C:C1:71:3D:F7:24:82:C0:78:6B:82:E5:B8:89:D8:78"
+      ]
+    }
+  }
+]
