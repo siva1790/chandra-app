@@ -38,3 +38,5 @@ android/app-release-*.apk
 android/app-release-*.aab
 android/*.keystore
 android/*.jks
+android/*password*.txt
+android/*credentials*.txt
