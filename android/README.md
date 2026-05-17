@@ -49,3 +49,15 @@ https://chandrapanchang.app/.well-known/assetlinks.json
 ```
 
 The `assetlinks.json` fingerprint must match the signing certificate used for the Play-distributed app.
+
+## Current Digital Asset Links State
+
+- Live URL: `https://chandrapanchang.app/.well-known/assetlinks.json`
+- Package name: `app.chandrapanchang.chandra`
+- Play App Signing SHA-256:
+
+```text
+6F:A6:66:FB:48:A7:C4:B0:BF:88:51:2E:9E:9E:22:4A:9C:C1:71:3D:F7:24:82:C0:78:6B:82:E5:B8:89:D8:78
+```
+
+This was added in git `832d343` and verified live after Vercel deployment. Keep `public/.well-known/assetlinks.template.json` for future key rotations.

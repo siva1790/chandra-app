@@ -66,8 +66,33 @@ chandra-app/
 │   ├── astroUtils.js          # Server-side astronomy helpers: getDayInfo(date, calendarSystem), getFestivalsForDate with calendarSystem forwarding, moonrise calculation per city
 │   └── test-local.js          # Local test runner — 17 tests, 0 failures (as of 2026-05-14); covers Ekadashi detection, default notify, explicit v2 opt-out, legacy migration, moonrise
 ├── public/
-│   ├── favicon.svg
-│   └── icons.svg
+│   ├── favicon.svg                  # Vector favicon (scalable, browser tabs)
+│   ├── favicon.ico                  # Legacy favicon for older browsers
+│   ├── privacy.html                 # Privacy policy page
+│   ├── og-share.png                 # Social OG image — wide 1200×630 (WhatsApp/Twitter/Facebook)
+│   ├── og-share-square.png          # Social OG image — square format
+│   ├── icons.svg                    # (legacy icon sprites; live icons now in public/icons/)
+│   ├── icons/
+│   │   ├── icon-192.png             # PWA manifest icon — normal purpose
+│   │   ├── icon-512.png             # PWA manifest icon — normal purpose; also Play Store listing icon
+│   │   ├── icon-72.png              # Notification badge icon (referenced by sw.js push handler)
+│   │   ├── favicon-48.png           # Favicon 48 px
+│   │   ├── favicon-96.png           # Favicon 96 px (regenerated in ea69e8d — tick-mark fix)
+│   │   ├── maskable-icon-192.png    # PWA manifest icon — maskable purpose (Android adaptive)
+│   │   ├── maskable-icon-512.png    # PWA manifest icon — maskable purpose (Android adaptive)
+│   │   ├── chandra-mark-topbar-96.png   # Compact app logo used in App.jsx top bar and Settings.jsx
+│   │   ├── chandra-lockup-horizontal.png # Horizontal logo + wordmark lockup
+│   │   └── chandra-splash-1080x1920.png  # Splash screen artwork (1080×1920)
+│   └── brand/                       # Staged reproducible brand kit — regenerate via scripts/generate-brand-assets.mjs
+│       ├── source/                  # Copy of original source logo image
+│       ├── master/                  # High-resolution master PNG
+│       ├── icons/                   # Favicon, app icon, maskable, notification variants
+│       ├── ui/                      # Top-bar mark, lockup, splash artwork, simplified SVG
+│       ├── social/                  # Social share images
+│       ├── preview/                 # Preview / contact-sheet
+│       └── IMPLEMENTATION_MAPPING.md  # Maps every staged asset to its live public/ destination
+├── scripts/
+│   └── generate-brand-assets.mjs   # Regenerates entire brand kit from source image; run with `node scripts/generate-brand-assets.mjs`
 ├── vite.config.js             # Vite + PWA plugin config
 ├── firestore.rules            # Firestore security rules (allow public create/update, block reads); devices create/update allows calendarSystem (Amavasyant|Purnimant) and notifPrefsVersion (currently only 2)
 ├── package.json
@@ -196,6 +221,15 @@ git push
 ```
 
 Vercel will automatically pick up the push and deploy to the live app within ~1 minute.
+
+### Google Play / Trusted Web Activity
+- Android package name: `app.chandrapanchang.chandra`.
+- TWA verification is hosted at `https://chandrapanchang.app/.well-known/assetlinks.json`.
+- The live `assetlinks.json` was added in git `832d343` using the Play App Signing SHA-256 fingerprint:
+  `6F:A6:66:FB:48:A7:C4:B0:BF:88:51:2E:9E:9E:22:4A:9C:C1:71:3D:F7:24:82:C0:78:6B:82:E5:B8:89:D8:78`.
+- Keep `public/.well-known/assetlinks.template.json` as the reusable template for future key rotations.
+- For TWA verification, use the **Play App Signing key certificate SHA-256** from Play Console > Setup > App integrity. Do not use only the local upload-key fingerprint unless also verifying sideloaded/internal builds signed by that key.
+- The live URL was verified after Vercel deployment and returned HTTP 200 with the expected package name and SHA-256.
 
 ### Deploy Steps (Backend — Firebase)
 Required whenever `functions/index.js`, `functions/astroUtils.js`, or `firestore.rules` change:
@@ -351,6 +385,9 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 | 2026-05 | PWA install identity fix shipped live — added a stable manifest `id` (`/`) so browsers have a consistent PWA identity for Chandra and updated canonical, Open Graph, Twitter card, and JSON-LD URLs from the old Vercel domain to `chandrapanchang.app`. Verified production build and preview deployment, then promoted to production after approval. This reduces duplicate install prompts going forward, though clearing browser data may still erase browser-side install awareness on some devices. | `public/manifest.json`, `index.html` |
 | 2026-05 | "View today's message" social sharing feature added — new `tithiMessages.js` exports `TITHI_MESSAGES` (30 unique daily reflections keyed by continuous tithi number 1–30), `VARA_NAMES` array, and `getVara(date)` helper; new `shareCard.js` generates a 540×960 PNG share card (9:16 Instagram Stories ratio) on Canvas with starfield, shadow-overlay moon (mirrors MoonVisual.jsx logic), tithi name, paksha, illumination, daily message, and a gold-on-dark QR code linking to chandrapanchang.app; new `TodayMessageModal.jsx` is a bottom-sheet reading experience triggered by a "View today's message" Sparkles pill button in the moon card — shows vara, date, tithi row, italic message, and a single native Share action that calls `generateShareCard()` then `navigator.share({ files: [png] })`; `MoonVisual.jsx` updated with optional `tithiLabel` prop — when passed, shows moon phase emoji + tithi label instead of Western phase name; `Home.jsx` wired up with `showModal` state, trigger button, and modal mount; `package.json` updated to add `qrcode ^1.5.4` dependency. | `src/tithiMessages.js` (new), `src/shareCard.js` (new), `src/components/TodayMessageModal.jsx` (new), `src/components/MoonVisual.jsx`, `src/pages/Home.jsx`, `package.json` |
 | 2026-05 | Play Store assets created — feature graphic (`playstore-feature-graphic.html`, 1024×500 canvas, downloadable PNG) shows Chandra wordmark + waning-gibbous moon with real texture + tagline on dark bg; five phone-frame screenshot mockups created for Day View, Calendar, Panchang, Settings (GPS + notifications), and Social Share Card (`playstore-screenshot-1-dayview.html` through `playstore-screenshot-5-sharecard.html`), each with a gold caption bar and pixel-accurate UI; `scripts/generate-playstore-screenshots.mjs` helper script also present; store listing copy written (30-char title, 80-char short description, full 4000-char description). | `playstore-feature-graphic.html`, `playstore-screenshot-1-dayview.html` – `playstore-screenshot-5-sharecard.html`, `scripts/generate-playstore-screenshots.mjs` |
+| 2026-05 | Google Play TWA Digital Asset Links shipped live — added `public/.well-known/assetlinks.json` and reusable template for package `app.chandrapanchang.chandra`, using the Play App Signing SHA-256 fingerprint `6F:A6:66:FB:48:A7:C4:B0:BF:88:51:2E:9E:9E:22:4A:9C:C1:71:3D:F7:24:82:C0:78:6B:82:E5:B8:89:D8:78`; committed as git `832d343`, pushed to `main`, and verified `https://chandrapanchang.app/.well-known/assetlinks.json` returns HTTP 200 with the expected package and fingerprint. | `public/.well-known/assetlinks.json`, `public/.well-known/assetlinks.template.json` |
+| 2026-05 | Full logo system created and deployed to production (git `69aba58`) — professional brand mark built from source image; all production assets generated and committed: `favicon.svg`, `favicon.ico`, `og-share.png` (1200×630 OG image), `og-share-square.png`, `icons/icon-192.png` + `icons/icon-512.png` (normal PWA purpose), `icons/maskable-icon-192.png` + `icons/maskable-icon-512.png` (maskable/adaptive purpose), `icons/icon-72.png` (FCM notification badge), `icons/chandra-mark-topbar-96.png` (top-bar mark), `icons/chandra-lockup-horizontal.png`, `icons/chandra-splash-1080x1920.png`; reproducible `brand/` kit with `source/`, `master/`, `icons/`, `ui/`, `social/`, `preview/` subdirs and `IMPLEMENTATION_MAPPING.md`; `scripts/generate-brand-assets.mjs` regenerates the full kit from the source image; `index.html` OG meta updated to 1200×630 `summary_large_image`; `manifest.json` separates normal/maskable icon purposes and references all nine icon files; `App.jsx` + `Settings.jsx` + `privacy.html` updated to use `chandra-mark-topbar-96.png`; JSON-LD updated; `.gitignore` excludes local Play Store output files. | `index.html`, `public/manifest.json`, `public/favicon.svg`, `public/favicon.ico`, `public/og-share.png`, `public/og-share-square.png`, `public/icons/*` (9 files), `public/brand/*`, `scripts/generate-brand-assets.mjs`, `src/App.jsx`, `src/pages/Settings.jsx`, `public/privacy.html` |
+| 2026-05 | Maskable icon tick-mark regression fixed (git `ea69e8d`) — the icon generator was producing extra tick marks past the 12 o'clock boundary; fixed by stopping the tick loop before it crosses that boundary; regenerated and committed the three affected files: `favicon-96.png`, `maskable-icon-192.png`, `maskable-icon-512.png` in both `public/icons/` and `public/brand/icons/`. | `scripts/generate-brand-assets.mjs`, `public/icons/favicon-96.png`, `public/icons/maskable-icon-192.png`, `public/icons/maskable-icon-512.png` |
 
 ---
 
