@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react'
 import * as Astronomy from 'astronomy-engine'
+import { toSiderealLongitude } from '../ayanamsha.js'
 import { getSunriseForDate, getSunsetForDate, getTithiAtSunrise, getTithiFromAngle } from '../moonUtils'
 import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DateStrip from '../components/DateStrip'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sparkles, AlertTriangle, Timer, ChevronDown } from 'lucide-react'
-
-const AYANAMSHA = 23.15
 
 const nakshatras = [
   'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
@@ -49,7 +48,7 @@ const RASI_NAMES = [
 const getMoonSiderealLongitude = (d) => {
   const pos = Astronomy.GeoVector('Moon', d, true)
   const ecl = Astronomy.Ecliptic(pos)
-  return ((ecl.elon - AYANAMSHA + 360) % 360)
+  return toSiderealLongitude(ecl.elon, d)
 }
 
 const getNakshatraIndex = (d) => Math.floor(getMoonSiderealLongitude(d) / (360 / 27))
@@ -57,7 +56,7 @@ const getNakshatraIndex = (d) => Math.floor(getMoonSiderealLongitude(d) / (360 /
 const getPlanetSiderealLongitude = (body, d) => {
   const pos = Astronomy.GeoVector(body, d, true)
   const ecl = Astronomy.Ecliptic(pos)
-  return ((ecl.elon - AYANAMSHA + 360) % 360)
+  return toSiderealLongitude(ecl.elon, d)
 }
 
 // Mean ascending node (Rahu) longitude — sidereal via Lahiri
@@ -65,7 +64,7 @@ const getRahuLongitude = (date) => {
   const JD = date.getTime() / 86400000 + 2440587.5
   const T = (JD - 2451545.0) / 36525
   const omega = ((125.04452 - 1934.136261 * T) % 360 + 360) % 360
-  return ((omega - AYANAMSHA + 360) % 360)
+  return toSiderealLongitude(omega, date)
 }
 
 const formatLongitude = (lon) => {
@@ -137,7 +136,7 @@ const YOGA_NAMES = [
 
 const getYogaAtTime = (d) => {
   const sPos = Astronomy.GeoVector('Sun', d, true)
-  const sLon = ((Astronomy.Ecliptic(sPos).elon - AYANAMSHA + 360) % 360)
+  const sLon = toSiderealLongitude(Astronomy.Ecliptic(sPos).elon, d)
   const mLon = getMoonSiderealLongitude(d)
   return YOGA_NAMES[Math.floor(((sLon + mLon) % 360) / (360 / 27))]
 }
@@ -253,7 +252,7 @@ const getMasa = (date, tithiIndex, calendarSystem) => {
     // Moon's sidereal longitude at that Purnima
     const moonPos = Astronomy.GeoVector('Moon', purnima.date, true)
     const moonEcl = Astronomy.Ecliptic(moonPos)
-    const moonSidLon = ((moonEcl.elon - AYANAMSHA + 360) % 360)
+    const moonSidLon = toSiderealLongitude(moonEcl.elon, purnima.date)
 
     // Nakshatra → masa
     const nakshatraIdx = Math.floor(moonSidLon / (360 / 27))
@@ -448,7 +447,7 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
       // --- Yoga (with transition times — same scan pattern as Nakshatra/Karana) ---
       const sunPos = Astronomy.GeoVector('Sun', sunriseTime, true)
       const sunEcliptic = Astronomy.Ecliptic(sunPos)
-      const sunLongitude = ((sunEcliptic.elon - AYANAMSHA + 360) % 360)
+      const sunLongitude = toSiderealLongitude(sunEcliptic.elon, sunriseTime)
       const yogaName = getYogaAtTime(sunriseTime)
 
       const yogaList = []

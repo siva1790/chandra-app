@@ -1,7 +1,5 @@
 import * as Astronomy from 'astronomy-engine'
-
-// Lahiri Ayanamsha — standard for Indian Panchang
-const AYANAMSHA = 23.15
+import { toSiderealLongitude } from './ayanamsha.js'
 
 // ── Masa (lunar month) names, indexed by sun's sidereal rashi (0=Mesha…11=Meena) ──
 // Rule: masa name = rashi the sun occupies at the Amavasya that governs the lunar month.
@@ -24,7 +22,7 @@ export const MASA_NAMES = [
 const getSunSiderealLon = (date) => {
   const sunPos = Astronomy.GeoVector('Sun', date, true)
   const sunEcl = Astronomy.Ecliptic(sunPos)
-  return ((sunEcl.elon - AYANAMSHA + 360) % 360)
+  return toSiderealLongitude(sunEcl.elon, date)
 }
 
 // Return the masa (lunar month name) for a given date.
@@ -66,9 +64,11 @@ const SOLAR_FESTIVALS = [
 ]
 
 export const getSolarFestivalsForDate = (date) => {
-  const todayLon = getSunSiderealLon(date)
-  const prevDate = new Date(date.getTime() - 86400000)
-  const prevLon  = getSunSiderealLon(prevDate)
+  const start = new Date(date)
+  start.setHours(0, 0, 0, 0)
+  const end = new Date(start.getTime() + 86400000)
+  const todayLon = getSunSiderealLon(end)
+  const prevLon  = getSunSiderealLon(start)
   return SOLAR_FESTIVALS.filter(f => prevLon < f.sunLon && todayLon >= f.sunLon)
 }
 
@@ -118,7 +118,7 @@ export const getNakshatraForDate = (date) => {
   const moonPos = Astronomy.GeoVector('Moon', date, true)
   const moonEcliptic = Astronomy.Ecliptic(moonPos)
   // Apply Ayanamsha to convert Tropical to Sidereal
-  const moonLongitude = ((moonEcliptic.elon - AYANAMSHA + 360) % 360)
+  const moonLongitude = toSiderealLongitude(moonEcliptic.elon, date)
   const nakshatraIndex = Math.floor(moonLongitude / (360 / 27))
   return nakshatras[nakshatraIndex % 27]
 }

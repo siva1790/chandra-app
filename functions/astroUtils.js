@@ -33,10 +33,10 @@
 'use strict'
 
 const Astronomy = require('astronomy-engine')
+const { toSiderealLongitude } = require('./ayanamsha')
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const AYANAMSHA = 23.15
 const DAY_MS    = 24 * 60 * 60 * 1000
 const HOUR_MS   = 60 * 60 * 1000
 
@@ -152,7 +152,7 @@ const getNakshatra = (date) => {
   try {
     const moonPos      = Astronomy.GeoVector('Moon', date, true)
     const moonEcliptic = Astronomy.Ecliptic(moonPos)
-    const longitude    = ((moonEcliptic.elon - AYANAMSHA + 360) % 360)
+    const longitude    = toSiderealLongitude(moonEcliptic.elon, date)
     return NAKSHATRAS[Math.floor(longitude / (360 / 27)) % 27]
   } catch (_) {
     return 'Unknown'
@@ -164,7 +164,7 @@ const getNakshatra = (date) => {
 const getSunSiderealLon = (date) => {
   const sunPos = Astronomy.GeoVector('Sun', date, true)
   const sunEcl = Astronomy.Ecliptic(sunPos)
-  return ((sunEcl.elon - AYANAMSHA + 360) % 360)
+  return toSiderealLongitude(sunEcl.elon, date)
 }
 
 /**
@@ -183,6 +183,11 @@ const getMasaForDate = (date) => {
 const nextMasa = (masa) => {
   const index = MASA_NAMES.indexOf(masa)
   return index >= 0 ? MASA_NAMES[(index + 1) % MASA_NAMES.length] : masa
+}
+
+const previousMasa = (masa) => {
+  const index = MASA_NAMES.indexOf(masa)
+  return index >= 0 ? MASA_NAMES[(index + MASA_NAMES.length - 1) % MASA_NAMES.length] : masa
 }
 
 // ── Festival data ─────────────────────────────────────────────────────────────
@@ -251,6 +256,7 @@ const ANNUAL_FESTIVALS = [
   // ── Vaishakha ─────────────────────────────────────────────────────────────
   {
     masa: 'Vaishakha', paksha: 'Shukla', tithi: 3, window: 'sunrise',
+    suppressDuplicateWithinDays: 45,
     name: 'Akshaya Tritiya', emoji: '✨', type: 'major',
     description: 'Most auspicious day — gold, new beginnings, weddings',
     genZMessage: "anything started today literally never stops growing ✨ Akshaya Tritiya is manifesting szn",
@@ -363,7 +369,8 @@ const ANNUAL_FESTIVALS = [
     genZMessage: "Choti Diwali — cleaning house, lighting lamps, telling bad energy to leave 🪔 tomorrow is the big one",
   },
   {
-    amantaMasa: 'Ashwin', purnimantaMasa: 'Kartika', paksha: 'Krishna', tithi: 15, window: 'pradosh',
+    amantaMasa: 'Ashwin', purnimantaMasa: 'Kartika', paksha: 'Krishna', tithi: 15,
+    window: 'pradoshOrSunrise', firstOccurrence: true,
     name: 'Diwali (Deepavali)', emoji: '🪔', type: 'major',
     description: 'Festival of lights — Lakshmi Puja during Pradosh Kaal',
     genZMessage: "the whole vibe tonight is sparkle, sweets, and Lakshmi at the door 🪔 happy Diwali bestie",
@@ -585,7 +592,11 @@ const selectedMasaForRule = (rule, calendarSystem) => {
 }
 
 const displayMasaForRule = (date, sampleTime, rule, calendarSystem) => {
-  if (rule.masa) return getMasaForDate(sampleTime || date) === rule.masa
+  if (rule.masa) {
+    const sample = sampleTime || date
+    return getMasaForDate(sample) === rule.masa ||
+           (rule.adhikaName && isAdhikaMasaDate(sample, rule.masa))
+  }
   if (rule.amantaMasa || rule.purnimantaMasa) {
     return getCalendarMasaForRule(sampleTime || date, calendarSystem) ===
            selectedMasaForRule(rule, calendarSystem)
@@ -627,9 +638,14 @@ const searchMoonPhaseDate = (phase, start, days) => {
 
 const isAdhikaMasaDate = (sampleTime, masa) => {
   const currentMasa = getMasaForDate(sampleTime)
-  if (currentMasa !== masa) return false
   const nextPurnima = searchMoonPhaseDate(180, new Date(sampleTime.getTime() + 2 * DAY_MS), 35)
-  return nextPurnima ? getMasaForDate(nextPurnima) === currentMasa : false
+  if (!nextPurnima) return false
+  const nextPurnimaMasa = getMasaForDate(nextPurnima)
+
+  return (
+    (currentMasa === masa && nextPurnimaMasa === currentMasa) ||
+    (currentMasa === previousMasa(masa) && nextPurnimaMasa === masa)
+  )
 }
 
 const withComputedFestivalMetadata = (rule, sampleTime) => {
@@ -647,13 +663,43 @@ const crossedLongitude = (prevLon, nextLon, targetLon) => {
   return prev > next
 }
 
-const getSolarFestivalsForDate = (utcDate) => {
+const findSolarIngressTime = (start, end, targetLon) => {
+  if (!crossedLongitude(getSunSiderealLon(start), getSunSiderealLon(end), targetLon)) {
+    return null
+  }
+
+  let low = start.getTime()
+  let high = end.getTime()
+  for (let i = 0; i < 40; i++) {
+    const mid = new Date((low + high) / 2)
+    if (crossedLongitude(getSunSiderealLon(start), getSunSiderealLon(mid), targetLon)) {
+      high = mid.getTime()
+    } else {
+      low = mid.getTime()
+    }
+  }
+  return new Date(high)
+}
+
+const isSolarIngressObservedOnDate = (utcDate, festival, lat, lon) => {
   const today = getISTMidnight(utcDate)
-  const prev  = new Date(today.getTime() - DAY_MS)
-  const startLon = getSunSiderealLon(prev)
-  const endLon   = getSunSiderealLon(today)
+  const tomorrow = new Date(today.getTime() + DAY_MS)
+  const todayIngress = findSolarIngressTime(today, tomorrow, festival.sunLon)
+
+  if (todayIngress) {
+    if (typeof lat !== 'number' || typeof lon !== 'number') return true
+    return todayIngress <= getSunset(today, lat, lon)
+  }
+
+  if (typeof lat !== 'number' || typeof lon !== 'number') return false
+  const yesterday = new Date(today.getTime() - DAY_MS)
+  const yesterdayIngress = findSolarIngressTime(yesterday, today, festival.sunLon)
+  return yesterdayIngress ? yesterdayIngress > getSunset(yesterday, lat, lon) : false
+}
+
+const getSolarFestivalsForDate = (utcDate, lat, lon) => {
   return ANNUAL_FESTIVALS.filter(
-    f => f.kind === 'solarIngress' && crossedLongitude(startLon, endLon, f.sunLon)
+    f => f.kind === 'solarIngress' && isSolarIngressObservedOnDate(utcDate, f, lat, lon)
   )
 }
 
@@ -702,7 +748,7 @@ const getObservancesForDate = (date, lat, lon) => {
  * do not store calendarSystem. The Diwali cluster is the only section affected.
  */
 const getFestivalsForDate = (utcDate, lat, lon, calendarSystem = 'Amavasyant') => {
-  const solar  = getSolarFestivalsForDate(utcDate)
+  const solar  = getSolarFestivalsForDate(utcDate, lat, lon)
   const annual = ANNUAL_FESTIVALS
     .map(rule => resolveAnnualFestivalForDate(utcDate, rule, lat, lon, calendarSystem))
     .filter(Boolean)

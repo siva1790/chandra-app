@@ -1,4 +1,5 @@
 import * as Astronomy from 'astronomy-engine'
+import { toSiderealLongitude } from './ayanamsha.js'
 import {
   getMasaForDate,
   getMoonPhaseAngle,
@@ -65,6 +66,7 @@ export const ANNUAL_FESTIVALS = [
     paksha: 'Shukla',
     tithi: 3,
     window: 'sunrise',
+    suppressDuplicateWithinDays: 45,
   }),
   festival('Buddha Purnima', '\u2638\uFE0F', 'Birthday of Gautama Buddha - Vaishakha Purnima', {
     masa: 'Vaishakha',
@@ -176,7 +178,8 @@ export const ANNUAL_FESTIVALS = [
     purnimantaMasa: 'Kartika',
     paksha: 'Krishna',
     tithi: 15,
-    window: 'pradosh',
+    window: 'pradoshOrSunrise',
+    firstOccurrence: true,
   }),
   festival('Govardhan Puja', '\uD83D\uDC04', 'Lord Krishna lifting Govardhan hill', {
     masa: 'Kartika',
@@ -256,7 +259,7 @@ const tithiAt = (date) => getTithiFromAngle(getMoonPhaseAngle(date))
 const sunSiderealLongitude = (date) => {
   const sunPos = Astronomy.GeoVector('Sun', date, true)
   const sunEcl = Astronomy.Ecliptic(sunPos)
-  return ((sunEcl.elon - 23.15 + 360) % 360)
+  return toSiderealLongitude(sunEcl.elon, date)
 }
 
 const crossedLongitude = (prevLon, nextLon, targetLon) => {
@@ -265,13 +268,43 @@ const crossedLongitude = (prevLon, nextLon, targetLon) => {
   return prev > next
 }
 
-const getSolarFestivalsForDate = (date) => {
+const findSolarIngressTime = (start, end, targetLon) => {
+  if (!crossedLongitude(sunSiderealLongitude(start), sunSiderealLongitude(end), targetLon)) {
+    return null
+  }
+
+  let low = start.getTime()
+  let high = end.getTime()
+  for (let i = 0; i < 40; i++) {
+    const mid = new Date((low + high) / 2)
+    if (crossedLongitude(sunSiderealLongitude(start), sunSiderealLongitude(mid), targetLon)) {
+      high = mid.getTime()
+    } else {
+      low = mid.getTime()
+    }
+  }
+  return new Date(high)
+}
+
+const isSolarIngressObservedOnDate = (date, festival, lat, lon) => {
   const start = atStartOfDay(date)
-  const previous = addMs(start, -DAY_MS)
-  const startLon = sunSiderealLongitude(previous)
-  const endLon = sunSiderealLongitude(start)
+  const end = addMs(start, DAY_MS)
+  const todayIngress = findSolarIngressTime(start, end, festival.sunLon)
+
+  if (todayIngress) {
+    if (typeof lat !== 'number' || typeof lon !== 'number') return true
+    return todayIngress <= getSunsetForDate(start, lat, lon)
+  }
+
+  if (typeof lat !== 'number' || typeof lon !== 'number') return false
+  const previousStart = addMs(start, -DAY_MS)
+  const previousIngress = findSolarIngressTime(previousStart, start, festival.sunLon)
+  return previousIngress ? previousIngress > getSunsetForDate(previousStart, lat, lon) : false
+}
+
+const getSolarFestivalsForDate = (date, lat, lon) => {
   return ANNUAL_FESTIVALS.filter(
-    f => f.kind === 'solarIngress' && crossedLongitude(startLon, endLon, f.sunLon)
+    f => f.kind === 'solarIngress' && isSolarIngressObservedOnDate(date, f, lat, lon)
   )
 }
 
@@ -352,6 +385,16 @@ const nextMasa = (masa) => {
   return index >= 0 ? masaNames[(index + 1) % masaNames.length] : masa
 }
 
+const previousMasa = (masa) => {
+  const masaNames = [
+    'Chaitra', 'Vaishakha', 'Jyeshtha', 'Ashadha',
+    'Shravana', 'Bhadrapada', 'Ashwin', 'Kartika',
+    'Margashirsha', 'Pausha', 'Magha', 'Phalguna',
+  ]
+  const index = masaNames.indexOf(masa)
+  return index >= 0 ? masaNames[(index + masaNames.length - 1) % masaNames.length] : masa
+}
+
 const getCalendarMasaForRule = (sampleTime, calendarSystem) => {
   const amantaMasa = getMasaForDate(sampleTime)
   const tithi = tithiAt(sampleTime)
@@ -372,7 +415,11 @@ const selectedMasaForRule = (rule, calendarSystem) => {
 }
 
 const displayMasaForRule = (date, sampleTime, rule, calendarSystem) => {
-  if (rule.masa) return getMasaForDate(sampleTime || date) === rule.masa
+  if (rule.masa) {
+    const sample = sampleTime || date
+    return getMasaForDate(sample) === rule.masa ||
+      (rule.adhikaName && isAdhikaMasaDate(sample, rule.masa))
+  }
   if (rule.amantaMasa || rule.purnimantaMasa) {
     const calendarMasa = getCalendarMasaForRule(sampleTime || date, calendarSystem)
     return calendarMasa === selectedMasaForRule(rule, calendarSystem)
@@ -414,11 +461,15 @@ const searchMoonPhaseDate = (phase, start, days) => {
 
 const isAdhikaMasaDate = (sampleTime, masa) => {
   const currentMasa = getMasaForDate(sampleTime)
-  if (currentMasa !== masa) return false
-
   const nextSearchStart = addMs(sampleTime, 2 * DAY_MS)
   const nextPurnima = searchMoonPhaseDate(180, nextSearchStart, 35)
-  return nextPurnima ? getMasaForDate(nextPurnima) === currentMasa : false
+  if (!nextPurnima) return false
+  const nextPurnimaMasa = getMasaForDate(nextPurnima)
+
+  return (
+    (currentMasa === masa && nextPurnimaMasa === currentMasa) ||
+    (currentMasa === previousMasa(masa) && nextPurnimaMasa === masa)
+  )
 }
 
 const withComputedFestivalMetadata = (rule, sampleTime) => {
@@ -474,7 +525,7 @@ export const getFestivalsForDate = (date, tithiNumberOrOptions, pakshaArg) => {
   const lon = options.lon
   const calendarSystem = options.calendarSystem
 
-  const solar = getSolarFestivalsForDate(date)
+  const solar = getSolarFestivalsForDate(date, lat, lon)
   const annual = ANNUAL_FESTIVALS
     .map(f => resolveAnnualFestivalForDate(date, f, lat, lon, calendarSystem))
     .filter(Boolean)

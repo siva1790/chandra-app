@@ -56,6 +56,18 @@ const assertIncludes = (label, arr, value) => {
   }
 }
 
+const assertNotIncludes = (label, arr, value) => {
+  const ok = !arr.some(f => f.name === value)
+  if (ok) {
+    console.log(`  âœ…  ${label}`)
+    passed++
+  } else {
+    console.error(`  âŒ  ${label}`)
+    console.error(`       expected festival named "${value}" to be absent from [${arr.map(f => f.name).join(', ')}]`)
+    failed++
+  }
+}
+
 const assertEmpty = (label, arr) => {
   if (arr.length === 0) {
     console.log(`  ✅  ${label}`)
@@ -145,12 +157,28 @@ console.log('\n6. Diwali 2027 — rule engine works beyond 2026')
   const d = getDayInfo(toIST('2027-10-29'), LAT, LON)
   console.log(`   2027-10-29 Tithi: ${d.tithi.paksha} ${d.tithi.name} (${d.tithi.adjustedNumber})`)
   console.log(`   Festivals: [${d.datedFestivals.map(f => f.name).join(', ') || 'none'}]`)
-  // Just check the engine runs without error and returns a result shape
-  assert('getDayInfo returns array for 2027', Array.isArray(d.datedFestivals), true)
+  assertIncludes('Diwali 2027 detected', d.datedFestivals, 'Diwali (Deepavali)')
 }
 
-// 7. genZMessage present on a major festival
-console.log('\n7. Gen Z message present on festival objects')
+// 7. Regression checks from date-sensitive ayanamsha audit
+console.log('\n7. Ayanamsha regression dates')
+{
+  assertIncludes('Akshaya Tritiya remains on 2026-04-20',
+    getDayInfo(toIST('2026-04-20'), LAT, LON).datedFestivals, 'Akshaya Tritiya')
+  assertNotIncludes('Akshaya Tritiya does not duplicate on 2026-05-19',
+    getDayInfo(toIST('2026-05-19'), LAT, LON).datedFestivals, 'Akshaya Tritiya')
+  assertIncludes('Adhik Vat Purnima Vrat detected on 2026-05-31',
+    getDayInfo(toIST('2026-05-31'), LAT, LON).datedFestivals, 'Adhik Vat Purnima Vrat')
+  assertIncludes('Diwali 2037 detected on 2037-11-07',
+    getDayInfo(toIST('2037-11-07'), LAT, LON).datedFestivals, 'Diwali (Deepavali)')
+  assertNotIncludes('Makar Sankranti 2027 not observed on post-sunset transit day',
+    getDayInfo(toIST('2027-01-14'), LAT, LON).datedFestivals, 'Makar Sankranti / Pongal')
+  assertIncludes('Makar Sankranti 2027 observed on next sunrise day',
+    getDayInfo(toIST('2027-01-15'), LAT, LON).datedFestivals, 'Makar Sankranti / Pongal')
+}
+
+// 8. genZMessage present on a major festival
+console.log('\n8. Gen Z message present on festival objects')
 {
   const d = getDayInfo(toIST('2026-11-08'), LAT, LON)  // Diwali
   const f = d.datedFestivals[0]
@@ -158,8 +186,8 @@ console.log('\n7. Gen Z message present on festival objects')
   assert('genZMessage is non-empty',     (f?.genZMessage?.length ?? 0) > 0, true)
 }
 
-// 8. IST date key sanity check
-console.log('\n8. IST date key')
+// 9. IST date key sanity check
+console.log('\n9. IST date key')
 {
   // 2026-05-12 00:00 IST = 2026-05-11 18:30 UTC
   const utc = new Date('2026-05-11T18:30:00Z')

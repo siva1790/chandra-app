@@ -2,14 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import * as Astronomy from 'astronomy-engine'
 import { getFestivalsForDate } from '../festivals'
 import { getMoonPhaseAngle, getTithiFromAngle, getPhaseEmoji, getSunriseForDate } from '../moonUtils'
+import { toSiderealLongitude } from '../ayanamsha.js'
 import { getEclipseForDate, eclipseTypeLabel } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { useSettings } from '../SettingsContext'
 import DateStrip from '../components/DateStrip'
 import { Calendar as CalendarIcon, Moon, Star, Clock } from 'lucide-react'
-
-// ── Constants for on-tap Pancha Anga calculation ──────────────────
-const AYANAMSHA = 23.15
 
 const NAKSHATRA_NAMES = [
   'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
@@ -153,7 +151,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
       // Moon sidereal longitude at sunrise
       const moonPos = Astronomy.GeoVector('Moon', sunriseTime, true)
       const moonEcl = Astronomy.Ecliptic(moonPos)
-      const moonLon = ((moonEcl.elon - AYANAMSHA + 360) % 360)
+      const moonLon = toSiderealLongitude(moonEcl.elon, sunriseTime)
 
       // Nakshatra + pada
       const nakshatraIdx = Math.floor(moonLon / (360 / 27))
@@ -163,7 +161,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
       // Yoga = (sun lon + moon lon) / (360/27)
       const sunPos = Astronomy.GeoVector('Sun', sunriseTime, true)
       const sunEcl = Astronomy.Ecliptic(sunPos)
-      const sunLon = ((sunEcl.elon - AYANAMSHA + 360) % 360)
+      const sunLon = toSiderealLongitude(sunEcl.elon, sunriseTime)
       const yoga = YOGA_NAMES[Math.floor(((sunLon + moonLon) % 360) / (360 / 27)) % 27]
 
       // Karana from phase angle
