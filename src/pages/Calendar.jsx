@@ -323,13 +323,13 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
         ))}
       </div>
 
-      {/* Festivals this month */}
+      {/* Events this month */}
       <div>
         <p className="text-gray-400 text-xs uppercase tracking-widest mb-3">
-          Festivals in {monthNames[currentDate.getMonth()]}
+          Events in {monthNames[currentDate.getMonth()]}
         </p>
         {monthFestivals.length === 0 ? (
-          <p className="text-gray-400 text-sm text-center py-6">No festivals this month</p>
+          <p className="text-gray-400 text-sm text-center py-6">No events this month</p>
         ) : (
           <div className="flex flex-col gap-2">
             {monthFestivals.map((day, i) => {
