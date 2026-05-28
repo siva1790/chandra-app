@@ -5,7 +5,7 @@ import { ENABLE_SUBSCRIPTIONS } from '../featureFlags'
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
-import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck } from 'lucide-react'
+import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck, BookOpen } from 'lucide-react'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
@@ -30,7 +30,7 @@ const loadNotifEnabled = () => {
   } catch { return true }
 }
 
-const Settings = ({ onOpenSubscribe }) => {
+const Settings = ({ onOpenSubscribe, onLearn }) => {
   const { settings, updateSettings } = useSettings()
   const { subscription, updateFrequency } = useSubscription()
   const [citySearch, setCitySearch]           = useState('')
@@ -418,9 +418,19 @@ const Settings = ({ onOpenSubscribe }) => {
 
         {/* Calendar System */}
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3 flex items-center gap-1.5">
-            <CalendarIcon size={13} aria-hidden="true" /> Calendar System
-          </p>
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <p className="text-yellow-500 text-xs uppercase tracking-widest flex items-center gap-1.5">
+              <CalendarIcon size={13} aria-hidden="true" /> Calendar System
+            </p>
+            <button
+              type="button"
+              onClick={() => onLearn?.('calendar-system')}
+              aria-label="Learn about calendar systems"
+              className="w-11 h-11 -my-2 rounded-xl flex items-center justify-center text-yellow-300 hover:bg-yellow-400/10 active:bg-yellow-400/15 shrink-0"
+            >
+              <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" />
+            </button>
+          </div>
           <p className="text-gray-400 text-xs mb-4">
             Choose the lunar calendar tradition followed in your region
           </p>
@@ -610,6 +620,17 @@ const Settings = ({ onOpenSubscribe }) => {
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
           <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">About</p>
           <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => onLearn?.('basics')}
+              className="flex justify-between items-center min-h-[44px] pb-2 mb-1 border-b border-gray-800 text-sm text-left group"
+            >
+              <span className="text-gray-400 flex items-center gap-1">
+                <BookOpen size={13} aria-hidden="true" />
+                Learn Panchang basics
+              </span>
+              <span className="text-[#8EA8FF] group-hover:underline">Open</span>
+            </button>
             <div className="flex justify-between">
               <span className="text-gray-400 text-sm">App</span>
               <span className="text-white text-sm">Chandra</span>

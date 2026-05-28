@@ -5,7 +5,7 @@ import { getSunriseForDate, getSunsetForDate, getTithiAtSunrise, getTithiFromAng
 import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DateStrip from '../components/DateStrip'
 import { EclipseIcon } from '../components/EclipseIcons'
-import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sparkles, AlertTriangle, Timer, ChevronDown } from 'lucide-react'
+import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sparkles, AlertTriangle, Timer, ChevronDown, BookOpen } from 'lucide-react'
 
 const nakshatras = [
   'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
@@ -299,7 +299,7 @@ const DEFAULT_SECTIONS = {
 
 // ── Component ─────────────────────────────────────────────────────
 
-const Panchang = ({ location, initialDate, onDateChange }) => {
+const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
   const [panchang, setPanchang] = useState(null)
   const [selectedDate, setSelectedDate] = useState(initialDate ? new Date(initialDate) : new Date())
   const [sections, setSections] = useState(() => {
@@ -749,6 +749,8 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
             title="Pancha Anga — Five Limbs"
             isOpen={sections.panchaAnga}
             onToggle={() => toggleSection('panchaAnga')}
+            onLearn={() => onLearn?.('pancha-anga')}
+            learnLabel="Learn about Pancha Anga"
           >
             <div className="flex flex-col gap-3">
               <div className="py-2 border-b border-gray-800">
@@ -846,6 +848,8 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
             title="Daily Timings"
             isOpen={sections.dailyTimings}
             onToggle={() => toggleSection('dailyTimings')}
+            onLearn={() => onLearn?.('daily-timings')}
+            learnLabel="Learn about daily timings"
           >
             <div className="flex flex-col gap-3">
               <PanchangRow icon={Sunrise}       label="Brahma Muhurta"  value={panchang.brahmaMuhurta}  sub="Most auspicious for meditation" />
@@ -860,6 +864,8 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
             title="Nakshatra Details"
             isOpen={sections.nakshatraDetails}
             onToggle={() => toggleSection('nakshatraDetails')}
+            onLearn={() => onLearn?.('nakshatra')}
+            learnLabel="Learn about Nakshatra"
           >
             <div className="flex flex-col gap-4">
               {panchang.nakshatraList?.map((n, i) => (
@@ -885,6 +891,8 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
             title="Month & Year"
             isOpen={sections.monthYear}
             onToggle={() => toggleSection('monthYear')}
+            onLearn={() => onLearn?.('month-year')}
+            learnLabel="Learn about month and year"
           >
             <div className="flex flex-col gap-3">
               <PanchangRow
@@ -919,6 +927,8 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
             title="Planetary Positions — Navagraha"
             isOpen={sections.planetary}
             onToggle={() => toggleSection('planetary')}
+            onLearn={() => onLearn?.('navagraha')}
+            learnLabel="Learn about Navagraha"
           >
             <p className="text-gray-400 text-xs mb-3">Sidereal longitudes (Lahiri Ayanamsha) at sunrise</p>
             <div className="flex flex-col">
@@ -960,21 +970,40 @@ const Panchang = ({ location, initialDate, onDateChange }) => {
 
 // ── Sub-components ────────────────────────────────────────────────
 
-const AccordionSection = ({ title, isOpen, onToggle, children }) => (
+const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, children }) => (
   <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
-    <button
-      onClick={onToggle}
-      aria-expanded={isOpen}
-      className="w-full flex items-center justify-between px-5 py-4 text-left min-h-[44px]"
-    >
-      <p className="text-yellow-500 text-xs uppercase tracking-widest">{title}</p>
-      <ChevronDown
-        size={16}
-        strokeWidth={1.75}
-        aria-hidden="true"
-        className={`text-gray-400 flex-shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-      />
-    </button>
+    <div className="flex items-center px-5 py-2 min-h-[60px]">
+      <button
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        className="flex-1 min-w-0 text-left py-2 pr-2 rounded-lg"
+      >
+        <p className="text-yellow-500 text-xs uppercase tracking-widest leading-snug">{title}</p>
+      </button>
+      {onLearn && (
+        <button
+          type="button"
+          onClick={onLearn}
+          aria-label={learnLabel || `Learn about ${title}`}
+          className="w-11 h-11 rounded-xl flex items-center justify-center text-yellow-300 hover:bg-yellow-400/10 active:bg-yellow-400/15 shrink-0"
+        >
+          <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" />
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label={isOpen ? `Collapse ${title}` : `Expand ${title}`}
+        className="w-11 h-11 rounded-xl flex items-center justify-center hover:bg-gray-800 active:bg-gray-800 shrink-0"
+      >
+        <ChevronDown
+          size={16}
+          strokeWidth={1.75}
+          aria-hidden="true"
+          className={`text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+    </div>
     {isOpen && (
       <div className="px-5 pb-5">
         {children}

@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Calendar from './pages/Calendar'
 import Panchang from './pages/Panchang'
 import Settings from './pages/Settings'
+import Learn from './pages/Learn'
 import { useSettings } from './SettingsContext'
 import { useSubscription } from './SubscriptionContext'
 import { ENABLE_SUBSCRIPTIONS } from './featureFlags'
@@ -16,20 +17,41 @@ import { Bell, Moon, Calendar as CalendarIcon, Clock, Settings as SettingsIcon }
 // Feature flag — set to true to re-enable the subscription UI
 function App() {
   const [screen, setScreen] = useState('home')
+  const [learnTarget, setLearnTarget] = useState(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [globalDate, setGlobalDate] = useState(new Date())
   const bellButtonRef = useRef(null)
   const { settings } = useSettings()
   const { subscription } = useSubscription()
 
-  const TAB_NAMES = { home: 'Day View', calendar: 'Calendar', panchang: 'Panchang', settings: 'Settings' }
+  const TAB_NAMES = { home: 'Day View', calendar: 'Calendar', panchang: 'Panchang', settings: 'Settings', learn: 'Learn' }
 
-  // Track initial page view
-  useEffect(() => { trackPageView('Day View') }, [])
+  useEffect(() => {
+    const syncFromHash = () => {
+      const hash = window.location.hash.replace(/^#/, '')
+      if (!hash.startsWith('learn')) return
+      const [, target] = hash.split('/')
+      setLearnTarget(target || null)
+      setScreen('learn')
+      trackPageView('Learn')
+    }
+
+    syncFromHash()
+    window.addEventListener('hashchange', syncFromHash)
+    return () => window.removeEventListener('hashchange', syncFromHash)
+  }, [])
+
+  // Track initial page view when no direct Learn hash is present.
+  useEffect(() => {
+    if (!window.location.hash.startsWith('#learn')) trackPageView('Day View')
+  }, [])
 
   // Direct tab tap — preserves current globalDate (no reset)
   const navigate = (tab) => {
     setScreen(tab)
+    if (tab !== 'learn' && window.location.hash.startsWith('#learn')) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
     window.scrollTo(0, 0)
     trackPageView(TAB_NAMES[tab])
   }
@@ -38,7 +60,19 @@ function App() {
   const navigateToPanchang = (date) => {
     setGlobalDate(new Date(date))
     setScreen('panchang')
+    if (window.location.hash.startsWith('#learn')) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
     window.scrollTo(0, 0)
+  }
+
+  const navigateToLearn = (target) => {
+    setLearnTarget(target || null)
+    setScreen('learn')
+    const nextHash = target ? `#learn/${target}` : '#learn'
+    if (window.location.hash !== nextHash) window.location.hash = nextHash
+    window.scrollTo(0, 0)
+    trackPageView(target ? `Learn: ${target}` : 'Learn')
   }
 
   return (
@@ -99,9 +133,10 @@ function App() {
       >
         <InstallPrompt />
         <div style={{ display: screen === 'home'     ? 'block' : 'none' }}><Home location={settings} date={globalDate} onDateChange={setGlobalDate} onNavigateToPanchang={navigateToPanchang} /></div>
-        <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} /></div>
-        <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} /></div>
-        <div style={{ display: screen === 'settings' ? 'block' : 'none' }}><Settings onOpenSubscribe={ENABLE_SUBSCRIPTIONS ? () => setSheetOpen(true) : undefined} /></div>
+        <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} onLearn={navigateToLearn} /></div>
+        <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} onLearn={navigateToLearn} /></div>
+        <div style={{ display: screen === 'settings' ? 'block' : 'none' }}><Settings onOpenSubscribe={ENABLE_SUBSCRIPTIONS ? () => setSheetOpen(true) : undefined} onLearn={navigateToLearn} /></div>
+        <div style={{ display: screen === 'learn'    ? 'block' : 'none' }}><Learn targetSection={learnTarget} /></div>
       </main>
 
       {/* ── Bottom Navigation ── */}

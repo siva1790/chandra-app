@@ -7,7 +7,7 @@ import { getEclipseForDate, eclipseTypeLabel } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { useSettings } from '../SettingsContext'
 import DateStrip from '../components/DateStrip'
-import { Calendar as CalendarIcon, Moon, Star, Clock } from 'lucide-react'
+import { Calendar as CalendarIcon, Moon, Star, Clock, BookOpen } from 'lucide-react'
 
 const NAKSHATRA_NAMES = [
   'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
@@ -37,7 +37,7 @@ const VARA_DEVA  = ['Sun ☀️', 'Moon 🌙', 'Mars ♂️', 'Mercury ☿', 'Ju
 
 // ─────────────────────────────────────────────────────────────────
 
-const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => {
+const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLearn }) => {
   const { settings } = useSettings()
   // currentDate tracks which month is displayed; initialised from selectedDate
   const [currentDate, setCurrentDate] = useState(
@@ -325,9 +325,19 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate }) => 
 
       {/* Events this month */}
       <div>
-        <p className="text-gray-400 text-xs uppercase tracking-widest mb-3">
-          Events in {monthNames[currentDate.getMonth()]}
-        </p>
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <p className="text-gray-400 text-xs uppercase tracking-widest">
+            Events in {monthNames[currentDate.getMonth()]}
+          </p>
+          <button
+            type="button"
+            onClick={() => onLearn?.('festivals-events')}
+            aria-label="Learn about calendar events"
+            className="w-11 h-11 rounded-xl flex items-center justify-center text-yellow-300 hover:bg-yellow-400/10 active:bg-yellow-400/15 shrink-0"
+          >
+            <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" />
+          </button>
+        </div>
         {monthFestivals.length === 0 ? (
           <p className="text-gray-400 text-sm text-center py-6">No events this month</p>
         ) : (
