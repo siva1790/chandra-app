@@ -28,8 +28,8 @@ It shows daily moon phase, Tithi, Panchang, Nakshatra, moonrise/moonset times, a
 | PWA | vite-plugin-pwa |
 | Package manager | npm |
 | Subscriber database | Firebase Firestore |
-| Email delivery (planned) | Resend |
-| Scheduled jobs | Firebase Cloud Functions + Cloud Scheduler (backend written; **deploy pending**) |
+| Email delivery | Resend (Cloud Function deployed; subscription UI hidden by feature flag) |
+| Scheduled jobs | Firebase Cloud Functions + Cloud Scheduler (live; last deployed 2026-05-19) |
 
 ---
 
@@ -43,6 +43,7 @@ chandra-app/
 │   ├── SettingsContext.jsx    # Global settings state (city, lat, lon, language, calendarSystem)
 │   ├── moonUtils.js           # Core astronomy helpers (tithi, nakshatra, sunrise, festivals)
 │   ├── festivals.js           # Festival rule engine (window-based tithi evaluation, Amanta/Purnimanta masa)
+│   ├── ayanamsha.js           # Date-sensitive Lahiri ayanamsha helper; toSiderealLongitude(tropicalLon, date)
 │   ├── cities.js              # Indian city list with lat/lon
 │   ├── featureFlags.js        # Shared feature flags — ENABLE_SUBSCRIPTIONS (currently false); controls SubscribeSheet mount in App.jsx and Email Alerts UI in Settings.jsx
 │   ├── notifications.js       # FCM device registration — initDevice(calendarSystem), updateDevice(), deactivateDevice(); writes to Firestore `devices` collection with notifPrefs (festivals/eclipses/moonrise/ekadashi), calendarSystem, notifPrefsVersion:2; uses merge:true to avoid wiping backend dedupe fields
@@ -55,6 +56,7 @@ chandra-app/
 │   │   ├── Home.jsx           # "Today" screen — moon visual, tithi, moonrise/set
 │   │   ├── Calendar.jsx       # Monthly calendar with tithi + festivals
 │   │   ├── Panchang.jsx       # Full daily Panchang (tithi, nakshatra, yoga, karana)
+│   │   ├── Learn.jsx          # Panchang terminology learning guide; section-level BookOpen entry points and #learn/<section> deep links
 │   │   └── Settings.jsx       # City picker, language, calendar system, notifications; default notif prefs: { festivals:true, eclipses:true, moonrise:true, ekadashi:true }; passes calendarSystem to initDevice(); syncs moonrise + ekadashi + notifPrefsVersion:2 on toggle
 │   └── components/
 │       ├── MoonVisual.jsx     # SVG moon phase renderer (waxing/waning terminator)
@@ -64,7 +66,8 @@ chandra-app/
 ├── functions/
 │   ├── index.js               # Cloud Functions: daily festival/observance/eclipse push scheduler; moonrise push scheduler (every 15 min, Asia/Kolkata); sendMulticastNotification() helper; fixed FCM batching (sends tokens:batch not full list); observanceAlertsEnabled() migrates legacy ekadashi:false docs; deviceCalendarSystem() helper; groups devices by lat,lon,calendarSystem
 │   ├── astroUtils.js          # Server-side astronomy helpers: getDayInfo(date, calendarSystem), getFestivalsForDate with calendarSystem forwarding, moonrise calculation per city
-│   └── test-local.js          # Local test runner — 17 tests, 0 failures (as of 2026-05-14); covers Ekadashi detection, default notify, explicit v2 opt-out, legacy migration, moonrise
+│   ├── ayanamsha.js           # Backend mirror of date-sensitive Lahiri ayanamsha helper
+│   └── test-local.js          # Local test runner — 23 tests, 0 failures (as of 2026-05-19); covers Ekadashi, Diwali 2027/2037, Akshaya duplicate prevention, Adhik Vat Purnima, Makar Sankranti next-day observance, moonrise
 ├── public/
 │   ├── favicon.svg                  # Vector favicon (scalable, browser tabs)
 │   ├── favicon.ico                  # Legacy favicon for older browsers
@@ -171,7 +174,7 @@ Festivals in the October/November Krishna Paksha (Diwali cluster) have different
 Note: 2029 Dhanteras was missing under strict `pradosh` window; fixed by `pradoshOrSunrise` + `firstOccurrence: true`.
 
 **Known technical debt in the engine:**
-- Lahiri ayanamsha is still a fixed `23.15°` — should eventually be year-sensitive.
+- Lahiri ayanamsha is now date/time-sensitive via `ayanamsha.js`; do not reintroduce fixed `23.15°` subtraction.
 - Window evaluation uses 20-minute interval sampling, not exact tithi-transition solving.
 - `Panchang.jsx` has its own separate panchang/masa calculation path — not yet unified with the festival engine.
 
@@ -185,8 +188,11 @@ Note: 2029 Dhanteras was missing under strict `pradosh` window; fixed by `prados
 - **Amavasya label threshold**: `MoonVisual` labels a phase as `Amavasya (New Moon)` only when `phase > 29/30` (waning side, 30th tithi boundary). **Do NOT revert to `phase < 0.02 || phase > 0.98`** — that old threshold caused the waxing day immediately after conjunction (e.g. May 17 Pratipada) to still display as Amavasya.
 
 ### Ayanamsha
-- Lahiri Ayanamsha = **23.15°** used for Nakshatra calculations (sidereal conversion).
-- Defined in `moonUtils.js` as `const AYANAMSHA = 23.15`.
+- Lahiri ayanamsha is calculated by exact sample date/time in `src/ayanamsha.js` and mirrored in `functions/ayanamsha.js`.
+- Use `toSiderealLongitude(tropicalLongitude, date)` for sidereal conversion. Do **not** directly subtract `23.15` anywhere.
+- Current helper is calibrated at J2000 (`23.853055°`) and advances by `50.290966 arcseconds/year`; keep full precision internally and round only for display.
+- Tithi is unaffected in practice because it is Moon-Sun angular separation; Nakshatra, Yoga, Rashi/Navagraha, Masa, and solar ingress rules are affected.
+- The live 2026-05-19 deployment also fixed Akshaya duplicate suppression, Adhik Vat Purnima labeling, Diwali 2037 fallback, and Makar Sankranti next-day observance after post-sunset ingress.
 
 ---
 
@@ -241,13 +247,13 @@ cd "C:\Users\Shiv\OneDrive\Desktop\chandra-app"
 firebase deploy --only functions,firestore:rules
 ```
 
-**Both deploys are needed** for the push notification fix to go live. If only the frontend is pushed, moonrise reminders and observance/festival/eclipse sends will still use old (or missing) backend logic.
+**Both deploys are needed** whenever frontend and backend calculation logic change together. If only the frontend is pushed, moonrise reminders and observance/festival/eclipse sends may still use old backend logic.
 
 ### Running Backend Tests Locally
 ```bash
 cd "C:\Users\Shiv\OneDrive\Desktop\chandra-app"
 node functions/test-local.js
-# Expected: 17 passed, 0 failed
+# Expected: 23 passed, 0 failed
 ```
 
 ### Build Command (Vite)
@@ -277,7 +283,7 @@ npm run preview    # preview the dist/ build locally
 - `SubscriptionContext.jsx` exposes: `subscribe()`, `update()`, `updateFrequency()`, `unsubscribe()`.
 - UI entry point: bell icon in top bar → `SubscribeSheet.jsx` bottom sheet.
 
-### Push Notifications (frontend + backend written — **Firebase deploy pending**)
+### Push Notifications (frontend + backend live)
 - Permission state managed in `Settings.jsx` via `Notification.requestPermission()`.
 - Toggle prefs persisted in localStorage under `chandra-notif-prefs` and `chandra-notif-enabled`.
 - FCM device registration in `notifications.js` — `initDevice(calendarSystem)`, `updateDevice()`, `deactivateDevice()` write to Firestore `devices` collection.
@@ -302,32 +308,43 @@ npm run preview    # preview the dist/ build locally
 ```
 - `setDoc(..., { merge: true })` is used — backend-written dedupe fields are never wiped by the frontend.
 
-**Backend Cloud Functions (written; not yet deployed):**
+**Backend Cloud Functions (live — deployed 2026-05-19):**
 - **Daily push** (`sendDailyPushNotifications`): groups devices by `lat,lon,calendarSystem`; calls `getDayInfo(calendarSystem)` per group; sends festival / observance / eclipse notifications. Uses `observanceAlertsEnabled()` to respect v2 opt-outs and migrate legacy `ekadashi:false` docs (treated as old default → notify).
 - **Moonrise push** (`sendMoonrisePushNotifications`): runs every 15 minutes (`Asia/Kolkata`, `asia-south1` region); filters devices where `notifPrefs.moonrise !== false`; calculates moonrise per city group; fires if scheduler window is within 30 min before moonrise; deduplicates via `lastMoonriseNotificationKey`.
 - **FCM batching fix**: batches now correctly send `tokens: batch` (was incorrectly re-sending the full token list on every slice).
 - **Service worker payload fix** (`sw.js`): push handler now handles both flat and nested FCM payloads: `payload.notification || {}`, `payload.data || notification.data || {}`.
 
-**To deploy the backend:**
+**To redeploy the backend after future backend/rules changes:**
 ```bash
 firebase deploy --only functions,firestore:rules
 ```
 Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 
-**Important**: Until Cloud Functions are deployed, device docs will improve going forward, but daily festival/observance/eclipse sends and moonrise reminders will not work live.
+**Important**: Frontend changes go live through Vercel after pushing `main`; backend notification/date-calculation changes require the Firebase deploy command above.
 
-### Automated Email (frontend complete — Cloud Functions backend pending)
+### Automated Email (backend deployed — UI hidden)
 - Subscriber data model is fully live in Firestore (`subscribers` collection).
 - Subscription UI (bell button + Settings section) is **intentionally hidden** behind `ENABLE_SUBSCRIPTIONS = false` in `src/featureFlags.js` — shared by `App.jsx` and `Settings.jsx`. Flip to `true` to re-enable. `App.jsx` will not mount `SubscribeSheet` while the flag is false.
-- **What's missing**: Cloud Function + Resend API sending layer — this is the only remaining piece.
-- **Firebase Blaze plan is already active** — Cloud Functions are unblocked and ready to build.
-- Strategy when built: hybrid — pre-written festival stories + dynamically injected city-specific timing data.
+- `sendDailyEmails` Cloud Function is deployed in `asia-south1`; it reads active subscribers, groups by city, filters by `emailFrequency`, and sends through Resend batch API.
+- **Still gated**: subscription UI remains hidden until `ENABLE_SUBSCRIPTIONS` is flipped to `true`; verify Resend domain/API configuration before enabling public email alerts.
+- Strategy: hybrid — pre-written festival stories + dynamically injected city-specific timing data.
 
 ### Analytics (live)
 - GA4 analytics implemented in `analytics.js` — tracks page views and key events (subscribe, unsubscribe, notification_enabled, notification_disabled, city_changed).
 
 ### Panchang Timings (all live)
 - Rahu Kaal, Yamagandam, Abhijit Muhurta, and Brahma Muhurta are all calculated and displayed in `Panchang.jsx`.
+
+### Learn Page / Terminology Guide (live)
+- `src/pages/Learn.jsx` is an in-app React learning page, not a standalone static HTML page.
+- It is reachable through hash deep links such as `#learn/pancha-anga`, `#learn/daily-timings`, `#learn/nakshatra`, `#learn/month-year`, `#learn/navagraha`, `#learn/festivals-events`, and `#learn/calendar-system`.
+- Section-level `BookOpen` icon buttons are used instead of help icons beside every term:
+  - Panchang accordions: Pancha Anga, Daily Timings, Nakshatra Details, Month & Year, Planetary Positions.
+  - Calendar: Events in the viewed month.
+  - Settings: Calendar System.
+  - Settings > About: general "Learn Panchang basics" entry.
+- The page includes collapsed reference accordions for 15 Tithi names (repeated across both Pakshas), 11 Karanas, 12 Rashis with English zodiac equivalents, 27 Nakshatras, and key monthly observances.
+- Keep `calculation-spec.private.html` private and unmodified; it can be used as source reference, but user-facing Learn content should stay narrative, concise, and app-styled.
 
 ---
 
@@ -379,7 +396,8 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 | 2026-05 | Day View tithi mismatch fixed (git `6653cb6`) — Home.jsx previously overrode sunrise tithi with noon tithi when they differed, causing Day View to show the wrong tithi on boundary days (e.g. May 17 showed Amavasya instead of Pratipada); fixed by replacing the divergent logic with a direct call to the shared `getTithiAtSunrise()` helper from `moonUtils.js`; Panchang and Day View now always agree | `src/pages/Home.jsx` |
 | 2026-05 | Day View/Panchang Amavasya boundary fix shipped live — Day View moon phase and illumination now sample at local sunrise instead of midnight; Panchang display uses shared `getTithiAtSunrise()`; MoonVisual labels Amavasya only on the waning-side 30th tithi boundary so May 16 2026 remains Amavasya and May 17 2026 shows Pratipada/Waxing Crescent. Deployed to production via Vercel (`chandrapanchang.app`) after preview approval. | `src/pages/Home.jsx`, `src/pages/Panchang.jsx`, `src/components/MoonVisual.jsx` |
 | 2026-05 | Subscription UI hidden-state fix shipped live — moved `ENABLE_SUBSCRIPTIONS` to shared `featureFlags.js`; App no longer mounts `SubscribeSheet` while subscriptions are disabled; Settings uses the same flag so existing local subscriber state no longer surfaces "Subscribed", "Manage", or Email Alerts UI. Subscriber data is preserved; no localStorage clearing or Firestore unsubscribe writes. Deployed to production via Vercel (`chandrapanchang.app`) after preview approval. | `src/featureFlags.js`, `src/App.jsx`, `src/pages/Settings.jsx` |
-| 2026-05 | Push notification system completed — (1) `initDevice()` now accepts and stores `calendarSystem`; device docs upgraded to schema v2 with `notifPrefs.moonrise`, `notifPrefs.ekadashi`, `notifPrefsVersion:2`; (2) Settings default prefs changed to all-true; `calendarSystem` passed to `initDevice()`; moonrise + ekadashi synced on toggle; (3) Service worker push handler fixed to support both flat and nested FCM payloads; (4) FCM batching bug fixed (was re-sending full token list instead of current batch); (5) Added `sendMoonrisePushNotifications` Cloud Function (every 15 min, 30-min lookahead, deduped); (6) Daily push now groups by `lat,lon,calendarSystem` and uses `observanceAlertsEnabled()` to migrate legacy `ekadashi:false` documents; (7) `astroUtils.js` `getDayInfo()` now forwards `calendarSystem` to festival resolution; (8) Firestore rules updated to allow `calendarSystem` and `notifPrefsVersion` fields on device docs. **Backend not yet deployed — run `firebase deploy --only functions,firestore:rules` to go live.** | `src/notifications.js`, `src/pages/Settings.jsx`, `src/sw.js`, `functions/index.js`, `functions/astroUtils.js`, `firestore.rules` |
+| 2026-05 | Push notification system completed and deployed — (1) `initDevice()` now accepts and stores `calendarSystem`; device docs upgraded to schema v2 with `notifPrefs.moonrise`, `notifPrefs.ekadashi`, `notifPrefsVersion:2`; (2) Settings default prefs changed to all-true; `calendarSystem` passed to `initDevice()`; moonrise + ekadashi synced on toggle; (3) Service worker push handler fixed to support both flat and nested FCM payloads; (4) FCM batching bug fixed (was re-sending full token list instead of current batch); (5) Added `sendMoonrisePushNotifications` Cloud Function (every 15 min, 30-min lookahead, deduped); (6) Daily push now groups by `lat,lon,calendarSystem` and uses `observanceAlertsEnabled()` to migrate legacy `ekadashi:false` documents; (7) `astroUtils.js` `getDayInfo()` now forwards `calendarSystem` to festival resolution; (8) Firestore rules updated to allow `calendarSystem` and `notifPrefsVersion` fields on device docs. Backend deployed live on 2026-05-19 with `firebase deploy --only functions,firestore:rules`. | `src/notifications.js`, `src/pages/Settings.jsx`, `src/sw.js`, `functions/index.js`, `functions/astroUtils.js`, `firestore.rules` |
+| 2026-05 | Date-sensitive Lahiri ayanamsha shipped live (git `0642982`) — replaced fixed `23.15°` sidereal subtraction with `toSiderealLongitude(tropicalLon, date)` helpers in frontend/backend; fixed Akshaya Tritiya duplicate on 2026-05-19, restored Adhik Vat Purnima Vrat on 2026-05-31, restored Diwali on 2037-11-07, and moved Makar Sankranti to the next sunrise day when Makara ingress occurs after local sunset (e.g. 2027-01-15). Verified `node functions/test-local.js` = 23 passed, `npm.cmd run build` passed, frontend/backend 2027-2037 parity sweep passed; pushed to `main`, Vercel live bundle `assets/index-XaBaFMa8-r2.js` served HTTP 200, and Firebase Functions + Firestore rules deployed on 2026-05-19. | `src/ayanamsha.js`, `functions/ayanamsha.js`, `src/moonUtils.js`, `src/festivals.js`, `src/pages/Calendar.jsx`, `src/pages/Panchang.jsx`, `functions/astroUtils.js`, `functions/test-local.js` |
 | 2026-05 | Navigation and date-picker UX fixes shipped live - top Chandra logo/wordmark now returns to Day View; Today message modal removed redundant Story CTA and keeps a single native Share action; Calendar date-picker selection now opens the existing day detail sheet with selected-date highlight and View Full Panchang CTA; DatePickerSheet now supports month + year selection before choosing a day; Calendar Go to Today now updates the global selected date so Day View and Panchang also show today. Deployed to production via Vercel (`chandrapanchang.app`) after preview approval. | `src/App.jsx`, `src/components/TodayMessageModal.jsx`, `src/components/DateStrip.jsx`, `src/components/DatePickerSheet.jsx`, `src/pages/Calendar.jsx` |
 | 2026-05 | Day View moon visual texture shipped live — replaced the plain lit disc layer in `MoonVisual.jsx` with a local clipped full-moon texture asset while preserving the existing shadow-overlay phase geometry, glow, rim, and Amavasya dark base. Verified build, component lint, local visual states (waning crescent, Amavasya, full moon, half-lit/waxing), preview deployment, then promoted to production (`chandrapanchang.app`) after approval. | `src/components/MoonVisual.jsx`, `src/assets/moon-texture.png` |
 | 2026-05 | PWA install identity fix shipped live — added a stable manifest `id` (`/`) so browsers have a consistent PWA identity for Chandra and updated canonical, Open Graph, Twitter card, and JSON-LD URLs from the old Vercel domain to `chandrapanchang.app`. Verified production build and preview deployment, then promoted to production after approval. This reduces duplicate install prompts going forward, though clearing browser data may still erase browser-side install awareness on some devices. | `public/manifest.json`, `index.html` |
@@ -388,6 +406,7 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 | 2026-05 | Google Play TWA Digital Asset Links shipped live — added `public/.well-known/assetlinks.json` and reusable template for package `app.chandrapanchang.chandra`, using the Play App Signing SHA-256 fingerprint `6F:A6:66:FB:48:A7:C4:B0:BF:88:51:2E:9E:9E:22:4A:9C:C1:71:3D:F7:24:82:C0:78:6B:82:E5:B8:89:D8:78`; committed as git `832d343`, pushed to `main`, and verified `https://chandrapanchang.app/.well-known/assetlinks.json` returns HTTP 200 with the expected package and fingerprint. | `public/.well-known/assetlinks.json`, `public/.well-known/assetlinks.template.json` |
 | 2026-05 | Full logo system created and deployed to production (git `69aba58`) — professional brand mark built from source image; all production assets generated and committed: `favicon.svg`, `favicon.ico`, `og-share.png` (1200×630 OG image), `og-share-square.png`, `icons/icon-192.png` + `icons/icon-512.png` (normal PWA purpose), `icons/maskable-icon-192.png` + `icons/maskable-icon-512.png` (maskable/adaptive purpose), `icons/icon-72.png` (FCM notification badge), `icons/chandra-mark-topbar-96.png` (top-bar mark), `icons/chandra-lockup-horizontal.png`, `icons/chandra-splash-1080x1920.png`; reproducible `brand/` kit with `source/`, `master/`, `icons/`, `ui/`, `social/`, `preview/` subdirs and `IMPLEMENTATION_MAPPING.md`; `scripts/generate-brand-assets.mjs` regenerates the full kit from the source image; `index.html` OG meta updated to 1200×630 `summary_large_image`; `manifest.json` separates normal/maskable icon purposes and references all nine icon files; `App.jsx` + `Settings.jsx` + `privacy.html` updated to use `chandra-mark-topbar-96.png`; JSON-LD updated; `.gitignore` excludes local Play Store output files. | `index.html`, `public/manifest.json`, `public/favicon.svg`, `public/favicon.ico`, `public/og-share.png`, `public/og-share-square.png`, `public/icons/*` (9 files), `public/brand/*`, `scripts/generate-brand-assets.mjs`, `src/App.jsx`, `src/pages/Settings.jsx`, `public/privacy.html` |
 | 2026-05 | Maskable icon tick-mark regression fixed (git `ea69e8d`) — the icon generator was producing extra tick marks past the 12 o'clock boundary; fixed by stopping the tick loop before it crosses that boundary; regenerated and committed the three affected files: `favicon-96.png`, `maskable-icon-192.png`, `maskable-icon-512.png` in both `public/icons/` and `public/brand/icons/`. | `scripts/generate-brand-assets.mjs`, `public/icons/favicon-96.png`, `public/icons/maskable-icon-192.png`, `public/icons/maskable-icon-512.png` |
+| 2026-05 | Panchang terminology learning guide shipped live — added `Learn.jsx` with narrative explanations, local visual explainers, floating scroll-to-top button, hash deep links (`#learn/<section>`), and collapsed reference accordions for Tithis, Karanas, Rashis, Nakshatras, and monthly observances; added section-level `BookOpen` entry points in Panchang, Calendar Events, and Settings Calendar System/About. | `src/pages/Learn.jsx`, `src/App.jsx`, `src/pages/Panchang.jsx`, `src/pages/Calendar.jsx`, `src/pages/Settings.jsx` |
 
 ---
 
