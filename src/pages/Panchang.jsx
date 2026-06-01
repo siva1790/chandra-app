@@ -329,6 +329,13 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
   const formatShortDate = (date) =>
     date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
 
+  const formatWindow = (start, end) => {
+    const sameDay = start.toDateString() === end.toDateString()
+    const startLabel = sameDay ? formatTime(start) : `${formatTime(start)}, ${formatShortDate(start)}`
+    const endLabel = sameDay ? formatTime(end) : `${formatTime(end)}, ${formatShortDate(end)}`
+    return `${startLabel} - ${endLabel}`
+  }
+
   const formatDate = (date) =>
     date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
@@ -647,13 +654,14 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
       const isEkadashi = tithiName === 'Ekadashi'
       const isPurnima  = tithiName === 'Purnima'
       const isAmavasya = tithiName === 'Amavasya'
-      const isVishti   = karanaList.some(k => k.name === 'Vishti')
+      const vishtiPeriods = karanaList.filter(k => k.name === 'Vishti')
+      const isVishti   = vishtiPeriods.length > 0
       const eclipse    = getEclipseForDate(date)
 
       setPanchang({
         tithi: tithiName, paksha, tithiWindow,
         nakshatra: nakshatraName, nakshatraPada, nakshatraList,
-        yoga: yogaName, yogaList, karana: karanaName, karanaList,
+        yoga: yogaName, yogaList, karana: karanaName, karanaList, vishtiPeriods,
         vara: varaNames[varaIndex], varaDeity: varaDeva[varaIndex],
         rahuKaal, yamagandam, abhijitMuhurta, brahmaMuhurta,
         samvatsara, masa, ritu, ayana, calendarSystem,
@@ -698,7 +706,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                     <p className="text-indigo-400 text-xs mt-0.5">{lunarTotalityLabel(panchang.eclipse)}</p>
                   )}
                   {panchang.eclipse.type === 'lunar' && (
-                    <p className="text-indigo-500 text-xs mt-1.5 leading-relaxed">Avoid auspicious activities during the eclipse. Perform ritual bath after eclipse ends.</p>
+                    <p className="text-indigo-500 text-xs mt-1.5 leading-relaxed">Avoid starting auspicious work during the eclipse. Prayer, mantra and post-eclipse ritual bath are traditionally observed.</p>
                   )}
                   {panchang.eclipse.type === 'solar' && (
                     <p className="text-indigo-500 text-xs mt-1.5 leading-relaxed">Surya Grahan — avoid eating during the eclipse period. Chant mantras and pray.</p>
@@ -712,7 +720,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           {panchang.isPurnima && (
             <div className="bg-yellow-950 border border-yellow-600 rounded-2xl p-4 text-center">
               <p className="text-yellow-300 font-semibold"><span role="img" aria-label="Full moon">🌕</span> Purnima — Full Moon Day</p>
-              <p className="text-yellow-500 text-xs mt-1">Auspicious for prayers, charity and fasting</p>
+              <p className="text-yellow-500 text-xs mt-1">Auspicious for prayer, charity, fasting and full-moon observance</p>
             </div>
           )}
           {panchang.isAmavasya && (
@@ -729,8 +737,13 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           )}
           {panchang.isVishti && (
             <div className="bg-red-950 border border-red-800 rounded-2xl p-4 text-center">
-              <p className="text-red-400 font-semibold"><span role="img" aria-label="Warning">⚠️</span> Bhadra (Vishti Karana)</p>
-              <p className="text-red-500 text-xs mt-1">Avoid auspicious activities during this period</p>
+              <p className="text-red-400 font-semibold"><span role="img" aria-label="Warning">⚠️</span> Bhadra / Vishti Karana Active</p>
+              {panchang.vishtiPeriods?.length > 0 && (
+                <p className="text-red-300 text-xs mt-1 font-medium">
+                  {panchang.vishtiPeriods.map(k => formatWindow(k.start, k.end)).join(', ')}
+                </p>
+              )}
+              <p className="text-red-500 text-xs mt-1 leading-relaxed">Avoid starting new auspicious work during this Karana. Prayer, fasting and charity observances still apply.</p>
             </div>
           )}
 
@@ -854,8 +867,8 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
             <div className="flex flex-col gap-3">
               <PanchangRow icon={Sunrise}       label="Brahma Muhurta"  value={panchang.brahmaMuhurta}  sub="Most auspicious for meditation" />
               <PanchangRow icon={Sparkles}      label="Abhijit Muhurta" value={panchang.abhijitMuhurta} sub="Auspicious for new beginnings" />
-              <PanchangRow icon={AlertTriangle} label="Rahu Kaal"       value={panchang.rahuKaal}       sub="Avoid important work"          highlight="red" />
-              <PanchangRow icon={Timer}         label="Yamagandam"      value={panchang.yamagandam}     sub="Avoid auspicious activities"   highlight="red" />
+              <PanchangRow icon={AlertTriangle} label="Rahu Kaal"       value={panchang.rahuKaal}       sub="Avoid starting important work" highlight="red" />
+              <PanchangRow icon={Timer}         label="Yamagandam"      value={panchang.yamagandam}     sub="Avoid starting auspicious work" highlight="red" />
             </div>
           </AccordionSection>
 
