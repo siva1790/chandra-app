@@ -80,7 +80,7 @@ const shadowPath = (phase) => {
   )
 }
 
-const MoonVisual = ({ phase, tithiLabel }) => {
+const MoonVisual = ({ phase, tithiLabel, showLabel = true }) => {
   const isNewMoon  = phase < 0.02 || phase > 0.98
   const isFullMoon = phase > 0.48 && phase < 0.52
   const shadow     = shadowPath(phase)
@@ -184,12 +184,14 @@ const MoonVisual = ({ phase, tithiLabel }) => {
         />
       </svg>
 
-      <p className="text-yellow-300 text-lg font-semibold">
-        {tithiLabel
-          ? `${getPhaseEmoji(phase)} ${tithiLabel}`
-          : getPhaseName(phase)
-        }
-      </p>
+      {showLabel && (
+        <p className="text-yellow-300 text-lg font-semibold">
+          {tithiLabel
+            ? `${getPhaseEmoji(phase)} ${tithiLabel}`
+            : getPhaseName(phase)
+          }
+        </p>
+      )}
     </div>
   )
 }

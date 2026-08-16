@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useSettings } from '../SettingsContext'
+import { useProfile } from '../ProfileContext'
 import { useSubscription } from '../SubscriptionContext'
 import { ENABLE_SUBSCRIPTIONS } from '../featureFlags'
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
-import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck, BookOpen } from 'lucide-react'
+import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck, BookOpen, User, Clock, CalendarDays } from 'lucide-react'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
@@ -20,7 +21,11 @@ const loadNotifPrefs = () => {
 }
 
 const saveNotifPrefs = (prefs) => {
-  try { localStorage.setItem(NOTIF_KEY, JSON.stringify(prefs)) } catch {}
+  try {
+    localStorage.setItem(NOTIF_KEY, JSON.stringify(prefs))
+  } catch {
+    // Local storage may be unavailable in private browsing or restricted webviews.
+  }
 }
 
 const loadNotifEnabled = () => {
@@ -32,25 +37,32 @@ const loadNotifEnabled = () => {
 
 const Settings = ({ onOpenSubscribe, onLearn }) => {
   const { settings, updateSettings } = useSettings()
+  const { profile, profileComplete, saveProfile } = useProfile()
   const { subscription, updateFrequency } = useSubscription()
   const [citySearch, setCitySearch]           = useState('')
   const [showCityList, setShowCityList]       = useState(false)
   const [activeCityIndex, setActiveCityIndex] = useState(-1)
   const [saved, setSaved] = useState(false)
+  const [profileForm, setProfileForm] = useState(profile)
+  const [profileErrors, setProfileErrors] = useState({})
+  const [editingProfile, setEditingProfile] = useState(() => !profileComplete)
+  const [birthCitySearch, setBirthCitySearch] = useState('')
+  const [showBirthCityList, setShowBirthCityList] = useState(false)
+  const [activeBirthCityIndex, setActiveBirthCityIndex] = useState(-1)
 
   // ── Push notification state ──
-  const [notifPermission, setNotifPermission] = useState('default')
-  const [notifEnabled, setNotifEnabled] = useState(false)
+  const [notifPermission, setNotifPermission] = useState(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) return Notification.permission
+    return 'default'
+  })
+  const [notifEnabled, setNotifEnabled] = useState(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      return loadNotifEnabled()
+    }
+    return false
+  })
   const [notifPrefs, setNotifPrefs] = useState(loadNotifPrefs)
   const [showPreview, setShowPreview] = useState(false)
-
-  useEffect(() => {
-    if ('Notification' in window) {
-      const perm = Notification.permission
-      setNotifPermission(perm)
-      if (perm === 'granted') setNotifEnabled(loadNotifEnabled())
-    }
-  }, [])
 
   // Refresh FCM device registration whenever city changes (or on first mount if
   // notifications are already enabled). This keeps the backend's city/lat/lon current.
@@ -172,6 +184,11 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
     c.state.toLowerCase().includes(citySearch.toLowerCase())
   )
 
+  const filteredBirthCities = cities.filter(c =>
+    c.name.toLowerCase().includes(birthCitySearch.toLowerCase()) ||
+    c.state.toLowerCase().includes(birthCitySearch.toLowerCase())
+  )
+
   const selectCity = (city) => {
     updateSettings('city', city.name)
     updateSettings('lat', city.lat)
@@ -182,6 +199,94 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
     setActiveCityIndex(-1)
     showSavedBadge()
     trackEvent('city_changed', { city_name: city.name })
+  }
+
+  const updateProfileForm = (key, value) => {
+    setProfileForm(prev => ({ ...prev, [key]: value }))
+    setProfileErrors(prev => ({ ...prev, [key]: undefined, form: undefined }))
+  }
+
+  const selectBirthCity = (city) => {
+    setProfileForm(prev => ({
+      ...prev,
+      birthPlace: city.name,
+      birthState: city.state,
+      birthLat: city.lat,
+      birthLon: city.lon,
+      sameAsCurrentLocation: false,
+    }))
+    setBirthCitySearch('')
+    setShowBirthCityList(false)
+    setActiveBirthCityIndex(-1)
+    setProfileErrors(prev => ({ ...prev, birthPlace: undefined, form: undefined }))
+  }
+
+  const toggleSameAsCurrentLocation = (checked) => {
+    setProfileForm(prev => ({
+      ...prev,
+      sameAsCurrentLocation: checked,
+      ...(checked ? {
+        birthPlace: settings.city,
+        birthState: '',
+        birthLat: settings.lat,
+        birthLon: settings.lon,
+      } : {
+        birthPlace: '',
+        birthState: '',
+        birthLat: null,
+        birthLon: null,
+      }),
+    }))
+    setBirthCitySearch('')
+    setShowBirthCityList(false)
+    setActiveBirthCityIndex(-1)
+    setProfileErrors(prev => ({ ...prev, birthPlace: undefined, form: undefined }))
+  }
+
+  const validateProfileForm = () => {
+    const errors = {}
+    if (!profileForm.dob) errors.dob = 'Date of birth is required.'
+    if (!profileForm.birthTime) errors.birthTime = 'Time of birth is required.'
+
+    const hasBirthLocation = profileForm.sameAsCurrentLocation
+      ? Boolean(settings.city && Number.isFinite(settings.lat) && Number.isFinite(settings.lon))
+      : Boolean(profileForm.birthPlace && Number.isFinite(profileForm.birthLat) && Number.isFinite(profileForm.birthLon))
+
+    if (!hasBirthLocation) errors.birthPlace = 'Birth location is required.'
+    return errors
+  }
+
+  const handleSaveProfile = () => {
+    const errors = validateProfileForm()
+    if (Object.keys(errors).length > 0) {
+      setProfileErrors(errors)
+      return
+    }
+
+    const nextProfile = profileForm.sameAsCurrentLocation
+      ? {
+        ...profileForm,
+        birthPlace: settings.city,
+        birthState: '',
+        birthLat: settings.lat,
+        birthLon: settings.lon,
+      }
+      : profileForm
+
+    saveProfile(nextProfile)
+    setProfileForm(nextProfile)
+    setProfileErrors({})
+    setEditingProfile(false)
+    showSavedBadge()
+  }
+
+  const handleCancelProfileEdit = () => {
+    setProfileForm(profile)
+    setProfileErrors({})
+    setBirthCitySearch('')
+    setShowBirthCityList(false)
+    setActiveBirthCityIndex(-1)
+    setEditingProfile(false)
   }
 
   const handleCityKeyDown = (e) => {
@@ -200,6 +305,25 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
     } else if (e.key === 'Enter' && activeCityIndex >= 0) {
       e.preventDefault()
       selectCity(filteredCities[activeCityIndex])
+    }
+  }
+
+  const handleBirthCityKeyDown = (e) => {
+    if (e.key === 'Escape' && showBirthCityList) {
+      setShowBirthCityList(false)
+      setActiveBirthCityIndex(-1)
+      return
+    }
+    if (!showBirthCityList || filteredBirthCities.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveBirthCityIndex(i => Math.min(i + 1, filteredBirthCities.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveBirthCityIndex(i => Math.max(i - 1, -1))
+    } else if (e.key === 'Enter' && activeBirthCityIndex >= 0) {
+      e.preventDefault()
+      selectBirthCity(filteredBirthCities[activeBirthCityIndex])
     }
   }
 
@@ -257,6 +381,210 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
               <span className="text-white text-sm font-medium">{settings.calendarSystem}</span>
             </div>
           </div>
+        </div>
+
+        {/* Personal Details */}
+        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <p className="text-yellow-500 text-xs uppercase tracking-widest flex items-center gap-1.5">
+                <User size={13} aria-hidden="true" /> Personal Details
+              </p>
+              <p className="text-gray-400 text-xs mt-2 leading-relaxed">
+                Stored on this device. Used later for Rasi, Nakshatra and personalised daily messages.
+              </p>
+            </div>
+            {!editingProfile && (
+              <button
+                type="button"
+                onClick={() => setEditingProfile(true)}
+                className="px-3 py-2 rounded-xl bg-gray-800 border border-gray-700 text-yellow-300 text-xs font-medium hover:border-yellow-700 transition-all min-h-[44px]"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+
+          {!editingProfile ? (
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between gap-3">
+                <span className="text-gray-400 text-sm">Status</span>
+                <span className={`text-sm font-medium ${profileComplete ? 'text-green-300' : 'text-yellow-300'}`}>
+                  {profileComplete ? 'Complete' : 'Not set'}
+                </span>
+              </div>
+              {profile.name && (
+                <div className="flex justify-between gap-3">
+                  <span className="text-gray-400 text-sm">Name</span>
+                  <span className="text-white text-sm font-medium text-right">{profile.name}</span>
+                </div>
+              )}
+              <div className="flex justify-between gap-3">
+                <span className="text-gray-400 text-sm">Date of birth</span>
+                <span className="text-white text-sm font-medium">{profile.dob || 'Not added'}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-gray-400 text-sm">Time of birth</span>
+                <span className="text-white text-sm font-medium">{profile.birthTime || 'Not added'}</span>
+              </div>
+              <div className="flex justify-between gap-3">
+                <span className="text-gray-400 text-sm">Birth location</span>
+                <span className="text-white text-sm font-medium text-right">{profile.birthPlace || 'Not added'}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div>
+                <label htmlFor="profile-name" className="text-gray-300 text-sm font-medium">Name <span className="text-gray-500 font-normal">(optional)</span></label>
+                <input
+                  id="profile-name"
+                  type="text"
+                  autoComplete="name"
+                  value={profileForm.name}
+                  onChange={(e) => updateProfileForm('name', e.target.value)}
+                  placeholder="Your name"
+                  className="mt-2 w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="profile-dob" className="text-gray-300 text-sm font-medium flex items-center gap-1.5">
+                    <CalendarDays size={13} aria-hidden="true" /> Date of birth
+                  </label>
+                  <input
+                    id="profile-dob"
+                    type="date"
+                    value={profileForm.dob}
+                    onChange={(e) => updateProfileForm('dob', e.target.value)}
+                    aria-invalid={!!profileErrors.dob}
+                    aria-describedby={profileErrors.dob ? 'profile-dob-error' : undefined}
+                    className="mt-2 w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none"
+                  />
+                  {profileErrors.dob && <p id="profile-dob-error" className="text-red-400 text-xs mt-1">{profileErrors.dob}</p>}
+                </div>
+
+                <div>
+                  <label htmlFor="profile-birth-time" className="text-gray-300 text-sm font-medium flex items-center gap-1.5">
+                    <Clock size={13} aria-hidden="true" /> Time of birth
+                  </label>
+                  <input
+                    id="profile-birth-time"
+                    type="time"
+                    value={profileForm.birthTime}
+                    onChange={(e) => updateProfileForm('birthTime', e.target.value)}
+                    aria-invalid={!!profileErrors.birthTime}
+                    aria-describedby={profileErrors.birthTime ? 'profile-birth-time-error' : undefined}
+                    className="mt-2 w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none"
+                  />
+                  {profileErrors.birthTime && <p id="profile-birth-time-error" className="text-red-400 text-xs mt-1">{profileErrors.birthTime}</p>}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-gray-300 text-sm font-medium flex items-center gap-1.5">
+                      <MapPin size={13} aria-hidden="true" /> Place of birth
+                    </p>
+                    <p className="text-gray-400 text-xs mt-1">Required for accurate birth Rasi and Nakshatra.</p>
+                  </div>
+                </div>
+
+                <label className="mt-3 flex items-start gap-3 bg-gray-800 border border-gray-700 rounded-xl px-3 py-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={profileForm.sameAsCurrentLocation}
+                    onChange={(e) => toggleSameAsCurrentLocation(e.target.checked)}
+                    className="mt-1 accent-yellow-400"
+                  />
+                  <span>
+                    <span className="block text-white text-sm font-medium">Same as current location</span>
+                    <span className="block text-gray-400 text-xs mt-0.5">{settings.city}</span>
+                  </span>
+                </label>
+
+                {!profileForm.sameAsCurrentLocation && (
+                  <div className="mt-3">
+                    <label htmlFor="birth-city-search" className="sr-only">Search birth city</label>
+                    <input
+                      id="birth-city-search"
+                      type="text"
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-expanded={showBirthCityList && birthCitySearch.length > 0}
+                      aria-controls="birth-city-listbox"
+                      aria-activedescendant={activeBirthCityIndex >= 0 ? `birth-city-opt-${activeBirthCityIndex}` : undefined}
+                      placeholder={profileForm.birthPlace ? `${profileForm.birthPlace}${profileForm.birthState ? `, ${profileForm.birthState}` : ''}` : 'Search birth city or state...'}
+                      value={birthCitySearch}
+                      onChange={(e) => { setBirthCitySearch(e.target.value); setShowBirthCityList(true); setActiveBirthCityIndex(-1) }}
+                      onFocus={() => setShowBirthCityList(true)}
+                      onBlur={() => setTimeout(() => { setShowBirthCityList(false); setActiveBirthCityIndex(-1) }, 150)}
+                      onKeyDown={handleBirthCityKeyDown}
+                      aria-invalid={!!profileErrors.birthPlace}
+                      aria-describedby={profileErrors.birthPlace ? 'birth-city-error' : undefined}
+                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
+                    />
+
+                    {showBirthCityList && birthCitySearch.length > 0 && (
+                      <ul
+                        id="birth-city-listbox"
+                        role="listbox"
+                        aria-label="Birth city suggestions"
+                        className="mt-2 bg-gray-800 rounded-xl border border-gray-700 max-h-48 overflow-y-auto"
+                      >
+                        {filteredBirthCities.length > 0 ? (
+                          filteredBirthCities.map((city, i) => (
+                            <li
+                              key={`${city.name}-${city.state}`}
+                              id={`birth-city-opt-${i}`}
+                              role="option"
+                              aria-selected={i === activeBirthCityIndex}
+                              onMouseDown={() => selectBirthCity(city)}
+                              className={`px-4 py-3 transition-all border-b border-gray-700 last:border-0 cursor-pointer ${
+                                i === activeBirthCityIndex ? 'bg-gray-700' : 'hover:bg-gray-700'
+                              }`}
+                            >
+                              <p className="text-white text-sm font-medium">{city.name}</p>
+                              <p className="text-gray-400 text-xs">{city.state}</p>
+                            </li>
+                          ))
+                        ) : (
+                          <li role="option" aria-selected="false" aria-disabled="true" className="text-gray-400 text-sm px-4 py-3">
+                            No cities found
+                          </li>
+                        )}
+                      </ul>
+                    )}
+
+                    {profileForm.birthPlace && (
+                      <p className="text-green-300 text-xs mt-2">Selected: {profileForm.birthPlace}{profileForm.birthState ? `, ${profileForm.birthState}` : ''}</p>
+                    )}
+                  </div>
+                )}
+                {profileErrors.birthPlace && <p id="birth-city-error" className="text-red-400 text-xs mt-2">{profileErrors.birthPlace}</p>}
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleSaveProfile}
+                  className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-3 rounded-xl text-sm transition-all min-h-[44px]"
+                >
+                  Save Details
+                </button>
+                {profileComplete && (
+                  <button
+                    type="button"
+                    onClick={handleCancelProfileEdit}
+                    className="px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-gray-300 text-sm font-medium hover:border-gray-600 transition-all min-h-[44px]"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* City Selector */}

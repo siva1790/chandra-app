@@ -83,6 +83,7 @@ const loadImage = (src) =>
  * @param {string} data.paksha         - 'Shukla' or 'Krishna' (or null for Amavasya/Purnima)
  * @param {string} data.illuminationPct - e.g. '12.4'
  * @param {string} data.message        - Daily message string
+ * @param {string} [data.profileLabel] - Optional Rasi/Nakshatra label
  * @returns {Promise<Blob>} PNG blob
  */
 export const generateShareCard = async ({
@@ -93,6 +94,7 @@ export const generateShareCard = async ({
   paksha,
   illuminationPct,
   message,
+  profileLabel,
 }) => {
   const canvas  = document.createElement('canvas')
   canvas.width  = W
@@ -136,7 +138,7 @@ export const generateShareCard = async ({
       const img = await loadImage(moonTexture)
       const texSize = R * 2 * 1.1
       ctx.drawImage(img, CX - texSize / 2, MOON_CY - texSize / 2, texSize, texSize)
-    } catch (_) {
+    } catch {
       // texture failed — fall back to plain cream disc
       ctx.fillStyle = '#D4C98A'
       ctx.beginPath()
@@ -181,6 +183,11 @@ export const generateShareCard = async ({
   ctx.font = '400 20px Arial, sans-serif'
   ctx.fillStyle = '#4a5070'
   ctx.fillText(dateLabel, CX, 156)
+  if (profileLabel) {
+    ctx.font = '500 18px Arial, sans-serif'
+    ctx.fillStyle = '#DDBB6A'
+    ctx.fillText(profileLabel, CX, 188)
+  }
 
   // ── 5. Gold divider (below moon) ─────────────────────────────────────────
   const divY1 = MOON_CY + R + 28
@@ -235,7 +242,7 @@ export const generateShareCard = async ({
     })
     const qrImg = await loadImage(qrDataUrl)
     ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize)
-  } catch (_) {
+  } catch {
     // QR generation failed — fall back to URL text only
   }
 

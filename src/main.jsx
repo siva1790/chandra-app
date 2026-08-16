@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { SettingsProvider } from './SettingsContext'
 import { SubscriptionProvider } from './SubscriptionContext'
+import { ProfileProvider } from './ProfileContext'
 
 // Register the Workbox-generated service worker manually.
 // vite-plugin-pwa's auto-inject (registerSW.js) 404s on Vite 8 / Rolldown,
@@ -17,9 +18,11 @@ if ('serviceWorker' in navigator) {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <SettingsProvider>
-      <SubscriptionProvider>
-        <App />
-      </SubscriptionProvider>
+      <ProfileProvider>
+        <SubscriptionProvider>
+          <App />
+        </SubscriptionProvider>
+      </ProfileProvider>
     </SettingsProvider>
   </StrictMode>,
 )

@@ -21,6 +21,7 @@ const TodayMessageModal = ({
   paksha,
   illuminationPct,
   message,
+  profileLabel,
   // For card generation
   phase,
 }) => {
@@ -54,6 +55,7 @@ const TodayMessageModal = ({
         paksha,
         illuminationPct,
         message,
+        profileLabel,
       })
       const file = new File([blob], 'chandra-today.png', { type: 'image/png' })
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -122,6 +124,11 @@ const TodayMessageModal = ({
           <p className="text-center text-xs tracking-widest text-gray-500 uppercase mb-4">
             {vara} · {dateLabel}
           </p>
+          {profileLabel && (
+            <p className="text-center text-xs text-yellow-300 -mt-2 mb-4">
+              {profileLabel}
+            </p>
+          )}
 
           {/* Tithi + illumination row */}
           <div
