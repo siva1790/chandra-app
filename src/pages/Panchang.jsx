@@ -970,6 +970,18 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
             </div>
           </AccordionSection>
 
+          <button
+            type="button"
+            onClick={() => onLearn?.('basics')}
+            className="w-full flex items-center justify-between gap-3 bg-gray-900 rounded-2xl p-5 border border-gray-800 text-left group min-h-[64px]"
+          >
+            <span className="flex items-center gap-2 text-gray-300 text-sm font-medium">
+              <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" className="text-yellow-500 shrink-0" />
+              Learn Panchang basics
+            </span>
+            <span className="text-[#8EA8FF] text-sm group-hover:underline shrink-0">Open</span>
+          </button>
+
         </div>
       ) : (
         <div aria-live="polite" aria-busy="true" className="text-center text-gray-400 mt-20">

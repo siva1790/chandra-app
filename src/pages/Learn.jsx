@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { ArrowUp, BookOpen, CalendarDays, Clock, Moon, Sparkles, Star, Sun } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowLeft, ArrowUp, BookOpen, CalendarDays, Clock, Moon, Sparkles, Star, Sun } from 'lucide-react'
 
 const LEARN_SECTIONS = [
   {
@@ -213,8 +213,9 @@ const MONTHLY_OBSERVANCE_REFERENCE = [
   ['Skanda Shashthi', 'Shukla Shashthi, associated with Lord Subrahmanya or Murugan in many traditions.'],
 ]
 
-const Learn = ({ targetSection }) => {
+const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' }) => {
   const [showTop, setShowTop] = useState(false)
+  const titleRef = useRef(null)
   const sectionIds = useMemo(() => new Set(LEARN_SECTIONS.map(section => section.id)), [])
 
   useEffect(() => {
@@ -225,23 +226,43 @@ const Learn = ({ targetSection }) => {
   }, [])
 
   useEffect(() => {
+    if (!active) return
     const section = targetSection && sectionIds.has(targetSection) ? targetSection : 'top'
     const timer = window.setTimeout(() => {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const behavior = prefersReducedMotion ? 'auto' : 'smooth'
       const el = document.getElementById(section)
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      else window.scrollTo({ top: 0, behavior: 'smooth' })
+      if (el) {
+        el.scrollIntoView({ behavior, block: 'start' })
+        if (section === 'top') titleRef.current?.focus({ preventScroll: true })
+        else el.focus({ preventScroll: true })
+      } else {
+        window.scrollTo({ top: 0, behavior })
+        titleRef.current?.focus({ preventScroll: true })
+      }
     }, 80)
     return () => window.clearTimeout(timer)
-  }, [targetSection, sectionIds])
+  }, [active, targetSection, sectionIds])
 
   return (
-    <div id="top" className="min-h-screen px-4 py-8 pb-32 max-w-md mx-auto">
+    <div id="top" className="min-h-screen px-4 pt-3 pb-32 max-w-md mx-auto">
+      <div className="sticky top-14 z-30 -mx-4 mb-5 border-b border-gray-800 bg-gray-950/95 px-4 py-2 backdrop-blur">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex min-h-[44px] items-center gap-2 rounded-xl px-2 pr-3 text-left text-sm font-semibold text-gray-200 active:bg-gray-800"
+          aria-label={`Back to ${returnLabel}`}
+        >
+          <ArrowLeft size={18} aria-hidden="true" strokeWidth={1.9} className="text-yellow-400 shrink-0" />
+          <span>Back to {returnLabel}</span>
+        </button>
+      </div>
       <header className="mb-6">
         <div className="flex items-center gap-2 text-yellow-300 mb-3">
           <BookOpen size={20} aria-hidden="true" strokeWidth={1.75} />
           <p className="text-xs uppercase tracking-widest font-semibold">Learn Chandra</p>
         </div>
-        <h1 className="text-2xl font-bold text-white leading-tight">A Gentle Guide To Panchang Terms</h1>
+        <h1 ref={titleRef} tabIndex={-1} className="text-2xl font-bold text-white leading-tight focus:outline-none">A Gentle Guide To Panchang Terms</h1>
         <p className="text-gray-400 text-sm leading-relaxed mt-3">
           Learn the science and cultural meaning behind the words you see in Chandra. You can read from the top like a story,
           or jump here from a section in the app.
@@ -285,7 +306,7 @@ const Learn = ({ targetSection }) => {
 }
 
 const LearnSection = ({ section }) => (
-  <section id={section.id} className="scroll-mt-20 bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+  <section id={section.id} tabIndex={-1} className="scroll-mt-32 bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden focus:outline-none">
     <div className="p-5">
       <div className="flex items-start gap-3 mb-3">
         <div className="w-9 h-9 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center shrink-0">

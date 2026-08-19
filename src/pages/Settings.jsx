@@ -948,17 +948,6 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
         <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
           <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">About</p>
           <div className="flex flex-col gap-2">
-            <button
-              type="button"
-              onClick={() => onLearn?.('basics')}
-              className="flex justify-between items-center min-h-[44px] pb-2 mb-1 border-b border-gray-800 text-sm text-left group"
-            >
-              <span className="text-gray-400 flex items-center gap-1">
-                <BookOpen size={13} aria-hidden="true" />
-                Learn Panchang basics
-              </span>
-              <span className="text-[#8EA8FF] group-hover:underline">Open</span>
-            </button>
             <div className="flex justify-between">
               <span className="text-gray-400 text-sm">App</span>
               <span className="text-white text-sm">Chandra</span>

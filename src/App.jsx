@@ -20,6 +20,7 @@ function App() {
   const [learnTarget, setLearnTarget] = useState(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [globalDate, setGlobalDate] = useState(new Date())
+  const [learnReturnContext, setLearnReturnContext] = useState(null)
   const bellButtonRef = useRef(null)
   const { settings } = useSettings()
   const { subscription } = useSubscription()
@@ -49,6 +50,7 @@ function App() {
   // Direct tab tap — preserves current globalDate (no reset)
   const navigate = (tab) => {
     setScreen(tab)
+    if (tab !== 'learn') setLearnReturnContext(null)
     if (tab !== 'learn' && window.location.hash.startsWith('#learn')) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search)
     }
@@ -60,6 +62,7 @@ function App() {
   const navigateToPanchang = (date) => {
     setGlobalDate(new Date(date))
     setScreen('panchang')
+    setLearnReturnContext(null)
     if (window.location.hash.startsWith('#learn')) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search)
     }
@@ -67,12 +70,40 @@ function App() {
   }
 
   const navigateToLearn = (target) => {
+    if (screen !== 'learn') {
+      setLearnReturnContext({
+        screen,
+        scrollY: window.scrollY,
+        focusElement: document.activeElement instanceof HTMLElement ? document.activeElement : null,
+      })
+    }
     setLearnTarget(target || null)
     setScreen('learn')
     const nextHash = target ? `#learn/${target}` : '#learn'
     if (window.location.hash !== nextHash) window.location.hash = nextHash
     window.scrollTo(0, 0)
     trackPageView(target ? `Learn: ${target}` : 'Learn')
+  }
+
+  const navigateBackFromLearn = () => {
+    const context = learnReturnContext
+    const returnScreen = context?.screen || 'home'
+
+    setScreen(returnScreen)
+    setLearnTarget(null)
+    setLearnReturnContext(null)
+    if (window.location.hash.startsWith('#learn')) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+
+    window.requestAnimationFrame(() => {
+      window.scrollTo(0, context?.scrollY ?? 0)
+      if (context?.focusElement?.isConnected) {
+        context.focusElement.focus({ preventScroll: true })
+      }
+    })
+
+    trackPageView(TAB_NAMES[returnScreen])
   }
 
   return (
@@ -136,7 +167,14 @@ function App() {
         <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'settings' ? 'block' : 'none' }}><Settings onOpenSubscribe={ENABLE_SUBSCRIPTIONS ? () => setSheetOpen(true) : undefined} onLearn={navigateToLearn} /></div>
-        <div style={{ display: screen === 'learn'    ? 'block' : 'none' }}><Learn targetSection={learnTarget} /></div>
+        <div style={{ display: screen === 'learn'    ? 'block' : 'none' }}>
+          <Learn
+            targetSection={learnTarget}
+            active={screen === 'learn'}
+            onBack={navigateBackFromLearn}
+            returnLabel={TAB_NAMES[learnReturnContext?.screen] || 'Day View'}
+          />
+        </div>
       </main>
 
       {/* ── Bottom Navigation ── */}
