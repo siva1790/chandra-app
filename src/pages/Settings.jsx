@@ -600,7 +600,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                 <button
                   type="button"
                   onClick={handleSaveProfile}
-                  className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-3 rounded-xl text-sm transition-all min-h-[44px]"
+                  className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-3 rounded-xl text-xs transition-all min-h-[44px]"
                 >
                   Save Details
                 </button>
