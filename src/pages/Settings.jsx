@@ -6,7 +6,7 @@ import { ENABLE_SUBSCRIPTIONS } from '../featureFlags'
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
-import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck, BookOpen, User, Clock, CalendarDays } from 'lucide-react'
+import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck, BookOpen, User, Clock, CalendarDays, CheckCircle2 } from 'lucide-react'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
@@ -35,7 +35,7 @@ const loadNotifEnabled = () => {
   } catch { return true }
 }
 
-const Settings = ({ onOpenSubscribe, onLearn }) => {
+const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', entryReason }) => {
   const { settings, updateSettings } = useSettings()
   const { profile, profileComplete, saveProfile } = useProfile()
   const { subscription, updateFrequency } = useSubscription()
@@ -46,6 +46,7 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
   const [profileForm, setProfileForm] = useState(profile)
   const [profileErrors, setProfileErrors] = useState({})
   const [editingProfile, setEditingProfile] = useState(() => !profileComplete)
+  const [profileSavedFromPersonalize, setProfileSavedFromPersonalize] = useState(false)
   const [birthCitySearch, setBirthCitySearch] = useState('')
   const [showBirthCityList, setShowBirthCityList] = useState(false)
   const [activeBirthCityIndex, setActiveBirthCityIndex] = useState(-1)
@@ -63,6 +64,10 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
   })
   const [notifPrefs, setNotifPrefs] = useState(loadNotifPrefs)
   const [showPreview, setShowPreview] = useState(false)
+
+  useEffect(() => {
+    if (entryReason !== 'personalize') setProfileSavedFromPersonalize(false)
+  }, [entryReason])
 
   // Refresh FCM device registration whenever city changes (or on first mount if
   // notifications are already enabled). This keeps the backend's city/lat/lon current.
@@ -204,6 +209,7 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
   const updateProfileForm = (key, value) => {
     setProfileForm(prev => ({ ...prev, [key]: value }))
     setProfileErrors(prev => ({ ...prev, [key]: undefined, form: undefined }))
+    setProfileSavedFromPersonalize(false)
   }
 
   const selectBirthCity = (city) => {
@@ -219,6 +225,7 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
     setShowBirthCityList(false)
     setActiveBirthCityIndex(-1)
     setProfileErrors(prev => ({ ...prev, birthPlace: undefined, form: undefined }))
+    setProfileSavedFromPersonalize(false)
   }
 
   const toggleSameAsCurrentLocation = (checked) => {
@@ -241,6 +248,7 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
     setShowBirthCityList(false)
     setActiveBirthCityIndex(-1)
     setProfileErrors(prev => ({ ...prev, birthPlace: undefined, form: undefined }))
+    setProfileSavedFromPersonalize(false)
   }
 
   const validateProfileForm = () => {
@@ -277,6 +285,7 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
     setProfileForm(nextProfile)
     setProfileErrors({})
     setEditingProfile(false)
+    setProfileSavedFromPersonalize(entryReason === 'personalize')
     showSavedBadge()
   }
 
@@ -286,6 +295,7 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
     setBirthCitySearch('')
     setShowBirthCityList(false)
     setActiveBirthCityIndex(-1)
+    setProfileSavedFromPersonalize(false)
     setEditingProfile(false)
   }
 
@@ -397,7 +407,10 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
             {!editingProfile && (
               <button
                 type="button"
-                onClick={() => setEditingProfile(true)}
+                onClick={() => {
+                  setProfileSavedFromPersonalize(false)
+                  setEditingProfile(true)
+                }}
                 className="px-3 py-2 rounded-xl bg-gray-800 border border-gray-700 text-yellow-300 text-xs font-medium hover:border-yellow-700 transition-all min-h-[44px]"
               >
                 Edit
@@ -407,6 +420,24 @@ const Settings = ({ onOpenSubscribe, onLearn }) => {
 
           {!editingProfile ? (
             <div className="flex flex-col gap-2">
+              {profileSavedFromPersonalize && profileComplete && onBack && (
+                <div role="status" aria-live="polite" className="bg-green-950 border border-green-700 rounded-xl p-3 mb-2 flex items-start gap-3">
+                  <CheckCircle2 size={20} strokeWidth={1.8} aria-hidden="true" className="text-green-300 shrink-0 mt-0.5" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-green-200 text-sm font-semibold">Your details are saved</p>
+                    <p className="text-green-100/80 text-xs leading-relaxed mt-1">
+                      Chandra will personalize Day View with your Rasi and Nakshatra context.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={onBack}
+                      className="mt-3 min-h-[44px] rounded-xl bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 text-xs"
+                    >
+                      Return to {returnLabel}
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="flex justify-between gap-3">
                 <span className="text-gray-400 text-sm">Status</span>
                 <span className={`text-sm font-medium ${profileComplete ? 'text-green-300' : 'text-yellow-300'}`}>

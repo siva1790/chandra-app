@@ -21,6 +21,7 @@ function App() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [globalDate, setGlobalDate] = useState(new Date())
   const [learnReturnContext, setLearnReturnContext] = useState(null)
+  const [settingsReturnContext, setSettingsReturnContext] = useState(null)
   const bellButtonRef = useRef(null)
   const { settings } = useSettings()
   const { subscription } = useSubscription()
@@ -51,6 +52,7 @@ function App() {
   const navigate = (tab) => {
     setScreen(tab)
     if (tab !== 'learn') setLearnReturnContext(null)
+    if (tab !== 'settings') setSettingsReturnContext(null)
     if (tab !== 'learn' && window.location.hash.startsWith('#learn')) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search)
     }
@@ -63,6 +65,7 @@ function App() {
     setGlobalDate(new Date(date))
     setScreen('panchang')
     setLearnReturnContext(null)
+    setSettingsReturnContext(null)
     if (window.location.hash.startsWith('#learn')) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search)
     }
@@ -92,6 +95,36 @@ function App() {
     setScreen(returnScreen)
     setLearnTarget(null)
     setLearnReturnContext(null)
+    if (window.location.hash.startsWith('#learn')) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+
+    window.requestAnimationFrame(() => {
+      window.scrollTo(0, context?.scrollY ?? 0)
+      if (context?.focusElement?.isConnected) {
+        context.focusElement.focus({ preventScroll: true })
+      }
+    })
+
+    trackPageView(TAB_NAMES[returnScreen])
+  }
+
+  const navigateToSettingsFromPersonalize = () => {
+    setSettingsReturnContext({
+      screen,
+      scrollY: window.scrollY,
+      focusElement: document.activeElement instanceof HTMLElement ? document.activeElement : null,
+      reason: 'personalize',
+    })
+    navigate('settings')
+  }
+
+  const navigateBackFromSettings = () => {
+    const context = settingsReturnContext
+    const returnScreen = context?.screen || 'home'
+
+    setScreen(returnScreen)
+    setSettingsReturnContext(null)
     if (window.location.hash.startsWith('#learn')) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search)
     }
@@ -163,10 +196,18 @@ function App() {
         {...(sheetOpen ? { inert: '' } : {})}
       >
         <InstallPrompt />
-        <div style={{ display: screen === 'home'     ? 'block' : 'none' }}><Home location={settings} date={globalDate} onDateChange={setGlobalDate} onNavigateToPanchang={navigateToPanchang} onNavigateToSettings={() => navigate('settings')} /></div>
+        <div style={{ display: screen === 'home'     ? 'block' : 'none' }}><Home location={settings} date={globalDate} onDateChange={setGlobalDate} onNavigateToPanchang={navigateToPanchang} onNavigateToSettings={navigateToSettingsFromPersonalize} /></div>
         <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} onLearn={navigateToLearn} /></div>
-        <div style={{ display: screen === 'settings' ? 'block' : 'none' }}><Settings onOpenSubscribe={ENABLE_SUBSCRIPTIONS ? () => setSheetOpen(true) : undefined} onLearn={navigateToLearn} /></div>
+        <div style={{ display: screen === 'settings' ? 'block' : 'none' }}>
+          <Settings
+            onOpenSubscribe={ENABLE_SUBSCRIPTIONS ? () => setSheetOpen(true) : undefined}
+            onLearn={navigateToLearn}
+            onBack={settingsReturnContext ? navigateBackFromSettings : undefined}
+            returnLabel={TAB_NAMES[settingsReturnContext?.screen] || 'Day View'}
+            entryReason={settingsReturnContext?.reason}
+          />
+        </div>
         <div style={{ display: screen === 'learn'    ? 'block' : 'none' }}>
           <Learn
             targetSection={learnTarget}
