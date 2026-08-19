@@ -7,7 +7,7 @@ import { getEclipseForDate, eclipseTypeLabel } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { useSettings } from '../SettingsContext'
 import DateStrip from '../components/DateStrip'
-import { Calendar as CalendarIcon, Moon, Star, Clock, BookOpen } from 'lucide-react'
+import { Calendar as CalendarIcon, Moon, Star, Clock, BookOpen, Sparkles } from 'lucide-react'
 
 const NAKSHATRA_NAMES = [
   'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
@@ -47,6 +47,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
   const [selectedDay, setSelectedDay] = useState(null)       // for modal
   const [dayPanchang, setDayPanchang] = useState(null)       // computed on tap
   const [tapSelectedDate, setTapSelectedDate] = useState(null) // set only on explicit tap
+  const [activeView, setActiveView] = useState('calendar')
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
 
@@ -284,6 +285,46 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         <p className="text-gray-400 text-sm">Hindu Panchang Festival View</p>
       </div>
 
+      <div
+        role="tablist"
+        aria-label="Calendar view"
+        className="grid grid-cols-2 gap-1 bg-gray-900 border border-gray-800 rounded-2xl p-1 mb-4"
+      >
+        <button
+          type="button"
+          role="tab"
+          id="calendar-view-tab"
+          aria-selected={activeView === 'calendar'}
+          aria-controls="calendar-view-panel"
+          onClick={() => setActiveView('calendar')}
+          className={`min-h-[44px] rounded-xl px-3 text-xs font-bold flex items-center justify-center gap-1.5 transition-all min-w-0 ${
+            activeView === 'calendar'
+              ? 'bg-yellow-400 text-gray-950'
+              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+          }`}
+        >
+          <CalendarIcon size={14} strokeWidth={1.75} aria-hidden="true" />
+          Calendar
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="events-view-tab"
+          aria-selected={activeView === 'events'}
+          aria-controls="events-view-panel"
+          aria-label={`Events in ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
+          onClick={() => setActiveView('events')}
+          className={`min-h-[44px] rounded-xl px-3 text-xs font-bold flex items-center justify-center gap-1.5 transition-all min-w-0 ${
+            activeView === 'events'
+              ? 'bg-yellow-400 text-gray-950'
+              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+          }`}
+        >
+          <Sparkles size={14} strokeWidth={1.75} aria-hidden="true" />
+          <span className="truncate min-w-0">Events in {monthNames[currentDate.getMonth()]}</span>
+        </button>
+      </div>
+
       {/* Month Navigator — DateStrip in month mode; receives currentDate (view state), not globalDate */}
       <DateStrip
         date={currentDate}
@@ -293,63 +334,75 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         mode="month"
       />
 
-      {/* Day Headers */}
-      <div className="grid grid-cols-7 mb-2">
-        {dayNames.map(day => (
-          <div key={day} className="text-center text-gray-400 text-xs py-1">{day}</div>
-        ))}
-      </div>
-
-      {/* Calendar Grid */}
       <div
-        className="grid grid-cols-7 gap-1 mb-6"
+        id="calendar-view-panel"
+        role="tabpanel"
+        aria-labelledby="calendar-view-tab"
+        hidden={activeView !== 'calendar'}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {calendarDays.map((day, idx) => (
-          day ? (
-            (() => {
-              const isSelected = tapSelectedDate !== null &&
-                day.date.toDateString() === tapSelectedDate.toDateString()
-              const isToday    = day.isToday
-              return (
-            <button
-              key={idx}
-              onClick={() => openModal(day)}
-              aria-label={`${day.day} ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}, ${day.tithi.name}${day.festivals.length > 0 ? ', ' + day.festivals[0].name : ''}${day.eclipse ? ', ' + day.eclipse.hinduName : ''}`}
-              className={`
-                relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14
-                transition-all duration-150 cursor-pointer hover:bg-gray-800 active:bg-gray-700
-                ${isSelected
-                    ? 'bg-indigo-600 border border-indigo-400'
-                    : isToday
-                    ? 'bg-yellow-900 border border-yellow-500'
-                    : 'bg-gray-900'}
-              `}
-            >
-              <span className={`text-xs font-semibold ${isSelected ? 'text-white' : isToday ? 'text-yellow-300' : 'text-white'}`}>
-                {day.day}
-              </span>
-              <span className="text-xs" aria-hidden="true">{day.phaseEmoji}</span>
-              {day.eclipse ? (
-                <EclipseIcon eclipse={day.eclipse} size={13} />
-              ) : (() => {
-                const major = day.festivals.find(f => f.type === 'major')
-                if (major) return <span className="text-xs" aria-hidden="true">{major.emoji}</span>
-                if (day.festivals.length > 0) return <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 mt-0.5" aria-hidden="true" />
-                return null
-              })()}
-            </button>
-              )
-            })()
-          ) : (
-            <div key={idx} aria-hidden="true" />
-          )
-        ))}
+        {/* Day Headers */}
+        <div className="grid grid-cols-7 mb-2">
+          {dayNames.map(day => (
+            <div key={day} className="text-center text-gray-400 text-xs py-1">{day}</div>
+          ))}
+        </div>
+
+        {/* Calendar Grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {calendarDays.map((day, idx) => (
+            day ? (
+              (() => {
+                const isSelected = tapSelectedDate !== null &&
+                  day.date.toDateString() === tapSelectedDate.toDateString()
+                const isToday    = day.isToday
+                return (
+              <button
+                key={idx}
+                onClick={() => openModal(day)}
+                aria-label={`${day.day} ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}, ${day.tithi.name}${day.festivals.length > 0 ? ', ' + day.festivals[0].name : ''}${day.eclipse ? ', ' + day.eclipse.hinduName : ''}`}
+                className={`
+                  relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14
+                  transition-all duration-150 cursor-pointer hover:bg-gray-800 active:bg-gray-700
+                  ${isSelected
+                      ? 'bg-indigo-600 border border-indigo-400'
+                      : isToday
+                      ? 'bg-yellow-900 border border-yellow-500'
+                      : 'bg-gray-900'}
+                `}
+              >
+                <span className={`text-xs font-semibold ${isSelected ? 'text-white' : isToday ? 'text-yellow-300' : 'text-white'}`}>
+                  {day.day}
+                </span>
+                <span className="text-xs" aria-hidden="true">{day.phaseEmoji}</span>
+                {day.eclipse ? (
+                  <EclipseIcon eclipse={day.eclipse} size={13} />
+                ) : (() => {
+                  const major = day.festivals.find(f => f.type === 'major')
+                  if (major) return <span className="text-xs" aria-hidden="true">{major.emoji}</span>
+                  if (day.festivals.length > 0) return <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 mt-0.5" aria-hidden="true" />
+                  return null
+                })()}
+              </button>
+                )
+              })()
+            ) : (
+              <div key={idx} aria-hidden="true" />
+            )
+          ))}
+        </div>
       </div>
 
       {/* Events this month */}
-      <div>
+      <div
+        id="events-view-panel"
+        role="tabpanel"
+        aria-labelledby="events-view-tab"
+        hidden={activeView !== 'events'}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="flex items-center justify-between gap-3 mb-3">
           <p className="text-gray-400 text-xs uppercase tracking-widest">
             Events in {monthNames[currentDate.getMonth()]}
