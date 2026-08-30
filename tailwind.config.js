@@ -32,6 +32,7 @@ export default {
           // ── Semantic ─────────────────────────────────────
           'success': '#4FAF7C',  // 7.1:1 on bg-primary ✅
           'warning': '#D99036',  // 7.5:1 on bg-primary ✅
+          'warning-text': '#F0B060',
           'error':   '#D45C5C',  // 5.1:1 on bg-primary ✅
         },
       },

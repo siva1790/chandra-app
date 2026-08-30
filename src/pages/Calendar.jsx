@@ -7,6 +7,9 @@ import { getEclipseForDate, eclipseTypeLabel } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { useSettings } from '../SettingsContext'
 import DateStrip from '../components/DateStrip'
+import BottomSheet from '../components/ui/BottomSheet'
+import Button from '../components/ui/Button'
+import Card from '../components/ui/Card'
 import { Calendar as CalendarIcon, Moon, Star, Clock, BookOpen, Sparkles } from 'lucide-react'
 
 const NAKSHATRA_NAMES = [
@@ -34,6 +37,17 @@ const KARANA_NAMES = [
 
 const VARA_NAMES = ['Ravivar', 'Somvar', 'Mangalvar', 'Budhvar', 'Guruvar', 'Shukravar', 'Shanivar']
 const VARA_DEVA  = ['Sun ☀️', 'Moon 🌙', 'Mars ♂️', 'Mercury ☿', 'Jupiter ♃', 'Venus ♀️', 'Saturn ♄']
+
+const phaseLabel = (emoji) => ({
+  '🌑': 'New moon',
+  '🌒': 'Waxing crescent',
+  '🌓': 'First quarter',
+  '🌔': 'Waxing gibbous',
+  '🌕': 'Full moon',
+  '🌖': 'Waning gibbous',
+  '🌗': 'Last quarter',
+  '🌘': 'Waning crescent',
+})[emoji] || 'Moon phase'
 
 // ─────────────────────────────────────────────────────────────────
 
@@ -279,16 +293,16 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
 
       {/* Header */}
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-yellow-300 mb-1 flex items-center justify-center gap-2">
+        <h1 className="mb-1 flex items-center justify-center gap-2 text-2xl font-bold text-chandra-gold">
           Lunar Calendar
         </h1>
-        <p className="text-gray-400 text-sm">Hindu Panchang Festival View</p>
+        <p className="text-sm text-chandra-text-secondary">Hindu Panchang Festival View</p>
       </div>
 
       <div
         role="tablist"
         aria-label="Calendar view"
-        className="grid grid-cols-2 gap-1 bg-gray-900 border border-gray-800 rounded-2xl p-1 mb-4"
+        className="mb-4 grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-chandra-bg-surface p-1"
       >
         <button
           type="button"
@@ -297,10 +311,10 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
           aria-selected={activeView === 'calendar'}
           aria-controls="calendar-view-panel"
           onClick={() => setActiveView('calendar')}
-          className={`min-h-[44px] rounded-xl px-3 text-xs font-bold flex items-center justify-center gap-1.5 transition-all min-w-0 ${
+          className={`flex min-h-[44px] min-w-0 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-bold transition-all ${
             activeView === 'calendar'
-              ? 'bg-yellow-400 text-gray-950'
-              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+              ? 'bg-chandra-gold text-chandra-text-inverse'
+              : 'text-chandra-text-secondary hover:bg-chandra-bg-elevated hover:text-chandra-text-primary'
           }`}
         >
           <CalendarIcon size={14} strokeWidth={1.75} aria-hidden="true" />
@@ -314,10 +328,10 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
           aria-controls="events-view-panel"
           aria-label={`Events in ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
           onClick={() => setActiveView('events')}
-          className={`min-h-[44px] rounded-xl px-3 text-xs font-bold flex items-center justify-center gap-1.5 transition-all min-w-0 ${
+          className={`flex min-h-[44px] min-w-0 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-bold transition-all ${
             activeView === 'events'
-              ? 'bg-yellow-400 text-gray-950'
-              : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+              ? 'bg-chandra-gold text-chandra-text-inverse'
+              : 'text-chandra-text-secondary hover:bg-chandra-bg-elevated hover:text-chandra-text-primary'
           }`}
         >
           <Sparkles size={14} strokeWidth={1.75} aria-hidden="true" />
@@ -345,7 +359,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         {/* Day Headers */}
         <div className="grid grid-cols-7 mb-2">
           {dayNames.map(day => (
-            <div key={day} className="text-center text-gray-400 text-xs py-1">{day}</div>
+            <div key={day} className="py-1 text-center text-xs text-chandra-text-secondary">{day}</div>
           ))}
         </div>
 
@@ -364,24 +378,24 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                 aria-label={`${day.day} ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}, ${day.tithi.name}${day.festivals.length > 0 ? ', ' + day.festivals[0].name : ''}${day.eclipse ? ', ' + day.eclipse.hinduName : ''}`}
                 className={`
                   relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14
-                  transition-all duration-150 cursor-pointer hover:bg-gray-800 active:bg-gray-700
+                  transition-all duration-150 cursor-pointer hover:bg-chandra-bg-elevated active:bg-chandra-bg-elevated
                   ${isSelected
-                      ? 'bg-indigo-600 border border-indigo-400'
+                      ? 'border border-chandra-focus bg-chandra-indigo-cta text-chandra-text-primary'
                       : isToday
-                      ? 'bg-yellow-900 border border-yellow-500'
-                      : 'bg-gray-900'}
+                      ? 'border border-chandra-gold/60 bg-chandra-gold/15'
+                      : 'bg-chandra-bg-surface'}
                 `}
               >
-                <span className={`text-xs font-semibold ${isSelected ? 'text-white' : isToday ? 'text-yellow-300' : 'text-white'}`}>
+                <span className={`text-xs font-semibold ${isToday && !isSelected ? 'text-chandra-gold' : 'text-chandra-text-primary'}`}>
                   {day.day}
                 </span>
-                <span className="text-xs" aria-hidden="true">{day.phaseEmoji}</span>
+                <span className="text-xs" role="img" aria-label={phaseLabel(day.phaseEmoji)}>{day.phaseEmoji}</span>
                 {day.eclipse ? (
                   <EclipseIcon eclipse={day.eclipse} size={13} />
                 ) : (() => {
                   const major = day.festivals.find(f => f.type === 'major')
-                  if (major) return <span className="text-xs" aria-hidden="true">{major.emoji}</span>
-                  if (day.festivals.length > 0) return <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 mt-0.5" aria-hidden="true" />
+                  if (major) return <span className="text-xs" role="img" aria-label={major.name}>{major.emoji}</span>
+                  if (day.festivals.length > 0) return <span className="mt-0.5 inline-block h-1.5 w-1.5 rounded-full bg-chandra-warning" aria-hidden="true" />
                   return null
                 })()}
               </button>
@@ -404,20 +418,20 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         onTouchEnd={handleTouchEnd}
       >
         <div className="flex items-center justify-between gap-3 mb-3">
-          <p className="text-gray-400 text-xs uppercase tracking-widest">
+          <p className="text-xs uppercase tracking-widest text-chandra-text-secondary">
             Events in {monthNames[currentDate.getMonth()]}
           </p>
           <button
             type="button"
             onClick={() => onLearn?.('festivals-events')}
             aria-label="Learn about calendar events"
-            className="w-11 h-11 rounded-xl flex items-center justify-center text-yellow-300 hover:bg-yellow-400/10 active:bg-yellow-400/15 shrink-0"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15"
           >
             <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" />
           </button>
         </div>
         {monthFestivals.length === 0 ? (
-          <p className="text-gray-400 text-sm text-center py-6">No events this month</p>
+          <p className="py-6 text-center text-sm text-chandra-text-secondary">No events this month</p>
         ) : (
           <div className="flex flex-col gap-2">
             {monthFestivals.map((day, i) => {
@@ -432,20 +446,20 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                 <button
                   key={i}
                   onClick={() => openModal(day)}
-                  className="w-full text-left rounded-xl px-4 py-3 border border-amber-900/40 flex items-center gap-4 hover:border-amber-700/60 active:bg-gray-900/60 transition-all"
+                  className="flex w-full items-center gap-4 rounded-xl border border-chandra-warning/30 px-4 py-3 text-left transition-all hover:border-chandra-warning/50 active:bg-chandra-bg-surface"
                 >
                   <div className="text-center min-w-10">
-                    <p className="text-yellow-300 font-semibold text-base">{day.day}</p>
-                    <p className="text-gray-500 text-xs">{monthNames[day.date.getMonth()].slice(0, 3)}</p>
+                    <p className="text-base font-semibold text-chandra-gold">{day.day}</p>
+                    <p className="text-xs text-chandra-text-secondary">{monthNames[day.date.getMonth()].slice(0, 3)}</p>
                   </div>
                   <div className="flex-1">
                     {day.festivals.map((f, fi) => (
                       <div key={fi} className="flex items-center gap-2">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" aria-hidden="true" />
-                        <p className="text-amber-200 text-sm">{f.name}</p>
+                        <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-chandra-warning" aria-hidden="true" />
+                        <p className="text-sm text-chandra-warning-text">{f.name}</p>
                       </div>
                     ))}
-                    <p className="text-gray-500 text-xs mt-1">{day.tithi.name} · {day.tithi.paksha}</p>
+                    <p className="mt-1 text-xs text-chandra-text-secondary">{day.tithi.name} · {day.tithi.paksha}</p>
                   </div>
                 </button>
               ) : (
@@ -453,25 +467,27 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                 <button
                   key={i}
                   onClick={() => openModal(day)}
-                  className="w-full text-left bg-gray-900 rounded-xl p-4 border border-gray-800 flex items-center gap-4 hover:border-yellow-800 active:bg-gray-800 transition-all"
+                  className="flex w-full items-center gap-4 rounded-xl border border-white/10 bg-chandra-bg-surface p-4 text-left transition-all hover:border-chandra-gold/35 active:bg-chandra-bg-elevated"
                 >
                   <div className="text-center min-w-10">
-                    <p className="text-yellow-300 font-bold text-lg">{day.day}</p>
-                    <p className="text-gray-400 text-xs">{monthNames[day.date.getMonth()].slice(0, 3)}</p>
+                    <p className="text-lg font-bold text-chandra-gold">{day.day}</p>
+                    <p className="text-xs text-chandra-text-secondary">{monthNames[day.date.getMonth()].slice(0, 3)}</p>
                   </div>
                   <div className="flex-1">
                     {day.eclipse && (
                       <div className="flex items-center gap-1.5 mb-1">
                         <EclipseIcon eclipse={day.eclipse} size={14} />
-                        <p className="text-indigo-300 text-sm font-medium">{day.eclipse.hinduName}</p>
+                        <p className="text-sm font-medium text-chandra-focus">{day.eclipse.hinduName}</p>
                       </div>
                     )}
                     {day.festivals.map((f, fi) => (
-                      <p key={fi} className="text-white text-sm font-medium">{f.emoji} {f.name}</p>
+                      <p key={fi} className="text-sm font-medium text-chandra-text-primary">
+                        <span role="img" aria-label={f.name}>{f.emoji}</span> {f.name}
+                      </p>
                     ))}
-                    <p className="text-gray-400 text-xs mt-1">{day.tithi.name} · {day.tithi.paksha}</p>
+                    <p className="mt-1 text-xs text-chandra-text-secondary">{day.tithi.name} · {day.tithi.paksha}</p>
                   </div>
-                  <span className="text-2xl" aria-hidden="true">{day.phaseEmoji}</span>
+                  <span className="text-2xl" role="img" aria-label={phaseLabel(day.phaseEmoji)}>{day.phaseEmoji}</span>
                 </button>
               )
             })}
@@ -481,50 +497,32 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
 
       {/* ── Day Detail Modal (bottom sheet) ─────────────────────── */}
       {selectedDay && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="day-modal-title"
-          className="fixed inset-0 z-50 flex items-end justify-center"
-          onClick={closeModal}
+        <BottomSheet
+          open={Boolean(selectedDay)}
+          onClose={closeModal}
+          labelledBy="day-modal-title"
+          className="mx-auto max-w-md"
         >
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/60" />
-
-          {/* Sheet */}
-          <div
-            className="relative w-full max-w-md bg-gray-950 rounded-t-3xl border-t border-gray-800 px-5 pt-5 pb-10"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Drag handle */}
-            <div className="w-10 h-1 bg-gray-700 rounded-full mx-auto mb-5" />
-
-            {/* Close button */}
-            <button
-              onClick={closeModal}
-              className="absolute top-5 right-5 text-gray-400 hover:text-white text-lg leading-none"
-              aria-label="Close"
-            >✕</button>
-
+          <div className="px-5 pb-10">
             {/* Date header */}
             <div className="mb-4">
-              <p id="day-modal-title" className="text-white font-bold text-lg">
+              <p id="day-modal-title" className="text-lg font-bold text-chandra-text-primary">
                 {selectedDay.date.toLocaleDateString('en-IN', {
                   weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
                 })}
               </p>
-              <p className="text-yellow-400 text-sm mt-0.5">
-                {selectedDay.phaseEmoji} {selectedDay.tithi.name} · {selectedDay.tithi.paksha}
+              <p className="mt-0.5 text-sm text-chandra-gold">
+                <span role="img" aria-label={phaseLabel(selectedDay.phaseEmoji)}>{selectedDay.phaseEmoji}</span> {selectedDay.tithi.name} · {selectedDay.tithi.paksha}
               </p>
             </div>
 
             {/* Eclipse highlight */}
             {selectedDay.eclipse && (
-              <div className="bg-indigo-950 border border-indigo-800 rounded-2xl p-3 mb-4 flex items-center gap-3">
+              <div className="mb-4 flex items-center gap-3 rounded-2xl border border-chandra-warning/30 bg-chandra-warning/15 p-3">
                 <EclipseIcon eclipse={selectedDay.eclipse} size={28} />
                 <div>
-                  <p className="text-indigo-200 font-semibold text-sm">{selectedDay.eclipse.hinduName}</p>
-                  <p className="text-indigo-400 text-xs mt-0.5">{eclipseTypeLabel(selectedDay.eclipse)}</p>
+                  <p className="text-sm font-semibold text-chandra-warning-text">{selectedDay.eclipse.hinduName}</p>
+                  <p className="mt-0.5 text-xs text-chandra-warning">{eclipseTypeLabel(selectedDay.eclipse)}</p>
                 </div>
               </div>
             )}
@@ -533,17 +531,17 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
             {selectedDay.festivals.length > 0 && (
               <div className="flex flex-col gap-2 mb-4">
                 {selectedDay.festivals.map((f, i) => (
-                  <div key={i} className="bg-gray-800 rounded-xl px-3 py-2 flex items-center gap-2">
-                    <span className="text-lg">{f.emoji}</span>
-                    <p className="text-white text-sm font-medium">{f.name}</p>
+                  <div key={i} className="flex items-center gap-2 rounded-xl border border-chandra-success/30 bg-chandra-success/15 px-3 py-2">
+                    <span className="text-lg" role="img" aria-label={f.name}>{f.emoji}</span>
+                    <p className="text-sm font-medium text-chandra-text-primary">{f.name}</p>
                   </div>
                 ))}
               </div>
             )}
 
             {/* Pancha Anga */}
-            <div className="bg-gray-900 rounded-2xl p-4 mb-5 border border-gray-800">
-              <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">Pancha Anga</p>
+            <Card className="mb-5">
+              <p className="mb-3 text-xs uppercase tracking-widest text-chandra-gold">Pancha Anga</p>
               {dayPanchang ? (
                 <div className="flex flex-col gap-2">
                   <ModalRow icon={Moon}        label="Tithi"     value={selectedDay.tithi.name} />
@@ -553,19 +551,16 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                   <ModalRow icon={CalendarIcon} label="Vara"     value={dayPanchang.vara} sub={dayPanchang.varaDeity} />
                 </div>
               ) : (
-                <div className="text-center text-gray-400 py-3 text-sm">Calculating…</div>
+                <div className="py-3 text-center text-sm text-chandra-text-secondary">Calculating…</div>
               )}
-            </div>
+            </Card>
 
             {/* CTA */}
-            <button
-              onClick={goToPanchang}
-              className="w-full py-3.5 bg-yellow-400 hover:bg-yellow-300 active:bg-yellow-500 text-gray-950 font-bold rounded-2xl text-sm transition-all"
-            >
-              View Full Panchang →
-            </button>
+            <Button onClick={goToPanchang} className="w-full">
+              View Full Panchang
+            </Button>
           </div>
-        </div>
+        </BottomSheet>
       )}
     </div>
   )
@@ -573,17 +568,17 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
 
 // Compact row for modal Pancha Anga — icon can be a Lucide component or emoji string
 const ModalRow = ({ icon: Icon, label, value, sub }) => (
-  <div className="flex items-center justify-between py-1.5 border-b border-gray-800 last:border-0">
+  <div className="flex items-center justify-between border-b border-white/10 py-1.5 last:border-0">
     <div className="flex items-center gap-2">
       {typeof Icon === 'string'
         ? <span className="text-sm" aria-hidden="true">{Icon}</span>
-        : <Icon size={14} aria-hidden="true" strokeWidth={1.75} className="text-gray-400 shrink-0" />
+        : <Icon size={14} aria-hidden="true" strokeWidth={1.75} className="shrink-0 text-chandra-text-secondary" />
       }
-      <span className="text-gray-400 text-sm">{label}</span>
+      <span className="text-sm text-chandra-text-secondary">{label}</span>
     </div>
     <div className="text-right">
-      <p className="text-white text-sm font-semibold">{value}</p>
-      {sub && <p className="text-gray-400 text-xs">{sub}</p>}
+      <p className="text-sm font-semibold text-chandra-text-primary">{value}</p>
+      {sub && <p className="text-xs text-chandra-text-secondary">{sub}</p>}
     </div>
   </div>
 )
