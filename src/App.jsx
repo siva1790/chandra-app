@@ -145,7 +145,7 @@ function App() {
 
       {/* ── Persistent Top Bar ── */}
       <div
-        className="fixed top-0 left-0 right-0 h-14 bg-gray-950 border-b border-gray-800 flex items-center justify-between px-4 z-40"
+        className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-white/10 bg-chandra-bg-primary px-4"
         aria-hidden={sheetOpen || undefined}
         {...(sheetOpen ? { inert: '' } : {})}
       >
@@ -154,14 +154,14 @@ function App() {
         <button
           onClick={() => navigate('home')}
           aria-label="Go to Day View"
-          className="flex items-center gap-2 rounded-xl transition-opacity active:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8EA8FF]"
+          className="flex items-center gap-2 rounded-xl transition-opacity active:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
         >
           <img
             src="/icons/chandra-mark-topbar-96.png"
             alt="Chandra"
             className="w-8 h-8 rounded-lg"
           />
-          <span className="text-yellow-300 font-bold text-lg tracking-wide">Chandra</span>
+          <span className="text-lg font-bold tracking-wide text-chandra-gold">Chandra</span>
         </button>
 
         {/* Bell icon — right (hidden until ENABLE_SUBSCRIPTIONS = true) */}
@@ -169,18 +169,18 @@ function App() {
           <button
             ref={bellButtonRef}
             onClick={() => setSheetOpen(true)}
-            className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-800 hover:bg-gray-700 transition-all"
+            className="relative flex items-center gap-1.5 rounded-xl border border-white/10 bg-chandra-bg-elevated px-3 py-1.5 transition-all hover:border-white/20 hover:bg-chandra-bg-surface"
             aria-label={subscription ? 'View subscription' : 'Subscribe to alerts'}
           >
             <Bell size={16} aria-hidden="true" />
             {subscription ? (
               <>
                 {/* Green dot for subscribed state */}
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-950" />
-                <span className="text-green-400 text-xs font-medium">Subscribed</span>
+                <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-chandra-bg-primary bg-chandra-success" />
+                <span className="text-xs font-medium text-chandra-success">Subscribed</span>
               </>
             ) : (
-              <span className="text-gray-300 text-xs font-medium">Subscribe</span>
+              <span className="text-xs font-medium text-chandra-text-secondary">Subscribe</span>
             )}
           </button>
         )}
@@ -221,7 +221,7 @@ function App() {
       {/* ── Bottom Navigation ── */}
       <nav
         aria-label="Main navigation"
-        className="fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 flex justify-around items-center px-4 py-3 z-40"
+        className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-white/10 bg-chandra-bg-primary px-4 py-3"
         aria-hidden={sheetOpen || undefined}
         {...(sheetOpen ? { inert: '' } : {})}
       >
@@ -235,8 +235,10 @@ function App() {
             key={id}
             onClick={() => navigate(id)}
             aria-current={screen === id ? 'page' : undefined}
-            className={`flex flex-col items-center gap-1 px-3 py-1 rounded-xl transition-all min-h-[44px] justify-center ${
-              screen === id ? 'text-[#DDBB6A]' : 'text-gray-400'
+            className={`flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-xl px-3 py-1 transition-all ${
+              screen === id
+                ? 'bg-chandra-gold/10 text-chandra-gold'
+                : 'text-chandra-text-disabled hover:bg-chandra-bg-elevated hover:text-chandra-text-secondary'
             }`}
           >
             <Icon size={22} aria-hidden="true" strokeWidth={1.75} />

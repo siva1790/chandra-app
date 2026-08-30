@@ -35,6 +35,19 @@ export default {
           'error':   '#D45C5C',  // 5.1:1 on bg-primary ✅
         },
       },
+      fontFamily: {
+        ui: ['Inter', 'system-ui', 'Arial', 'sans-serif'],
+        deva: ['Noto Serif Devanagari', 'serif'],
+      },
+      borderRadius: {
+        sm: '8px',
+        md: '12px',
+        lg: '16px',
+        xl: '24px',
+      },
+      spacing: {
+        touch: '44px',
+      },
     },
   },
   plugins: [],

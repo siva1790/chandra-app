@@ -3,6 +3,9 @@ import * as Astronomy from 'astronomy-engine'
 import MoonVisual from '../components/MoonVisual'
 import DateStrip from '../components/DateStrip'
 import TodayMessageModal from '../components/TodayMessageModal'
+import Button from '../components/ui/Button'
+import Card from '../components/ui/Card'
+import Chip from '../components/ui/Chip'
 import { useSettings } from '../SettingsContext'
 import { useProfile } from '../ProfileContext'
 import { toSiderealLongitude } from '../ayanamsha'
@@ -232,14 +235,14 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
     <div className="min-h-screen px-4 py-6 pb-28 max-w-md mx-auto">
       <div className="text-center mb-3">
         {settings.usingGps ? (
-          <p className="text-blue-400 text-xs mt-1 flex items-center justify-center gap-1">
+          <p className="mt-1 flex items-center justify-center gap-1 text-xs text-chandra-info">
             <LocateFixed size={12} aria-hidden="true" />
             <span>GPS</span>
-            <span className="text-gray-500">-</span>
+            <span className="text-chandra-text-disabled">-</span>
             <span>{location.city}</span>
           </p>
         ) : (
-          <p className="text-gray-400 text-xs mt-1 flex items-center justify-center gap-1">
+          <p className="mt-1 flex items-center justify-center gap-1 text-xs text-chandra-text-secondary">
             <MapPin size={12} aria-hidden="true" /> {location.city}
           </p>
         )}
@@ -248,7 +251,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
       <DateStrip date={date} onDateChange={onDateChange} mode="day" />
 
       {loading ? (
-        <div aria-live="polite" aria-busy="true" className="text-center text-gray-400 mt-20">
+        <div aria-live="polite" aria-busy="true" className="mt-20 text-center text-chandra-text-secondary">
           <p className="text-4xl mb-4" aria-hidden="true">🌙</p>
           <p>Calculating moon data...</p>
         </div>
@@ -262,56 +265,55 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
             />
           )}
 
-          <section className="bg-gray-900 rounded-2xl p-4 border border-gray-800">
+          <Card>
             <div className="flex items-center justify-between gap-3 mb-3">
-              <p className="text-yellow-300 text-xs uppercase tracking-widest font-semibold flex items-center gap-1.5">
+              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
                 <Sparkles size={13} aria-hidden="true" /> My Day
               </p>
               {hasPersonalMessage ? (
                 <button
                   type="button"
                   onClick={() => setShowModal(true)}
-                  className="min-h-[36px] px-3 py-1.5 rounded-full bg-gray-800 border border-gray-700 text-yellow-300 text-xs font-medium flex items-center gap-1.5 hover:border-yellow-700 transition-all"
+                  className="flex min-h-[36px] items-center gap-1.5 rounded-full border border-white/10 bg-chandra-bg-elevated px-3 py-1.5 text-xs font-medium text-chandra-gold transition-all hover:border-chandra-gold/40"
                 >
                   <Share2 size={13} aria-hidden="true" />
                   Share
                 </button>
               ) : (
-                <button
-                  type="button"
+                <Button
                   onClick={onNavigateToSettings}
-                  className="min-h-[36px] px-3 py-1.5 rounded-full bg-yellow-400 text-gray-950 text-xs font-bold flex items-center gap-1.5"
+                  size="sm"
+                  className="min-h-[36px] rounded-full py-1.5"
                 >
                   Personalize
                   <ArrowRight size={13} aria-hidden="true" />
-                </button>
+                </Button>
               )}
             </div>
 
-            <p className="text-white text-sm leading-relaxed">{myDayMessage}</p>
+            <p className="text-sm leading-relaxed text-chandra-text-primary">{myDayMessage}</p>
 
             {hasPersonalMessage ? (
               <div className="flex flex-wrap gap-2 mt-3">
-                <span className="px-2.5 py-1 rounded-full bg-gray-800 border border-gray-700 text-gray-300 text-xs">
+                <Chip variant="nakshatra">
                   {birthProfile.rasi} Rasi
-                </span>
-                <span className="px-2.5 py-1 rounded-full bg-gray-800 border border-gray-700 text-gray-300 text-xs">
+                </Chip>
+                <Chip variant="nakshatra">
                   {birthProfile.nakshatra} Nakshatra
-                </span>
+                </Chip>
               </div>
             ) : (
-              <p className="text-gray-400 text-xs leading-relaxed mt-3">
+              <p className="mt-3 text-xs leading-relaxed text-chandra-text-secondary">
                 Add birth details to include your Rasi and Nakshatra in this message.
               </p>
             )}
-          </section>
+          </Card>
 
-          <section
-            className="bg-gray-900 rounded-2xl p-4 border border-gray-800"
+          <Card
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <p className="text-yellow-300 text-xs uppercase tracking-widest font-semibold flex items-center gap-1.5 mb-3">
+            <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
               <Moon size={13} aria-hidden="true" /> Today's Cosmos
             </p>
             <div className="grid grid-cols-[116px_minmax(0,1fr)] gap-5 items-center">
@@ -330,17 +332,17 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
                 <Metric label="Moonset" value={formatTime(moonData.moonsetDate)} sub={formatShortDate(moonData.moonsetDate)} />
               </div>
             </div>
-          </section>
+          </Card>
 
-          <section className="bg-gray-900 rounded-2xl p-4 border border-gray-800">
+          <Card>
             <div className="flex items-center justify-between gap-3 mb-3">
-              <p className="text-yellow-300 text-xs uppercase tracking-widest font-semibold flex items-center gap-1.5">
+              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
                 <CalendarClock size={13} aria-hidden="true" /> Today's Panchanga
               </p>
               <button
                 type="button"
                 onClick={() => onNavigateToPanchang?.(date)}
-                className="text-[#8EA8FF] text-xs font-medium flex items-center gap-1 min-h-[36px]"
+                className="flex min-h-[36px] items-center gap-1 text-xs font-medium text-chandra-focus"
               >
                 View full panchanga
                 <ArrowRight size={13} aria-hidden="true" />
@@ -354,26 +356,24 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
               <Snapshot icon={Sun} label="Vara" value={vara} />
               <Snapshot icon={CalendarDays} label="Masa" value={dayHighlight.masa} />
             </div>
-          </section>
+          </Card>
         </div>
       ) : (
-        <div role="alert" className="bg-gray-900 rounded-2xl p-8 flex flex-col items-center gap-4 border border-red-900 mt-6 text-center">
+        <Card role="alert" variant="alert" className="mt-6 flex flex-col items-center gap-4 p-8 text-center">
           <span className="text-5xl" aria-hidden="true">🌑</span>
           <div>
-            <p className="text-red-400 font-semibold mb-1">Could not calculate moon data</p>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="mb-1 font-semibold text-chandra-error">Could not calculate moon data</p>
+            <p className="text-sm leading-relaxed text-chandra-text-secondary">
               This sometimes happens if your device clock is off or the calculation hit an edge case.
               Try again or change the date.
             </p>
           </div>
-          <button
-            type="button"
+          <Button
             onClick={() => { setLoading(true); calculateMoonData() }}
-            className="px-5 py-2.5 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold text-sm rounded-xl transition-all"
           >
             Try again
-          </button>
-        </div>
+          </Button>
+        </Card>
       )}
 
       {hasPersonalMessage && dayHighlight && moonData && (
@@ -402,13 +402,13 @@ const TodayHighlightCard = ({ dayHighlight, date, onNavigateToPanchang }) => {
       <button
         type="button"
         onClick={() => onNavigateToPanchang?.(date)}
-        className="w-full bg-gray-900 border border-yellow-900 rounded-2xl p-4 flex items-center gap-3 hover:border-yellow-600 active:bg-gray-800 transition-all text-left"
+        className="flex w-full items-center gap-3 rounded-2xl border border-chandra-gold/35 bg-chandra-bg-surface p-4 text-left transition-all hover:border-chandra-gold/60 active:bg-chandra-bg-elevated"
       >
         <EclipseIcon eclipse={dayHighlight.eclipse} size={30} />
         <div className="flex-1 min-w-0">
-          <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">Day's Highlight</p>
-          <p className="text-indigo-200 font-semibold text-sm">{dayHighlight.eclipse.hinduName}</p>
-          <p className="text-gray-400 text-xs mt-0.5">Tap to view full Panchanga</p>
+          <p className="mb-0.5 text-xs uppercase tracking-widest text-chandra-gold">Day's Highlight</p>
+          <p className="text-sm font-semibold text-chandra-focus">{dayHighlight.eclipse.hinduName}</p>
+          <p className="mt-0.5 text-xs text-chandra-text-secondary">Tap to view full Panchanga</p>
         </div>
       </button>
     )
@@ -419,13 +419,13 @@ const TodayHighlightCard = ({ dayHighlight, date, onNavigateToPanchang }) => {
       <button
         type="button"
         onClick={() => onNavigateToPanchang?.(date)}
-        className="w-full bg-gray-900 border border-yellow-900 rounded-2xl p-4 flex items-center gap-3 hover:border-yellow-600 active:bg-gray-800 transition-all text-left"
+        className="flex w-full items-center gap-3 rounded-2xl border border-chandra-gold/35 bg-chandra-bg-surface p-4 text-left transition-all hover:border-chandra-gold/60 active:bg-chandra-bg-elevated"
       >
-        <span className="text-2xl flex-shrink-0">{dayHighlight.festivals[0].emoji}</span>
+        <span className="flex-shrink-0 text-2xl" role="img" aria-label={dayHighlight.festivals[0].name}>{dayHighlight.festivals[0].emoji}</span>
         <div className="flex-1 min-w-0">
-          <p className="text-yellow-300 text-xs uppercase tracking-widest mb-0.5">Day's Highlight</p>
-          <p className="text-white font-semibold text-sm truncate">{dayHighlight.festivals[0].name}</p>
-          <p className="text-gray-400 text-xs mt-0.5">
+          <p className="mb-0.5 text-xs uppercase tracking-widest text-chandra-gold">Day's Highlight</p>
+          <p className="truncate text-sm font-semibold text-chandra-text-primary">{dayHighlight.festivals[0].name}</p>
+          <p className="mt-0.5 text-xs text-chandra-text-secondary">
             {dayHighlight.festivals.length > 1
               ? `+${dayHighlight.festivals.length - 1} more · Tap for full Panchanga`
               : 'Tap to view full Panchanga'}
@@ -439,20 +439,20 @@ const TodayHighlightCard = ({ dayHighlight, date, onNavigateToPanchang }) => {
 
 const Metric = ({ label, value, sub }) => (
   <div className="min-w-0">
-    <p className="text-gray-400 text-[11px] mb-0.5">{label}</p>
-    <p className="text-white text-sm font-semibold leading-tight break-words">{value}</p>
-    {sub && <p className="text-gray-400 text-[11px] mt-0.5">{sub}</p>}
+    <p className="mb-0.5 text-xs text-chandra-text-secondary">{label}</p>
+    <p className="break-words text-sm font-semibold leading-tight text-chandra-text-primary">{value}</p>
+    {sub && <p className="mt-0.5 text-xs text-chandra-text-secondary">{sub}</p>}
   </div>
 )
 
 const Snapshot = ({ icon: Icon, label, value, sub }) => (
-  <div className="bg-gray-800 border border-gray-700 rounded-xl px-3 py-3 min-w-0">
-    <p className="text-gray-400 text-xs flex items-center gap-1.5 mb-1">
+  <div className="min-w-0 rounded-xl border border-white/10 bg-chandra-bg-elevated px-3 py-3">
+    <p className="mb-1 flex items-center gap-1.5 text-xs text-chandra-text-secondary">
       <Icon size={12} aria-hidden="true" />
       {label}
     </p>
-    <p className="text-white text-sm font-semibold truncate">{value}</p>
-    {sub && <p className="text-yellow-300 text-xs mt-0.5">{sub}</p>}
+    <p className="truncate text-sm font-semibold text-chandra-text-primary">{value}</p>
+    {sub && <p className="mt-0.5 text-xs text-chandra-gold">{sub}</p>}
   </div>
 )
 

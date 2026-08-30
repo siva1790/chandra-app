@@ -7,6 +7,7 @@ import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
 import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck, BookOpen, User, Clock, CalendarDays, CheckCircle2 } from 'lucide-react'
+import Toggle from '../components/ui/Toggle'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
@@ -903,7 +904,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                     <p className="text-gray-200 text-sm">{label}</p>
                     <p className="text-gray-400 text-xs">{hint}</p>
                   </div>
-                  <SubToggle on={notifPrefs[key]} onToggle={() => toggleNotifPref(key)} label={label} />
+                  <Toggle on={notifPrefs[key]} onToggle={() => toggleNotifPref(key)} label={label} size="sm" />
                 </div>
               ))}
             </div>
@@ -1056,84 +1057,6 @@ const NotificationPreview = ({ visible, onDismiss }) => (
       aria-label="Dismiss"
     >✕</button>
   </div>
-)
-
-// Toggle — 44×24px container, 20×20px knob
-const Toggle = ({ on, onToggle, label }) => (
-  <button
-    onClick={onToggle}
-    role="switch"
-    aria-checked={on}
-    aria-label={label}
-    style={{
-      position: 'relative',
-      width: '44px',
-      height: '24px',
-      borderRadius: '12px',
-      background: on ? '#DDBB6A' : '#374151',
-      border: '1.5px solid rgba(255,255,255,0.15)',
-      cursor: 'pointer',
-      flexShrink: 0,
-      transition: 'background 0.2s',
-      padding: 0,
-      outline: 'none',
-    }}
-    onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 2px #8EA8FF' }}
-    onBlur={e => { e.currentTarget.style.boxShadow = 'none' }}
-  >
-    <span style={{
-      position: 'absolute',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      left: on ? '19px' : '2px',
-      width: '20px',
-      height: '20px',
-      background: '#ffffff',
-      borderRadius: '50%',
-      transition: 'left 0.2s cubic-bezier(0.34,1.56,0.64,1)',
-      display: 'block',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
-    }} />
-  </button>
-)
-
-// SubToggle — 36×20px container, 16×16px knob
-const SubToggle = ({ on, onToggle, label }) => (
-  <button
-    onClick={onToggle}
-    role="switch"
-    aria-checked={on}
-    aria-label={label}
-    style={{
-      position: 'relative',
-      width: '36px',
-      height: '20px',
-      borderRadius: '10px',
-      background: on ? '#DDBB6A' : '#374151',
-      border: '1.5px solid rgba(255,255,255,0.15)',
-      cursor: 'pointer',
-      flexShrink: 0,
-      transition: 'background 0.2s',
-      padding: 0,
-      outline: 'none',
-    }}
-    onFocus={e => { e.currentTarget.style.boxShadow = '0 0 0 2px #8EA8FF' }}
-    onBlur={e => { e.currentTarget.style.boxShadow = 'none' }}
-  >
-    <span style={{
-      position: 'absolute',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      left: on ? '15px' : '2px',
-      width: '16px',
-      height: '16px',
-      background: '#ffffff',
-      borderRadius: '50%',
-      transition: 'left 0.2s cubic-bezier(0.34,1.56,0.64,1)',
-      display: 'block',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
-    }} />
-  </button>
 )
 
 export default Settings

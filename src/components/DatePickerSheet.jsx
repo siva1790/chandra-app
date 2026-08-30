@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { CalendarDays } from 'lucide-react'
+import BottomSheet from './ui/BottomSheet'
+import Button from './ui/Button'
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -11,9 +13,7 @@ const THIS_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: 201 }, (_, i) => THIS_YEAR - 100 + i)
 
 const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) => {
-  const sheetRef         = useRef(null)
   const selectedYearRef  = useRef(null)
-  const hasBeenOpen      = useRef(false)
   const touchStartX      = useRef(null)
   const touchStartY      = useRef(null)
 
@@ -27,57 +27,6 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
       setViewYear(selectedDate.getFullYear())
       setViewMonth(selectedDate.getMonth())
       setShowYearPicker(false)
-    }
-  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Close on Escape
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e) => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [open, onClose])
-
-  // Focus first interactive element when sheet opens
-  useEffect(() => {
-    if (open && sheetRef.current) {
-      const first = sheetRef.current.querySelector('button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])')
-      first?.focus()
-    }
-  }, [open])
-
-  // Focus trap — Tab / Shift+Tab cycle within the sheet
-  useEffect(() => {
-    if (!open || !sheetRef.current) return
-    const container = sheetRef.current
-    const getFocusable = () => [
-      ...container.querySelectorAll(
-        'a[href], button:not([disabled]), input:not([disabled]), ' +
-        'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      )
-    ]
-    const handleTab = (e) => {
-      if (e.key !== 'Tab') return
-      const focusable = getFocusable()
-      if (!focusable.length) return
-      const first = focusable[0]
-      const last  = focusable[focusable.length - 1]
-      if (e.shiftKey) {
-        if (document.activeElement === first) { e.preventDefault(); last.focus() }
-      } else {
-        if (document.activeElement === last)  { e.preventDefault(); first.focus() }
-      }
-    }
-    document.addEventListener('keydown', handleTab)
-    return () => document.removeEventListener('keydown', handleTab)
-  }, [open])
-
-  // Focus restoration — return focus to trigger when sheet closes
-  useEffect(() => {
-    if (open) {
-      hasBeenOpen.current = true
-    } else if (hasBeenOpen.current) {
-      triggerRef?.current?.focus()
     }
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -164,39 +113,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
     viewYear === THIS_YEAR && viewMonth === new Date().getMonth()
 
   return (
-    <>
-      {/* ── Backdrop (visual only) ── */}
-      <div
-        onClick={onClose}
-        aria-hidden="true"
-        className={`fixed inset-0 bg-black z-40 transition-opacity duration-300 ${
-          open ? 'opacity-60 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      />
-
-      {/* ── Sheet ── */}
-      <div
-        ref={sheetRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Select date"
-        {...(!open && { inert: '' })}
-        className={`fixed bottom-0 left-0 right-0 z-50 bg-gray-950 rounded-t-3xl border-t border-gray-800
-          transition-transform duration-300 ease-out ${open ? 'translate-y-0' : 'translate-y-full'}`}
-      >
-        {/* Drag handle + close button row */}
-        <div className="flex items-center justify-between pt-3 pb-2 px-4">
-          <div className="w-8" />
-          <div className="w-10 h-1 bg-gray-700 rounded-full" aria-hidden="true" />
-          <button
-            onClick={onClose}
-            aria-label="Close date picker"
-            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all"
-          >
-            ✕
-          </button>
-        </div>
-
+    <BottomSheet open={open} onClose={onClose} title="Select date" triggerRef={triggerRef}>
         <div className="px-5 pb-10">
 
           {/* ── Header ── */}
@@ -206,11 +123,11 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                 <button
                   onClick={() => setShowYearPicker(false)}
                   aria-label="Back to month view"
-                  className="text-yellow-400 text-sm font-medium px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all"
+                  className="rounded-lg bg-chandra-bg-elevated px-3 py-1.5 text-sm font-medium text-chandra-gold transition-all hover:bg-chandra-bg-primary"
                 >
-                  ← Back
+                  Back
                 </button>
-                <p className="text-white font-semibold text-base" aria-live="polite">Select Month &amp; Year</p>
+                <p className="text-base font-semibold text-chandra-text-primary" aria-live="polite">Select Month &amp; Year</p>
                 <div className="w-20" />
               </>
             ) : (
@@ -218,7 +135,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                 <button
                   onClick={prevMonth}
                   aria-label="Previous month"
-                  className="w-10 h-10 flex items-center justify-center text-yellow-300 text-2xl rounded-xl hover:bg-gray-800 transition-all"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl text-2xl text-chandra-gold transition-all hover:bg-chandra-bg-elevated"
                 >
                   ‹
                 </button>
@@ -226,16 +143,16 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                 <button
                   onClick={() => setShowYearPicker(true)}
                   aria-label={`${MONTH_NAMES[viewMonth]} ${viewYear}. Tap to change month or year.`}
-                  className="flex items-center gap-1.5 text-white font-semibold text-base hover:text-yellow-300 transition-colors"
+                  className="flex items-center gap-1.5 text-base font-semibold text-chandra-text-primary transition-colors hover:text-chandra-gold"
                 >
                   {MONTH_NAMES[viewMonth]} {viewYear}
-                  <span className="text-gray-500 text-xs" aria-hidden="true">▾</span>
+                  <span className="text-xs text-chandra-text-disabled" aria-hidden="true">▾</span>
                 </button>
 
                 <button
                   onClick={nextMonth}
                   aria-label="Next month"
-                  className="w-10 h-10 flex items-center justify-center text-yellow-300 text-2xl rounded-xl hover:bg-gray-800 transition-all"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl text-2xl text-chandra-gold transition-all hover:bg-chandra-bg-elevated"
                 >
                   ›
                 </button>
@@ -251,7 +168,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
               {/* Day-of-week headers */}
               <div className="grid grid-cols-7 mb-1" role="row" aria-hidden="true">
                 {DAY_NAMES.map(d => (
-                  <div key={d} className="text-center text-gray-400 text-xs py-1 font-medium">{d}</div>
+                  <div key={d} className="py-1 text-center text-xs font-medium text-chandra-text-secondary">{d}</div>
                 ))}
               </div>
 
@@ -272,11 +189,11 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                       h-10 rounded-xl text-sm font-medium transition-all
                       ${!cell ? 'invisible pointer-events-none' : ''}
                       ${cell?.isSelected
-                        ? 'bg-yellow-400 text-gray-950 font-bold shadow-md'
+                        ? 'bg-chandra-gold text-chandra-text-inverse font-bold shadow-md'
                         : cell?.isToday
-                        ? 'border border-yellow-500 text-yellow-300'
+                        ? 'border border-chandra-gold/60 text-chandra-gold'
                         : cell
-                        ? 'text-white hover:bg-gray-800'
+                        ? 'text-chandra-text-primary hover:bg-chandra-bg-elevated'
                         : ''}
                     `}
                   >
@@ -286,13 +203,14 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
               </div>
 
               {/* Today button */}
-              <button
+              <Button
                 onClick={handleToday}
                 disabled={isViewingCurrentMonth && cells.some(c => c?.isSelected && c?.isToday)}
-                className="w-full py-3.5 rounded-2xl bg-gray-800 hover:bg-gray-700 text-yellow-300 font-semibold text-sm transition-all border border-gray-700 disabled:opacity-50"
+                variant="quiet"
+                className="w-full"
               >
                 <CalendarDays size={14} aria-hidden="true" className="inline mr-1" /> Go to Today
-              </button>
+              </Button>
             </>
           )}
 
@@ -302,7 +220,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
           {showYearPicker && (
             <div className="max-h-96 overflow-y-auto pb-2">
               <div className="mb-5">
-                <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Month</p>
+                <p className="mb-2 text-xs uppercase tracking-widest text-chandra-text-secondary">Month</p>
                 <div className="grid grid-cols-3 gap-2">
                   {MONTH_NAMES.map((month, i) => (
                     <button
@@ -312,8 +230,8 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                       aria-pressed={i === viewMonth}
                       className={`py-3 rounded-xl text-sm font-medium transition-all ${
                         i === viewMonth
-                          ? 'bg-yellow-400 text-gray-950 font-bold'
-                          : 'bg-gray-800 text-white hover:bg-gray-700'
+                          ? 'bg-chandra-gold text-chandra-text-inverse font-bold'
+                          : 'bg-chandra-bg-elevated text-chandra-text-primary hover:bg-chandra-bg-primary'
                       }`}
                     >
                       {month.slice(0, 3)}
@@ -323,7 +241,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
               </div>
 
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">Year</p>
+                <p className="mb-2 text-xs uppercase tracking-widest text-chandra-text-secondary">Year</p>
                 <div className="grid grid-cols-4 gap-2">
                   {YEARS.map(y => (
                     <button
@@ -334,10 +252,10 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                       aria-pressed={y === viewYear}
                       className={`py-3 rounded-xl text-sm font-medium transition-all ${
                         y === viewYear
-                          ? 'bg-yellow-400 text-gray-950 font-bold'
+                          ? 'bg-chandra-gold text-chandra-text-inverse font-bold'
                           : y === THIS_YEAR
-                          ? 'border border-yellow-500 text-yellow-300'
-                          : 'bg-gray-800 text-white hover:bg-gray-700'
+                          ? 'border border-chandra-gold/60 text-chandra-gold'
+                          : 'bg-chandra-bg-elevated text-chandra-text-primary hover:bg-chandra-bg-primary'
                       }`}
                     >
                       {y}
@@ -349,8 +267,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
           )}
 
         </div>
-      </div>
-    </>
+    </BottomSheet>
   )
 }
 

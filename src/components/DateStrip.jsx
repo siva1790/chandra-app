@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import DatePickerSheet from './DatePickerSheet'
+import Button from './ui/Button'
 
 /**
  * DateStrip — shared date navigation bar used on Day View, Calendar, and Panchang.
@@ -63,11 +64,11 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
     <>
       <div className="flex flex-col items-center gap-1 mb-6">
         {/* Arrows + date label row */}
-        <div className="flex items-center justify-between w-full bg-gray-900 rounded-2xl px-1 py-1 border border-gray-800">
+        <div className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-chandra-bg-surface px-1 py-1">
           <button
             onClick={prev}
             aria-label={mode === 'day' ? 'Previous day' : 'Previous month'}
-            className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 py-1 text-xl text-chandra-gold transition-colors hover:bg-chandra-bg-elevated"
           >‹</button>
 
           <button
@@ -75,29 +76,29 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
             onClick={() => setPickerOpen(true)}
             aria-label={`Selected date: ${label}. Tap to change.`}
             aria-haspopup="dialog"
-            className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl hover:bg-gray-800 transition-all flex-1"
+            className="flex flex-1 flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all hover:bg-chandra-bg-elevated"
           >
-            <p className="text-white text-sm font-medium text-center">{label}</p>
+            <p className="text-center text-sm font-medium text-chandra-text-primary">{label}</p>
             {isToday && (
-              <p className="text-yellow-500 text-xs">Today</p>
+              <p className="text-xs text-chandra-gold">Today</p>
             )}
           </button>
 
           <button
             onClick={next}
             aria-label={mode === 'day' ? 'Next day' : 'Next month'}
-            className="text-yellow-300 text-xl px-3 py-1 rounded-lg hover:bg-gray-800 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 py-1 text-xl text-chandra-gold transition-colors hover:bg-chandra-bg-elevated"
           >›</button>
         </div>
 
         {/* Go to Today — only shown when not on today */}
         {!isToday && (
-          <button
+          <Button
             onClick={goToToday}
-            className="w-full py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-gray-950 text-sm font-bold transition-all"
+            className="w-full"
           >
-            ↩ Go to Today
-          </button>
+            Go to Today
+          </Button>
         )}
       </div>
 
