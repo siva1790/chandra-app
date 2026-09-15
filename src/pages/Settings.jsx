@@ -6,13 +6,20 @@ import { ENABLE_SUBSCRIPTIONS } from '../featureFlags'
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
-import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck, BookOpen, User, Clock, CalendarDays, CheckCircle2 } from 'lucide-react'
+import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck, BookOpen, User, Clock, CalendarDays, CheckCircle2, LockKeyhole, X } from 'lucide-react'
 import Toggle from '../components/ui/Toggle'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
 const NOTIF_ENABLED_KEY = 'chandra-notif-enabled'
 const DEFAULT_PREFS = { festivals: true, eclipses: true, moonrise: true, ekadashi: true }
+
+const CARD_CLASS = 'rounded-2xl border border-white/10 bg-chandra-bg-surface p-5'
+const FEATURED_CARD_CLASS = 'rounded-2xl border border-chandra-gold/35 bg-chandra-bg-surface p-5'
+const SECTION_TITLE_CLASS = 'mb-3 flex items-center gap-1.5 text-xs uppercase tracking-widest text-chandra-gold'
+const INPUT_CLASS = 'mt-2 w-full rounded-xl border border-white/10 bg-chandra-bg-elevated px-4 py-3 text-sm text-chandra-text-primary placeholder-chandra-text-disabled focus:border-chandra-focus focus:outline-none focus-visible:ring-2 focus-visible:ring-chandra-focus/40'
+const SECONDARY_BUTTON_CLASS = 'min-h-[44px] rounded-xl border border-white/10 bg-chandra-bg-elevated px-4 py-3 text-sm font-medium text-chandra-text-secondary transition-all hover:border-white/20 hover:text-chandra-text-primary'
+const CHIP_CLASS = 'rounded-full border px-3 py-1 text-xs transition-all'
 
 const loadNotifPrefs = () => {
   try {
@@ -360,48 +367,48 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
       {/* Header */}
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-yellow-300 mb-1 flex items-center justify-center gap-2">
+        <h1 className="mb-1 flex items-center justify-center gap-2 text-2xl font-bold text-chandra-gold">
           <SettingsIcon size={22} aria-hidden="true" strokeWidth={1.75} /> Settings
         </h1>
-        <p className="text-gray-400 text-sm">Personalise your Chandra experience</p>
+        <p className="text-sm text-chandra-text-secondary">Personalise your Chandra experience</p>
       </div>
 
       {/* Saved Badge */}
       {saved && (
-        <div role="status" aria-live="polite" className="bg-green-900 border border-green-600 rounded-xl p-3 text-center mb-4 transition-all">
-          <p className="text-green-300 text-sm">✓ Settings saved</p>
+        <div role="status" aria-live="polite" className="mb-4 rounded-xl border border-chandra-success/35 bg-chandra-success/15 p-3 text-center transition-all">
+          <p className="text-sm text-chandra-success">Settings saved</p>
         </div>
       )}
 
       <div className="flex flex-col gap-5">
 
         {/* Current Settings Summary */}
-        <div className="bg-gray-900 rounded-2xl p-5 border border-yellow-900">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">Current Settings</p>
+        <div className={FEATURED_CARD_CLASS}>
+          <p className="mb-3 text-xs uppercase tracking-widest text-chandra-gold">Current Settings</p>
           <div className="flex flex-col gap-2">
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm flex items-center gap-1"><MapPin size={13} aria-hidden="true" /> City</span>
-              <span className="text-white text-sm font-medium">{settings.city}</span>
+              <span className="flex items-center gap-1 text-sm text-chandra-text-secondary"><MapPin size={13} aria-hidden="true" /> City</span>
+              <span className="text-sm font-medium text-chandra-text-primary">{settings.city}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm flex items-center gap-1"><Globe size={13} aria-hidden="true" /> Language</span>
-              <span className="text-white text-sm font-medium">{settings.language}</span>
+              <span className="flex items-center gap-1 text-sm text-chandra-text-secondary"><Globe size={13} aria-hidden="true" /> Language</span>
+              <span className="text-sm font-medium text-chandra-text-primary">{settings.language}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm flex items-center gap-1"><CalendarIcon size={13} aria-hidden="true" /> Calendar</span>
-              <span className="text-white text-sm font-medium">{settings.calendarSystem}</span>
+              <span className="flex items-center gap-1 text-sm text-chandra-text-secondary"><CalendarIcon size={13} aria-hidden="true" /> Calendar</span>
+              <span className="text-sm font-medium text-chandra-text-primary">{settings.calendarSystem}</span>
             </div>
           </div>
         </div>
 
         {/* Personal Details */}
-        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+        <div className={CARD_CLASS}>
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
-              <p className="text-yellow-500 text-xs uppercase tracking-widest flex items-center gap-1.5">
+              <p className={SECTION_TITLE_CLASS}>
                 <User size={13} aria-hidden="true" /> Personal Details
               </p>
-              <p className="text-gray-400 text-xs mt-2 leading-relaxed">
+              <p className="mt-2 text-xs leading-relaxed text-chandra-text-secondary">
                 Stored on this device. Used later for Rasi, Nakshatra and personalised daily messages.
               </p>
             </div>
@@ -412,7 +419,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                   setProfileSavedFromPersonalize(false)
                   setEditingProfile(true)
                 }}
-                className="px-3 py-2 rounded-xl bg-gray-800 border border-gray-700 text-yellow-300 text-xs font-medium hover:border-yellow-700 transition-all min-h-[44px]"
+                className="min-h-[44px] rounded-xl border border-white/10 bg-chandra-bg-elevated px-3 py-2 text-xs font-medium text-chandra-gold transition-all hover:border-chandra-gold/35"
               >
                 Edit
               </button>
@@ -422,17 +429,17 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
           {!editingProfile ? (
             <div className="flex flex-col gap-2">
               {profileSavedFromPersonalize && profileComplete && onBack && (
-                <div role="status" aria-live="polite" className="bg-green-950 border border-green-700 rounded-xl p-3 mb-2 flex items-start gap-3">
-                  <CheckCircle2 size={20} strokeWidth={1.8} aria-hidden="true" className="text-green-300 shrink-0 mt-0.5" />
+                <div role="status" aria-live="polite" className="mb-2 flex items-start gap-3 rounded-xl border border-chandra-success/35 bg-chandra-success/15 p-3">
+                  <CheckCircle2 size={20} strokeWidth={1.8} aria-hidden="true" className="mt-0.5 shrink-0 text-chandra-success" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-green-200 text-sm font-semibold">Your details are saved</p>
-                    <p className="text-green-100/80 text-xs leading-relaxed mt-1">
+                    <p className="text-sm font-semibold text-chandra-text-primary">Your details are saved</p>
+                    <p className="mt-1 text-xs leading-relaxed text-chandra-text-secondary">
                       Chandra will personalize Day View with your Rasi and Nakshatra context.
                     </p>
                     <button
                       type="button"
                       onClick={onBack}
-                      className="mt-3 min-h-[44px] rounded-xl bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 text-xs"
+                      className="mt-3 min-h-[44px] rounded-xl bg-chandra-gold px-4 text-xs font-bold text-chandra-text-inverse hover:bg-chandra-gold-hover"
                     >
                       Return to {returnLabel}
                     </button>
@@ -440,34 +447,34 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                 </div>
               )}
               <div className="flex justify-between gap-3">
-                <span className="text-gray-400 text-sm">Status</span>
-                <span className={`text-sm font-medium ${profileComplete ? 'text-green-300' : 'text-yellow-300'}`}>
+                <span className="text-sm text-chandra-text-secondary">Status</span>
+                <span className={`text-sm font-medium ${profileComplete ? 'text-chandra-success' : 'text-chandra-gold'}`}>
                   {profileComplete ? 'Complete' : 'Not set'}
                 </span>
               </div>
               {profile.name && (
                 <div className="flex justify-between gap-3">
-                  <span className="text-gray-400 text-sm">Name</span>
-                  <span className="text-white text-sm font-medium text-right">{profile.name}</span>
+                  <span className="text-sm text-chandra-text-secondary">Name</span>
+                  <span className="text-right text-sm font-medium text-chandra-text-primary">{profile.name}</span>
                 </div>
               )}
               <div className="flex justify-between gap-3">
-                <span className="text-gray-400 text-sm">Date of birth</span>
-                <span className="text-white text-sm font-medium">{profile.dob || 'Not added'}</span>
+                <span className="text-sm text-chandra-text-secondary">Date of birth</span>
+                <span className="text-sm font-medium text-chandra-text-primary">{profile.dob || 'Not added'}</span>
               </div>
               <div className="flex justify-between gap-3">
-                <span className="text-gray-400 text-sm">Time of birth</span>
-                <span className="text-white text-sm font-medium">{profile.birthTime || 'Not added'}</span>
+                <span className="text-sm text-chandra-text-secondary">Time of birth</span>
+                <span className="text-sm font-medium text-chandra-text-primary">{profile.birthTime || 'Not added'}</span>
               </div>
               <div className="flex justify-between gap-3">
-                <span className="text-gray-400 text-sm">Birth location</span>
-                <span className="text-white text-sm font-medium text-right">{profile.birthPlace || 'Not added'}</span>
+                <span className="text-sm text-chandra-text-secondary">Birth location</span>
+                <span className="text-right text-sm font-medium text-chandra-text-primary">{profile.birthPlace || 'Not added'}</span>
               </div>
             </div>
           ) : (
             <div className="flex flex-col gap-4">
               <div>
-                <label htmlFor="profile-name" className="text-gray-300 text-sm font-medium">Name <span className="text-gray-500 font-normal">(optional)</span></label>
+                <label htmlFor="profile-name" className="text-sm font-medium text-chandra-text-primary">Name <span className="font-normal text-chandra-text-disabled">(optional)</span></label>
                 <input
                   id="profile-name"
                   type="text"
@@ -475,13 +482,13 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                   value={profileForm.name}
                   onChange={(e) => updateProfileForm('name', e.target.value)}
                   placeholder="Your name"
-                  className="mt-2 w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
+                  className={INPUT_CLASS}
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="profile-dob" className="text-gray-300 text-sm font-medium flex items-center gap-1.5">
+                  <label htmlFor="profile-dob" className="flex items-center gap-1.5 text-sm font-medium text-chandra-text-primary">
                     <CalendarDays size={13} aria-hidden="true" /> Date of birth
                   </label>
                   <input
@@ -491,13 +498,13 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                     onChange={(e) => updateProfileForm('dob', e.target.value)}
                     aria-invalid={!!profileErrors.dob}
                     aria-describedby={profileErrors.dob ? 'profile-dob-error' : undefined}
-                    className="mt-2 w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none"
+                    className={INPUT_CLASS}
                   />
-                  {profileErrors.dob && <p id="profile-dob-error" className="text-red-400 text-xs mt-1">{profileErrors.dob}</p>}
+                  {profileErrors.dob && <p id="profile-dob-error" className="mt-1 text-xs text-chandra-error">{profileErrors.dob}</p>}
                 </div>
 
                 <div>
-                  <label htmlFor="profile-birth-time" className="text-gray-300 text-sm font-medium flex items-center gap-1.5">
+                  <label htmlFor="profile-birth-time" className="flex items-center gap-1.5 text-sm font-medium text-chandra-text-primary">
                     <Clock size={13} aria-hidden="true" /> Time of birth
                   </label>
                   <input
@@ -507,32 +514,32 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                     onChange={(e) => updateProfileForm('birthTime', e.target.value)}
                     aria-invalid={!!profileErrors.birthTime}
                     aria-describedby={profileErrors.birthTime ? 'profile-birth-time-error' : undefined}
-                    className="mt-2 w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none"
+                    className={INPUT_CLASS}
                   />
-                  {profileErrors.birthTime && <p id="profile-birth-time-error" className="text-red-400 text-xs mt-1">{profileErrors.birthTime}</p>}
+                  {profileErrors.birthTime && <p id="profile-birth-time-error" className="mt-1 text-xs text-chandra-error">{profileErrors.birthTime}</p>}
                 </div>
               </div>
 
               <div>
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-gray-300 text-sm font-medium flex items-center gap-1.5">
+                    <p className="flex items-center gap-1.5 text-sm font-medium text-chandra-text-primary">
                       <MapPin size={13} aria-hidden="true" /> Place of birth
                     </p>
-                    <p className="text-gray-400 text-xs mt-1">Required for accurate birth Rasi and Nakshatra.</p>
+                    <p className="mt-1 text-xs text-chandra-text-secondary">Required for accurate birth Rasi and Nakshatra.</p>
                   </div>
                 </div>
 
-                <label className="mt-3 flex items-start gap-3 bg-gray-800 border border-gray-700 rounded-xl px-3 py-3 cursor-pointer">
+                <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-chandra-bg-elevated px-3 py-3">
                   <input
                     type="checkbox"
                     checked={profileForm.sameAsCurrentLocation}
                     onChange={(e) => toggleSameAsCurrentLocation(e.target.checked)}
-                    className="mt-1 accent-yellow-400"
+                    className="mt-1 accent-chandra-gold"
                   />
                   <span>
-                    <span className="block text-white text-sm font-medium">Same as current location</span>
-                    <span className="block text-gray-400 text-xs mt-0.5">{settings.city}</span>
+                    <span className="block text-sm font-medium text-chandra-text-primary">Same as current location</span>
+                    <span className="mt-0.5 block text-xs text-chandra-text-secondary">{settings.city}</span>
                   </span>
                 </label>
 
@@ -555,7 +562,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                       onKeyDown={handleBirthCityKeyDown}
                       aria-invalid={!!profileErrors.birthPlace}
                       aria-describedby={profileErrors.birthPlace ? 'birth-city-error' : undefined}
-                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
+                      className={INPUT_CLASS}
                     />
 
                     {showBirthCityList && birthCitySearch.length > 0 && (
@@ -563,7 +570,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                         id="birth-city-listbox"
                         role="listbox"
                         aria-label="Birth city suggestions"
-                        className="mt-2 bg-gray-800 rounded-xl border border-gray-700 max-h-48 overflow-y-auto"
+                        className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-chandra-bg-elevated"
                       >
                         {filteredBirthCities.length > 0 ? (
                           filteredBirthCities.map((city, i) => (
@@ -573,16 +580,16 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                               role="option"
                               aria-selected={i === activeBirthCityIndex}
                               onMouseDown={() => selectBirthCity(city)}
-                              className={`px-4 py-3 transition-all border-b border-gray-700 last:border-0 cursor-pointer ${
-                                i === activeBirthCityIndex ? 'bg-gray-700' : 'hover:bg-gray-700'
+                              className={`cursor-pointer border-b border-white/10 px-4 py-3 transition-all last:border-0 ${
+                                i === activeBirthCityIndex ? 'bg-chandra-bg-primary' : 'hover:bg-chandra-bg-primary'
                               }`}
                             >
-                              <p className="text-white text-sm font-medium">{city.name}</p>
-                              <p className="text-gray-400 text-xs">{city.state}</p>
+                              <p className="text-sm font-medium text-chandra-text-primary">{city.name}</p>
+                              <p className="text-xs text-chandra-text-secondary">{city.state}</p>
                             </li>
                           ))
                         ) : (
-                          <li role="option" aria-selected="false" aria-disabled="true" className="text-gray-400 text-sm px-4 py-3">
+                          <li role="option" aria-selected="false" aria-disabled="true" className="px-4 py-3 text-sm text-chandra-text-secondary">
                             No cities found
                           </li>
                         )}
@@ -590,18 +597,18 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                     )}
 
                     {profileForm.birthPlace && (
-                      <p className="text-green-300 text-xs mt-2">Selected: {profileForm.birthPlace}{profileForm.birthState ? `, ${profileForm.birthState}` : ''}</p>
+                      <p className="mt-2 text-xs text-chandra-success">Selected: {profileForm.birthPlace}{profileForm.birthState ? `, ${profileForm.birthState}` : ''}</p>
                     )}
                   </div>
                 )}
-                {profileErrors.birthPlace && <p id="birth-city-error" className="text-red-400 text-xs mt-2">{profileErrors.birthPlace}</p>}
+                {profileErrors.birthPlace && <p id="birth-city-error" className="mt-2 text-xs text-chandra-error">{profileErrors.birthPlace}</p>}
               </div>
 
               <div className="flex gap-2 pt-1">
                 <button
                   type="button"
                   onClick={handleSaveProfile}
-                  className="flex-1 bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-3 rounded-xl text-xs transition-all min-h-[44px]"
+                  className="min-h-[44px] flex-1 rounded-xl bg-chandra-gold px-4 py-3 text-xs font-bold text-chandra-text-inverse transition-all hover:bg-chandra-gold-hover"
                 >
                   Save Details
                 </button>
@@ -609,7 +616,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                   <button
                     type="button"
                     onClick={handleCancelProfileEdit}
-                    className="px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 text-gray-300 text-sm font-medium hover:border-gray-600 transition-all min-h-[44px]"
+                    className={SECONDARY_BUTTON_CLASS}
                   >
                     Cancel
                   </button>
@@ -620,22 +627,22 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         </div>
 
         {/* City Selector */}
-        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3 flex items-center gap-1.5">
+        <div className={CARD_CLASS}>
+          <p className={SECTION_TITLE_CLASS}>
             <MapPin size={13} aria-hidden="true" /> Your City
           </p>
-          <p className="text-gray-400 text-xs mb-3">
+          <p className="mb-3 text-xs text-chandra-text-secondary">
             Used for accurate moonrise, moonset and Rahu Kaal timings
           </p>
 
           {/* GPS Active Banner */}
           {settings.usingGps && (
-            <div className="flex items-center gap-2 mb-3 px-3 py-2.5 bg-blue-950 border border-blue-800 rounded-xl">
-              <LocateFixed size={13} className="text-blue-400 shrink-0" aria-hidden="true" />
-              <p className="text-blue-300 text-xs flex-1">Using GPS — {settings.city}</p>
+            <div className="mb-3 flex items-center gap-2 rounded-xl border border-chandra-info/35 bg-chandra-info/15 px-3 py-2.5">
+              <LocateFixed size={13} className="shrink-0 text-chandra-info" aria-hidden="true" />
+              <p className="flex-1 text-xs text-chandra-info">Using GPS — {settings.city}</p>
               <button
                 onClick={() => updateSettings('usingGps', false)}
-                className="text-blue-400 text-xs hover:text-blue-300 transition-all min-w-[44px] min-h-[44px] flex items-center justify-end"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-end text-xs text-chandra-focus transition-all hover:underline"
                 aria-label="Stop using GPS location"
               >
                 Change
@@ -645,8 +652,8 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
           {/* GPS Error */}
           {gpsError && (
-            <div role="alert" aria-live="assertive" className="flex items-start gap-2 mb-3 px-3 py-2.5 bg-red-950 border border-red-800 rounded-xl">
-              <p className="text-red-300 text-xs leading-relaxed">{gpsError}</p>
+            <div role="alert" aria-live="assertive" className="mb-3 flex items-start gap-2 rounded-xl border border-chandra-error/40 bg-chandra-error/15 px-3 py-2.5">
+              <p className="text-xs leading-relaxed text-chandra-error">{gpsError}</p>
             </div>
           )}
 
@@ -655,7 +662,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
             onClick={handleUseGps}
             disabled={gpsLoading}
             aria-busy={gpsLoading}
-            className="w-full flex items-center justify-center gap-2 mb-3 px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-sm text-gray-300 hover:border-gray-600 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+            className="mb-3 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-chandra-bg-elevated px-4 py-2.5 text-sm text-chandra-text-secondary transition-all hover:border-white/20 hover:text-chandra-text-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             <LocateFixed size={14} aria-hidden="true" />
             {gpsLoading ? 'Detecting location…' : 'Use my location'}
@@ -677,7 +684,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
             onFocus={() => setShowCityList(true)}
             onBlur={() => setTimeout(() => { setShowCityList(false); setActiveCityIndex(-1) }, 150)}
             onKeyDown={handleCityKeyDown}
-            className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
+            className={INPUT_CLASS}
           />
 
           {/* City Listbox */}
@@ -686,7 +693,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
               id="settings-city-listbox"
               role="listbox"
               aria-label="City suggestions"
-              className="mt-2 bg-gray-800 rounded-xl border border-gray-700 max-h-48 overflow-y-auto"
+              className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-chandra-bg-elevated"
             >
               {filteredCities.length > 0 ? (
                 filteredCities.map((city, i) => (
@@ -696,17 +703,17 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                     role="option"
                     aria-selected={i === activeCityIndex}
                     onMouseDown={() => selectCity(city)}
-                    className={`px-4 py-3 transition-all border-b border-gray-700 last:border-0 cursor-pointer ${
-                      i === activeCityIndex ? 'bg-gray-700' : 'hover:bg-gray-700'
+                    className={`cursor-pointer border-b border-white/10 px-4 py-3 transition-all last:border-0 ${
+                      i === activeCityIndex ? 'bg-chandra-bg-primary' : 'hover:bg-chandra-bg-primary'
                     }`}
                   >
-                    <p className="text-white text-sm font-medium">{city.name}</p>
-                    <p className="text-gray-400 text-xs">{city.state}</p>
+                    <p className="text-sm font-medium text-chandra-text-primary">{city.name}</p>
+                    <p className="text-xs text-chandra-text-secondary">{city.state}</p>
                   </li>
                 ))
               ) : (
                 <li role="option" aria-selected="false" aria-disabled="true"
-                    className="text-gray-400 text-sm px-4 py-3">
+                    className="px-4 py-3 text-sm text-chandra-text-secondary">
                   No cities found
                 </li>
               )}
@@ -716,7 +723,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
           {/* Quick Select Popular Cities */}
           {!showCityList || citySearch.length === 0 ? (
             <div className="mt-3">
-              <p className="text-gray-400 text-xs mb-2">Popular cities:</p>
+              <p className="mb-2 text-xs text-chandra-text-secondary">Popular cities:</p>
               <div className="flex flex-wrap gap-2">
                 {['Bengaluru', 'Mumbai', 'Delhi', 'Chennai', 'Kolkata', 'Hyderabad'].map(name => {
                   const city = cities.find(c => c.name === name)
@@ -724,10 +731,10 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                     <button
                       key={name}
                       onClick={() => city && selectCity(city)}
-                      className={`px-3 py-1 rounded-full text-xs border transition-all ${
+                      className={`${CHIP_CLASS} ${
                         settings.city === name
-                          ? 'bg-yellow-900 border-yellow-600 text-yellow-300'
-                          : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
+                          ? 'border-chandra-gold/60 bg-chandra-gold/15 text-chandra-gold'
+                          : 'border-white/10 bg-chandra-bg-elevated text-chandra-text-secondary hover:border-white/20'
                       }`}
                     >
                       {name}
@@ -740,11 +747,11 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         </div>
 
         {/* Language Selector */}
-        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3 flex items-center gap-1.5">
+        <div className={CARD_CLASS}>
+          <p className={SECTION_TITLE_CLASS}>
             <Globe size={13} aria-hidden="true" /> Language
           </p>
-          <p className="text-gray-400 text-xs mb-3">
+          <p className="mb-3 text-xs text-chandra-text-secondary">
             More languages coming soon
           </p>
           <div className="flex flex-col gap-2">
@@ -759,17 +766,17 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                 onClick={() => handleLanguageChange(lang.code)}
                 disabled={!!lang.disabled}
                 aria-disabled={!!lang.disabled}
-                className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all ${
+                className={`flex items-center justify-between rounded-xl border px-4 py-3 transition-all ${
                   lang.disabled
-                    ? 'opacity-40 border-gray-800 bg-gray-800 cursor-not-allowed'
+                    ? 'cursor-not-allowed border-white/10 bg-chandra-bg-elevated opacity-40'
                     : settings.language === lang.code
-                    ? 'bg-yellow-900 border-yellow-600'
-                    : 'bg-gray-800 border-gray-700 hover:border-gray-600'
+                    ? 'border-chandra-gold/60 bg-chandra-gold/15'
+                    : 'border-white/10 bg-chandra-bg-elevated hover:border-white/20'
                 }`}
               >
-                <span className="text-white text-sm">{lang.native}</span>
+                <span className="text-sm text-chandra-text-primary">{lang.native}</span>
                 {settings.language === lang.code && !lang.disabled && (
-                  <span className="text-yellow-400 text-sm">✓</span>
+                  <CheckCircle2 size={16} strokeWidth={1.8} aria-hidden="true" className="text-chandra-gold" />
                 )}
               </button>
             ))}
@@ -777,21 +784,21 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         </div>
 
         {/* Calendar System */}
-        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
+        <div className={CARD_CLASS}>
           <div className="flex items-center justify-between gap-3 mb-3">
-            <p className="text-yellow-500 text-xs uppercase tracking-widest flex items-center gap-1.5">
+            <p className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-chandra-gold">
               <CalendarIcon size={13} aria-hidden="true" /> Calendar System
             </p>
             <button
               type="button"
               onClick={() => onLearn?.('calendar-system')}
               aria-label="Learn about calendar systems"
-              className="w-11 h-11 -my-2 rounded-xl flex items-center justify-center text-yellow-300 hover:bg-yellow-400/10 active:bg-yellow-400/15 shrink-0"
+              className="-my-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15"
             >
               <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" />
             </button>
           </div>
-          <p className="text-gray-400 text-xs mb-4">
+          <p className="mb-4 text-xs text-chandra-text-secondary">
             Choose the lunar calendar tradition followed in your region
           </p>
           <div className="flex flex-col gap-3">
@@ -812,36 +819,36 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
               <button
                 key={system.code}
                 onClick={() => handleCalendarChange(system.code)}
-                className={`text-left px-4 py-4 rounded-xl border transition-all ${
+                className={`rounded-xl border px-4 py-4 text-left transition-all ${
                   settings.calendarSystem === system.code
-                    ? 'bg-yellow-900 border-yellow-600'
-                    : 'bg-gray-800 border-gray-700 hover:border-gray-600'
+                    ? 'border-chandra-gold/60 bg-chandra-gold/15'
+                    : 'border-white/10 bg-chandra-bg-elevated hover:border-white/20'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-white text-sm font-semibold">{system.label}</p>
+                  <p className="text-sm font-semibold text-chandra-text-primary">{system.label}</p>
                   {settings.calendarSystem === system.code && (
-                    <span className="text-yellow-400 text-sm">✓</span>
+                    <CheckCircle2 size={16} strokeWidth={1.8} aria-hidden="true" className="text-chandra-gold" />
                   )}
                 </div>
-                <p className="text-yellow-400 text-xs mb-2">{system.tag}</p>
-                <p className="text-gray-400 text-xs leading-relaxed">{system.desc}</p>
+                <p className="mb-2 text-xs text-chandra-gold">{system.tag}</p>
+                <p className="text-xs leading-relaxed text-chandra-text-secondary">{system.desc}</p>
               </button>
             ))}
           </div>
         </div>
 
         {/* Push Notifications */}
-        <div className="bg-gray-900 rounded-2xl p-5 border border-yellow-900">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3 flex items-center gap-1.5">
+        <div className={FEATURED_CARD_CLASS}>
+          <p className={SECTION_TITLE_CLASS}>
             <Bell size={13} aria-hidden="true" /> Push Notifications
           </p>
 
           {/* Permission denied state */}
           {notifPermission === 'denied' && (
-            <div className="bg-red-950 border border-red-800 rounded-xl p-4 mb-3">
-              <p className="text-red-300 text-sm font-medium mb-1">Notifications blocked</p>
-              <p className="text-red-400 text-xs leading-relaxed">
+            <div className="mb-3 rounded-xl border border-chandra-error/40 bg-chandra-error/15 p-4">
+              <p className="mb-1 text-sm font-medium text-chandra-error">Notifications blocked</p>
+              <p className="text-xs leading-relaxed text-chandra-text-secondary">
                 You've blocked notifications for this site. To enable them, open your browser's
                 site settings and allow notifications for Chandra, then return here.
               </p>
@@ -850,13 +857,13 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
           {/* Permission not yet asked */}
           {notifPermission === 'default' && (
-            <div className="bg-yellow-950 border border-yellow-800 rounded-xl px-4 py-3 mb-4 flex items-center justify-between gap-3">
-              <p className="text-yellow-200 text-xs leading-relaxed flex-1">
+            <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-chandra-gold/35 bg-chandra-gold/15 px-4 py-3">
+              <p className="flex-1 text-xs leading-relaxed text-chandra-text-primary">
                 Allow Chandra to send festival and eclipse alerts to this device.
               </p>
               <button
                 onClick={requestPermission}
-                className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold text-xs px-4 py-2 rounded-lg shrink-0 transition-all"
+                className="shrink-0 rounded-lg bg-chandra-gold px-4 py-2 text-xs font-bold text-chandra-text-inverse transition-all hover:bg-chandra-gold-hover"
               >
                 Allow
               </button>
@@ -865,9 +872,9 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
           {/* Permission granted — green confirmation */}
           {notifPermission === 'granted' && (
-            <div className="bg-green-950 border border-green-800 rounded-xl px-4 py-2.5 mb-3 flex items-center gap-2">
-              <span className="text-green-400 text-sm">✓</span>
-              <p className="text-green-300 text-xs">Notifications enabled for this device</p>
+            <div className="mb-3 flex items-center gap-2 rounded-xl border border-chandra-success/35 bg-chandra-success/15 px-4 py-2.5">
+              <CheckCircle2 size={16} strokeWidth={1.8} aria-hidden="true" className="text-chandra-success" />
+              <p className="text-xs text-chandra-success">Notifications enabled for this device</p>
             </div>
           )}
 
@@ -875,18 +882,18 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
           {/* Master toggle + sub-toggles — locked until permission granted */}
           <div className={notifPermission !== 'granted' ? 'opacity-30 pointer-events-none' : ''}>
             {notifPermission !== 'granted' && (
-              <p className="text-gray-400 text-xs mb-3 flex items-center gap-1.5">
-                <span>🔒</span> Grant permission above to configure alerts
+              <p className="mb-3 flex items-center gap-1.5 text-xs text-chandra-text-secondary">
+                <LockKeyhole size={13} strokeWidth={1.75} aria-hidden="true" /> Grant permission above to configure alerts
               </p>
             )}
 
             {/* Master toggle */}
-            <div className="flex items-center justify-between py-2 border-b border-gray-800">
-              <span className="text-white text-sm">Enable all alerts</span>
+            <div className="flex items-center justify-between border-b border-white/10 py-2">
+              <span className="text-sm text-chandra-text-primary">Enable all alerts</span>
               <Toggle on={notifEnabled} onToggle={() => toggleNotifMaster(!notifEnabled)} label="Enable all alerts" />
             </div>
             {!notifEnabled && notifPermission === 'granted' && (
-              <p className="text-gray-400 text-xs leading-relaxed mt-2 mb-1">
+              <p className="mb-1 mt-2 text-xs leading-relaxed text-chandra-text-secondary">
                 Alerts paused. To fully revoke, open your browser's site settings and block notifications for Chandra.
               </p>
             )}
@@ -899,10 +906,10 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                 { key: 'moonrise', label: 'Moonrise reminder',   hint: '30 min before moonrise' },
                 { key: 'ekadashi', label: 'Ekadashi & Pradosh',  hint: 'Evening before' },
               ].map(({ key, label, hint }) => (
-                <div key={key} className="flex items-center justify-between py-2.5 pl-3 border-b border-gray-800 last:border-0">
+                <div key={key} className="flex items-center justify-between border-b border-white/10 py-2.5 pl-3 last:border-0">
                   <div>
-                    <p className="text-gray-200 text-sm">{label}</p>
-                    <p className="text-gray-400 text-xs">{hint}</p>
+                    <p className="text-sm text-chandra-text-primary">{label}</p>
+                    <p className="text-xs text-chandra-text-secondary">{hint}</p>
                   </div>
                   <Toggle on={notifPrefs[key]} onToggle={() => toggleNotifPref(key)} label={label} size="sm" />
                 </div>
@@ -913,11 +920,11 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
         {/* Email Alerts — hidden until ENABLE_SUBSCRIPTIONS is enabled */}
         {ENABLE_SUBSCRIPTIONS && onOpenSubscribe && (
-        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-1 flex items-center gap-1.5">
+        <div className={CARD_CLASS}>
+          <p className="mb-1 flex items-center gap-1.5 text-xs uppercase tracking-widest text-chandra-gold">
             <Mail size={13} aria-hidden="true" /> Email Alerts
           </p>
-          <p className="text-gray-400 text-xs mb-4 leading-relaxed">
+          <p className="mb-4 text-xs leading-relaxed text-chandra-text-secondary">
             Rich festival guides with stories, puja timings and moonrise times for {settings.city}.
           </p>
 
@@ -925,21 +932,21 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
             <>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <p className="text-white text-sm font-medium">
+                  <p className="text-sm font-medium text-chandra-text-primary">
                     {subscription.name ? `Hi, ${subscription.name}` : 'Subscribed'}
                   </p>
-                  <p className="text-green-400 text-xs mt-0.5">✓ {subscription.email}</p>
+                  <p className="mt-0.5 text-xs text-chandra-success">{subscription.email}</p>
                 </div>
                 <button
                   onClick={onOpenSubscribe}
-                  className="text-yellow-400 text-sm font-medium px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all"
+                  className="rounded-lg bg-chandra-bg-elevated px-3 py-1.5 text-sm font-medium text-chandra-gold transition-all hover:bg-chandra-bg-primary"
                 >
                   Manage
                 </button>
               </div>
 
               {/* Frequency chips */}
-              <p className="text-gray-400 text-xs mb-2">Send me guides for</p>
+              <p className="mb-2 text-xs text-chandra-text-secondary">Send me guides for</p>
               <div className="flex gap-2 flex-wrap">
                 {[
                   { value: 'all',     label: 'All festivals' },
@@ -949,10 +956,10 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                   <button
                     key={value}
                     onClick={() => updateFrequency(value)}
-                    className={`px-3 py-1.5 rounded-full text-xs border transition-all ${
+                    className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
                       (subscription.emailFrequency || 'all') === value
-                        ? 'bg-yellow-900 border-yellow-600 text-yellow-300'
-                        : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'
+                        ? 'border-chandra-gold/60 bg-chandra-gold/15 text-chandra-gold'
+                        : 'border-white/10 bg-chandra-bg-elevated text-chandra-text-secondary hover:border-white/20'
                     }`}
                   >
                     {label}
@@ -962,12 +969,12 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
             </>
           ) : (
             <div className="flex items-center justify-between">
-              <p className="text-gray-400 text-sm leading-relaxed flex-1 mr-4">
+              <p className="mr-4 flex-1 text-sm leading-relaxed text-chandra-text-secondary">
                 Subscribe to get personalised festival guides in your inbox.
               </p>
               <button
                 onClick={onOpenSubscribe}
-                className="bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold px-4 py-2 rounded-xl text-sm transition-all shrink-0"
+                className="shrink-0 rounded-xl bg-chandra-gold px-4 py-2 text-sm font-bold text-chandra-text-inverse transition-all hover:bg-chandra-gold-hover"
               >
                 Subscribe
               </button>
@@ -977,34 +984,34 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         )}
 
         {/* About */}
-        <div className="bg-gray-900 rounded-2xl p-5 border border-gray-800">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">About</p>
+        <div className={CARD_CLASS}>
+          <p className="mb-3 text-xs uppercase tracking-widest text-chandra-gold">About</p>
           <div className="flex flex-col gap-2">
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm">App</span>
-              <span className="text-white text-sm">Chandra</span>
+              <span className="text-sm text-chandra-text-secondary">App</span>
+              <span className="text-sm text-chandra-text-primary">Chandra</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm">Version</span>
-              <span className="text-white text-sm">1.0.0 MVP</span>
+              <span className="text-sm text-chandra-text-secondary">Version</span>
+              <span className="text-sm text-chandra-text-primary">1.0.0 MVP</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm">Data source</span>
-              <span className="text-white text-sm">NASA Astronomy Engine</span>
+              <span className="text-sm text-chandra-text-secondary">Data source</span>
+              <span className="text-sm text-chandra-text-primary">NASA Astronomy Engine</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-400 text-sm">Calculations</span>
-              <span className="text-white text-sm">On-device, no API</span>
+              <span className="text-sm text-chandra-text-secondary">Calculations</span>
+              <span className="text-sm text-chandra-text-primary">On-device, no API</span>
             </div>
             <a
               href="/privacy.html"
-              className="flex justify-between items-center min-h-[44px] pt-2 mt-1 border-t border-gray-800 text-sm group"
+              className="group mt-1 flex min-h-[44px] items-center justify-between border-t border-white/10 pt-2 text-sm"
             >
-              <span className="text-gray-400 flex items-center gap-1">
+              <span className="flex items-center gap-1 text-chandra-text-secondary">
                 <ShieldCheck size={13} aria-hidden="true" />
                 Privacy Policy
               </span>
-              <span className="text-[#8EA8FF] group-hover:underline">View</span>
+              <span className="text-chandra-focus group-hover:underline">View</span>
             </a>
           </div>
         </div>
@@ -1016,46 +1023,39 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
 // Slides in from the top like a real Android notification banner
 const NotificationPreview = ({ visible, onDismiss }) => (
-  <div role="alert" aria-live="assertive" style={{
-    position: 'fixed',
-    top: visible ? '64px' : '-140px',
-    left: '12px',
-    right: '12px',
-    zIndex: 999,
-    transition: 'top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-    background: '#1e1e30',
-    border: '0.5px solid #3a3a5c',
-    borderRadius: '16px',
-    padding: '12px 14px',
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: '10px',
-    maxWidth: '480px',
-    margin: '0 auto',
-  }}>
+  <div
+    role="alert"
+    aria-live="assertive"
+    aria-hidden={visible ? undefined : 'true'}
+    {...(!visible && { inert: '' })}
+    className={`fixed left-3 right-3 top-16 z-[999] mx-auto flex max-w-[480px] items-start gap-2.5 rounded-2xl border border-white/10 bg-chandra-bg-elevated px-3.5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.45)] transition-transform duration-300 ${
+      visible ? 'translate-y-0' : 'pointer-events-none -translate-y-56'
+    }`}
+  >
     <img
       src="/icons/chandra-mark-topbar-96.png"
       alt=""
       style={{ width: 36, height: 36, borderRadius: 8, flexShrink: 0 }}
     />
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-        <span style={{ fontSize: 11, color: '#9ca3af', fontWeight: 500 }}>Chandra</span>
-        <span style={{ fontSize: 11, color: '#9ca3af' }}>now</span>
+    <div className="min-w-0 flex-1">
+      <div className="mb-0.5 flex justify-between">
+        <span className="text-[11px] font-medium text-chandra-text-secondary">Chandra</span>
+        <span className="text-[11px] text-chandra-text-secondary">now</span>
       </div>
-      <p style={{ fontSize: 13, color: '#ffffff', fontWeight: 500, margin: '0 0 3px' }}>
+      <p className="mb-0.5 text-[13px] font-medium text-chandra-text-primary">
         🌙 Chandra alerts are on
       </p>
-      <p style={{ fontSize: 12, color: '#9ca3af', margin: 0, lineHeight: 1.5 }}>
+      <p className="text-xs leading-relaxed text-chandra-text-secondary">
         You'll get festival and eclipse alerts right here. Namaste! 🙏
       </p>
     </div>
     <button
       onClick={onDismiss}
-      style={{ background: 'none', border: 'none', color: '#9ca3af',
-        cursor: 'pointer', fontSize: 16, padding: '0 0 0 4px', flexShrink: 0 }}
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-chandra-text-secondary hover:bg-chandra-bg-primary hover:text-chandra-text-primary"
       aria-label="Dismiss"
-    >✕</button>
+    >
+      <X size={16} strokeWidth={1.75} aria-hidden="true" />
+    </button>
   </div>
 )
 
