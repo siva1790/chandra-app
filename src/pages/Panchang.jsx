@@ -679,10 +679,10 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
       {/* Header */}
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-yellow-300 mb-1 flex items-center justify-center gap-2">
+        <h1 className="mb-1 flex items-center justify-center gap-2 text-2xl font-bold text-chandra-gold">
           <Clock size={22} aria-hidden="true" strokeWidth={1.75} /> Panchang
         </h1>
-        <p className="text-gray-400 text-sm">Daily Hindu Almanac</p>
+        <p className="text-sm text-chandra-text-secondary">Daily Hindu Almanac</p>
       </div>
 
       {/* Date Navigator */}
@@ -693,23 +693,23 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
           {/* ── Eclipse Banner (always visible, outside accordions) ── */}
           {panchang.eclipse && (
-            <div className="bg-indigo-950 border border-indigo-600 rounded-2xl p-5">
+            <div className="rounded-2xl border border-chandra-focus/35 bg-chandra-indigo-cta/20 p-5">
               <div className="flex items-center gap-4">
                 <EclipseIcon eclipse={panchang.eclipse} size={44} />
                 <div className="flex-1">
-                  <p className="text-indigo-200 font-bold text-base">{panchang.eclipse.hinduName}</p>
-                  <p className="text-indigo-400 text-xs mt-0.5">{eclipseTypeLabel(panchang.eclipse)}</p>
-                  <p className="text-indigo-300 text-sm mt-1.5 font-medium">
+                  <p className="text-base font-bold text-chandra-text-primary">{panchang.eclipse.hinduName}</p>
+                  <p className="mt-0.5 text-xs text-chandra-focus">{eclipseTypeLabel(panchang.eclipse)}</p>
+                  <p className="mt-1.5 text-sm font-medium text-chandra-text-primary">
                     Peak: {panchang.eclipse.peakTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })} IST
                   </p>
                   {lunarTotalityLabel(panchang.eclipse) && (
-                    <p className="text-indigo-400 text-xs mt-0.5">{lunarTotalityLabel(panchang.eclipse)}</p>
+                    <p className="mt-0.5 text-xs text-chandra-focus">{lunarTotalityLabel(panchang.eclipse)}</p>
                   )}
                   {panchang.eclipse.type === 'lunar' && (
-                    <p className="text-indigo-500 text-xs mt-1.5 leading-relaxed">Avoid starting auspicious work during the eclipse. Prayer, mantra and post-eclipse ritual bath are traditionally observed.</p>
+                    <p className="mt-1.5 text-xs leading-relaxed text-chandra-text-secondary">Avoid starting auspicious work during the eclipse. Prayer, mantra and post-eclipse ritual bath are traditionally observed.</p>
                   )}
                   {panchang.eclipse.type === 'solar' && (
-                    <p className="text-indigo-500 text-xs mt-1.5 leading-relaxed">Surya Grahan — avoid eating during the eclipse period. Chant mantras and pray.</p>
+                    <p className="mt-1.5 text-xs leading-relaxed text-chandra-text-secondary">Surya Grahan — avoid eating during the eclipse period. Chant mantras and pray.</p>
                   )}
                 </div>
               </div>
@@ -718,32 +718,32 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
           {/* ── Special Day Banners (always visible) ── */}
           {panchang.isPurnima && (
-            <div className="bg-yellow-950 border border-yellow-600 rounded-2xl p-4 text-center">
-              <p className="text-yellow-300 font-semibold"><span role="img" aria-label="Full moon">🌕</span> Purnima — Full Moon Day</p>
-              <p className="text-yellow-500 text-xs mt-1">Auspicious for prayer, charity, fasting and full-moon observance</p>
+            <div className="rounded-2xl border border-chandra-gold/35 bg-chandra-gold/15 p-4 text-center">
+              <p className="font-semibold text-chandra-gold"><span role="img" aria-label="Full moon">🌕</span> Purnima — Full Moon Day</p>
+              <p className="mt-1 text-xs text-chandra-text-secondary">Auspicious for prayer, charity, fasting and full-moon observance</p>
             </div>
           )}
           {panchang.isAmavasya && (
-            <div className="bg-indigo-950 border border-indigo-600 rounded-2xl p-4 text-center">
-              <p className="text-indigo-300 font-semibold"><span role="img" aria-label="New moon">🌑</span> Amavasya — New Moon Day</p>
-              <p className="text-indigo-400 text-xs mt-1">Sacred for ancestral offerings (Pitru Tarpan)</p>
+            <div className="rounded-2xl border border-chandra-focus/35 bg-chandra-indigo-cta/20 p-4 text-center">
+              <p className="font-semibold text-chandra-focus"><span role="img" aria-label="New moon">🌑</span> Amavasya — New Moon Day</p>
+              <p className="mt-1 text-xs text-chandra-text-secondary">Sacred for ancestral offerings (Pitru Tarpan)</p>
             </div>
           )}
           {panchang.isEkadashi && (
-            <div className="bg-orange-950 border border-orange-600 rounded-2xl p-4 text-center">
-              <p className="text-orange-300 font-semibold"><span role="img" aria-label="Folded hands">🙏</span> Ekadashi — Fasting Day</p>
-              <p className="text-orange-400 text-xs mt-1">Dedicated to Lord Vishnu — avoid grains today</p>
+            <div className="rounded-2xl border border-chandra-warning/30 bg-chandra-warning/15 p-4 text-center">
+              <p className="font-semibold text-chandra-warning-text"><span role="img" aria-label="Folded hands">🙏</span> Ekadashi — Fasting Day</p>
+              <p className="mt-1 text-xs text-chandra-text-secondary">Dedicated to Lord Vishnu — avoid grains today</p>
             </div>
           )}
           {panchang.isVishti && (
-            <div className="bg-red-950 border border-red-800 rounded-2xl p-4 text-center">
-              <p className="text-red-400 font-semibold"><span role="img" aria-label="Warning">⚠️</span> Bhadra / Vishti Karana Active</p>
+            <div className="rounded-2xl border border-chandra-error/40 bg-chandra-error/15 p-4 text-center">
+              <p className="font-semibold text-chandra-error"><span role="img" aria-label="Warning">⚠️</span> Bhadra / Vishti Karana Active</p>
               {panchang.vishtiPeriods?.length > 0 && (
-                <p className="text-red-300 text-xs mt-1 font-medium">
+                <p className="mt-1 text-xs font-medium text-chandra-text-primary">
                   {panchang.vishtiPeriods.map(k => formatWindow(k.start, k.end)).join(', ')}
                 </p>
               )}
-              <p className="text-red-500 text-xs mt-1 leading-relaxed">Avoid starting new auspicious work during this Karana. Prayer, fasting and charity observances still apply.</p>
+              <p className="mt-1 text-xs leading-relaxed text-chandra-text-secondary">Avoid starting new auspicious work during this Karana. Prayer, fasting and charity observances still apply.</p>
             </div>
           )}
 
@@ -751,7 +751,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           <div className="flex justify-end">
             <button
               onClick={toggleAll}
-              className="text-yellow-500 text-xs underline underline-offset-2 px-2 py-1 min-h-[44px] flex items-center"
+              className="flex min-h-[44px] items-center px-2 py-1 text-xs text-chandra-gold underline underline-offset-2"
             >
               {allExpanded ? 'Collapse All' : 'Expand All'}
             </button>
@@ -766,20 +766,20 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
             learnLabel="Learn about Pancha Anga"
           >
             <div className="flex flex-col gap-3">
-              <div className="py-2 border-b border-gray-800">
+              <div className="border-b border-white/10 py-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Moon size={16} aria-hidden="true" strokeWidth={1.75} className="text-gray-400 shrink-0" />
-                    <span className="text-gray-400 text-sm">Tithi</span>
+                    <Moon size={16} aria-hidden="true" strokeWidth={1.75} className="shrink-0 text-chandra-text-secondary" />
+                    <span className="text-sm text-chandra-text-secondary">Tithi</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-white">{panchang.tithi}</p>
-                    <p className="text-gray-400 text-xs">{panchang.paksha}</p>
+                    <p className="text-sm font-semibold text-chandra-text-primary">{panchang.tithi}</p>
+                    <p className="text-xs text-chandra-text-secondary">{panchang.paksha}</p>
                   </div>
                 </div>
                 {panchang.tithiWindow?.start && panchang.tithiWindow?.end && (
-                  <div className="ml-6 mt-2 bg-gray-800 rounded-xl px-3 py-2">
-                    <p className="text-yellow-300 text-xs font-medium">
+                  <div className="ml-6 mt-2 rounded-xl bg-chandra-bg-elevated px-3 py-2">
+                    <p className="text-xs font-medium text-chandra-gold">
                       {formatTime(panchang.tithiWindow.start)}, {formatShortDate(panchang.tithiWindow.start)}
                       {' → '}
                       {formatTime(panchang.tithiWindow.end)}, {formatShortDate(panchang.tithiWindow.end)}
@@ -789,18 +789,18 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
               </div>
 
               {panchang.nakshatraList?.length > 0 ? (
-                <div className="py-2 border-b border-gray-800">
+                <div className="border-b border-white/10 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <Star size={16} aria-hidden="true" strokeWidth={1.75} className="text-gray-400 shrink-0" />
-                    <span className="text-gray-400 text-sm">Nakshatra</span>
+                    <Star size={16} aria-hidden="true" strokeWidth={1.75} className="shrink-0 text-chandra-text-secondary" />
+                    <span className="text-sm text-chandra-text-secondary">Nakshatra</span>
                   </div>
                   {panchang.nakshatraList.map((n, i) => (
-                    <div key={i} className="ml-6 mb-2 bg-gray-800 rounded-xl px-3 py-2">
+                    <div key={i} className="mb-2 ml-6 rounded-xl bg-chandra-bg-elevated px-3 py-2">
                       <div className="flex items-center justify-between mb-1">
-                        <p className="text-white text-sm font-semibold">{n.name}</p>
-                        <p className="text-gray-400 text-xs">Pada {n.pada}</p>
+                        <p className="text-sm font-semibold text-chandra-text-primary">{n.name}</p>
+                        <p className="text-xs text-chandra-text-secondary">Pada {n.pada}</p>
                       </div>
-                      <p className="text-yellow-300 text-xs font-medium">
+                      <p className="text-xs font-medium text-chandra-gold">
                         {formatTime(n.start)}, {formatShortDate(n.start)}
                         {' → '}
                         {formatTime(n.end)}, {formatShortDate(n.end)}
@@ -813,15 +813,15 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
               )}
 
               {panchang.yogaList?.length > 0 ? (
-                <div className="py-2 border-b border-gray-800">
+                <div className="border-b border-white/10 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <Clock size={16} aria-hidden="true" strokeWidth={1.75} className="text-gray-400 shrink-0" />
-                    <span className="text-gray-400 text-sm">Yoga</span>
+                    <Clock size={16} aria-hidden="true" strokeWidth={1.75} className="shrink-0 text-chandra-text-secondary" />
+                    <span className="text-sm text-chandra-text-secondary">Yoga</span>
                   </div>
                   {panchang.yogaList.map((y, i) => (
-                    <div key={i} className="ml-6 mb-2 bg-gray-800 rounded-xl px-3 py-2">
-                      <p className="text-white text-sm font-semibold mb-1">{y.name}</p>
-                      <p className="text-yellow-300 text-xs font-medium">
+                    <div key={i} className="mb-2 ml-6 rounded-xl bg-chandra-bg-elevated px-3 py-2">
+                      <p className="mb-1 text-sm font-semibold text-chandra-text-primary">{y.name}</p>
+                      <p className="text-xs font-medium text-chandra-gold">
                         {formatTime(y.start)}, {formatShortDate(y.start)}
                         {' → '}
                         {formatTime(y.end)}, {formatShortDate(y.end)}
@@ -833,15 +833,15 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                 <PanchangRow icon={Clock} label="Yoga" value={panchang.yoga} />
               )}
               {panchang.karanaList?.length > 0 ? (
-                <div className="py-2 border-b border-gray-800">
+                <div className="border-b border-white/10 py-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-gray-400 text-sm font-semibold w-5 text-center shrink-0" aria-hidden="true">½</span>
-                    <span className="text-gray-400 text-sm">Karana</span>
+                    <span className="w-5 shrink-0 text-center text-sm font-semibold text-chandra-text-secondary" aria-hidden="true">½</span>
+                    <span className="text-sm text-chandra-text-secondary">Karana</span>
                   </div>
                   {panchang.karanaList.map((k, i) => (
-                    <div key={i} className="ml-6 mb-2 bg-gray-800 rounded-xl px-3 py-2">
-                      <p className="text-white text-sm font-semibold mb-1">{k.name}</p>
-                      <p className="text-yellow-300 text-xs font-medium">
+                    <div key={i} className="mb-2 ml-6 rounded-xl bg-chandra-bg-elevated px-3 py-2">
+                      <p className="mb-1 text-sm font-semibold text-chandra-text-primary">{k.name}</p>
+                      <p className="text-xs font-medium text-chandra-gold">
                         {formatTime(k.start)}, {formatShortDate(k.start)}
                         {' → '}
                         {formatTime(k.end)}, {formatShortDate(k.end)}
@@ -883,16 +883,16 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
             <div className="flex flex-col gap-4">
               {panchang.nakshatraList?.map((n, i) => (
                 <div key={i}>
-                  <p className="text-yellow-400 text-xs font-medium mb-2">
+                  <p className="mb-2 text-xs font-medium text-chandra-gold">
                     {n.name}
                     {panchang.nakshatraList.length > 1
                       ? ` · ${formatTime(n.start)}, ${formatShortDate(n.start)} – ${formatTime(n.end)}, ${formatShortDate(n.end)}`
                       : " — Today's Nakshatra"
                     }
                   </p>
-                  <p className="text-gray-300 text-sm leading-relaxed">{getNakshatraDescription(n.name)}</p>
+                  <p className="text-sm leading-relaxed text-chandra-text-primary">{getNakshatraDescription(n.name)}</p>
                   {i < panchang.nakshatraList.length - 1 && (
-                    <div className="border-t border-gray-800 mt-4" />
+                    <div className="mt-4 border-t border-white/10" />
                   )}
                 </div>
               ))}
@@ -943,7 +943,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
             onLearn={() => onLearn?.('navagraha')}
             learnLabel="Learn about Navagraha"
           >
-            <p className="text-gray-400 text-xs mb-3">Sidereal longitudes (Lahiri Ayanamsha) at sunrise</p>
+            <p className="mb-3 text-xs text-chandra-text-secondary">Sidereal longitudes (Lahiri Ayanamsha) at sunrise</p>
             <div className="flex flex-col">
               {[
                 { symbol: '☀',  name: 'Sun',     sanskrit: 'Surya',      lon: panchang.navagraha.Sun     },
@@ -956,15 +956,15 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                 { symbol: '☊',  name: 'Rahu',    sanskrit: 'North Node', lon: panchang.navagraha.Rahu    },
                 { symbol: '☋',  name: 'Ketu',    sanskrit: 'South Node', lon: panchang.navagraha.Ketu    },
               ].map(({ symbol, name, sanskrit, lon }) => (
-                <div key={name} className="flex items-center justify-between py-2 border-b border-gray-800 last:border-0">
+                <div key={name} className="flex items-center justify-between border-b border-white/10 py-2 last:border-0">
                   <div className="flex items-center gap-2">
                     <span className="text-base w-5 text-center leading-none" aria-hidden="true">{symbol}</span>
                     <div>
-                      <span className="text-gray-300 text-sm">{name}</span>
-                      <span className="text-gray-400 text-xs ml-1.5">({sanskrit})</span>
+                      <span className="text-sm text-chandra-text-primary">{name}</span>
+                      <span className="ml-1.5 text-xs text-chandra-text-secondary">({sanskrit})</span>
                     </div>
                   </div>
-                  <p className="text-white text-sm font-medium tabular-nums">{formatLongitude(lon)}</p>
+                  <p className="text-sm font-medium tabular-nums text-chandra-text-primary">{formatLongitude(lon)}</p>
                 </div>
               ))}
             </div>
@@ -973,19 +973,19 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           <button
             type="button"
             onClick={() => onLearn?.('basics')}
-            className="w-full flex items-center justify-between gap-3 bg-gray-900 rounded-2xl p-5 border border-gray-800 text-left group min-h-[64px]"
+            className="group flex min-h-[64px] w-full items-center justify-between gap-3 rounded-2xl border border-white/10 bg-chandra-bg-surface p-5 text-left transition-all hover:border-chandra-gold/35 active:bg-chandra-bg-elevated"
           >
-            <span className="flex items-center gap-2 text-gray-300 text-sm font-medium">
-              <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" className="text-yellow-500 shrink-0" />
+            <span className="flex items-center gap-2 text-sm font-medium text-chandra-text-primary">
+              <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" className="shrink-0 text-chandra-gold" />
               Learn Panchang basics
             </span>
-            <span className="text-[#8EA8FF] text-sm group-hover:underline shrink-0">Open</span>
+            <span className="shrink-0 text-sm text-chandra-focus group-hover:underline">Open</span>
           </button>
 
         </div>
       ) : (
-        <div aria-live="polite" aria-busy="true" className="text-center text-gray-400 mt-20">
-          <Clock size={36} aria-hidden="true" strokeWidth={1.25} className="mx-auto mb-4 text-yellow-800" />
+        <div aria-live="polite" aria-busy="true" className="mt-20 text-center text-chandra-text-secondary">
+          <Clock size={36} aria-hidden="true" strokeWidth={1.25} className="mx-auto mb-4 text-chandra-gold/45" />
           <p>Calculating Panchang...</p>
         </div>
       )}
@@ -996,21 +996,21 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 // ── Sub-components ────────────────────────────────────────────────
 
 const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, children }) => (
-  <div className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
-    <div className="flex items-center px-5 py-2 min-h-[60px]">
+  <div className="overflow-hidden rounded-2xl border border-white/10 bg-chandra-bg-surface">
+    <div className="flex min-h-[60px] items-center px-5 py-2">
       <button
         onClick={onToggle}
         aria-expanded={isOpen}
-        className="flex-1 min-w-0 text-left py-2 pr-2 rounded-lg"
+        className="min-w-0 flex-1 rounded-lg py-2 pr-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
       >
-        <p className="text-yellow-500 text-xs uppercase tracking-widest leading-snug">{title}</p>
+        <p className="text-xs uppercase tracking-widest leading-snug text-chandra-gold">{title}</p>
       </button>
       {onLearn && (
         <button
           type="button"
           onClick={onLearn}
           aria-label={learnLabel || `Learn about ${title}`}
-          className="w-11 h-11 rounded-xl flex items-center justify-center text-yellow-300 hover:bg-yellow-400/10 active:bg-yellow-400/15 shrink-0"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
         >
           <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" />
         </button>
@@ -1019,13 +1019,13 @@ const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, childr
         type="button"
         onClick={onToggle}
         aria-label={isOpen ? `Collapse ${title}` : `Expand ${title}`}
-        className="w-11 h-11 rounded-xl flex items-center justify-center hover:bg-gray-800 active:bg-gray-800 shrink-0"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl hover:bg-chandra-bg-elevated active:bg-chandra-bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
       >
         <ChevronDown
           size={16}
           strokeWidth={1.75}
           aria-hidden="true"
-          className={`text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`text-chandra-text-secondary transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
     </div>
@@ -1038,17 +1038,17 @@ const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, childr
 )
 
 const PanchangRow = ({ icon: Icon, label, value, sub, highlight }) => (
-  <div className="flex items-center justify-between py-2 border-b border-gray-800 last:border-0">
+  <div className="flex items-center justify-between border-b border-white/10 py-2 last:border-0">
     <div className="flex items-center gap-2">
       {typeof Icon === 'string'
         ? <span className="text-base" aria-hidden="true">{Icon}</span>
-        : <Icon size={16} aria-hidden="true" strokeWidth={1.75} className="text-gray-400 shrink-0" />
+        : <Icon size={16} aria-hidden="true" strokeWidth={1.75} className="shrink-0 text-chandra-text-secondary" />
       }
-      <span className="text-gray-400 text-sm">{label}</span>
+      <span className="text-sm text-chandra-text-secondary">{label}</span>
     </div>
     <div className="text-right">
-      <p className={`text-sm font-semibold ${highlight === 'red' ? 'text-red-400' : 'text-white'}`}>{value}</p>
-      {sub && <p className="text-gray-400 text-xs">{sub}</p>}
+      <p className={`text-sm font-semibold ${highlight === 'red' ? 'text-chandra-error' : 'text-chandra-text-primary'}`}>{value}</p>
+      {sub && <p className="text-xs text-chandra-text-secondary">{sub}</p>}
     </div>
   </div>
 )
