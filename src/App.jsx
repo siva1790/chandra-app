@@ -8,7 +8,6 @@ import Learn from './pages/Learn'
 import { useSettings } from './SettingsContext'
 import { useSubscription } from './SubscriptionContext'
 import { ENABLE_SUBSCRIPTIONS } from './featureFlags'
-import InstallPrompt from './components/InstallPrompt'
 import SubscribeSheet from './components/SubscribeSheet'
 import OfflineBanner from './components/OfflineBanner'
 import { trackPageView } from './analytics'
@@ -195,7 +194,6 @@ function App() {
         aria-hidden={sheetOpen || undefined}
         {...(sheetOpen ? { inert: '' } : {})}
       >
-        <InstallPrompt />
         <div style={{ display: screen === 'home'     ? 'block' : 'none' }}><Home location={settings} date={globalDate} onDateChange={setGlobalDate} onNavigateToPanchang={navigateToPanchang} onNavigateToSettings={navigateToSettingsFromPersonalize} /></div>
         <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} onLearn={navigateToLearn} /></div>

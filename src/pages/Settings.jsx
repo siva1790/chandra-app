@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSettings } from '../SettingsContext'
 import { useProfile } from '../ProfileContext'
 import { useSubscription } from '../SubscriptionContext'
-import { ENABLE_SUBSCRIPTIONS } from '../featureFlags'
+import { ENABLE_PUSH_NOTIFICATIONS, ENABLE_SUBSCRIPTIONS } from '../featureFlags'
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
@@ -80,6 +80,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
   // Refresh FCM device registration whenever city changes (or on first mount if
   // notifications are already enabled). This keeps the backend's city/lat/lon current.
   useEffect(() => {
+    if (!ENABLE_PUSH_NOTIFICATIONS) return
     if (notifPermission === 'granted' && notifEnabled) {
       initDevice(settings.city, settings.lat, settings.lon, notifPrefs, settings.calendarSystem).catch(() => {})
     }
@@ -363,7 +364,9 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
   return (
     <div className="min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
 
-      <NotificationPreview visible={showPreview} onDismiss={() => setShowPreview(false)} />
+      {ENABLE_PUSH_NOTIFICATIONS && (
+        <NotificationPreview visible={showPreview} onDismiss={() => setShowPreview(false)} />
+      )}
 
       {/* Header */}
       <div className="text-center mb-6">
@@ -838,7 +841,8 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
           </div>
         </div>
 
-        {/* Push Notifications */}
+        {/* Push Notifications — hidden until ENABLE_PUSH_NOTIFICATIONS is enabled */}
+        {ENABLE_PUSH_NOTIFICATIONS && (
         <div className={FEATURED_CARD_CLASS}>
           <p className={SECTION_TITLE_CLASS}>
             <Bell size={13} aria-hidden="true" /> Push Notifications
@@ -917,6 +921,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
             </div>
           </div>
         </div>
+        )}
 
         {/* Email Alerts — hidden until ENABLE_SUBSCRIPTIONS is enabled */}
         {ENABLE_SUBSCRIPTIONS && onOpenSubscribe && (
