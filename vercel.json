@@ -1,9 +1,76 @@
 {
   "rewrites": [
-    { "source": "/panchang/bengaluru", "destination": "/panchang/bengaluru/index.html" }
+    {
+      "source": "/panchang/bengaluru",
+      "destination": "/panchang/bengaluru/index.html"
+    },
+    {
+      "source": "/panchang/chennai",
+      "destination": "/panchang/chennai/index.html"
+    },
+    {
+      "source": "/panchang/pune",
+      "destination": "/panchang/pune/index.html"
+    },
+    {
+      "source": "/panchang/hyderabad",
+      "destination": "/panchang/hyderabad/index.html"
+    },
+    {
+      "source": "/panchang/bhopal",
+      "destination": "/panchang/bhopal/index.html"
+    }
   ],
   "redirects": [
-    { "source": "/panchang/bengaluru/", "destination": "/panchang/bengaluru", "permanent": true },
-    { "source": "/panchang/bengaluru/index.html", "destination": "/panchang/bengaluru", "permanent": true }
+    {
+      "source": "/panchang/bengaluru/",
+      "destination": "/panchang/bengaluru",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/bengaluru/index.html",
+      "destination": "/panchang/bengaluru",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/chennai/",
+      "destination": "/panchang/chennai",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/chennai/index.html",
+      "destination": "/panchang/chennai",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/pune/",
+      "destination": "/panchang/pune",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/pune/index.html",
+      "destination": "/panchang/pune",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/hyderabad/",
+      "destination": "/panchang/hyderabad",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/hyderabad/index.html",
+      "destination": "/panchang/hyderabad",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/bhopal/",
+      "destination": "/panchang/bhopal",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/bhopal/index.html",
+      "destination": "/panchang/bhopal",
+      "permanent": true
+    }
   ]
 }

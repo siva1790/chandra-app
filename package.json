@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/prerender-panchang.mjs",
-    "test:panchang": "node --test tests/bengaluru-panchang.test.mjs",
+    "test:panchang": "node --test tests/bengaluru-panchang.test.mjs tests/city-panchang.test.mjs",
     "test:panchang-build": "node --test tests/bengaluru-build.test.mjs",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prebuild": "node scripts/prepare-city-pages.mjs",
+    "predev": "node scripts/prepare-city-pages.mjs"
   },
   "dependencies": {
     "astronomy-engine": "^2.1.19",

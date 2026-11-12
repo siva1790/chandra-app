@@ -376,6 +376,7 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 
 | 2026-11 | Bengaluru public page — `/panchang/bengaluru` has prerendered dated HTML, unique metadata, sunrise-based Pancha Anga, explicit IST calculations and browser date refresh. Saved app settings are preserved. Added Vercel/Vite route mapping and a separate service-worker navigation handler. Static HTML refreshes on build only; see `docs/bengaluru-pilot.md` for snapshot freshness and rollout notes. Deployment uses Vercel via main. | `src/pages/BengaluruPanchang.jsx`, `src/bengaluruPanchang.js`, `src/civilDate.js`, `src/panchangAnga.js`, `scripts/prerender-panchang.mjs`, `vite.config.js`, `vercel.json`, `src/sw.js` |
 | 2026-11 | Bengaluru pilot review adjustment — Today is disabled when the selected date is the current IST date and enabled for other dates; the bottom homepage link now reads “Go to homepage”. | `src/pages/BengaluruPanchang.jsx` |
+| 2026-11 | Expanded public city Panchang pages to Chennai, Pune, Hyderabad and Bhopal using shared `CityPanchang` UI and calculations. The rollout registry reuses existing city coordinates; Vite/Vercel routing, per-city HTML, cross-city links, sitemap and robots are generated for the five enabled cities. Existing saved settings and Today behavior are preserved. Mumbai, Delhi and Kolkata remain deferred. | `src/publicPanchangCities.js`, `src/cityPanchang.js`, `src/pages/CityPanchang.jsx`, `scripts/prepare-city-pages.mjs`, `scripts/prerender-panchang.mjs`, `vercel.json`, `src/sw.js` |
 
 ---
 

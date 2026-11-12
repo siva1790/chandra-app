@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, Clock, MapPin, Moon, Star, Sunrise, Sun, Settings } from 'lucide-react'
-import { BENGALURU_PATH, dateFromKey, formatIndiaTime, getBengaluruPanchang } from '../bengaluruPanchang.js'
+import { dateFromKey, formatIndiaTime, getCityPanchang } from '../cityPanchang.js'
+import CityPageLinks from '../components/CityPageLinks.jsx'
 import { DAY_MS, indianDateKey } from '../civilDate.js'
 
 function Row({ label, value, detail, icon: Icon }) {
@@ -19,7 +20,7 @@ function eventDate(value) {
   return new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' }).format(new Date(value))
 }
 
-export default function BengaluruPanchang({ initialData }) {
+export default function CityPanchang({ initialData, city }) {
   const [data, setData] = useState(initialData)
   const [error, setError] = useState('')
   const [live, setLive] = useState(false)
@@ -32,7 +33,7 @@ export default function BengaluruPanchang({ initialData }) {
         const today = indianDateKey()
         setTodayKey(today)
         if (!followToday) return
-        setData(previous => previous.dateKey === today ? previous : getBengaluruPanchang(today))
+        setData(previous => previous.dateKey === today ? previous : getCityPanchang(city.slug, today))
         setLive(true)
         setError('')
       } catch {
@@ -48,12 +49,12 @@ export default function BengaluruPanchang({ initialData }) {
       window.removeEventListener('focus', refresh)
       document.removeEventListener('visibilitychange', refresh)
     }
-  }, [followToday])
+  }, [followToday, city.slug])
 
   const chooseDate = (key) => {
     try {
       if (key < '1926-01-01' || key > '2126-12-31') throw new Error('Date outside supported range')
-      setData(getBengaluruPanchang(key))
+      setData(getCityPanchang(city.slug, key))
       setFollowToday(key === indianDateKey())
       setLive(true)
       setError('')
@@ -70,16 +71,16 @@ export default function BengaluruPanchang({ initialData }) {
         <img src="/icons/chandra-mark-topbar-96.png" width="32" height="32" alt="" className="rounded-lg" />
         <span className="text-lg font-bold tracking-wide text-chandra-gold">Chandra</span>
       </a>
-      <a href="/#settings" className="flex min-h-[44px] items-center gap-1.5 text-sm text-chandra-focus"><MapPin size={16} aria-hidden="true" /> Change city</a>
+      <a href="#cities" className="flex min-h-[44px] items-center gap-1.5 text-sm text-chandra-focus"><MapPin size={16} aria-hidden="true" /> Change city</a>
     </header>
     <main id="main-content" className="mx-auto max-w-md px-4 pb-32 pt-20">
-      <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-chandra-gold"><MapPin size={14} aria-hidden="true" /> Bengaluru, Karnataka</p>
-      <h1 className="text-2xl font-bold text-chandra-text-primary">Bengaluru Panchang</h1>
-      <p className="mt-3 text-sm leading-relaxed text-chandra-text-secondary">Daily Tithi, Nakshatra, moonrise and Rahu Kaal for Bengaluru (Bangalore). All times are Indian Standard Time (IST).</p>
+      <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-chandra-gold"><MapPin size={14} aria-hidden="true" /> {city.name}, {city.state}</p>
+      <h1 className="text-2xl font-bold text-chandra-text-primary">{city.name} Panchang</h1>
+      <p className="mt-3 text-sm leading-relaxed text-chandra-text-secondary">Daily Tithi, Nakshatra, moonrise and Rahu Kaal for {city.displayName}. All times are Indian Standard Time (IST).</p>
 
       <section aria-labelledby="date-heading" className="mt-6 rounded-xl border border-white/10 bg-chandra-bg-surface p-4">
         <h2 id="date-heading" className="text-base font-semibold text-chandra-text-primary"><time dateTime={data.dateKey}>{data.dateLabel}</time></h2>
-        <p className="mt-1 text-xs text-chandra-text-secondary">Amavasyant calendar · Bengaluru city centre</p>
+        <p className="mt-1 text-xs text-chandra-text-secondary">Amavasyant calendar · {city.name} city centre</p>
         <div className="mt-3 flex items-center gap-2">
           <button type="button" onClick={() => shiftDate(-1)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-white/10 text-chandra-gold" aria-label="Previous day"><ArrowLeft size={18} aria-hidden="true" /></button>
           <div className="min-w-0 flex-1">
@@ -95,7 +96,7 @@ export default function BengaluruPanchang({ initialData }) {
 
       <section aria-labelledby="anga-heading" className="mt-6 rounded-xl border border-white/10 bg-chandra-bg-surface p-4">
         <h2 id="anga-heading" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-chandra-gold"><Star size={16} aria-hidden="true" /> Pancha Anga</h2>
-        <p className="mt-2 text-xs leading-relaxed text-chandra-text-secondary">The five elements below are sampled at Bengaluru sunrise. Tithi and Nakshatra can change later in the day.</p>
+        <p className="mt-2 text-xs leading-relaxed text-chandra-text-secondary">The five elements below are sampled at {city.name} sunrise. Tithi and Nakshatra can change later in the day.</p>
         <dl className="mt-1">
           <Row icon={Moon} label="Tithi" value={data.tithi} detail={data.paksha} />
           <Row icon={Star} label="Nakshatra" value={data.nakshatra} />
@@ -127,10 +128,12 @@ export default function BengaluruPanchang({ initialData }) {
         <p className="mt-3 text-xs leading-relaxed text-chandra-text-secondary">Festival dates use each observance’s ritual window, which can differ from the sunrise Tithi. Regional traditions may vary.</p>
       </section>
 
+      <div id="cities" className="mt-6 scroll-mt-20"><CityPageLinks currentSlug={city.slug} /></div>
+
       <section aria-labelledby="about-heading" className="mt-6 text-sm leading-relaxed text-chandra-text-secondary">
-        <h2 id="about-heading" className="font-semibold text-chandra-text-primary">About this Bengaluru Panchang</h2>
-        <p className="mt-2">Timings use Bengaluru city-centre coordinates (12.9716° N, 77.5946° E), sunrise-based daily Tithi, and Lahiri sidereal calculations for Nakshatra and Yoga.</p>
-        <p className="mt-3">This page always shows Bengaluru. Your saved app city stays the same. Open the app for detailed transitions, the festival calendar, or another city.</p>
+        <h2 id="about-heading" className="font-semibold text-chandra-text-primary">About this {city.name} Panchang</h2>
+        <p className="mt-2">Timings use {city.name} city-centre coordinates ({city.lat.toFixed(4)}° N, {city.lon.toFixed(4)}° E), sunrise-based daily Tithi, and Lahiri sidereal calculations for Nakshatra and Yoga.</p>
+        <p className="mt-3">This page always shows {city.name}. Your saved app city stays the same. Open the app for detailed transitions, the festival calendar, or another city.</p>
         <a href="/" className="mt-4 flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-chandra-gold px-4 py-3 font-semibold text-chandra-text-inverse">Go to homepage <ArrowRight size={18} aria-hidden="true" /></a>
         <a href="/privacy.html" className="mt-3 flex min-h-[44px] items-center justify-center text-xs text-chandra-focus">Privacy policy</a>
       </section>
@@ -138,7 +141,7 @@ export default function BengaluruPanchang({ initialData }) {
     <nav aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t border-white/10 bg-chandra-bg-primary px-2 py-3">
       {[
         ['/', 'Day View', Moon], ['/#calendar', 'Calendar', CalendarDays],
-        [BENGALURU_PATH, 'Panchang', Clock], ['/#settings', 'Settings', Settings],
+        [city.path, 'Panchang', Clock], ['/#settings', 'Settings', Settings],
       ].map(([href, label, Icon]) => <a key={label} href={href} aria-current={label === 'Panchang' ? 'page' : undefined} className={`flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-xl px-3 py-1 ${label === 'Panchang' ? 'bg-chandra-gold/10 text-chandra-gold' : 'text-chandra-text-secondary'}`}>
         <Icon size={22} strokeWidth={1.75} aria-hidden="true" /><span className="text-xs">{label}</span>
       </a>)}
