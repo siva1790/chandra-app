@@ -6,7 +6,7 @@ import { PUBLIC_PANCHANG_CITIES, getPublicPanchangCity, getPublicPanchangCityFro
 import { getSunriseForDate, getTithiAtSunrise } from '../src/moonUtils.js'
 
 test('only this rollout is enabled, including canonical Hyderabad spelling', () => {
-  assert.deepEqual(PUBLIC_PANCHANG_CITIES.map(city => city.slug), ['bengaluru', 'chennai', 'pune', 'hyderabad', 'bhopal', 'patna', 'delhi', 'kolkata', 'mumbai'])
+  assert.deepEqual(PUBLIC_PANCHANG_CITIES.map(city => city.slug), ['bengaluru', 'bhopal', 'chennai', 'delhi', 'hyderabad', 'kolkata', 'mumbai', 'patna', 'pune'])
   for (const slug of ['hydrabad', 'kolkatta', 'unknown']) {
     assert.equal(getPublicPanchangCity(slug), undefined)
     assert.throws(() => getCityPanchang(slug))

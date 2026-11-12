@@ -378,6 +378,7 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 | 2026-11 | Bengaluru pilot review adjustment — Today is disabled when the selected date is the current IST date and enabled for other dates; the bottom homepage link now reads “Go to homepage”. | `src/pages/BengaluruPanchang.jsx` |
 | 2026-11 | Expanded public city Panchang pages to Chennai, Pune, Hyderabad and Bhopal using shared `CityPanchang` UI and calculations. The rollout registry reuses existing city coordinates; Vite/Vercel routing, per-city HTML, cross-city links, sitemap and robots are generated for the five enabled cities. Existing saved settings and Today behavior are preserved. Mumbai, Delhi and Kolkata remain deferred. | `src/publicPanchangCities.js`, `src/cityPanchang.js`, `src/pages/CityPanchang.jsx`, `scripts/prepare-city-pages.mjs`, `scripts/prerender-panchang.mjs`, `vercel.json`, `src/sw.js` |
 | 2026-11 | Added Patna, Delhi, Kolkata and Mumbai to the shared public-city registry (nine city pages total). Per-city HTML, sitemap, redirects and navigation are generated from the registry; visitors load one city page with shared assets and calculate only that city. | `src/publicPanchangCities.js`, `scripts/prepare-city-pages.mjs`, `vercel.json` |
+| 2026-11 | Sorted Panchang by city links alphabetically through the shared registry and removed extra spacing between wrapped rows in `CityPageLinks`. Applies to the homepage, Settings and all public city pages; 44px touch targets are preserved. | `src/publicPanchangCities.js`, `src/components/CityPageLinks.jsx` |
 
 ---
 

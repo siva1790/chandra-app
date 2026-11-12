@@ -15,7 +15,7 @@ export const PUBLIC_PANCHANG_CITIES = [
   const city = cities.find(value => value.name === name)
   if (!city) throw new Error(`Missing app coordinates for ${name}`)
   return Object.freeze({ ...city, slug, displayName, path: `/panchang/${slug}` })
-})
+}).sort((a, b) => a.name.localeCompare(b.name, 'en'))
 
 export const getPublicPanchangCity = slug => PUBLIC_PANCHANG_CITIES.find(city => city.slug === slug)
 export const getPublicPanchangCityFromPath = pathname =>

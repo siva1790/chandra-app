@@ -5,28 +5,20 @@
       "destination": "/panchang/bengaluru/index.html"
     },
     {
-      "source": "/panchang/chennai",
-      "destination": "/panchang/chennai/index.html"
-    },
-    {
-      "source": "/panchang/pune",
-      "destination": "/panchang/pune/index.html"
-    },
-    {
-      "source": "/panchang/hyderabad",
-      "destination": "/panchang/hyderabad/index.html"
-    },
-    {
       "source": "/panchang/bhopal",
       "destination": "/panchang/bhopal/index.html"
     },
     {
-      "source": "/panchang/patna",
-      "destination": "/panchang/patna/index.html"
+      "source": "/panchang/chennai",
+      "destination": "/panchang/chennai/index.html"
     },
     {
       "source": "/panchang/delhi",
       "destination": "/panchang/delhi/index.html"
+    },
+    {
+      "source": "/panchang/hyderabad",
+      "destination": "/panchang/hyderabad/index.html"
     },
     {
       "source": "/panchang/kolkata",
@@ -35,6 +27,14 @@
     {
       "source": "/panchang/mumbai",
       "destination": "/panchang/mumbai/index.html"
+    },
+    {
+      "source": "/panchang/patna",
+      "destination": "/panchang/patna/index.html"
+    },
+    {
+      "source": "/panchang/pune",
+      "destination": "/panchang/pune/index.html"
     }
   ],
   "redirects": [
@@ -49,36 +49,6 @@
       "permanent": true
     },
     {
-      "source": "/panchang/chennai/",
-      "destination": "/panchang/chennai",
-      "permanent": true
-    },
-    {
-      "source": "/panchang/chennai/index.html",
-      "destination": "/panchang/chennai",
-      "permanent": true
-    },
-    {
-      "source": "/panchang/pune/",
-      "destination": "/panchang/pune",
-      "permanent": true
-    },
-    {
-      "source": "/panchang/pune/index.html",
-      "destination": "/panchang/pune",
-      "permanent": true
-    },
-    {
-      "source": "/panchang/hyderabad/",
-      "destination": "/panchang/hyderabad",
-      "permanent": true
-    },
-    {
-      "source": "/panchang/hyderabad/index.html",
-      "destination": "/panchang/hyderabad",
-      "permanent": true
-    },
-    {
       "source": "/panchang/bhopal/",
       "destination": "/panchang/bhopal",
       "permanent": true
@@ -89,13 +59,13 @@
       "permanent": true
     },
     {
-      "source": "/panchang/patna/",
-      "destination": "/panchang/patna",
+      "source": "/panchang/chennai/",
+      "destination": "/panchang/chennai",
       "permanent": true
     },
     {
-      "source": "/panchang/patna/index.html",
-      "destination": "/panchang/patna",
+      "source": "/panchang/chennai/index.html",
+      "destination": "/panchang/chennai",
       "permanent": true
     },
     {
@@ -106,6 +76,16 @@
     {
       "source": "/panchang/delhi/index.html",
       "destination": "/panchang/delhi",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/hyderabad/",
+      "destination": "/panchang/hyderabad",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/hyderabad/index.html",
+      "destination": "/panchang/hyderabad",
       "permanent": true
     },
     {
@@ -126,6 +106,26 @@
     {
       "source": "/panchang/mumbai/index.html",
       "destination": "/panchang/mumbai",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/patna/",
+      "destination": "/panchang/patna",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/patna/index.html",
+      "destination": "/panchang/patna",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/pune/",
+      "destination": "/panchang/pune",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/pune/index.html",
+      "destination": "/panchang/pune",
       "permanent": true
     }
   ]
