@@ -34,3 +34,7 @@ Production URL: https://chandrapanchang.app/panchang/bengaluru. Frontend release
 ## City expansion
 
 `src/publicPanchangCities.js` is the rollout registry and reuses `src/cities.js` coordinates. `CityPanchang.jsx` and `cityPanchang.js` provide the shared view and calculations. The original Bengaluru helper remains a compatibility wrapper. `npm run prebuild` generates per-city HTML heads and Vercel routing from the registry; the production build prerenders each page and creates `sitemap.xml` plus `robots.txt`. City links are available on the homepage, in Settings and on each public page. The service worker recognizes only enabled public city URLs. Nine city pages are enabled. Additional cities require an explicit registry entry; visits calculate only the city in the URL.
+
+## Responsive city layout
+
+All public city pages share `CityPanchang.css`, scoped under `.city-page`. Below 768px the page retains the single column and bottom navigation. From 768px, Pancha Anga and daily timings sit side by side with compact top navigation; festivals and city links form the second row. From 1024px, spacing increases and the main/header containers remain capped at 1000px including 30px side padding (940px usable main content). The main app pages retain their existing layout. Date calculations, saved-city behavior, current-date updates and metadata are unchanged. Browser checks cover 320, 390, 767, 768, 820, 1023, 1024 and 1440px widths.

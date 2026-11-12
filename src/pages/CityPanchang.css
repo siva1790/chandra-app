@@ -1,0 +1,143 @@
+/* Scoped to public city pages. The personalised app retains its own layout. */
+.city-page .city-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  margin: auto;
+  padding-inline: 16px;
+}
+
+.city-page .city-top-navigation { display: none; }
+.city-page .city-bottom-navigation {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 40;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 12px 8px;
+  border-top: 1px solid var(--border-default);
+  background: var(--bg-primary);
+}
+.city-page .city-navigation-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.city-page .city-navigation-active {
+  background: rgb(221 187 106 / 10%);
+  color: var(--gold);
+}
+.city-page .city-footer-brand { display: none; }
+
+/* Tablet: two columns with compact top navigation. */
+@media (min-width: 768px) {
+  .city-page .city-header { height: 72px; }
+  .city-page .city-header-content {
+    max-width: 1000px;
+    padding-inline: 24px;
+    gap: 16px;
+  }
+  .city-page .city-top-navigation {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+  }
+  .city-page .city-top-navigation .city-navigation-link {
+    padding-inline: 10px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+  .city-page .city-top-navigation svg { display: none; }
+  .city-page .city-bottom-navigation { display: none; }
+  .city-page .city-main {
+    max-width: 1000px;
+    padding: 104px 24px 32px;
+  }
+  .city-page .city-title {
+    margin: 8px 0;
+    font-size: 30px;
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -0.6px;
+  }
+  .city-page .city-datebar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 17px 19px;
+    border-radius: 16px;
+  }
+  .city-page .city-date-controls { margin-top: 0; }
+  .city-page .city-date-controls > div { flex: 0 1 150px; }
+  .city-page .city-datebar noscript { flex-basis: 100%; }
+  .city-page .city-calculation-status { margin-top: 8px; }
+  .city-page .city-primary-grid,
+  .city-page .city-secondary-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 18px;
+    margin-top: 24px;
+  }
+  .city-page .city-secondary-grid { margin-top: 18px; }
+  .city-page .city-panel,
+  .city-page .city-cities-panel > nav {
+    min-width: 0;
+    margin-top: 0;
+    padding: 20px;
+    border-radius: 18px;
+  }
+  .city-page .city-cities-panel { margin-top: 0; min-width: 0; }
+  .city-page .city-cities-panel > nav { height: 100%; }
+  .city-page .city-panel-intro { min-height: 36px; }
+  .city-page .city-panel dl { margin-top: 12px; }
+  .city-page .city-row { min-height: 57px; align-items: center; padding-block: 13px; }
+  .city-page .city-row dd { font-variant-numeric: tabular-nums; }
+  .city-page .city-about {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 24px;
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border-default);
+  }
+  .city-page .city-about-copy { font-size: 12px; }
+  .city-page .city-home-cta { margin-top: 0; min-width: 190px; }
+  .city-page .city-fineprint {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 16px;
+    font-size: 11px;
+  }
+  .city-page .city-fineprint a { margin-top: 0; }
+  .city-page .city-footer-brand { display: inline; }
+}
+
+/* Desktop: the approved 1000px frame, with 940px of usable content. */
+@media (min-width: 1024px) {
+  .city-page .city-header-content { padding-inline: 30px; gap: 24px; }
+  .city-page .city-top-navigation .city-navigation-link { padding-inline: 13px; font-size: 14px; }
+  .city-page .city-main { padding-inline: 30px; }
+  .city-page .city-primary-grid,
+  .city-page .city-secondary-grid { gap: 22px; }
+  .city-page .city-secondary-grid { margin-top: 22px; }
+  .city-page .city-panel,
+  .city-page .city-cities-panel > nav { padding: 21px 22px 18px; }
+}

@@ -49,7 +49,7 @@ test('all enabled city pages have local content, unique metadata, and correct sn
     assert.equal(snapshot.citySlug, city.slug)
     assert.deepEqual(snapshot, getCityPanchang(city.slug, snapshot.dateKey))
     assert.ok(page.includes(`<title>${city.name} Panchang`))
-    assert.ok(page.includes(`<h1 class="text-2xl font-bold text-chandra-text-primary">${city.name} Panchang</h1>`))
+    assert.match(page, new RegExp(`<h1[^>]*>${city.name} Panchang</h1>`))
     assert.ok(page.includes(`rel="canonical" href="https://chandrapanchang.app${city.path}"`))
     assert.ok(page.includes(`${city.lat.toFixed(4)}° N`))
     assert.ok(page.includes('Go to homepage'))
