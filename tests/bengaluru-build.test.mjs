@@ -37,7 +37,7 @@ test('public entry does not pull the personalised app or Firebase bundle', () =>
 })
 
 
-test('all five city pages have local content, unique metadata, and correct snapshots', async () => {
+test('all enabled city pages have local content, unique metadata, and correct snapshots', async () => {
   const { PUBLIC_PANCHANG_CITIES } = await import('../src/publicPanchangCities.js')
   const { getCityPanchang } = await import('../src/cityPanchang.js')
   const config = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'))
@@ -56,7 +56,7 @@ test('all five city pages have local content, unique metadata, and correct snaps
     assert.ok(config.rewrites.some(route => route.source === city.path && route.destination === city.path + '/index.html'))
     assert.ok(sitemap.includes('https://chandrapanchang.app' + city.path))
   }
-  assert.equal([...sitemap.matchAll(/<loc>/g)].length, 6)
-  assert.ok(!sitemap.includes('/panchang/mumbai'))
+  assert.equal([...sitemap.matchAll(/<loc>/g)].length, PUBLIC_PANCHANG_CITIES.length + 1)
+  assert.ok(!sitemap.includes('/panchang/unknown'))
   assert.ok(robots.includes('Sitemap: https://chandrapanchang.app/sitemap.xml'))
 })

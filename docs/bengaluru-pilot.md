@@ -6,7 +6,7 @@ Run `npm run build`, then `npm run preview`. Open `/panchang/bengaluru` on the p
 
 ## Behavior
 
-- Each public URL always calculates for its named city. Enabled cities: Bengaluru, Chennai, Pune, Hyderabad and Bhopal. All public pages currently use the explicitly labelled Amavasyant default; app calendar-system settings stay unchanged. It does not mount SettingsProvider, read saved settings, or write localStorage.
+- Each public URL always calculates for its named city. Enabled cities: Bengaluru, Chennai, Pune, Hyderabad, Bhopal, Patna, Delhi, Kolkata and Mumbai. All public pages currently use the explicitly labelled Amavasyant default; app calendar-system settings stay unchanged. It does not mount SettingsProvider, read saved settings, or write localStorage.
 - The homepage continues to use the saved city. Links to `/#calendar`, `/#panchang`, `/#settings`, and the existing `/#learn/...` links open the corresponding app screen.
 - All public-page day boundaries and displayed times are explicitly Indian time, independent of device/build-server timezone.
 - Tithi, Nakshatra, Yoga and Karana are sampled at sunrise. The shared festival engine retains ritual-window rules. The page uses Amavasyant consistently and labels it.
@@ -33,4 +33,4 @@ Production URL: https://chandrapanchang.app/panchang/bengaluru. Frontend release
 
 ## City expansion
 
-`src/publicPanchangCities.js` is the rollout registry and reuses `src/cities.js` coordinates. `CityPanchang.jsx` and `cityPanchang.js` provide the shared view and calculations. The original Bengaluru helper remains a compatibility wrapper. `npm run prebuild` generates per-city HTML heads and Vercel routing from the registry; the production build prerenders each page and creates `sitemap.xml` plus `robots.txt`. City links are available on the homepage, in Settings and on each public page. The service worker recognizes only enabled public city URLs. Mumbai, Delhi and Kolkata are intentionally deferred.
+`src/publicPanchangCities.js` is the rollout registry and reuses `src/cities.js` coordinates. `CityPanchang.jsx` and `cityPanchang.js` provide the shared view and calculations. The original Bengaluru helper remains a compatibility wrapper. `npm run prebuild` generates per-city HTML heads and Vercel routing from the registry; the production build prerenders each page and creates `sitemap.xml` plus `robots.txt`. City links are available on the homepage, in Settings and on each public page. The service worker recognizes only enabled public city URLs. Nine city pages are enabled. Additional cities require an explicit registry entry; visits calculate only the city in the URL.

@@ -7,6 +7,10 @@ export const PUBLIC_PANCHANG_CITIES = [
   ['pune', 'Pune'],
   ['hyderabad', 'Hyderabad'],
   ['bhopal', 'Bhopal'],
+  ['patna', 'Patna'],
+  ['delhi', 'Delhi'],
+  ['kolkata', 'Kolkata'],
+  ['mumbai', 'Mumbai'],
 ].map(([slug, name, displayName = name]) => {
   const city = cities.find(value => value.name === name)
   if (!city) throw new Error(`Missing app coordinates for ${name}`)

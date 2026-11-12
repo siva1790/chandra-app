@@ -19,6 +19,22 @@
     {
       "source": "/panchang/bhopal",
       "destination": "/panchang/bhopal/index.html"
+    },
+    {
+      "source": "/panchang/patna",
+      "destination": "/panchang/patna/index.html"
+    },
+    {
+      "source": "/panchang/delhi",
+      "destination": "/panchang/delhi/index.html"
+    },
+    {
+      "source": "/panchang/kolkata",
+      "destination": "/panchang/kolkata/index.html"
+    },
+    {
+      "source": "/panchang/mumbai",
+      "destination": "/panchang/mumbai/index.html"
     }
   ],
   "redirects": [
@@ -70,6 +86,46 @@
     {
       "source": "/panchang/bhopal/index.html",
       "destination": "/panchang/bhopal",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/patna/",
+      "destination": "/panchang/patna",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/patna/index.html",
+      "destination": "/panchang/patna",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/delhi/",
+      "destination": "/panchang/delhi",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/delhi/index.html",
+      "destination": "/panchang/delhi",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/kolkata/",
+      "destination": "/panchang/kolkata",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/kolkata/index.html",
+      "destination": "/panchang/kolkata",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/mumbai/",
+      "destination": "/panchang/mumbai",
+      "permanent": true
+    },
+    {
+      "source": "/panchang/mumbai/index.html",
+      "destination": "/panchang/mumbai",
       "permanent": true
     }
   ]

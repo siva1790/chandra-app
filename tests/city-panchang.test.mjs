@@ -6,8 +6,8 @@ import { PUBLIC_PANCHANG_CITIES, getPublicPanchangCity, getPublicPanchangCityFro
 import { getSunriseForDate, getTithiAtSunrise } from '../src/moonUtils.js'
 
 test('only this rollout is enabled, including canonical Hyderabad spelling', () => {
-  assert.deepEqual(PUBLIC_PANCHANG_CITIES.map(city => city.slug), ['bengaluru', 'chennai', 'pune', 'hyderabad', 'bhopal'])
-  for (const slug of ['mumbai', 'delhi', 'kolkata', 'hydrabad', 'unknown']) {
+  assert.deepEqual(PUBLIC_PANCHANG_CITIES.map(city => city.slug), ['bengaluru', 'chennai', 'pune', 'hyderabad', 'bhopal', 'patna', 'delhi', 'kolkata', 'mumbai'])
+  for (const slug of ['hydrabad', 'kolkatta', 'unknown']) {
     assert.equal(getPublicPanchangCity(slug), undefined)
     assert.throws(() => getCityPanchang(slug))
   }
@@ -25,7 +25,7 @@ test('all cities calculate using their own coordinates and shared sunrise helper
     assert.equal(data.tithi, getTithiAtSunrise(date, city.lat, city.lon, 330).name)
     sunrises.add(data.sunrise)
   }
-  assert.equal(sunrises.size, 5)
+  assert.equal(sunrises.size, PUBLIC_PANCHANG_CITIES.length)
 })
 
 test('all city results are invariant across device timezones', () => {
