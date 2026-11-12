@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/panchang/bengaluru", "destination": "/panchang/bengaluru/index.html" }
+  ],
+  "redirects": [
+    { "source": "/panchang/bengaluru/", "destination": "/panchang/bengaluru", "permanent": true },
+    { "source": "/panchang/bengaluru/index.html", "destination": "/panchang/bengaluru", "permanent": true }
+  ]
+}

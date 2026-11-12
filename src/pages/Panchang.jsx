@@ -4,6 +4,7 @@ import { toSiderealLongitude } from '../ayanamsha.js'
 import { getSunriseForDate, getSunsetForDate, getTithiAtSunrise, getTithiFromAngle } from '../moonUtils'
 import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DateStrip from '../components/DateStrip'
+import { getYogaAtTime, getKaranaFromPhase } from '../panchangAnga.js'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sparkles, AlertTriangle, Timer, ChevronDown, BookOpen } from 'lucide-react'
 
@@ -125,22 +126,6 @@ const getTithiWindowAtTime = (date) => {
 
 // ── Yoga helpers ──────────────────────────────────────────────────
 
-const YOGA_NAMES = [
-  'Vishkambha', 'Priti', 'Ayushman', 'Saubhagya', 'Shobhana',
-  'Atiganda', 'Sukarma', 'Dhriti', 'Shula', 'Ganda',
-  'Vriddhi', 'Dhruva', 'Vyaghata', 'Harshana', 'Vajra',
-  'Siddhi', 'Vyatipata', 'Variyan', 'Parigha', 'Shiva',
-  'Siddha', 'Sadhya', 'Shubha', 'Shukla', 'Brahma',
-  'Indra', 'Vaidhriti'
-]
-
-const getYogaAtTime = (d) => {
-  const sPos = Astronomy.GeoVector('Sun', d, true)
-  const sLon = toSiderealLongitude(Astronomy.Ecliptic(sPos).elon, d)
-  const mLon = getMoonSiderealLongitude(d)
-  return YOGA_NAMES[Math.floor(((sLon + mLon) % 360) / (360 / 27))]
-}
-
 const findYogaTransition = (startTime, endTime, startYoga) => {
   let lo = startTime.getTime()
   let hi = endTime.getTime()
@@ -153,17 +138,6 @@ const findYogaTransition = (startTime, endTime, startYoga) => {
 }
 
 // ── Karana helpers ────────────────────────────────────────────────
-
-const MOVABLE_KARANAS = ['Bava', 'Balava', 'Kaulava', 'Taitila', 'Garija', 'Vanija', 'Vishti']
-
-const getKaranaFromPhase = (phaseAngle) => {
-  const n = Math.floor(((phaseAngle % 360) + 360) % 360 / 6) // 0–59
-  if (n === 0)  return 'Kimstughna'
-  if (n === 57) return 'Shakuni'
-  if (n === 58) return 'Chatushpada'
-  if (n === 59) return 'Naga'
-  return MOVABLE_KARANAS[(n - 1) % 7]
-}
 
 const findKaranaTransition = (startTime, endTime, startKarana) => {
   let lo = startTime.getTime()

@@ -30,6 +30,11 @@ function App() {
   useEffect(() => {
     const syncFromHash = () => {
       const hash = window.location.hash.replace(/^#/, '')
+      if (['calendar', 'panchang', 'settings'].includes(hash)) {
+        setScreen(hash)
+        trackPageView(TAB_NAMES[hash])
+        return
+      }
       if (!hash.startsWith('learn')) return
       const [, target] = hash.split('/')
       setLearnTarget(target || null)
@@ -44,7 +49,7 @@ function App() {
 
   // Track initial page view when no direct Learn hash is present.
   useEffect(() => {
-    if (!window.location.hash.startsWith('#learn')) trackPageView('Day View')
+    if (!/^#(learn|calendar|panchang|settings)/.test(window.location.hash)) trackPageView('Day View')
   }, [])
 
   // Direct tab tap — preserves current globalDate (no reset)
@@ -52,7 +57,7 @@ function App() {
     setScreen(tab)
     if (tab !== 'learn') setLearnReturnContext(null)
     if (tab !== 'settings') setSettingsReturnContext(null)
-    if (tab !== 'learn' && window.location.hash.startsWith('#learn')) {
+    if (tab !== 'learn' && /^#(learn|calendar|panchang|settings)/.test(window.location.hash)) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search)
     }
     window.scrollTo(0, 0)

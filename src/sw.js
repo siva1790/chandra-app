@@ -4,9 +4,30 @@ import { NavigationRoute, registerRoute } from 'workbox-routing'
 // ── Precache app shell (manifest injected by vite-plugin-pwa at build time) ──
 precacheAndRoute(self.__WB_MANIFEST)
 
-// ── SPA fallback — app routes serve index.html, static policy pages do not ──
+// Keep the public city page separate from the personalised app shell.
+// The network refreshes the HTML snapshot; cached HTML is an offline fallback.
+registerRoute(
+  ({ request, url }) => request.mode === 'navigate' && /^\/panchang\/bengaluru(?:\/|\/index\.html)?$/.test(url.pathname),
+  async ({ request }) => {
+    try {
+      const response = await fetch(request)
+      // Storage may be unavailable or full; a successful network page still works.
+      if (response.ok) {
+        try {
+          const cache = await caches.open('chandra-public-pages-v1')
+          await cache.put(request, response.clone())
+        } catch { /* Offline caching is best effort. */ }
+      }
+      return response
+    } catch {
+      return await caches.match(request, { cacheName: 'chandra-public-pages-v1' }) || Response.error()
+    }
+  },
+)
+
+// ── SPA fallback — only the root belongs to the existing app ──
 registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html'), {
-  denylist: [/^\/privacy\.html$/],
+  allowlist: [/^\/$/],
 }))
 
 // ── Take control of existing clients immediately on update ──

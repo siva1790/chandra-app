@@ -1,5 +1,6 @@
 import * as Astronomy from 'astronomy-engine'
 import { toSiderealLongitude } from './ayanamsha.js'
+import { startOfCivilDay } from './civilDate.js'
 
 // ── Masa (lunar month) names, indexed by sun's sidereal rashi (0=Mesha…11=Meena) ──
 // Rule: masa name = rashi the sun occupies at the Amavasya that governs the lunar month.
@@ -143,39 +144,35 @@ export const getFestivalsForDate = (date, festivals) => {
 // Compute local sunrise time for a given Gregorian date and lat/lon.
 // Falls back to 06:00 local on the date if Astronomy can't find sunrise
 // (polar regions, missing inputs, etc.).
-export const getSunriseForDate = (date, lat, lon) => {
+export const getSunriseForDate = (date, lat, lon, utcOffsetMinutes) => {
   try {
     if (typeof lat === 'number' && typeof lon === 'number') {
       const observer = new Astronomy.Observer(lat, lon, 0)
-      const dayStart = new Date(date)
-      dayStart.setHours(0, 0, 0, 0)
+      const dayStart = startOfCivilDay(date, utcOffsetMinutes)
       const sunrise = Astronomy.SearchRiseSet('Sun', observer, +1, dayStart, 1)
       if (sunrise) return sunrise.date
     }
   } catch (e) {
     // fall through to fallback
   }
-  const fallback = new Date(date)
-  fallback.setHours(6, 0, 0, 0)
+  const fallback = new Date(startOfCivilDay(date, utcOffsetMinutes).getTime() + 6 * 3600000)
   return fallback
 }
 
 // Compute local sunset time for a given Gregorian date and lat/lon.
 // Falls back to 18:00 local on the date if Astronomy can't find sunset.
-export const getSunsetForDate = (date, lat, lon) => {
+export const getSunsetForDate = (date, lat, lon, utcOffsetMinutes) => {
   try {
     if (typeof lat === 'number' && typeof lon === 'number') {
       const observer = new Astronomy.Observer(lat, lon, 0)
-      const dayStart = new Date(date)
-      dayStart.setHours(0, 0, 0, 0)
+      const dayStart = startOfCivilDay(date, utcOffsetMinutes)
       const sunset = Astronomy.SearchRiseSet('Sun', observer, -1, dayStart, 1)
       if (sunset) return sunset.date
     }
   } catch (e) {
     // fall through to fallback
   }
-  const fallback = new Date(date)
-  fallback.setHours(18, 0, 0, 0)
+  const fallback = new Date(startOfCivilDay(date, utcOffsetMinutes).getTime() + 18 * 3600000)
   return fallback
 }
 
@@ -183,8 +180,8 @@ export const getSunsetForDate = (date, lat, lon) => {
 // day's tithi is whichever tithi is running at sunrise (not midnight, not "now").
 // Without this, Sep 14 2026 reads as Tritiya at 00:00 IST even though it's
 // Ganesh Chaturthi by tradition (Chaturthi tithi begins shortly before sunrise).
-export const getTithiAtSunrise = (date, lat, lon) => {
-  const sunriseTime = getSunriseForDate(date, lat, lon)
+export const getTithiAtSunrise = (date, lat, lon, utcOffsetMinutes) => {
+  const sunriseTime = getSunriseForDate(date, lat, lon, utcOffsetMinutes)
   const phaseAngle = Astronomy.MoonPhase(sunriseTime)
   return getTithiFromAngle(phaseAngle)
 }

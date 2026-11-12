@@ -374,6 +374,9 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 | 2026-05 | Forced a Vite asset URL bump (`-r2` output suffix) after the service worker kept serving an older cached JS file at the same `/assets/index-D_MdjkXA.js` URL, which made recently restored UI changes appear to disappear for existing users. | `vite.config.js` |
 | 2026-05 | Panchang terminology learning guide shipped live — added `Learn.jsx` with narrative explanations, local visual explainers, floating scroll-to-top button, hash deep links (`#learn/<section>`), and collapsed reference accordions for Tithis, Karanas, Rashis, Nakshatras, and monthly observances; added section-level `BookOpen` entry points in Panchang, Calendar Events, and Settings Calendar System/About. | `src/pages/Learn.jsx`, `src/App.jsx`, `src/pages/Panchang.jsx`, `src/pages/Calendar.jsx`, `src/pages/Settings.jsx` |
 
+| 2026-11 | Bengaluru public page — `/panchang/bengaluru` has prerendered dated HTML, unique metadata, sunrise-based Pancha Anga, explicit IST calculations and browser date refresh. Saved app settings are preserved. Added Vercel/Vite route mapping and a separate service-worker navigation handler. Static HTML refreshes on build only; see `docs/bengaluru-pilot.md` for snapshot freshness and rollout notes. Deployment uses Vercel via main. | `src/pages/BengaluruPanchang.jsx`, `src/bengaluruPanchang.js`, `src/civilDate.js`, `src/panchangAnga.js`, `scripts/prerender-panchang.mjs`, `vite.config.js`, `vercel.json`, `src/sw.js` |
+| 2026-11 | Bengaluru pilot review adjustment — Today is disabled when the selected date is the current IST date and enabled for other dates; the bottom homepage link now reads “Go to homepage”. | `src/pages/BengaluruPanchang.jsx` |
+
 ---
 
 ## Iconography Policy (Established 2026-05)

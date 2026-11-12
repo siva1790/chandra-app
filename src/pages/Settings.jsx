@@ -1009,6 +1009,12 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
               <span className="text-sm text-chandra-text-primary">On-device, no API</span>
             </div>
             <a
+              href="/panchang/bengaluru"
+              className="flex min-h-[44px] items-center justify-between border-t border-white/10 pt-2 text-sm text-chandra-focus"
+            >
+              Bengaluru daily Panchang
+            </a>
+            <a
               href="/privacy.html"
               className="group mt-1 flex min-h-[44px] items-center justify-between border-t border-white/10 pt-2 text-sm"
             >

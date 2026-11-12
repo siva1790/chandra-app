@@ -1,12 +1,13 @@
 import * as Astronomy from 'astronomy-engine'
 import { toSiderealLongitude } from './ayanamsha.js'
+import { startOfCivilDay } from './civilDate.js'
 import {
   getMasaForDate,
   getMoonPhaseAngle,
   getSunriseForDate,
   getSunsetForDate,
   getTithiFromAngle,
-} from './moonUtils'
+} from './moonUtils.js'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const HOUR_MS = 60 * 60 * 1000
@@ -246,11 +247,7 @@ export const MONTHLY_FESTIVALS = [
   { name: 'Kalashtami', paksha: 'Krishna', tithi: 8, emoji: '\u2694\uFE0F', type: 'observance', description: 'Dedicated to Lord Bhairava / Goddess Durga' },
 ]
 
-const atStartOfDay = (date) => {
-  const d = new Date(date)
-  d.setHours(0, 0, 0, 0)
-  return d
-}
+const atStartOfDay = startOfCivilDay
 
 const addMs = (date, ms) => new Date(date.getTime() + ms)
 
@@ -286,47 +283,46 @@ const findSolarIngressTime = (start, end, targetLon) => {
   return new Date(high)
 }
 
-const isSolarIngressObservedOnDate = (date, festival, lat, lon) => {
-  const start = atStartOfDay(date)
+const isSolarIngressObservedOnDate = (date, festival, lat, lon, offset) => {
+  const start = atStartOfDay(date, offset)
   const end = addMs(start, DAY_MS)
   const todayIngress = findSolarIngressTime(start, end, festival.sunLon)
 
   if (todayIngress) {
     if (typeof lat !== 'number' || typeof lon !== 'number') return true
-    return todayIngress <= getSunsetForDate(start, lat, lon)
+    return todayIngress <= getSunsetForDate(start, lat, lon, offset)
   }
 
   if (typeof lat !== 'number' || typeof lon !== 'number') return false
   const previousStart = addMs(start, -DAY_MS)
   const previousIngress = findSolarIngressTime(previousStart, start, festival.sunLon)
-  return previousIngress ? previousIngress > getSunsetForDate(previousStart, lat, lon) : false
+  return previousIngress ? previousIngress > getSunsetForDate(previousStart, lat, lon, offset) : false
 }
 
-const getSolarFestivalsForDate = (date, lat, lon) => {
+const getSolarFestivalsForDate = (date, lat, lon, offset) => {
   return ANNUAL_FESTIVALS.filter(
-    f => f.kind === 'solarIngress' && isSolarIngressObservedOnDate(date, f, lat, lon)
+    f => f.kind === 'solarIngress' && isSolarIngressObservedOnDate(date, f, lat, lon, offset)
   )
 }
 
-const getMoonriseForDate = (date, lat, lon) => {
+const getMoonriseForDate = (date, lat, lon, offset) => {
   try {
     if (typeof lat === 'number' && typeof lon === 'number') {
       const observer = new Astronomy.Observer(lat, lon, 0)
-      const moonrise = Astronomy.SearchRiseSet('Moon', observer, +1, atStartOfDay(date), 1)
+      const moonrise = Astronomy.SearchRiseSet('Moon', observer, +1, atStartOfDay(date, offset), 1)
       if (moonrise) return moonrise.date
     }
   } catch (_) {}
-  const fallback = new Date(date)
-  fallback.setHours(20, 0, 0, 0)
+  const fallback = addMs(atStartOfDay(date, offset), 20 * HOUR_MS)
   return fallback
 }
 
-const getWindow = (date, window, lat, lon) => {
-  const start = atStartOfDay(date)
+const getWindow = (date, window, lat, lon, offset) => {
+  const start = atStartOfDay(date, offset)
   const end = addMs(start, DAY_MS)
-  const sunrise = getSunriseForDate(date, lat, lon)
-  const sunset = getSunsetForDate(date, lat, lon)
-  const moonrise = getMoonriseForDate(date, lat, lon)
+  const sunrise = getSunriseForDate(date, lat, lon, offset)
+  const sunset = getSunsetForDate(date, lat, lon, offset)
+  const moonrise = getMoonriseForDate(date, lat, lon, offset)
   const noon = new Date((sunrise.getTime() + sunset.getTime()) / 2)
 
   switch (window) {
@@ -355,8 +351,8 @@ const getWindow = (date, window, lat, lon) => {
 const tithiMatches = (tithi, rule) =>
   tithi.paksha === rule.paksha && tithi.adjustedNumber === rule.tithi
 
-const ruleMatchesWindow = (date, rule, lat, lon) => {
-  const window = getWindow(date, rule.window || 'sunrise', lat, lon)
+const ruleMatchesWindow = (date, rule, lat, lon, offset) => {
+  const window = getWindow(date, rule.window || 'sunrise', lat, lon, offset)
   if (window.sample) {
     return tithiMatches(tithiAt(window.sample), rule) ? window.sample : null
   }
@@ -427,25 +423,25 @@ const displayMasaForRule = (date, sampleTime, rule, calendarSystem) => {
   return true
 }
 
-const hasEarlierMatchingDate = (date, rule, lat, lon, calendarSystem, daysBack) => {
+const hasEarlierMatchingDate = (date, rule, lat, lon, calendarSystem, daysBack, offset) => {
   for (let i = 1; i <= daysBack; i++) {
-    const previous = addMs(atStartOfDay(date), -i * DAY_MS)
-    const sample = ruleMatchesWindow(previous, rule, lat, lon)
+    const previous = addMs(atStartOfDay(date, offset), -i * DAY_MS)
+    const sample = ruleMatchesWindow(previous, rule, lat, lon, offset)
     if (sample && displayMasaForRule(previous, sample, rule, calendarSystem)) return true
   }
   return false
 }
 
-const hadPreviousTithi = (date, rule, lat, lon) => {
+const hadPreviousTithi = (date, rule, lat, lon, offset) => {
   if (!rule.preferFirstAfter) return true
   for (let i = 1; i <= 16; i++) {
-    const previous = addMs(atStartOfDay(date), -i * DAY_MS)
+    const previous = addMs(atStartOfDay(date, offset), -i * DAY_MS)
     const sample = ruleMatchesWindow(previous, {
       ...rule,
       paksha: rule.preferFirstAfter.paksha,
       tithi: rule.preferFirstAfter.tithi,
       window: 'day',
-    }, lat, lon)
+    }, lat, lon, offset)
     if (sample) return true
   }
   return false
@@ -484,25 +480,25 @@ const withComputedFestivalMetadata = (rule, sampleTime) => {
   return rule
 }
 
-const resolveAnnualFestivalForDate = (date, rule, lat, lon, calendarSystem) => {
+const resolveAnnualFestivalForDate = (date, rule, lat, lon, calendarSystem, offset) => {
   if (rule.kind === 'solarIngress') return false
-  const sample = ruleMatchesWindow(date, rule, lat, lon)
+  const sample = ruleMatchesWindow(date, rule, lat, lon, offset)
   if (!sample) return false
   if (!displayMasaForRule(date, sample, rule, calendarSystem)) return false
-  if (rule.firstOccurrence && hasEarlierMatchingDate(date, rule, lat, lon, calendarSystem, 2)) return false
+  if (rule.firstOccurrence && hasEarlierMatchingDate(date, rule, lat, lon, calendarSystem, 2, offset)) return false
   if (
     rule.suppressDuplicateWithinDays &&
-    hasEarlierMatchingDate(date, rule, lat, lon, calendarSystem, rule.suppressDuplicateWithinDays)
+    hasEarlierMatchingDate(date, rule, lat, lon, calendarSystem, rule.suppressDuplicateWithinDays, offset)
   ) {
     return false
   }
-  return hadPreviousTithi(date, rule, lat, lon)
+  return hadPreviousTithi(date, rule, lat, lon, offset)
     ? withComputedFestivalMetadata(rule, sample)
     : false
 }
 
-const getObservancesForDate = (date, tithiNumber, paksha, lat, lon) => {
-  const sunrise = getWindow(date, 'sunrise', lat, lon).sample
+const getObservancesForDate = (date, tithiNumber, paksha, lat, lon, offset) => {
+  const sunrise = getWindow(date, 'sunrise', lat, lon, offset).sample
   const sunriseTithi = tithiAt(sunrise)
   const effectiveTithi = tithiNumber && paksha
     ? { adjustedNumber: tithiNumber, paksha }
@@ -524,13 +520,14 @@ export const getFestivalsForDate = (date, tithiNumberOrOptions, pakshaArg) => {
   const lat = options.lat
   const lon = options.lon
   const calendarSystem = options.calendarSystem
+  const offset = options.utcOffsetMinutes
 
-  const solar = getSolarFestivalsForDate(date, lat, lon)
+  const solar = getSolarFestivalsForDate(date, lat, lon, offset)
   const annual = ANNUAL_FESTIVALS
-    .map(f => resolveAnnualFestivalForDate(date, f, lat, lon, calendarSystem))
+    .map(f => resolveAnnualFestivalForDate(date, f, lat, lon, calendarSystem, offset))
     .filter(Boolean)
   const major = [...solar, ...annual]
-  const observances = major.length > 0 ? [] : getObservancesForDate(date, tithiNumber, paksha, lat, lon)
+  const observances = major.length > 0 ? [] : getObservancesForDate(date, tithiNumber, paksha, lat, lon, offset)
 
   return [...major, ...observances]
 }

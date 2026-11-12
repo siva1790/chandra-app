@@ -376,6 +376,10 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
         </Card>
       )}
 
+      <a href="/panchang/bengaluru" className="mt-6 flex min-h-[44px] items-center justify-center gap-2 text-sm text-chandra-focus">
+        Bengaluru daily Panchang <ArrowRight size={16} aria-hidden="true" />
+      </a>
+
       {hasPersonalMessage && dayHighlight && moonData && (
         <TodayMessageModal
           isOpen={showModal}

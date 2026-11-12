@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender-panchang.mjs",
+    "test:panchang": "node --test tests/bengaluru-panchang.test.mjs",
+    "test:panchang-build": "node --test tests/bengaluru-build.test.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
