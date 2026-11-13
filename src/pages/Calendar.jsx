@@ -10,7 +10,8 @@ import DateStrip from '../components/DateStrip'
 import BottomSheet from '../components/ui/BottomSheet'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
-import { Calendar as CalendarIcon, Moon, Star, Clock, BookOpen, Sparkles } from 'lucide-react'
+import { Calendar as CalendarIcon, Moon, Star, Clock, BookOpen, Sparkles, MapPin } from 'lucide-react'
+import './Calendar.css'
 
 const NAKSHATRA_NAMES = [
   'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
@@ -64,6 +65,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
   const [activeView, setActiveView] = useState('calendar')
   const touchStartX = useRef(null)
   const touchStartY = useRef(null)
+  const dayTriggerRef = useRef(null)
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -220,6 +222,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
   }
 
   const openModal = (day) => {
+    dayTriggerRef.current = document.activeElement
     setSelectedDay(day)
     setTapSelectedDate(new Date(day.date))  // mark this date as explicitly selected
     setDayPanchang(null)                     // reset while computing
@@ -227,6 +230,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
   }
 
   const handlePickerSelect = (date) => {
+    dayTriggerRef.current = document.querySelector('.calendar-datebar [aria-haspopup="dialog"]')
     const pickedDate = new Date(date)
     const pickedDay = buildCalendarDay(pickedDate)
 
@@ -289,7 +293,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
     .filter(d => d && (d.festivals.length > 0 || d.eclipse))
 
   return (
-    <div className="min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
+    <div className="calendar-page min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
 
       {/* Header */}
       <div className="text-center mb-6">
@@ -297,18 +301,20 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
           Lunar Calendar
         </h1>
         <p className="text-sm text-chandra-text-secondary">Hindu Panchang Festival View</p>
+        <p className="calendar-context">
+          <MapPin size={14} strokeWidth={1.75} aria-hidden="true" />
+          <span>{settings.city}</span><span aria-hidden="true">·</span><span>{settings.calendarSystem}</span>
+        </p>
       </div>
 
       <div
-        role="tablist"
         aria-label="Calendar view"
-        className="mb-4 grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-chandra-bg-surface p-1"
+        className="calendar-view-switch mb-4 grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-chandra-bg-surface p-1"
       >
         <button
           type="button"
-          role="tab"
           id="calendar-view-tab"
-          aria-selected={activeView === 'calendar'}
+          aria-pressed={activeView === 'calendar'}
           aria-controls="calendar-view-panel"
           onClick={() => setActiveView('calendar')}
           className={`flex min-h-[44px] min-w-0 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-bold transition-all ${
@@ -322,9 +328,8 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         </button>
         <button
           type="button"
-          role="tab"
           id="events-view-tab"
-          aria-selected={activeView === 'events'}
+          aria-pressed={activeView === 'events'}
           aria-controls="events-view-panel"
           aria-label={`Events in ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
           onClick={() => setActiveView('events')}
@@ -346,13 +351,16 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         onPickerSelect={handlePickerSelect}
         onTodaySelect={handleGoToToday}
         mode="month"
+        responsive
       />
 
+      <div className="calendar-layout">
       <div
         id="calendar-view-panel"
-        role="tabpanel"
-        aria-labelledby="calendar-view-tab"
-        hidden={activeView !== 'calendar'}
+        role="region"
+        aria-label={`${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()} calendar`}
+        className="calendar-panel calendar-grid-panel"
+        data-active={activeView === 'calendar'}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -364,10 +372,9 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-1">
-          {calendarDays.map((day, idx) => (
-            day ? (
-              (() => {
+        <div className="calendar-days grid grid-cols-7 gap-1">
+          {calendarDays.map((day, idx) => {
+            if (!day) return <div key={idx} aria-hidden="true" />
                 const isSelected = tapSelectedDate !== null &&
                   day.date.toDateString() === tapSelectedDate.toDateString()
                 const isToday    = day.isToday
@@ -375,9 +382,11 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
               <button
                 key={idx}
                 onClick={() => openModal(day)}
+                aria-pressed={isSelected}
+                aria-current={isToday ? 'date' : undefined}
                 aria-label={`${day.day} ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}, ${day.tithi.name}${day.festivals.length > 0 ? ', ' + day.festivals[0].name : ''}${day.eclipse ? ', ' + day.eclipse.hinduName : ''}`}
                 className={`
-                  relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14
+                  calendar-day relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14
                   transition-all duration-150 cursor-pointer hover:bg-chandra-bg-elevated active:bg-chandra-bg-elevated
                   ${isSelected
                       ? 'border border-chandra-focus bg-chandra-indigo-cta text-chandra-text-primary'
@@ -390,37 +399,40 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                   {day.day}
                 </span>
                 <span className="text-xs" role="img" aria-label={phaseLabel(day.phaseEmoji)}>{day.phaseEmoji}</span>
+                <span className="calendar-day-tithi">{day.tithi.name.replace(' (Prathama)', '')}</span>
                 {day.eclipse ? (
                   <EclipseIcon eclipse={day.eclipse} size={13} />
                 ) : (() => {
                   const major = day.festivals.find(f => f.type === 'major')
-                  if (major) return <span className="text-xs" role="img" aria-label={major.name}>{major.emoji}</span>
+                  if (major) return <span className="calendar-festival-indicator" role="img" aria-label={major.name}><span className="calendar-festival-emoji">{major.emoji}</span></span>
                   if (day.festivals.length > 0) return <span className="mt-0.5 inline-block h-1.5 w-1.5 rounded-full bg-chandra-warning" aria-hidden="true" />
                   return null
                 })()}
               </button>
                 )
-              })()
-            ) : (
-              <div key={idx} aria-hidden="true" />
-            )
-          ))}
+          })}
+        </div>
+        <div className="calendar-legend" aria-label="Calendar legend">
+          <span><i className="calendar-today-key" aria-hidden="true" />Today</span>
+          <span><i className="calendar-festival-key" aria-hidden="true" />Festival</span>
+          <span><i className="calendar-observance-key" aria-hidden="true" />Observance</span>
         </div>
       </div>
 
       {/* Events this month */}
       <div
         id="events-view-panel"
-        role="tabpanel"
-        aria-labelledby="events-view-tab"
-        hidden={activeView !== 'events'}
+        role="region"
+        aria-labelledby="calendar-events-heading"
+        className="calendar-panel calendar-events-panel"
+        data-active={activeView === 'events'}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         <div className="flex items-center justify-between gap-3 mb-3">
-          <p className="text-xs uppercase tracking-widest text-chandra-text-secondary">
+          <h2 id="calendar-events-heading" className="text-sm font-semibold text-chandra-text-primary">
             Events in {monthNames[currentDate.getMonth()]}
-          </p>
+          </h2>
           <button
             type="button"
             onClick={() => onLearn?.('festivals-events')}
@@ -433,7 +445,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         {monthFestivals.length === 0 ? (
           <p className="py-6 text-center text-sm text-chandra-text-secondary">No events this month</p>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="calendar-event-list flex flex-col gap-2">
             {monthFestivals.map((day, i) => {
               // A day is observance-only when all its festivals are monthly observances
               // (the engine already suppresses observances when a major festival is present)
@@ -494,15 +506,21 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
           </div>
         )}
       </div>
+      </div>
+      <footer className="calendar-footer">
+        <span>Tithi at local sunrise · {settings.city}</span>
+        <span>Chandra · Indian Moon Tracker</span>
+      </footer>
 
       {/* ── Day Detail Modal (bottom sheet) ─────────────────────── */}
-      {selectedDay && (
         <BottomSheet
           open={Boolean(selectedDay)}
           onClose={closeModal}
           labelledBy="day-modal-title"
-          className="mx-auto max-w-md"
+          className="calendar-day-sheet mx-auto max-w-md"
+          triggerRef={dayTriggerRef}
         >
+          {selectedDay && (
           <div className="px-5 pb-10">
             {/* Date header */}
             <div className="mb-4">
@@ -560,8 +578,8 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
               View Full Panchang
             </Button>
           </div>
+          )}
         </BottomSheet>
-      )}
     </div>
   )
 }

@@ -12,7 +12,7 @@ import Button from './ui/Button'
  *                   'day'   — arrows step ±1 day   (Day View, Panchang)
  *                   'month' — arrows step ±1 month with day clamping (Calendar)
  */
-const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = 'day' }) => {
+const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = 'day', responsive = false }) => {
   const [pickerOpen, setPickerOpen] = useState(false)
   const pickerTriggerRef = useRef(null)
 
@@ -62,7 +62,7 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
 
   return (
     <>
-      <div className="flex flex-col items-center gap-1 mb-6">
+      <div className={`${responsive ? 'calendar-datebar ' : ''}flex flex-col items-center gap-1 mb-6`}>
         {/* Arrows + date label row */}
         <div className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-chandra-bg-surface px-1 py-1">
           <button
@@ -79,7 +79,7 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
             className="flex flex-1 flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all hover:bg-chandra-bg-elevated"
           >
             <p className="text-center text-sm font-medium text-chandra-text-primary">{label}</p>
-            {isToday && (
+            {isToday && !responsive && (
               <p className="text-xs text-chandra-gold">Today</p>
             )}
           </button>
@@ -92,7 +92,9 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
         </div>
 
         {/* Go to Today — only shown when not on today */}
-        {!isToday && (
+        {responsive ? (
+          <button type="button" onClick={goToToday} disabled={isToday} className="calendar-today-button">Today</button>
+        ) : !isToday && (
           <Button
             onClick={goToToday}
             className="w-full"

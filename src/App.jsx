@@ -13,6 +13,13 @@ import OfflineBanner from './components/OfflineBanner'
 import { trackPageView } from './analytics'
 import { Bell, Moon, Calendar as CalendarIcon, Clock, Settings as SettingsIcon } from 'lucide-react'
 
+const NAV_ITEMS = [
+  { id: 'home', label: 'Day View', Icon: Moon },
+  { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
+  { id: 'panchang', label: 'Panchang', Icon: Clock },
+  { id: 'settings', label: 'Settings', Icon: SettingsIcon },
+]
+
 // Feature flag — set to true to re-enable the subscription UI
 function App() {
   const [screen, setScreen] = useState('home')
@@ -144,12 +151,12 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className={`min-h-screen${screen === 'calendar' ? ' calendar-active' : ''}`}>
       <a href="#main-content" className="skip-link">Skip to content</a>
 
       {/* ── Persistent Top Bar ── */}
       <div
-        className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-white/10 bg-chandra-bg-primary px-4"
+        className="app-topbar fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-white/10 bg-chandra-bg-primary px-4"
         aria-hidden={sheetOpen || undefined}
         {...(sheetOpen ? { inert: '' } : {})}
       >
@@ -167,6 +174,15 @@ function App() {
           />
           <span className="text-lg font-bold tracking-wide text-chandra-gold">Chandra</span>
         </button>
+
+        <nav className="calendar-top-navigation" aria-label="Main navigation">
+          {NAV_ITEMS.map(({ id, label, Icon }) => (
+            <button key={id} type="button" onClick={() => navigate(id)} aria-current={screen === id ? 'page' : undefined}>
+              <Icon size={16} strokeWidth={1.75} aria-hidden="true" />
+              <span>{label}</span>
+            </button>
+          ))}
+        </nav>
 
         {/* Bell icon — right (hidden until ENABLE_SUBSCRIPTIONS = true) */}
         {ENABLE_SUBSCRIPTIONS && (
@@ -224,16 +240,11 @@ function App() {
       {/* ── Bottom Navigation ── */}
       <nav
         aria-label="Main navigation"
-        className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-white/10 bg-chandra-bg-primary px-4 py-3"
+        className="app-bottom-navigation fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-white/10 bg-chandra-bg-primary px-4 py-3"
         aria-hidden={sheetOpen || undefined}
         {...(sheetOpen ? { inert: '' } : {})}
       >
-        {[
-          { id: 'home',     label: 'Day View',  Icon: Moon },
-          { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
-          { id: 'panchang', label: 'Panchang', Icon: Clock },
-          { id: 'settings', label: 'Settings', Icon: SettingsIcon },
-        ].map(({ id, label, Icon }) => (
+        {NAV_ITEMS.map(({ id, label, Icon }) => (
           <button
             key={id}
             onClick={() => navigate(id)}

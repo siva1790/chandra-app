@@ -381,6 +381,8 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 | 2026-11 | Sorted Panchang by city links alphabetically through the shared registry and removed extra spacing between wrapped rows in `CityPageLinks`. Applies to the homepage, Settings and all public city pages; 44px touch targets are preserved. | `src/publicPanchangCities.js`, `src/components/CityPageLinks.jsx` |
 | 2026-11 | Applied approved responsive design to all public city pages: mobile single column/bottom navigation below 768px; tablet two columns/compact top navigation at 768px; desktop spacing at 1024px with 1000px maximum container. Festivals and city links form a second row, with about/homepage CTA below. CSS is scoped to city pages; app layout and calculations are preserved. | `src/pages/CityPanchang.jsx`, `src/pages/CityPanchang.css` |
 
+| 2026-11 | Applied approved responsive Calendar layout: calendar and monthly events side by side from 768px, top navigation on tablet/desktop, mobile view switch and bottom navigation, centred desktop dialogs, and month/year label centred between navigation arrows. | `src/pages/Calendar.jsx`, `src/pages/Calendar.css`, `src/components/DateStrip.jsx`, `src/App.jsx` |
+
 ---
 
 ## Iconography Policy (Established 2026-05)
