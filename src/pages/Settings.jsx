@@ -7,8 +7,9 @@ import { ENABLE_PUSH_NOTIFICATIONS, ENABLE_SUBSCRIPTIONS } from '../featureFlags
 import { cities } from '../cities'
 import { initDevice, updateDevice, deactivateDevice } from '../notifications'
 import { trackEvent } from '../analytics'
-import { Settings as SettingsIcon, MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck, BookOpen, User, Clock, CalendarDays, CheckCircle2, LockKeyhole, X } from 'lucide-react'
+import { MapPin, Globe, Calendar as CalendarIcon, Bell, Mail, LocateFixed, ShieldCheck, BookOpen, User, Clock, CalendarDays, CheckCircle2, LockKeyhole, X } from 'lucide-react'
 import Toggle from '../components/ui/Toggle'
+import './Settings.css'
 
 // ── Notification toggle helpers ──
 const NOTIF_KEY         = 'chandra-notif-prefs'
@@ -363,16 +364,16 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
+    <div className="settings-page min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
 
       {ENABLE_PUSH_NOTIFICATIONS && (
         <NotificationPreview visible={showPreview} onDismiss={() => setShowPreview(false)} />
       )}
 
       {/* Header */}
-      <div className="text-center mb-6">
+      <div className="settings-heading text-center mb-6">
         <h1 className="mb-1 flex items-center justify-center gap-2 text-2xl font-bold text-chandra-gold">
-          <SettingsIcon size={22} aria-hidden="true" strokeWidth={1.75} /> Settings
+          Settings
         </h1>
         <p className="text-sm text-chandra-text-secondary">Personalise your Chandra experience</p>
       </div>
@@ -384,12 +385,12 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         </div>
       )}
 
-      <div className="flex flex-col gap-5">
+      <div className="settings-grid flex flex-col gap-5">
 
         {/* Current Settings Summary */}
-        <div className={FEATURED_CARD_CLASS}>
-          <p className="mb-3 text-xs uppercase tracking-widest text-chandra-gold">Current Settings</p>
-          <div className="flex flex-col gap-2">
+        <div className={`settings-summary ${FEATURED_CARD_CLASS}`}>
+          <h2 className="mb-3 text-xs uppercase tracking-widest text-chandra-gold">Current Settings</h2>
+          <div className="settings-summary-content flex flex-col gap-2">
             <div className="flex justify-between">
               <span className="flex items-center gap-1 text-sm text-chandra-text-secondary"><MapPin size={13} aria-hidden="true" /> City</span>
               <span className="text-sm font-medium text-chandra-text-primary">{settings.city}</span>
@@ -406,12 +407,12 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         </div>
 
         {/* Personal Details */}
-        <div className={CARD_CLASS}>
+        <div className={`settings-personal ${CARD_CLASS}`}>
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
-              <p className={SECTION_TITLE_CLASS}>
+              <h2 className={SECTION_TITLE_CLASS}>
                 <User size={13} aria-hidden="true" /> Personal Details
-              </p>
+              </h2>
               <p className="mt-2 text-xs leading-relaxed text-chandra-text-secondary">
                 Stored on this device. Used later for Rasi, Nakshatra and personalised daily messages.
               </p>
@@ -534,7 +535,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                   </div>
                 </div>
 
-                <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-chandra-bg-elevated px-3 py-3">
+                <label className="settings-birth-location mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-chandra-bg-elevated px-3 py-3">
                   <input
                     type="checkbox"
                     checked={profileForm.sameAsCurrentLocation}
@@ -608,7 +609,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                 {profileErrors.birthPlace && <p id="birth-city-error" className="mt-2 text-xs text-chandra-error">{profileErrors.birthPlace}</p>}
               </div>
 
-              <div className="flex gap-2 pt-1">
+              <div className="settings-profile-actions flex gap-2 pt-1">
                 <button
                   type="button"
                   onClick={handleSaveProfile}
@@ -631,10 +632,10 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         </div>
 
         {/* City Selector */}
-        <div className={CARD_CLASS}>
-          <p className={SECTION_TITLE_CLASS}>
+        <div className={`settings-city ${CARD_CLASS}`}>
+          <h2 className={SECTION_TITLE_CLASS}>
             <MapPin size={13} aria-hidden="true" /> Your City
-          </p>
+          </h2>
           <p className="mb-3 text-xs text-chandra-text-secondary">
             Used for accurate moonrise, moonset and Rahu Kaal timings
           </p>
@@ -751,10 +752,10 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         </div>
 
         {/* Language Selector */}
-        <div className={CARD_CLASS}>
-          <p className={SECTION_TITLE_CLASS}>
+        <div className={`settings-language ${CARD_CLASS}`}>
+          <h2 className={SECTION_TITLE_CLASS}>
             <Globe size={13} aria-hidden="true" /> Language
-          </p>
+          </h2>
           <p className="mb-3 text-xs text-chandra-text-secondary">
             More languages coming soon
           </p>
@@ -788,11 +789,11 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         </div>
 
         {/* Calendar System */}
-        <div className={CARD_CLASS}>
+        <div className={`settings-calendar ${CARD_CLASS}`}>
           <div className="flex items-center justify-between gap-3 mb-3">
-            <p className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-chandra-gold">
+            <h2 className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-chandra-gold">
               <CalendarIcon size={13} aria-hidden="true" /> Calendar System
-            </p>
+            </h2>
             <button
               type="button"
               onClick={() => onLearn?.('calendar-system')}
@@ -990,8 +991,10 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         )}
 
         {/* About */}
-        <div className={CARD_CLASS}>
-          <p className="mb-3 text-xs uppercase tracking-widest text-chandra-gold">About</p>
+        <div className={`settings-about ${CARD_CLASS}`}>
+          <div className="settings-about-grid">
+          <div className="settings-about-info">
+          <h2 className="mb-3 text-xs uppercase tracking-widest text-chandra-gold">About</h2>
           <div className="flex flex-col gap-2">
             <div className="flex justify-between">
               <span className="text-sm text-chandra-text-secondary">App</span>
@@ -1009,7 +1012,14 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
               <span className="text-sm text-chandra-text-secondary">Calculations</span>
               <span className="text-sm text-chandra-text-primary">On-device, no API</span>
             </div>
-            <CityPageLinks />
+          </div>
+          </div>
+          <div className="settings-cities"><CityPageLinks /></div>
+          </div>
+          <div className="settings-about-links">
+            <button type="button" onClick={() => onLearn?.('pancha-anga')} className="flex min-h-[44px] items-center gap-2 text-sm text-chandra-focus">
+              <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" className="text-chandra-gold" />Learn Panchang basics
+            </button>
             <a
               href="/privacy.html"
               className="group mt-1 flex min-h-[44px] items-center justify-between border-t border-white/10 pt-2 text-sm"
@@ -1024,6 +1034,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
         </div>
 
       </div>
+      <footer className="settings-footer"><span>Your preferences, your Chandra</span><span>Chandra · Indian Moon Tracker</span></footer>
     </div>
   )
 }

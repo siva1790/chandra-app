@@ -386,6 +386,8 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 | 2026-11 | Applied approved responsive Day View: full-width My Day, Cosmos and Panchanga in two columns from 768px, shared desktop navigation, centred date bar, single-column mobile layout, larger desktop moon and wrapping Panchanga values. Sunrise calculations, moon renderer and personalization are preserved. | `src/pages/Home.jsx`, `src/pages/Home.css`, `src/pages/Calendar.css`, `src/components/DateStrip.jsx`, `src/App.jsx` |
 | 2026-11 | Applied approved responsive Panchang: Pancha Anga matches the combined height of Daily Timings, Nakshatra Details and Month & Year in two columns from 768px; Navagraha uses three columns below. Collapse/Expand All is hidden from 1024px and retained on tablet/mobile; individual accordions, saved preferences, calculation logic and learning links are preserved. | `src/pages/Panchang.jsx`, `src/pages/Panchang.css`, `src/App.jsx` |
 
+| 2026-11 | Applied approved responsive Settings: full-width Current Settings, two-column tablet/desktop layout, matching Personal Details/Your City and Language/Calendar System heights from 768px, aligned About/Panchang by city headings, shared desktop navigation and mobile single-column layout. Profile, city, calendar and notification feature-flag logic is preserved. | `src/pages/Settings.jsx`, `src/pages/Settings.css`, `src/App.jsx` |
+
 ---
 
 ## Iconography Policy (Established 2026-05)
