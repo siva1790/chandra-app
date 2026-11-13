@@ -1,6 +1,7 @@
 import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
 import { getPublicPanchangCityFromPath } from './publicPanchangCities.js'
+import { isPublicLearnPath } from './publicLearn.js'
 
 // ── Precache app shell (manifest injected by vite-plugin-pwa at build time) ──
 precacheAndRoute(self.__WB_MANIFEST)
@@ -8,7 +9,7 @@ precacheAndRoute(self.__WB_MANIFEST)
 // Keep the public city page separate from the personalised app shell.
 // The network refreshes the HTML snapshot; cached HTML is an offline fallback.
 registerRoute(
-  ({ request, url }) => request.mode === 'navigate' && Boolean(getPublicPanchangCityFromPath(url.pathname)),
+  ({ request, url }) => request.mode === 'navigate' && (Boolean(getPublicPanchangCityFromPath(url.pathname)) || isPublicLearnPath(url.pathname)),
   async ({ request }) => {
     try {
       const response = await fetch(request)

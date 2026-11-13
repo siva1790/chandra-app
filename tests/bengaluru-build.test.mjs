@@ -33,7 +33,7 @@ test('public entry does not pull the personalised app or Firebase bundle', () =>
   assert.ok(!/\/assets\/main-/.test(html))
   assert.match(html, /\/assets\/entry-city-panchang-/)
   assert.match(html, /href="\/#settings"/)
-  assert.match(html, /href="\/#learn\/pancha-anga"/)
+  assert.match(html, /href="\/learn\/panchang-basics#pancha-anga"/)
 })
 
 
@@ -56,7 +56,7 @@ test('all enabled city pages have local content, unique metadata, and correct sn
     assert.ok(config.rewrites.some(route => route.source === city.path && route.destination === city.path + '/index.html'))
     assert.ok(sitemap.includes('https://chandrapanchang.app' + city.path))
   }
-  assert.equal([...sitemap.matchAll(/<loc>/g)].length, PUBLIC_PANCHANG_CITIES.length + 1)
+  assert.equal([...sitemap.matchAll(/<loc>/g)].length, PUBLIC_PANCHANG_CITIES.length + 2)
   assert.ok(!sitemap.includes('/panchang/unknown'))
   assert.ok(robots.includes('Sitemap: https://chandrapanchang.app/sitemap.xml'))
 })

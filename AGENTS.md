@@ -390,14 +390,21 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 
 | 2026-11 | Standardized corner radii across Day View, Calendar, Panchang, Settings, Learn, public city pages and Privacy. Shared semantic tokens use 8px icons, 12px controls/insets, 16px cards and 24px dialogs, with pills/circles for geometry. Removed breakpoint radius drift, updated components/design guide, and added build/lint policy checks and offline token caching. Approved for production deployment. | `public/radius-tokens.css`, `src/components/`, `src/pages/`, `scripts/check-radii.mjs`, `docs/corner-radius-system.md` |
 
+| 2026-11 | Prepared responsive Learn layout for review: one continuous 760px reading column like Privacy, 16px tablet/desktop reading text, shared top navigation from 768px, matching sticky Back-bar offsets and existing mobile layout. Hash links, references and return navigation are preserved. Approved for production deployment. | `src/pages/Learn.jsx`, `src/pages/Learn.css`, `src/App.jsx`, `docs/learn-responsive-review.md` |
+
+| 2026-11 | Corrected Learn's legacy yellow/grey/white palette and hard-coded illustration colors to use the Chandra design-system tokens, including card/inset backgrounds, primary/secondary text, gold accents, borders and pressed states. Approved for production deployment. | `src/pages/Learn.jsx`, `src/pages/Learn.css`, `docs/learn-responsive-review.md` |
+
+| 2026-11 | Prepared dedicated prerendered Learn guide at `/learn/panchang-basics` with independent metadata/canonical, sitemap and Vercel/Vite/SW routing. Eight main topics use native accordions with multi-open, Expand/Collapse All and topic-fragment opening/focus. Old `/#learn/<topic>` links preserve in-app return context; public city links use the new guide. Approved for production deployment. | `src/pages/Learn.jsx`, `src/pages/PublicLearn.jsx`, `src/entry-learn*`, `src/publicLearn.js`, `learn/panchang-basics/index.html`, `scripts/`, `tests/learn-build.test.mjs` |
+
+| 2026-11 | Added a compact What you'll learn overview, 01–08 topic numbering and visible outcome descriptions to the Learn accordion preview. Topics start collapsed unless opened through a direct topic link. Approved for production deployment. | `src/pages/Learn.jsx`, `src/pages/Learn.css`, `docs/learn-responsive-review.md` |
+
 ---
 
 ## Corner Radius Policy (2026-11)
 
-- `public/radius-tokens.css` is the shared source for app, city pages, Privacy and design-guide radii. Keep it linked in the main HTML and shared city head; keep it in the service-worker precache.
-- Use semantic Tailwind classes: `rounded-icon` (8px), `rounded-control` / `rounded-inset` (12px), `rounded-card` (16px), `rounded-dialog` (24px), `rounded-pill` and `rounded-circle`. Mobile sheets use `rounded-t-dialog`; centered dialogs use all four corners. Flat list rows inside a card may stay square.
-- Radius does not change at breakpoints. Buttons expose a `shape` prop; do not append competing radius classes. Use pills for chips/tags and circular geometry, not ordinary actions.
-- Run `npm run check:radii` before review (also included in `npm run lint`). See `docs/corner-radius-system.md` for usage and responsive review widths.
+- Before creating or changing a design or mockup, read [Chandra Design System](chandra-design-system.html), including its [Border Radius section](chandra-design-system.html#radius).
+- That section is the authoritative reference for corner-radius values, component usage, responsive/state rules and review checks. Update it when an approved pattern changes; keep other documents as pointers rather than duplicate policies.
+- `public/radius-tokens.css` implements the values. Follow the design system's implementation and validation instructions before sharing work for review.
 
 ## Iconography Policy (Established 2026-05)
 

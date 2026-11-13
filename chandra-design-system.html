@@ -569,7 +569,45 @@ document.head.appendChild(link);</pre>
     <tr><td><code>--radius-pill</code></td><td>9999px</td><td>Chips, tags, toggle tracks and thumbs</td></tr>
     <tr><td><code>--radius-circle</code></td><td>50%</td><td>Explicit circular elements</td></tr>
   </table>
-  <p>Load <code>/radius-tokens.css</code>, the single source of truth. Use semantic utilities such as <code>rounded-control</code>, <code>rounded-card</code> and <code>rounded-t-dialog</code>. Radius stays the same on mobile, tablet and desktop, including hover, selected, disabled and focus states. Flat rows inside a panel remain square. Run <code>npm run check:radii</code> before review; do not add generic radius classes or page-specific numeric overrides.</p>
+  <p><strong>This section is the authoritative reference for Chandra's corner-radius guidelines.</strong> Apply it to every mockup and implementation across Day View, Calendar, Panchang, Settings, Learn, public city pages and Privacy. Keep the same radius for elements with the same purpose.</p>
+
+  <h2 class="sub">Semantic Utilities and Component Usage</h2>
+  <table>
+    <tr><th>Utility</th><th>Applies to</th></tr>
+    <tr><td><code>rounded-icon</code></td><td>Square icon hit areas: arrows, close and help buttons</td></tr>
+    <tr><td><code>rounded-control</code></td><td>Primary/secondary actions, fields, selects, navigation items and segmented controls</td></tr>
+    <tr><td><code>rounded-inset</code></td><td>Panchanga tiles, nested timing boxes, search dropdowns and calendar date cells</td></tr>
+    <tr><td><code>rounded-card</code></td><td>Cards, accordion shells, city-links containers and standalone status/event panels, including clickable cards</td></tr>
+    <tr><td><code>rounded-dialog</code> / <code>rounded-t-dialog</code></td><td>Centered dialogs / edge-attached bottom sheets</td></tr>
+    <tr><td><code>rounded-pill</code> / <code>rounded-circle</code></td><td>Chips, tags, badges, toggles and decorative geometry / explicit circles with equal width and height</td></tr>
+  </table>
+
+  <h2 class="sub">Responsive and State Rules</h2>
+  <ul>
+    <li><strong>Keep radius unchanged at every breakpoint.</strong> Adapt columns, spacing, width and placement on mobile, tablet and desktop. A card remains 16px and a calendar date cell remains 12px at every size.</li>
+    <li>Hover, selected, active, disabled, error and keyboard-focus states retain the element's shape. Backgrounds and focus outlines should follow that shape.</li>
+    <li>Mobile sheets use <code>rounded-t-dialog</code>: 24px top corners and square bottom corners. Centered tablet/desktop dialogs use 24px on all four corners.</li>
+    <li>Flat list rows inside a shared card may stay square, with clipping owned by the parent. A mobile event card can become a flat row inside a desktop events panel.</li>
+    <li>Use pills/circles for chips, tags, toggle geometry and deliberate circular elements. Ordinary text actions use the control radius. Logos and celestial illustrations retain their designed geometry.</li>
+  </ul>
+
+  <h2 class="sub">Implementation Rules</h2>
+  <p>The executable values live in <code>public/radius-tokens.css</code>; this section owns their usage guidelines. Load the stylesheet in app, public-city and Privacy documents, and keep it in the service-worker precache. The city-page preparation script copies the shared city head. Tailwind maps the semantic utilities above to these CSS variables.</p>
+  <ul>
+    <li>Reuse the shared <code>Button</code>, <code>Input</code>, <code>Card</code>, <code>Chip</code> and <code>BottomSheet</code> components where their behavior fits.</li>
+    <li><code>Button</code> exposes <code>shape="control|icon|pill|circle"</code>, defaulting to <code>control</code>. Choose one shape; do not append a competing radius class. Clickable cards keep the card radius.</li>
+    <li>Use semantic classes or <code>var(--radius-…)</code> in CSS. Do not use generic classes such as <code>rounded-xl</code>, arbitrary numeric radii, inline JSX radii or breakpoint-specific radius overrides.</li>
+    <li>A new value or exception needs explicit design review. Once approved, update this section and the central tokens together before using it elsewhere. Keep other documents as links to this reference.</li>
+  </ul>
+
+  <h2 class="sub">Checks Before Design Review</h2>
+  <ol>
+    <li>Compare the design with the approved pages and the component-purpose tables above.</li>
+    <li>Review at <strong>320, 390, 767, 768, 800, 1023, 1024 and 1440px</strong>, covering mobile, tablet, desktop and both sides of the responsive breakpoints.</li>
+    <li>Include date and month/year pickers, Calendar events/day dialogs, Settings city suggestions, validation messages and saved-profile states. Review hover, selected, disabled and focus states.</li>
+    <li>Check matched Settings card heights on tablet/desktop, Panchang column sizing, dialog clipping, touch targets and horizontal overflow. Feature-disabled subscription/push interfaces can be source-reviewed without enabling them.</li>
+    <li>Run <code>npm run check:radii</code>. It rejects generic radius utilities, arbitrary numeric UI radii and inline JSX radii, and runs automatically before ESLint and production builds. It complements the manual visual review; it does not verify every component's intended role.</li>
+  </ol>
 
   <h2 class="sub">Border Colors <span class="badge badge-new">NEW</span></h2>
   <p style="font-size:13px;color:var(--doc-muted);margin-bottom:12px">These were missing from the original system. Define them explicitly to prevent ad-hoc border color decisions.</p>

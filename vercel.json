@@ -35,6 +35,10 @@
     {
       "source": "/panchang/pune",
       "destination": "/panchang/pune/index.html"
+    },
+    {
+      "source": "/learn/panchang-basics",
+      "destination": "/learn/panchang-basics/index.html"
     }
   ],
   "redirects": [
@@ -126,6 +130,16 @@
     {
       "source": "/panchang/pune/index.html",
       "destination": "/panchang/pune",
+      "permanent": true
+    },
+    {
+      "source": "/learn/panchang-basics/",
+      "destination": "/learn/panchang-basics",
+      "permanent": true
+    },
+    {
+      "source": "/learn/panchang-basics/index.html",
+      "destination": "/learn/panchang-basics",
       "permanent": true
     }
   ]

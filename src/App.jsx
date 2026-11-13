@@ -151,7 +151,7 @@ function App() {
   }
 
   return (
-    <div className={`min-h-screen${['home', 'calendar', 'panchang', 'settings'].includes(screen) ? ' responsive-app-shell' : ''}`}>
+    <div className={`min-h-screen${['home', 'calendar', 'panchang', 'settings', 'learn'].includes(screen) ? ' responsive-app-shell' : ''}`}>
       <a href="#main-content" className="skip-link">Skip to content</a>
 
       {/* ── Persistent Top Bar ── */}

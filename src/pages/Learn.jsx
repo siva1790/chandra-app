@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, ArrowUp, BookOpen, CalendarDays, Clock, Moon, Sparkles, Star, Sun } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ArrowLeft, ArrowUp, BookOpen, CalendarDays, ChevronDown, Clock, Moon, Sparkles, Star, Sun } from 'lucide-react'
+import './Learn.css'
 
 const LEARN_SECTIONS = [
   {
     id: 'basics',
     eyebrow: 'Start Here',
     title: 'The Sky Clock Behind Chandra',
+    summary: 'How the Sun, Moon and stars shape the Hindu calendar.',
     icon: Moon,
     intro:
       'A Panchang is a way of reading time from the relationship between the Sun, Moon, stars, and your location. Chandra turns that sky clock into a daily view for your city.',
@@ -19,6 +21,7 @@ const LEARN_SECTIONS = [
     id: 'pancha-anga',
     eyebrow: 'Five Limbs',
     title: 'Pancha Anga: The Five Parts Of A Day',
+    summary: 'Understand Tithi, Nakshatra, Yoga, Karana and Vara.',
     icon: Sparkles,
     intro:
       'Pancha Anga literally means five limbs. Together, Tithi, Nakshatra, Yoga, Karana, and Vara describe the character of a Hindu calendar day.',
@@ -34,6 +37,7 @@ const LEARN_SECTIONS = [
   },
   {
     id: 'daily-timings',
+    summary: 'Read Rahu Kaal, Brahma Muhurta and other daily time windows.',
     eyebrow: 'Daily Rhythm',
     title: 'Daily Timings: Reading The Daylight',
     icon: Clock,
@@ -49,6 +53,7 @@ const LEARN_SECTIONS = [
   },
   {
     id: 'nakshatra',
+    summary: 'Explore lunar mansions, Padas and their meaning.',
     eyebrow: 'Moon Among Stars',
     title: 'Nakshatra Details',
     icon: Star,
@@ -64,6 +69,7 @@ const LEARN_SECTIONS = [
   },
   {
     id: 'month-year',
+    summary: 'Make sense of Masa, Ritu, Ayana and Samvatsara.',
     eyebrow: 'Lunar Month',
     title: 'Month And Year',
     icon: CalendarDays,
@@ -80,6 +86,7 @@ const LEARN_SECTIONS = [
   },
   {
     id: 'navagraha',
+    summary: 'Learn about Navagraha, Rashis and Ayanamsha.',
     eyebrow: 'Wider Sky',
     title: 'Planetary Positions And Navagraha',
     icon: Sun,
@@ -95,6 +102,7 @@ const LEARN_SECTIONS = [
   },
   {
     id: 'festivals-events',
+    summary: 'Discover how festival dates and recurring observances are determined.',
     eyebrow: 'Calendar Events',
     title: 'Festivals, Observances, And Eclipses',
     icon: CalendarDays,
@@ -109,6 +117,7 @@ const LEARN_SECTIONS = [
   },
   {
     id: 'calendar-system',
+    summary: 'Compare the Amavasyant and Purnimant calendar traditions.',
     eyebrow: 'Settings',
     title: 'Calendar System: Amavasyant And Purnimant',
     icon: CalendarDays,
@@ -217,6 +226,16 @@ const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' 
   const [showTop, setShowTop] = useState(false)
   const titleRef = useRef(null)
   const sectionIds = useMemo(() => new Set(LEARN_SECTIONS.map(section => section.id)), [])
+  const [openTopics, setOpenTopics] = useState(() => new Set(sectionIds.has(targetSection) ? [targetSection] : []))
+  const allOpen = openTopics.size === LEARN_SECTIONS.length
+
+  const toggleTopic = useCallback((id, open) => setOpenTopics(previous => {
+    if (previous.has(id) === open) return previous
+    const next = new Set(previous)
+    if (open) next.add(id)
+    else next.delete(id)
+    return next
+  }), [])
 
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 500)
@@ -228,66 +247,73 @@ const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' 
   useEffect(() => {
     if (!active) return
     const section = targetSection && sectionIds.has(targetSection) ? targetSection : 'top'
+    let frame
     const timer = window.setTimeout(() => {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      const behavior = prefersReducedMotion ? 'auto' : 'smooth'
-      const el = document.getElementById(section)
-      if (el) {
-        el.scrollIntoView({ behavior, block: 'start' })
-        if (section === 'top') titleRef.current?.focus({ preventScroll: true })
-        else el.focus({ preventScroll: true })
-      } else {
-        window.scrollTo({ top: 0, behavior })
-        titleRef.current?.focus({ preventScroll: true })
-      }
+      if (section !== 'top') toggleTopic(section, true)
+      frame = window.requestAnimationFrame(() => {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        const behavior = prefersReducedMotion ? 'auto' : 'smooth'
+        const el = document.getElementById(section)
+        if (el) {
+          el.scrollIntoView({ behavior, block: 'start' })
+          if (section === 'top') titleRef.current?.focus({ preventScroll: true })
+          else el.querySelector('summary')?.focus({ preventScroll: true })
+        } else {
+          window.scrollTo({ top: 0, behavior })
+          titleRef.current?.focus({ preventScroll: true })
+        }
+      })
     }, 80)
-    return () => window.clearTimeout(timer)
-  }, [active, targetSection, sectionIds])
+    return () => {
+      window.clearTimeout(timer)
+      window.cancelAnimationFrame(frame)
+    }
+  }, [active, targetSection, sectionIds, toggleTopic])
 
   return (
-    <div id="top" className="min-h-screen px-4 pt-3 pb-32 max-w-md mx-auto">
-      <div className="sticky top-14 z-30 -mx-4 mb-5 border-b border-gray-800 bg-gray-950/95 px-4 py-2 backdrop-blur">
+    <div id="top" className="learn-page min-h-screen px-4 pt-3 pb-32 mx-auto">
+      <div className="learn-backbar sticky top-14 z-30 -mx-4 mb-5 border-b border-[color:var(--border-default)] bg-chandra-bg-primary px-4 py-2 backdrop-blur">
         <button
           type="button"
           onClick={onBack}
-          className="flex min-h-[44px] items-center gap-2 rounded-control px-2 pr-3 text-left text-sm font-semibold text-gray-200 active:bg-gray-800"
+          className="flex min-h-[44px] items-center gap-2 rounded-control px-2 pr-3 text-left text-sm font-semibold text-chandra-text-primary active:bg-chandra-bg-elevated"
           aria-label={`Back to ${returnLabel}`}
         >
-          <ArrowLeft size={18} aria-hidden="true" strokeWidth={1.9} className="text-yellow-400 shrink-0" />
+          <ArrowLeft size={18} aria-hidden="true" strokeWidth={1.9} className="text-chandra-gold shrink-0" />
           <span>Back to {returnLabel}</span>
         </button>
       </div>
       <header className="mb-6">
-        <div className="flex items-center gap-2 text-yellow-300 mb-3">
+        <div className="flex items-center gap-2 text-chandra-gold mb-3">
           <BookOpen size={20} aria-hidden="true" strokeWidth={1.75} />
           <p className="text-xs uppercase tracking-widest font-semibold">Learn Chandra</p>
         </div>
-        <h1 ref={titleRef} tabIndex={-1} className="text-2xl font-bold text-white leading-tight focus:outline-none">A Gentle Guide To Panchang Terms</h1>
-        <p className="text-gray-400 text-sm leading-relaxed mt-3">
-          Learn the science and cultural meaning behind the words you see in Chandra. You can read from the top like a story,
-          or jump here from a section in the app.
+        <h1 ref={titleRef} tabIndex={-1} className="text-2xl font-bold text-chandra-text-primary leading-tight focus:outline-none">A Gentle Guide To Panchang Terms</h1>
+        <p className="text-chandra-text-secondary text-sm leading-relaxed mt-3">
+          Learn the science and cultural meaning behind the words you see in Chandra.
+          Open a topic below, or expand all to read the complete guide.
         </p>
       </header>
 
-      <nav aria-label="Learning sections" className="bg-gray-900 border border-gray-800 rounded-card p-4 mb-5">
-        <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">Sections</p>
-        <div className="grid grid-cols-1 gap-2">
-          {LEARN_SECTIONS.map(section => (
-            <a
-              key={section.id}
-              href={`#learn/${section.id}`}
-              className="flex items-center justify-between gap-3 rounded-inset bg-gray-800 border border-gray-700 px-3 py-3 min-h-[44px] active:bg-gray-700"
-            >
-              <span className="text-gray-200 text-sm font-medium">{section.title}</span>
-              <section.icon size={15} aria-hidden="true" strokeWidth={1.75} className="text-yellow-400 shrink-0" />
-            </a>
-          ))}
-        </div>
-      </nav>
+      <section aria-labelledby="learn-overview-heading" className="learn-overview mb-5 rounded-card border border-[color:var(--border-default)] bg-chandra-bg-surface p-5">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-chandra-gold">8 topics · Learn at your own pace</p>
+        <h2 id="learn-overview-heading" className="text-lg font-semibold text-chandra-text-primary">What you’ll learn</h2>
+        <p className="mt-3 text-base leading-relaxed text-chandra-text-secondary">
+          Understand Panchang basics, the five daily elements, daily timings, Nakshatras,
+          months and years, planetary positions, festivals, and calendar traditions.
+        </p>
+      </section>
+
+      <div className="learn-topic-tools mb-4 flex items-center justify-between gap-3">
+        <p className="text-sm text-chandra-text-secondary">Choose a topic to explore</p>
+        <button type="button" onClick={() => setOpenTopics(allOpen ? new Set() : new Set(LEARN_SECTIONS.map(section => section.id)))} className="min-h-[44px] shrink-0 rounded-control px-3 py-2 text-sm font-semibold text-chandra-gold hover:bg-chandra-bg-elevated active:bg-chandra-bg-primary">
+          {allOpen ? 'Collapse all' : 'Expand all'}
+        </button>
+      </div>
 
       <div className="flex flex-col gap-5">
-        {LEARN_SECTIONS.map(section => (
-          <LearnSection key={section.id} section={section} />
+        {LEARN_SECTIONS.map((section, index) => (
+          <LearnSection key={section.id} section={section} number={index + 1} open={openTopics.has(section.id)} onToggle={toggleTopic} />
         ))}
       </div>
 
@@ -295,7 +321,7 @@ const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' 
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed right-4 bottom-24 z-30 w-11 h-11 rounded-pill bg-yellow-400 text-gray-950 shadow-lg shadow-black/30 flex items-center justify-center active:bg-yellow-500"
+          className="learn-scroll-top fixed right-4 bottom-24 z-30 w-11 h-11 rounded-pill bg-chandra-gold text-chandra-text-inverse shadow-lg shadow-black/30 flex items-center justify-center active:bg-chandra-gold-active"
           aria-label="Scroll to top"
         >
           <ArrowUp size={18} aria-hidden="true" strokeWidth={2.2} />
@@ -305,34 +331,36 @@ const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' 
   )
 }
 
-const LearnSection = ({ section }) => (
-  <section id={section.id} tabIndex={-1} className="scroll-mt-32 bg-gray-900 border border-gray-800 rounded-card overflow-hidden focus:outline-none">
-    <div className="p-5">
-      <div className="flex items-start gap-3 mb-3">
-        <div className="w-9 h-9 rounded-icon bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center shrink-0">
-          <section.icon size={17} aria-hidden="true" strokeWidth={1.75} className="text-yellow-300" />
+const LearnSection = ({ section, number, open, onToggle }) => (
+  <details id={section.id} open={open} onToggle={event => onToggle(section.id, event.currentTarget.open)} className="learn-section scroll-mt-32 bg-chandra-bg-surface border border-[color:var(--border-default)] rounded-card overflow-hidden">
+      <summary className="learn-topic-heading flex min-h-[64px] cursor-pointer items-center gap-3 p-5 hover:bg-chandra-bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-chandra-focus">
+        <div className="w-9 h-9 rounded-icon bg-chandra-gold/10 border border-chandra-gold/30 flex items-center justify-center shrink-0">
+          <section.icon size={17} aria-hidden="true" strokeWidth={1.75} className="text-chandra-gold" />
         </div>
-        <div className="min-w-0">
-          <p className="text-yellow-500 text-xs uppercase tracking-widest font-semibold">{section.eyebrow}</p>
-          <h2 className="text-white text-lg font-bold leading-snug mt-1">{section.title}</h2>
+        <div className="min-w-0 flex-1">
+          <p className="text-chandra-gold text-xs uppercase tracking-widest font-semibold">{String(number).padStart(2, '0')} · {section.eyebrow}</p>
+          <h2 className="text-chandra-text-primary text-lg font-bold leading-snug mt-1">{section.title}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-chandra-text-secondary">{section.summary}</p>
         </div>
-      </div>
+        <ChevronDown size={18} className="learn-topic-caret shrink-0 text-chandra-gold" aria-hidden="true" />
+      </summary>
 
-      <p className="text-gray-300 text-sm leading-relaxed">{section.intro}</p>
+    <div className="learn-topic-content px-5 pb-5">
+      <p className="text-chandra-text-primary text-sm leading-relaxed">{section.intro}</p>
       {section.visual && <Visual type={section.visual} />}
 
       <div className="mt-4 flex flex-col gap-3">
         {section.points.map(([label, body]) => (
-          <div key={label} className="rounded-control bg-gray-800/80 border border-gray-700 px-3 py-3">
-            <p className="text-yellow-300 text-xs font-semibold mb-1">{label}</p>
-            <p className="text-gray-300 text-sm leading-relaxed">{body}</p>
+          <div key={label} className="rounded-control bg-chandra-bg-elevated border border-[color:var(--border-default)] px-3 py-3">
+            <p className="text-chandra-gold text-xs font-semibold mb-1">{label}</p>
+            <p className="text-chandra-text-primary text-sm leading-relaxed">{body}</p>
           </div>
         ))}
       </div>
 
       <ReferenceBlocks sectionId={section.id} />
     </div>
-  </section>
+  </details>
 )
 
 const ReferenceBlocks = ({ sectionId }) => {
@@ -397,7 +425,7 @@ const ReferenceAccordion = ({ title, note, items, columns }) => {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="rounded-inset bg-gray-950 border border-gray-800 overflow-hidden">
+    <div className="rounded-inset bg-chandra-bg-primary border border-[color:var(--border-default)] overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen(prev => !prev)}
@@ -405,19 +433,19 @@ const ReferenceAccordion = ({ title, note, items, columns }) => {
         className="w-full min-h-[44px] px-4 py-3 flex items-center justify-between gap-3 text-left"
       >
         <div className="min-w-0">
-          <p className="text-yellow-300 text-sm font-semibold">{title}</p>
-          {note && <p className="text-gray-400 text-xs leading-relaxed mt-1">{note}</p>}
+          <p className="text-chandra-gold text-sm font-semibold">{title}</p>
+          {note && <p className="text-chandra-text-secondary text-xs leading-relaxed mt-1">{note}</p>}
         </div>
-        <span className="text-yellow-300 text-lg leading-none shrink-0" aria-hidden="true">{open ? '-' : '+'}</span>
+        <span className="text-chandra-gold text-lg leading-none shrink-0" aria-hidden="true">{open ? '-' : '+'}</span>
       </button>
       {open && (
-        <div className="border-t border-gray-800">
+        <div className="border-t border-[color:var(--border-default)]">
           {columns && (
-            <div className="grid grid-cols-[0.9fr_0.9fr_1.4fr] gap-2 px-4 py-2 bg-gray-900 text-gray-400 text-[11px] uppercase tracking-wider">
+            <div className="grid grid-cols-[0.9fr_0.9fr_1.4fr] gap-2 px-4 py-2 bg-chandra-bg-surface text-chandra-text-secondary text-[11px] uppercase tracking-wider">
               {columns.map(column => <span key={column}>{column}</span>)}
             </div>
           )}
-          <div className="divide-y divide-gray-800">
+          <div className="divide-y divide-[color:var(--border-default)]">
             {items.map(item => (
               <ReferenceItem key={item[0]} item={item} columns={columns} />
             ))}
@@ -432,17 +460,17 @@ const ReferenceItem = ({ item, columns }) => {
   if (columns) {
     return (
       <div className="grid grid-cols-[0.9fr_0.9fr_1.4fr] gap-2 px-4 py-3">
-        <p className="text-white text-xs font-semibold">{item[0]}</p>
-        <p className="text-yellow-200 text-xs">{item[1]}</p>
-        <p className="text-gray-300 text-xs leading-relaxed">{item[2]}</p>
+        <p className="text-chandra-text-primary text-xs font-semibold">{item[0]}</p>
+        <p className="text-chandra-gold text-xs">{item[1]}</p>
+        <p className="text-chandra-text-primary text-xs leading-relaxed">{item[2]}</p>
       </div>
     )
   }
 
   return (
     <div className="px-4 py-3">
-      <p className="text-white text-sm font-semibold">{item[0]}</p>
-      <p className="text-gray-300 text-xs leading-relaxed mt-1">{item[1]}</p>
+      <p className="text-chandra-text-primary text-sm font-semibold">{item[0]}</p>
+      <p className="text-chandra-text-primary text-xs leading-relaxed mt-1">{item[1]}</p>
     </div>
   )
 }
@@ -458,22 +486,22 @@ const Visual = ({ type }) => {
 }
 
 const TithiVisual = () => (
-  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-chandra-bg-primary border border-[color:var(--border-default)] p-4">
     <svg viewBox="0 0 280 130" role="img" aria-label="Tithi is based on Moon Sun angle" className="w-full h-auto">
-      <circle cx="72" cy="66" r="18" fill="#FBBF24" />
-      <circle cx="190" cy="66" r="22" fill="#DDBB6A" />
-      <path d="M192 44 A22 22 0 0 1 192 88 A13 22 0 0 0 192 44" fill="#111827" opacity="0.76" />
-      <path d="M72 66 C110 24 151 24 190 66" fill="none" stroke="#8EA8FF" strokeWidth="2" strokeDasharray="4 5" />
-      <text x="72" y="105" fill="#B5BDD1" fontSize="12" textAnchor="middle">Sun</text>
-      <text x="190" y="105" fill="#B5BDD1" fontSize="12" textAnchor="middle">Moon</text>
-      <text x="132" y="38" fill="#DDBB6A" fontSize="12" textAnchor="middle">12 degrees = 1 Tithi</text>
+      <circle cx="72" cy="66" r="18" fill="var(--gold)" />
+      <circle cx="190" cy="66" r="22" fill="var(--gold)" />
+      <path d="M192 44 A22 22 0 0 1 192 88 A13 22 0 0 0 192 44" fill="var(--bg-primary)" opacity="0.76" />
+      <path d="M72 66 C110 24 151 24 190 66" fill="none" stroke="var(--focus-ring)" strokeWidth="2" strokeDasharray="4 5" />
+      <text x="72" y="105" fill="var(--text-secondary)" fontSize="12" textAnchor="middle">Sun</text>
+      <text x="190" y="105" fill="var(--text-secondary)" fontSize="12" textAnchor="middle">Moon</text>
+      <text x="132" y="38" fill="var(--gold)" fontSize="12" textAnchor="middle">12 degrees = 1 Tithi</text>
     </svg>
   </div>
 )
 
 const DaylightVisual = () => (
-  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
-    <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+  <div className="mt-4 rounded-inset bg-chandra-bg-primary border border-[color:var(--border-default)] p-4">
+    <div className="flex items-center justify-between text-xs text-chandra-text-secondary mb-2">
       <span>Sunrise</span>
       <span>Sunset</span>
     </div>
@@ -481,76 +509,76 @@ const DaylightVisual = () => (
       {Array.from({ length: 8 }, (_, i) => (
         <div
           key={i}
-          className={`h-10 rounded-control border ${i === 4 ? 'bg-red-500/20 border-red-500/50' : 'bg-yellow-400/10 border-yellow-400/20'}`}
+          className={`h-10 rounded-control border ${i === 4 ? 'bg-chandra-error/20 border-chandra-error/50' : 'bg-chandra-gold/10 border-chandra-gold/20'}`}
         />
       ))}
     </div>
-    <p className="text-gray-400 text-xs mt-2">Daylight is divided into 8 weekday-based slots.</p>
+    <p className="text-chandra-text-secondary text-xs mt-2">Daylight is divided into 8 weekday-based slots.</p>
   </div>
 )
 
 const NakshatraVisual = () => (
-  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-chandra-bg-primary border border-[color:var(--border-default)] p-4">
     <svg viewBox="0 0 280 98" role="img" aria-label="Moon moving through Nakshatra sectors" className="w-full h-auto">
-      <path d="M20 52 C70 18 118 78 168 40 S235 36 260 52" fill="none" stroke="#4B5563" strokeWidth="2" />
+      <path d="M20 52 C70 18 118 78 168 40 S235 36 260 52" fill="none" stroke="var(--text-secondary)" strokeWidth="2" />
       {Array.from({ length: 9 }, (_, i) => (
-        <circle key={i} cx={28 + i * 28} cy={i % 2 ? 34 : 60} r="2.4" fill="#DDBB6A" />
+        <circle key={i} cx={28 + i * 28} cy={i % 2 ? 34 : 60} r="2.4" fill="var(--gold)" />
       ))}
-      <circle cx="139" cy="50" r="13" fill="#DDBB6A" />
-      <path d="M141 37 A13 13 0 0 1 141 63 A8 13 0 0 0 141 37" fill="#111827" opacity="0.72" />
-      <text x="140" y="90" fill="#B5BDD1" fontSize="12" textAnchor="middle">27 equal star sectors</text>
+      <circle cx="139" cy="50" r="13" fill="var(--gold)" />
+      <path d="M141 37 A13 13 0 0 1 141 63 A8 13 0 0 0 141 37" fill="var(--bg-primary)" opacity="0.72" />
+      <text x="140" y="90" fill="var(--text-secondary)" fontSize="12" textAnchor="middle">27 equal star sectors</text>
     </svg>
   </div>
 )
 
 const MonthVisual = () => (
-  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-chandra-bg-primary border border-[color:var(--border-default)] p-4">
     <div className="flex items-center justify-between gap-3">
       <div className="text-center flex-1">
         <div className="text-2xl" aria-hidden="true">🌑</div>
-        <p className="text-yellow-300 text-xs font-semibold mt-1">Amavasya</p>
-        <p className="text-gray-400 text-xs">month end in Amavasyant</p>
+        <p className="text-chandra-gold text-xs font-semibold mt-1">Amavasya</p>
+        <p className="text-chandra-text-secondary text-xs">month end in Amavasyant</p>
       </div>
-      <div className="h-px bg-gray-700 flex-1" />
+      <div className="h-px bg-[var(--border-default)] flex-1" />
       <div className="text-center flex-1">
         <div className="text-2xl" aria-hidden="true">🌕</div>
-        <p className="text-yellow-300 text-xs font-semibold mt-1">Purnima</p>
-        <p className="text-gray-400 text-xs">month end in Purnimant</p>
+        <p className="text-chandra-gold text-xs font-semibold mt-1">Purnima</p>
+        <p className="text-chandra-text-secondary text-xs">month end in Purnimant</p>
       </div>
     </div>
   </div>
 )
 
 const NavagrahaVisual = () => (
-  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-chandra-bg-primary border border-[color:var(--border-default)] p-4">
     <svg viewBox="0 0 180 180" role="img" aria-label="Sidereal zodiac circle" className="w-full max-w-[210px] mx-auto h-auto">
-      <circle cx="90" cy="90" r="72" fill="none" stroke="#374151" strokeWidth="2" />
+      <circle cx="90" cy="90" r="72" fill="none" stroke="var(--border-default)" strokeWidth="2" />
       {Array.from({ length: 12 }, (_, i) => {
         const a = (i * 30 - 90) * Math.PI / 180
         const x1 = 90 + Math.cos(a) * 56
         const y1 = 90 + Math.sin(a) * 56
         const x2 = 90 + Math.cos(a) * 72
         const y2 = 90 + Math.sin(a) * 72
-        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#4B5563" strokeWidth="1" />
+        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--text-secondary)" strokeWidth="1" />
       })}
-      <circle cx="90" cy="90" r="19" fill="#DDBB6A" />
-      <text x="90" y="96" textAnchor="middle" fill="#0B1020" fontSize="17" fontWeight="700">☉</text>
-      <circle cx="132" cy="59" r="7" fill="#8EA8FF" />
-      <text x="90" y="166" textAnchor="middle" fill="#B5BDD1" fontSize="11">12 Rashi of 30 degrees</text>
+      <circle cx="90" cy="90" r="19" fill="var(--gold)" />
+      <text x="90" y="96" textAnchor="middle" fill="var(--text-inverse)" fontSize="17" fontWeight="700">☉</text>
+      <circle cx="132" cy="59" r="7" fill="var(--focus-ring)" />
+      <text x="90" y="166" textAnchor="middle" fill="var(--text-secondary)" fontSize="11">12 Rashi of 30 degrees</text>
     </svg>
   </div>
 )
 
 const CalendarSystemVisual = () => (
-  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-chandra-bg-primary border border-[color:var(--border-default)] p-4">
     <div className="grid grid-cols-2 gap-3">
-      <div className="rounded-control bg-gray-800 border border-gray-700 p-3 text-center">
-        <p className="text-yellow-300 text-sm font-semibold">Amavasyant</p>
-        <p className="text-gray-400 text-xs mt-1">New moon closes the month</p>
+      <div className="rounded-control bg-chandra-bg-elevated border border-[color:var(--border-default)] p-3 text-center">
+        <p className="text-chandra-gold text-sm font-semibold">Amavasyant</p>
+        <p className="text-chandra-text-secondary text-xs mt-1">New moon closes the month</p>
       </div>
-      <div className="rounded-control bg-gray-800 border border-gray-700 p-3 text-center">
-        <p className="text-yellow-300 text-sm font-semibold">Purnimant</p>
-        <p className="text-gray-400 text-xs mt-1">Full moon closes the month</p>
+      <div className="rounded-control bg-chandra-bg-elevated border border-[color:var(--border-default)] p-3 text-center">
+        <p className="text-chandra-gold text-sm font-semibold">Purnimant</p>
+        <p className="text-chandra-text-secondary text-xs mt-1">Full moon closes the month</p>
       </div>
     </div>
   </div>

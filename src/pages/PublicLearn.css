@@ -1,0 +1,20 @@
+.learn-public-topbar { height: 56px; }
+.learn-public-header-content { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1000px; margin: auto; padding-inline: 16px; }
+.learn-public-navigation-top { display: none; }
+.learn-public-navigation-bottom { position: fixed; inset: auto 0 0; z-index: 40; display: flex; justify-content: space-around; padding: 12px 16px; background: var(--bg-primary); border-top: 1px solid var(--border-default); }
+.learn-public-navigation a { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 4px 12px; font-size: 12px; }
+.learn-public-navigation-bottom a { flex-direction: column; }
+@media (min-width: 768px) {
+  .learn-public-topbar { height: 72px; }
+  .learn-public-header-content { padding-inline: 24px; }
+  .learn-public-navigation-top { display: flex; gap: 4px; }
+  .learn-public-navigation a { gap: 7px; padding: 9px 10px; font-size: 13px; }
+  .learn-public-navigation-top svg { display: none; }
+  .learn-public-navigation-bottom { display: none; }
+  .learn-public-shell #main-content { padding-top: 72px; padding-bottom: 0; }
+}
+@media (min-width: 1024px) {
+  .learn-public-header-content { padding-inline: 30px; }
+  .learn-public-navigation a { padding-inline: 13px; font-size: 14px; }
+  .learn-public-navigation-top svg { display: block; }
+}

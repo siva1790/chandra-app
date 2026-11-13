@@ -122,7 +122,7 @@ export default function CityPanchang({ initialData, city }) {
             <Row label="Karana" value={data.karana} />
             <Row icon={CalendarDays} label="Vara" value={data.vara} />
           </dl>
-          <a href="/#learn/pancha-anga" className="mt-2 flex min-h-[44px] items-center gap-2 text-sm text-chandra-focus"><BookOpen size={16} aria-hidden="true" /> Understand the five elements</a>
+          <a href="/learn/panchang-basics#pancha-anga" className="mt-2 flex min-h-[44px] items-center gap-2 text-sm text-chandra-focus"><BookOpen size={16} aria-hidden="true" /> Understand the five elements</a>
           <p className="mt-2 text-xs leading-relaxed text-chandra-text-secondary">Tithi and Nakshatra can change later in the day.</p>
         </section>
 
