@@ -151,7 +151,7 @@ function App() {
   }
 
   return (
-    <div className={`min-h-screen${screen === 'calendar' ? ' calendar-active' : ''}`}>
+    <div className={`min-h-screen${['home', 'calendar', 'panchang'].includes(screen) ? ' responsive-app-shell' : ''}`}>
       <a href="#main-content" className="skip-link">Skip to content</a>
 
       {/* ── Persistent Top Bar ── */}

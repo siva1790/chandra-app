@@ -16,6 +16,7 @@ import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { buildGenericMyDayMessage, buildPersonalMyDayMessage, getBirthMoonProfile } from '../profileMessages'
 import { getVara } from '../tithiMessages'
+import './Home.css'
 import {
   ArrowRight,
   CalendarClock,
@@ -233,23 +234,27 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
     : ''
 
   return (
-    <div className="min-h-screen px-4 py-6 pb-28 max-w-md mx-auto">
-      <div className="text-center mb-3">
+    <div className="day-view-page min-h-screen px-4 py-6 pb-28 max-w-md mx-auto">
+      <div className="day-view-heading text-center mb-3">
+        <h1>Day View</h1>
+        <p className="day-view-subtitle">Your day, guided by the Moon</p>
         {settings.usingGps ? (
-          <p className="mt-1 flex items-center justify-center gap-1 text-xs text-chandra-info">
+          <p className="day-view-context mt-1 flex items-center justify-center gap-1 text-xs text-chandra-info">
             <LocateFixed size={12} aria-hidden="true" />
             <span>GPS</span>
             <span className="text-chandra-text-disabled">-</span>
             <span>{location.city}</span>
+            <span aria-hidden="true">·</span><span>{settings.calendarSystem}</span>
           </p>
         ) : (
-          <p className="mt-1 flex items-center justify-center gap-1 text-xs text-chandra-text-secondary">
-            <MapPin size={12} aria-hidden="true" /> {location.city}
+          <p className="day-view-context mt-1 flex items-center justify-center gap-1 text-xs text-chandra-text-secondary">
+            <MapPin size={12} aria-hidden="true" /> <span>{location.city}</span>
+            <span aria-hidden="true">·</span><span>{settings.calendarSystem}</span>
           </p>
         )}
       </div>
 
-      <DateStrip date={date} onDateChange={onDateChange} mode="day" />
+      <DateStrip date={date} onDateChange={onDateChange} mode="day" responsive />
 
       {loading ? (
         <div aria-live="polite" aria-busy="true" className="mt-20 text-center text-chandra-text-secondary">
@@ -257,7 +262,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
           <p>Calculating moon data...</p>
         </div>
       ) : moonData && dayHighlight ? (
-        <div className="flex flex-col gap-4 mt-5">
+        <div className="day-view-layout">
           {(dayHighlight.eclipse || dayHighlight.festivals.length > 0) && (
             <TodayHighlightCard
               dayHighlight={dayHighlight}
@@ -266,11 +271,11 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
             />
           )}
 
-          <Card>
+          <Card className="day-view-panel day-view-my-day">
             <div className="flex items-center justify-between gap-3 mb-3">
-              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
+              <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
                 <Sparkles size={13} aria-hidden="true" /> My Day
-              </p>
+              </h2>
               {hasPersonalMessage ? (
                 <button
                   type="button"
@@ -311,22 +316,21 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
           </Card>
 
           <Card
+            className="day-view-panel day-view-cosmos"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
+            <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
               <Moon size={13} aria-hidden="true" /> Today's Cosmos
-            </p>
-            <div className="grid grid-cols-[116px_minmax(0,1fr)] gap-5 items-center">
-              <div className="w-[116px] h-[116px] flex items-center justify-center overflow-hidden">
-                <div className="scale-[0.64] origin-center">
+            </h2>
+            <div className="day-view-cosmos-content">
+              <div className="day-view-moon">
                   <MoonVisual
                     phase={moonData.phase}
                     showLabel={false}
                   />
-                </div>
               </div>
-              <div className="grid grid-cols-2 gap-4 min-w-0">
+              <div className="day-view-metrics grid grid-cols-2 gap-4 min-w-0">
                 <Metric label="Moon phase" value={moonPhaseLabel} />
                 <Metric label="Illumination" value={`${moonData.illuminationPct}%`} />
                 <Metric label="Moonrise" value={formatTime(moonData.moonriseDate)} sub={formatShortDate(moonData.moonriseDate)} />
@@ -335,21 +339,13 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
             </div>
           </Card>
 
-          <Card>
+          <Card className="day-view-panel day-view-panchanga">
             <div className="flex items-center justify-between gap-3 mb-3">
-              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
+              <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
                 <CalendarClock size={13} aria-hidden="true" /> Today's Panchanga
-              </p>
-              <button
-                type="button"
-                onClick={() => onNavigateToPanchang?.(date)}
-                className="flex min-h-[36px] items-center gap-1 text-xs font-medium text-chandra-focus"
-              >
-                View full panchanga
-                <ArrowRight size={13} aria-hidden="true" />
-              </button>
+              </h2>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="day-view-snapshot grid grid-cols-2 gap-2">
               <Snapshot icon={Moon} label="Tithi" value={dayHighlight.tithi.name} sub={dayHighlight.tithi.paksha} />
               <Snapshot icon={Star} label="Nakshatra" value={dayHighlight.nakshatra} />
               <Snapshot icon={Sparkles} label="Yoga" value={dayHighlight.yoga} />
@@ -357,6 +353,9 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
               <Snapshot icon={Sun} label="Vara" value={vara} />
               <Snapshot icon={CalendarDays} label="Masa" value={dayHighlight.masa} />
             </div>
+            <button type="button" onClick={() => onNavigateToPanchang?.(date)} className="day-view-full-panchanga text-chandra-focus">
+              View full panchanga<ArrowRight size={14} aria-hidden="true" />
+            </button>
           </Card>
         </div>
       ) : (
@@ -377,7 +376,10 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
         </Card>
       )}
 
-      <div className="mt-6"><CityPageLinks /></div>
+      <div className="day-view-cities"><CityPageLinks /></div>
+      <footer className="day-view-footer">
+        <span>Moon and Panchanga at local sunrise</span><span>Chandra · Indian Moon Tracker</span>
+      </footer>
 
       {hasPersonalMessage && dayHighlight && moonData && (
         <TodayMessageModal
@@ -454,7 +456,7 @@ const Snapshot = ({ icon: Icon, label, value, sub }) => (
       <Icon size={12} aria-hidden="true" />
       {label}
     </p>
-    <p className="truncate text-sm font-semibold text-chandra-text-primary">{value}</p>
+    <p className="break-words text-sm font-semibold text-chandra-text-primary">{value}</p>
     {sub && <p className="mt-0.5 text-xs text-chandra-gold">{sub}</p>}
   </div>
 )

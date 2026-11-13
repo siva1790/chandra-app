@@ -1,0 +1,64 @@
+/* Panchang layout only; all calculations and accordion state remain in Panchang.jsx. */
+.panchang-page .panchang-context { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 7px; margin-top: 12px; font-size: 11px; color: var(--text-secondary); }
+.panchang-context svg { color: var(--gold); }
+.panchang-page .calendar-datebar { flex-direction: row; gap: 4px; padding: 4px; margin: 20px 0 14px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 16px; }
+.panchang-page .calendar-datebar > div { flex: 1; width: auto; min-width: 0; padding: 0; border: 0; background: transparent; }
+.panchang-page .calendar-datebar [aria-haspopup="dialog"] { min-width: 0; min-height: 44px; justify-content: center; padding-inline: 2px; }
+.panchang-page .calendar-datebar [aria-haspopup="dialog"] p { font-size: 12px; }
+.panchang-page .date-strip-weekday { display: block; color: var(--text-secondary); font-size: 11px; }
+.panchang-page .date-strip-comma { display: none; }
+.panchang-page .calendar-today-button { flex-shrink: 0; min-height: 44px; padding-inline: 8px; border: 1px solid var(--border-default); border-radius: 10px; color: var(--gold); font-size: 11px; }
+.panchang-page .calendar-today-button:disabled { color: var(--text-disabled); cursor: default; }
+.panchang-page .calendar-today-button:not(:disabled):hover { background: var(--bg-elevated); }
+.panchang-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--text-secondary); }
+.panchang-tools .panchang-toggle-all { flex-shrink: 0; }
+.panchang-primary-grid,.panchang-side { display: contents; }
+.panchang-page .panchang-panel { min-width: 0; border-radius: 16px; }
+.panchang-page .panchang-panel-heading { padding-inline: 16px 8px; gap: 0; }
+.panchang-page .panchang-panel-heading > button:first-child p { font-size: 11px; letter-spacing: .8px; }
+.panchang-page .panchang-panel-content { padding-inline: 16px; }
+.panchang-panel-content p { overflow-wrap: anywhere; }
+.panchang-panel-content .ml-6 { margin-left: 0; border-radius: 10px; }
+.panchang-panel-content .text-xs { font-size: 11px; line-height: 1.7; }
+.panchang-row { gap: 12px; }
+.panchang-row > div { min-width: 0; }
+.panchang-row > div:first-child { flex-shrink: 0; }
+.panchang-row .text-sm { font-size: 13px; }
+.panchang-timings .panchang-row { flex-direction: column; align-items: flex-start; gap: 5px; }
+.panchang-timings .panchang-row > div:last-child { text-align: left; }
+.panchang-planet { gap: 12px; }
+.panchang-planet > div { min-width: 0; }
+.panchang-planet > p { flex-shrink: 0; font-size: 13px; }
+.panchang-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-default); color: var(--text-secondary); font-size: 11px; }
+
+@media (min-width: 768px) {
+  .panchang-page { max-width: 1000px; padding: 30px 24px 32px; min-height: calc(100dvh - 72px); }
+  .panchang-heading { text-align: left; }
+  .panchang-heading h1 { justify-content: flex-start; color: var(--text-primary); font-size: 28px; letter-spacing: -.6px; }
+  .panchang-page .panchang-context { justify-content: flex-start; font-size: 12px; margin-top: 16px; }
+  .panchang-page .calendar-datebar { padding: 10px 14px; gap: 10px; margin: 24px 0 14px; }
+  .panchang-page .calendar-datebar [aria-haspopup="dialog"] p { font-size: 16px; }
+  .panchang-page .date-strip-weekday { display: inline; color: inherit; font-size: inherit; }
+  .panchang-page .date-strip-comma { display: inline; }
+  .panchang-page .calendar-today-button { padding-inline: 15px; font-size: 13px; }
+  .panchang-primary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
+  .panchang-side { display: grid; gap: 18px; min-width: 0; }
+  .panchang-page .panchang-panel { border-radius: 18px; }
+  .panchang-planet-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 16px; }
+  .panchang-page .panchang-planet { padding-block: 14px; border-top: 1px solid var(--border-default); border-bottom: 0; }
+  .panchang-planet > div > span { display: none; }
+  .panchang-planet > div > div > span { display: block; margin-left: 0; }
+  .panchang-planet > div > div > span:first-child { font-size: 13px; }
+  .panchang-planet > div > div > span:last-child { font-size: 11px; }
+  .panchang-page [role="dialog"] { top: 50%; bottom: auto; transform: translateY(-50%); max-height: calc(100dvh - 48px); overflow-y: auto; border: 1px solid var(--border-default); border-radius: 22px; transition: none; }
+  .panchang-page [role="dialog"][aria-hidden="true"] { visibility: hidden; }
+}
+
+@media (min-width: 1024px) {
+  .panchang-page { padding-inline: 30px; }
+  .panchang-page .panchang-toggle-all { display: none; }
+  .panchang-primary-grid,.panchang-side { gap: 22px; }
+  .panchang-page .panchang-panel-heading { padding-inline: 20px 12px; }
+  .panchang-page .panchang-panel-content { padding-inline: 20px; }
+  .panchang-planet-grid { column-gap: 22px; }
+}

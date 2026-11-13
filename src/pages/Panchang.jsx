@@ -6,7 +6,8 @@ import { getEclipseForDate, eclipseTypeLabel, lunarTotalityLabel } from '../ecli
 import DateStrip from '../components/DateStrip'
 import { getYogaAtTime, getKaranaFromPhase } from '../panchangAnga.js'
 import { EclipseIcon } from '../components/EclipseIcons'
-import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sparkles, AlertTriangle, Timer, ChevronDown, BookOpen } from 'lucide-react'
+import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sparkles, AlertTriangle, Timer, ChevronDown, BookOpen, MapPin } from 'lucide-react'
+import './Panchang.css'
 
 const nakshatras = [
   'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
@@ -649,18 +650,19 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
+    <div className="panchang-page min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
 
       {/* Header */}
-      <div className="text-center mb-6">
+      <div className="panchang-heading text-center mb-6">
         <h1 className="mb-1 flex items-center justify-center gap-2 text-2xl font-bold text-chandra-gold">
-          <Clock size={22} aria-hidden="true" strokeWidth={1.75} /> Panchang
+          Panchang
         </h1>
         <p className="text-sm text-chandra-text-secondary">Daily Hindu Almanac</p>
+        <p className="panchang-context"><MapPin size={14} strokeWidth={1.75} aria-hidden="true" /><span>{location?.city || 'Bengaluru'}</span><span aria-hidden="true">·</span><span>{location?.calendarSystem || 'Amavasyant'}</span></p>
       </div>
 
       {/* Date Navigator */}
-      <DateStrip date={selectedDate} onDateChange={changeDate} mode="day" />
+      <DateStrip date={selectedDate} onDateChange={changeDate} mode="day" responsive />
 
       {panchang ? (
         <div className="flex flex-col gap-4">
@@ -722,17 +724,20 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           )}
 
           {/* ── Collapse / Expand All ── */}
-          <div className="flex justify-end">
+          <div className="panchang-tools">
+            <span>All times in local time · Tithi at sunrise</span>
             <button
               onClick={toggleAll}
-              className="flex min-h-[44px] items-center px-2 py-1 text-xs text-chandra-gold underline underline-offset-2"
+              className="panchang-toggle-all flex min-h-[44px] items-center px-2 py-1 text-xs text-chandra-gold underline underline-offset-2"
             >
               {allExpanded ? 'Collapse All' : 'Expand All'}
             </button>
           </div>
 
           {/* ── 1. Pancha Anga ── */}
+          <div className="panchang-primary-grid">
           <AccordionSection
+            className="panchang-anga"
             title="Pancha Anga — Five Limbs"
             isOpen={sections.panchaAnga}
             onToggle={() => toggleSection('panchaAnga')}
@@ -831,7 +836,9 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           </AccordionSection>
 
           {/* ── 2. Daily Timings ── */}
+          <div className="panchang-side">
           <AccordionSection
+            className="panchang-timings"
             title="Daily Timings"
             isOpen={sections.dailyTimings}
             onToggle={() => toggleSection('dailyTimings')}
@@ -910,7 +917,10 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           </AccordionSection>
 
           {/* ── 5. Planetary Positions ── */}
+          </div>
+          </div>
           <AccordionSection
+            className="panchang-planets"
             title="Planetary Positions — Navagraha"
             isOpen={sections.planetary}
             onToggle={() => toggleSection('planetary')}
@@ -918,7 +928,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
             learnLabel="Learn about Navagraha"
           >
             <p className="mb-3 text-xs text-chandra-text-secondary">Sidereal longitudes (Lahiri Ayanamsha) at sunrise</p>
-            <div className="flex flex-col">
+            <div className="panchang-planet-grid">
               {[
                 { symbol: '☀',  name: 'Sun',     sanskrit: 'Surya',      lon: panchang.navagraha.Sun     },
                 { symbol: '☽',  name: 'Moon',    sanskrit: 'Chandra',    lon: panchang.navagraha.Moon    },
@@ -930,7 +940,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                 { symbol: '☊',  name: 'Rahu',    sanskrit: 'North Node', lon: panchang.navagraha.Rahu    },
                 { symbol: '☋',  name: 'Ketu',    sanskrit: 'South Node', lon: panchang.navagraha.Ketu    },
               ].map(({ symbol, name, sanskrit, lon }) => (
-                <div key={name} className="flex items-center justify-between border-b border-white/10 py-2 last:border-0">
+                <div key={name} className="panchang-planet flex items-center justify-between border-b border-white/10 py-2 last:border-0">
                   <div className="flex items-center gap-2">
                     <span className="text-base w-5 text-center leading-none" aria-hidden="true">{symbol}</span>
                     <div>
@@ -963,15 +973,16 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           <p>Calculating Panchang...</p>
         </div>
       )}
+      <footer className="panchang-footer"><span>Calculated for {location?.city || 'Bengaluru'} · {location?.calendarSystem || 'Amavasyant'}</span><span>Chandra · Indian Moon Tracker</span></footer>
     </div>
   )
 }
 
 // ── Sub-components ────────────────────────────────────────────────
 
-const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, children }) => (
-  <div className="overflow-hidden rounded-2xl border border-white/10 bg-chandra-bg-surface">
-    <div className="flex min-h-[60px] items-center px-5 py-2">
+const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, children, className = '' }) => (
+  <div className={`panchang-panel overflow-hidden rounded-2xl border border-white/10 bg-chandra-bg-surface ${className}`}>
+    <div className="panchang-panel-heading flex min-h-[60px] items-center px-5 py-2">
       <button
         onClick={onToggle}
         aria-expanded={isOpen}
@@ -1004,7 +1015,7 @@ const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, childr
       </button>
     </div>
     {isOpen && (
-      <div className="px-5 pb-5">
+      <div className="panchang-panel-content px-5 pb-5">
         {children}
       </div>
     )}
@@ -1012,7 +1023,7 @@ const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, childr
 )
 
 const PanchangRow = ({ icon: Icon, label, value, sub, highlight }) => (
-  <div className="flex items-center justify-between border-b border-white/10 py-2 last:border-0">
+  <div className="panchang-row flex items-center justify-between border-b border-white/10 py-2 last:border-0">
     <div className="flex items-center gap-2">
       {typeof Icon === 'string'
         ? <span className="text-base" aria-hidden="true">{Icon}</span>
