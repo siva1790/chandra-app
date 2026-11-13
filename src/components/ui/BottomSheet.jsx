@@ -70,7 +70,7 @@ const BottomSheet = ({
         aria-hidden={open ? undefined : 'true'}
         {...(!open && { inert: '' })}
         className={[
-          'fixed bottom-0 left-0 right-0 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-t-3xl border-t border-white/10 bg-chandra-bg-surface shadow-[0_8px_24px_rgba(0,0,0,0.6)]',
+          'fixed bottom-0 left-0 right-0 z-50 max-h-[calc(100dvh-1rem)] overflow-y-auto rounded-t-dialog border-t border-white/10 bg-chandra-bg-surface shadow-[0_8px_24px_rgba(0,0,0,0.6)]',
           'transition-transform duration-300 ease-out',
           open ? 'translate-y-0' : 'translate-y-full',
           className,
@@ -78,12 +78,12 @@ const BottomSheet = ({
       >
         <div className="sticky top-0 z-10 flex items-center justify-between bg-chandra-bg-surface px-4 pb-2 pt-3">
           <div className="w-8" />
-          <div className="h-1 w-10 rounded-full bg-chandra-text-disabled/60" aria-hidden="true" />
+          <div className="h-1 w-10 rounded-pill bg-chandra-text-disabled/60" aria-hidden="true" />
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-chandra-text-secondary transition-colors hover:bg-chandra-bg-elevated hover:text-chandra-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
+            className="flex h-8 w-8 items-center justify-center rounded-icon text-chandra-text-secondary transition-colors hover:bg-chandra-bg-elevated hover:text-chandra-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
           >
             <X size={18} strokeWidth={1.75} aria-hidden="true" />
           </button>

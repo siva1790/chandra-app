@@ -165,12 +165,12 @@ function App() {
         <button
           onClick={() => navigate('home')}
           aria-label="Go to Day View"
-          className="flex items-center gap-2 rounded-xl transition-opacity active:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
+          className="flex items-center gap-2 rounded-control transition-opacity active:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
         >
           <img
             src="/icons/chandra-mark-topbar-96.png"
             alt="Chandra"
-            className="w-8 h-8 rounded-lg"
+            className="w-8 h-8 rounded-icon"
           />
           <span className="text-lg font-bold tracking-wide text-chandra-gold">Chandra</span>
         </button>
@@ -189,14 +189,14 @@ function App() {
           <button
             ref={bellButtonRef}
             onClick={() => setSheetOpen(true)}
-            className="relative flex items-center gap-1.5 rounded-xl border border-white/10 bg-chandra-bg-elevated px-3 py-1.5 transition-all hover:border-white/20 hover:bg-chandra-bg-surface"
+            className="relative flex items-center gap-1.5 rounded-control border border-white/10 bg-chandra-bg-elevated px-3 py-1.5 transition-all hover:border-white/20 hover:bg-chandra-bg-surface"
             aria-label={subscription ? 'View subscription' : 'Subscribe to alerts'}
           >
             <Bell size={16} aria-hidden="true" />
             {subscription ? (
               <>
                 {/* Green dot for subscribed state */}
-                <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-chandra-bg-primary bg-chandra-success" />
+                <span className="absolute -right-1 -top-1 h-3 w-3 rounded-pill border-2 border-chandra-bg-primary bg-chandra-success" />
                 <span className="text-xs font-medium text-chandra-success">Subscribed</span>
               </>
             ) : (
@@ -249,7 +249,7 @@ function App() {
             key={id}
             onClick={() => navigate(id)}
             aria-current={screen === id ? 'page' : undefined}
-            className={`flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-xl px-3 py-1 transition-all ${
+            className={`flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-control px-3 py-1 transition-all ${
               screen === id
                 ? 'bg-chandra-gold/10 text-chandra-gold'
                 : 'text-chandra-text-disabled hover:bg-chandra-bg-elevated hover:text-chandra-text-secondary'

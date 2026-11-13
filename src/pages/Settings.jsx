@@ -16,12 +16,12 @@ const NOTIF_KEY         = 'chandra-notif-prefs'
 const NOTIF_ENABLED_KEY = 'chandra-notif-enabled'
 const DEFAULT_PREFS = { festivals: true, eclipses: true, moonrise: true, ekadashi: true }
 
-const CARD_CLASS = 'rounded-2xl border border-white/10 bg-chandra-bg-surface p-5'
-const FEATURED_CARD_CLASS = 'rounded-2xl border border-chandra-gold/35 bg-chandra-bg-surface p-5'
+const CARD_CLASS = 'rounded-card border border-white/10 bg-chandra-bg-surface p-5'
+const FEATURED_CARD_CLASS = 'rounded-card border border-chandra-gold/35 bg-chandra-bg-surface p-5'
 const SECTION_TITLE_CLASS = 'mb-3 flex items-center gap-1.5 text-xs uppercase tracking-widest text-chandra-gold'
-const INPUT_CLASS = 'mt-2 w-full rounded-xl border border-white/10 bg-chandra-bg-elevated px-4 py-3 text-sm text-chandra-text-primary placeholder-chandra-text-disabled focus:border-chandra-focus focus:outline-none focus-visible:ring-2 focus-visible:ring-chandra-focus/40'
-const SECONDARY_BUTTON_CLASS = 'min-h-[44px] rounded-xl border border-white/10 bg-chandra-bg-elevated px-4 py-3 text-sm font-medium text-chandra-text-secondary transition-all hover:border-white/20 hover:text-chandra-text-primary'
-const CHIP_CLASS = 'rounded-full border px-3 py-1 text-xs transition-all'
+const INPUT_CLASS = 'mt-2 w-full rounded-control border border-white/10 bg-chandra-bg-elevated px-4 py-3 text-sm text-chandra-text-primary placeholder-chandra-text-disabled focus:border-chandra-focus focus:outline-none focus-visible:ring-2 focus-visible:ring-chandra-focus/40'
+const SECONDARY_BUTTON_CLASS = 'min-h-[44px] rounded-control border border-white/10 bg-chandra-bg-elevated px-4 py-3 text-sm font-medium text-chandra-text-secondary transition-all hover:border-white/20 hover:text-chandra-text-primary'
+const CHIP_CLASS = 'rounded-pill border px-3 py-1 text-xs transition-all'
 
 const loadNotifPrefs = () => {
   try {
@@ -380,7 +380,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
       {/* Saved Badge */}
       {saved && (
-        <div role="status" aria-live="polite" className="mb-4 rounded-xl border border-chandra-success/35 bg-chandra-success/15 p-3 text-center transition-all">
+        <div role="status" aria-live="polite" className="mb-4 rounded-card border border-chandra-success/35 bg-chandra-success/15 p-3 text-center transition-all">
           <p className="text-sm text-chandra-success">Settings saved</p>
         </div>
       )}
@@ -424,7 +424,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                   setProfileSavedFromPersonalize(false)
                   setEditingProfile(true)
                 }}
-                className="min-h-[44px] rounded-xl border border-white/10 bg-chandra-bg-elevated px-3 py-2 text-xs font-medium text-chandra-gold transition-all hover:border-chandra-gold/35"
+                className="min-h-[44px] rounded-control border border-white/10 bg-chandra-bg-elevated px-3 py-2 text-xs font-medium text-chandra-gold transition-all hover:border-chandra-gold/35"
               >
                 Edit
               </button>
@@ -434,7 +434,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
           {!editingProfile ? (
             <div className="flex flex-col gap-2">
               {profileSavedFromPersonalize && profileComplete && onBack && (
-                <div role="status" aria-live="polite" className="mb-2 flex items-start gap-3 rounded-xl border border-chandra-success/35 bg-chandra-success/15 p-3">
+                <div role="status" aria-live="polite" className="mb-2 flex items-start gap-3 rounded-card border border-chandra-success/35 bg-chandra-success/15 p-3">
                   <CheckCircle2 size={20} strokeWidth={1.8} aria-hidden="true" className="mt-0.5 shrink-0 text-chandra-success" />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-chandra-text-primary">Your details are saved</p>
@@ -444,7 +444,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                     <button
                       type="button"
                       onClick={onBack}
-                      className="mt-3 min-h-[44px] rounded-xl bg-chandra-gold px-4 text-xs font-bold text-chandra-text-inverse hover:bg-chandra-gold-hover"
+                      className="mt-3 min-h-[44px] rounded-control bg-chandra-gold px-4 text-xs font-bold text-chandra-text-inverse hover:bg-chandra-gold-hover"
                     >
                       Return to {returnLabel}
                     </button>
@@ -535,7 +535,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                   </div>
                 </div>
 
-                <label className="settings-birth-location mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-chandra-bg-elevated px-3 py-3">
+                <label className="settings-birth-location mt-3 flex cursor-pointer items-start gap-3 rounded-control border border-white/10 bg-chandra-bg-elevated px-3 py-3">
                   <input
                     type="checkbox"
                     checked={profileForm.sameAsCurrentLocation}
@@ -575,7 +575,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                         id="birth-city-listbox"
                         role="listbox"
                         aria-label="Birth city suggestions"
-                        className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-chandra-bg-elevated"
+                        className="mt-2 max-h-48 overflow-y-auto rounded-control border border-white/10 bg-chandra-bg-elevated"
                       >
                         {filteredBirthCities.length > 0 ? (
                           filteredBirthCities.map((city, i) => (
@@ -613,7 +613,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                 <button
                   type="button"
                   onClick={handleSaveProfile}
-                  className="min-h-[44px] flex-1 rounded-xl bg-chandra-gold px-4 py-3 text-xs font-bold text-chandra-text-inverse transition-all hover:bg-chandra-gold-hover"
+                  className="min-h-[44px] flex-1 rounded-control bg-chandra-gold px-4 py-3 text-xs font-bold text-chandra-text-inverse transition-all hover:bg-chandra-gold-hover"
                 >
                   Save Details
                 </button>
@@ -642,7 +642,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
           {/* GPS Active Banner */}
           {settings.usingGps && (
-            <div className="mb-3 flex items-center gap-2 rounded-xl border border-chandra-info/35 bg-chandra-info/15 px-3 py-2.5">
+            <div className="mb-3 flex items-center gap-2 rounded-card border border-chandra-info/35 bg-chandra-info/15 px-3 py-2.5">
               <LocateFixed size={13} className="shrink-0 text-chandra-info" aria-hidden="true" />
               <p className="flex-1 text-xs text-chandra-info">Using GPS — {settings.city}</p>
               <button
@@ -657,7 +657,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
           {/* GPS Error */}
           {gpsError && (
-            <div role="alert" aria-live="assertive" className="mb-3 flex items-start gap-2 rounded-xl border border-chandra-error/40 bg-chandra-error/15 px-3 py-2.5">
+            <div role="alert" aria-live="assertive" className="mb-3 flex items-start gap-2 rounded-card border border-chandra-error/40 bg-chandra-error/15 px-3 py-2.5">
               <p className="text-xs leading-relaxed text-chandra-error">{gpsError}</p>
             </div>
           )}
@@ -667,7 +667,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
             onClick={handleUseGps}
             disabled={gpsLoading}
             aria-busy={gpsLoading}
-            className="mb-3 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-chandra-bg-elevated px-4 py-2.5 text-sm text-chandra-text-secondary transition-all hover:border-white/20 hover:text-chandra-text-primary disabled:cursor-not-allowed disabled:opacity-50"
+            className="mb-3 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-control border border-white/10 bg-chandra-bg-elevated px-4 py-2.5 text-sm text-chandra-text-secondary transition-all hover:border-white/20 hover:text-chandra-text-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             <LocateFixed size={14} aria-hidden="true" />
             {gpsLoading ? 'Detecting location…' : 'Use my location'}
@@ -698,7 +698,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
               id="settings-city-listbox"
               role="listbox"
               aria-label="City suggestions"
-              className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-chandra-bg-elevated"
+              className="mt-2 max-h-48 overflow-y-auto rounded-control border border-white/10 bg-chandra-bg-elevated"
             >
               {filteredCities.length > 0 ? (
                 filteredCities.map((city, i) => (
@@ -771,7 +771,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                 onClick={() => handleLanguageChange(lang.code)}
                 disabled={!!lang.disabled}
                 aria-disabled={!!lang.disabled}
-                className={`flex items-center justify-between rounded-xl border px-4 py-3 transition-all ${
+                className={`flex items-center justify-between rounded-control border px-4 py-3 transition-all ${
                   lang.disabled
                     ? 'cursor-not-allowed border-white/10 bg-chandra-bg-elevated opacity-40'
                     : settings.language === lang.code
@@ -798,7 +798,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
               type="button"
               onClick={() => onLearn?.('calendar-system')}
               aria-label="Learn about calendar systems"
-              className="-my-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15"
+              className="-my-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-icon text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15"
             >
               <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" />
             </button>
@@ -824,7 +824,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
               <button
                 key={system.code}
                 onClick={() => handleCalendarChange(system.code)}
-                className={`rounded-xl border px-4 py-4 text-left transition-all ${
+                className={`rounded-control border px-4 py-4 text-left transition-all ${
                   settings.calendarSystem === system.code
                     ? 'border-chandra-gold/60 bg-chandra-gold/15'
                     : 'border-white/10 bg-chandra-bg-elevated hover:border-white/20'
@@ -852,7 +852,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
           {/* Permission denied state */}
           {notifPermission === 'denied' && (
-            <div className="mb-3 rounded-xl border border-chandra-error/40 bg-chandra-error/15 p-4">
+            <div className="mb-3 rounded-card border border-chandra-error/40 bg-chandra-error/15 p-4">
               <p className="mb-1 text-sm font-medium text-chandra-error">Notifications blocked</p>
               <p className="text-xs leading-relaxed text-chandra-text-secondary">
                 You've blocked notifications for this site. To enable them, open your browser's
@@ -863,13 +863,13 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
           {/* Permission not yet asked */}
           {notifPermission === 'default' && (
-            <div className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-chandra-gold/35 bg-chandra-gold/15 px-4 py-3">
+            <div className="mb-4 flex items-center justify-between gap-3 rounded-card border border-chandra-gold/35 bg-chandra-gold/15 px-4 py-3">
               <p className="flex-1 text-xs leading-relaxed text-chandra-text-primary">
                 Allow Chandra to send festival and eclipse alerts to this device.
               </p>
               <button
                 onClick={requestPermission}
-                className="shrink-0 rounded-lg bg-chandra-gold px-4 py-2 text-xs font-bold text-chandra-text-inverse transition-all hover:bg-chandra-gold-hover"
+                className="shrink-0 rounded-control bg-chandra-gold px-4 py-2 text-xs font-bold text-chandra-text-inverse transition-all hover:bg-chandra-gold-hover"
               >
                 Allow
               </button>
@@ -878,7 +878,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
           {/* Permission granted — green confirmation */}
           {notifPermission === 'granted' && (
-            <div className="mb-3 flex items-center gap-2 rounded-xl border border-chandra-success/35 bg-chandra-success/15 px-4 py-2.5">
+            <div className="mb-3 flex items-center gap-2 rounded-card border border-chandra-success/35 bg-chandra-success/15 px-4 py-2.5">
               <CheckCircle2 size={16} strokeWidth={1.8} aria-hidden="true" className="text-chandra-success" />
               <p className="text-xs text-chandra-success">Notifications enabled for this device</p>
             </div>
@@ -946,7 +946,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                 </div>
                 <button
                   onClick={onOpenSubscribe}
-                  className="rounded-lg bg-chandra-bg-elevated px-3 py-1.5 text-sm font-medium text-chandra-gold transition-all hover:bg-chandra-bg-primary"
+                  className="rounded-control bg-chandra-bg-elevated px-3 py-1.5 text-sm font-medium text-chandra-gold transition-all hover:bg-chandra-bg-primary"
                 >
                   Manage
                 </button>
@@ -963,7 +963,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                   <button
                     key={value}
                     onClick={() => updateFrequency(value)}
-                    className={`rounded-full border px-3 py-1.5 text-xs transition-all ${
+                    className={`rounded-pill border px-3 py-1.5 text-xs transition-all ${
                       (subscription.emailFrequency || 'all') === value
                         ? 'border-chandra-gold/60 bg-chandra-gold/15 text-chandra-gold'
                         : 'border-white/10 bg-chandra-bg-elevated text-chandra-text-secondary hover:border-white/20'
@@ -981,7 +981,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
               </p>
               <button
                 onClick={onOpenSubscribe}
-                className="shrink-0 rounded-xl bg-chandra-gold px-4 py-2 text-sm font-bold text-chandra-text-inverse transition-all hover:bg-chandra-gold-hover"
+                className="shrink-0 rounded-control bg-chandra-gold px-4 py-2 text-sm font-bold text-chandra-text-inverse transition-all hover:bg-chandra-gold-hover"
               >
                 Subscribe
               </button>
@@ -1046,14 +1046,14 @@ const NotificationPreview = ({ visible, onDismiss }) => (
     aria-live="assertive"
     aria-hidden={visible ? undefined : 'true'}
     {...(!visible && { inert: '' })}
-    className={`fixed left-3 right-3 top-16 z-[999] mx-auto flex max-w-[480px] items-start gap-2.5 rounded-2xl border border-white/10 bg-chandra-bg-elevated px-3.5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.45)] transition-transform duration-300 ${
+    className={`fixed left-3 right-3 top-16 z-[999] mx-auto flex max-w-[480px] items-start gap-2.5 rounded-card border border-white/10 bg-chandra-bg-elevated px-3.5 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.45)] transition-transform duration-300 ${
       visible ? 'translate-y-0' : 'pointer-events-none -translate-y-56'
     }`}
   >
     <img
       src="/icons/chandra-mark-topbar-96.png"
       alt=""
-      style={{ width: 36, height: 36, borderRadius: 8, flexShrink: 0 }}
+      className="h-9 w-9 shrink-0 rounded-icon"
     />
     <div className="min-w-0 flex-1">
       <div className="mb-0.5 flex justify-between">
@@ -1069,7 +1069,7 @@ const NotificationPreview = ({ visible, onDismiss }) => (
     </div>
     <button
       onClick={onDismiss}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-chandra-text-secondary hover:bg-chandra-bg-primary hover:text-chandra-text-primary"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-icon text-chandra-text-secondary hover:bg-chandra-bg-primary hover:text-chandra-text-primary"
       aria-label="Dismiss"
     >
       <X size={16} strokeWidth={1.75} aria-hidden="true" />

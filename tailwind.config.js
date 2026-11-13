@@ -41,10 +41,13 @@ export default {
         deva: ['Noto Serif Devanagari', 'serif'],
       },
       borderRadius: {
-        sm: '8px',
-        md: '12px',
-        lg: '16px',
-        xl: '24px',
+        icon: 'var(--radius-icon)',
+        control: 'var(--radius-control)',
+        inset: 'var(--radius-inset)',
+        card: 'var(--radius-card)',
+        dialog: 'var(--radius-dialog)',
+        pill: 'var(--radius-pill)',
+        circle: 'var(--radius-circle)',
       },
       spacing: {
         touch: '44px',

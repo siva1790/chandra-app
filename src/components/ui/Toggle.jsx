@@ -1,6 +1,6 @@
 const Toggle = ({ on, onToggle, label, disabled = false, size = 'md' }) => {
   const compact = size === 'sm'
-  const trackClass = compact ? 'h-5 w-9 rounded-[10px]' : 'h-[26px] w-11 rounded-[13px]'
+  const trackClass = compact ? 'h-5 w-9 rounded-pill' : 'h-[26px] w-11 rounded-pill'
   const knobClass = compact
     ? `h-4 w-4 ${on ? 'left-[15px]' : 'left-0.5'}`
     : `h-5 w-5 ${on ? 'left-[19px]' : 'left-[3px]'}`
@@ -25,7 +25,7 @@ const Toggle = ({ on, onToggle, label, disabled = false, size = 'md' }) => {
       <span
         aria-hidden="true"
         className={[
-          'absolute top-1/2 block -translate-y-1/2 rounded-full bg-chandra-text-primary shadow-[0_1px_4px_rgba(0,0,0,0.45)]',
+          'absolute top-1/2 block -translate-y-1/2 rounded-pill bg-chandra-text-primary shadow-[0_1px_4px_rgba(0,0,0,0.45)]',
           'transition-[left] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
           knobClass,
         ].join(' ')}

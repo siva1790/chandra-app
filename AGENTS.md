@@ -388,7 +388,16 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 
 | 2026-11 | Applied approved responsive Settings: full-width Current Settings, two-column tablet/desktop layout, matching Personal Details/Your City and Language/Calendar System heights from 768px, aligned About/Panchang by city headings, shared desktop navigation and mobile single-column layout. Profile, city, calendar and notification feature-flag logic is preserved. | `src/pages/Settings.jsx`, `src/pages/Settings.css`, `src/App.jsx` |
 
+| 2026-11 | Standardized corner radii across Day View, Calendar, Panchang, Settings, Learn, public city pages and Privacy. Shared semantic tokens use 8px icons, 12px controls/insets, 16px cards and 24px dialogs, with pills/circles for geometry. Removed breakpoint radius drift, updated components/design guide, and added build/lint policy checks and offline token caching. Approved for production deployment. | `public/radius-tokens.css`, `src/components/`, `src/pages/`, `scripts/check-radii.mjs`, `docs/corner-radius-system.md` |
+
 ---
+
+## Corner Radius Policy (2026-11)
+
+- `public/radius-tokens.css` is the shared source for app, city pages, Privacy and design-guide radii. Keep it linked in the main HTML and shared city head; keep it in the service-worker precache.
+- Use semantic Tailwind classes: `rounded-icon` (8px), `rounded-control` / `rounded-inset` (12px), `rounded-card` (16px), `rounded-dialog` (24px), `rounded-pill` and `rounded-circle`. Mobile sheets use `rounded-t-dialog`; centered dialogs use all four corners. Flat list rows inside a card may stay square.
+- Radius does not change at breakpoints. Buttons expose a `shape` prop; do not append competing radius classes. Use pills for chips/tags and circular geometry, not ordinary actions.
+- Run `npm run check:radii` before review (also included in `npm run lint`). See `docs/corner-radius-system.md` for usage and responsive review widths.
 
 ## Iconography Policy (Established 2026-05)
 

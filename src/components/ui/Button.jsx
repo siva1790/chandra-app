@@ -7,15 +7,23 @@ const variants = {
 }
 
 const sizes = {
-  sm: 'min-h-[44px] rounded-xl px-3 py-2 text-xs',
-  md: 'min-h-[44px] rounded-xl px-4 py-2.5 text-sm',
-  lg: 'min-h-[48px] rounded-xl px-5 py-3 text-sm',
+  sm: 'min-h-[44px] px-3 py-2 text-xs',
+  md: 'min-h-[44px] px-4 py-2.5 text-sm',
+  lg: 'min-h-[48px] px-5 py-3 text-sm',
+}
+
+const shapes = {
+  control: 'rounded-control',
+  pill: 'rounded-pill',
+  circle: 'rounded-circle',
+  icon: 'rounded-icon',
 }
 
 const Button = ({
   as: Component = 'button',
   variant = 'primary',
   size = 'md',
+  shape = 'control',
   className = '',
   children,
   type,
@@ -29,6 +37,7 @@ const Button = ({
       'disabled:cursor-not-allowed disabled:bg-chandra-bg-elevated disabled:text-chandra-text-disabled disabled:opacity-60',
       variants[variant] || variants.primary,
       sizes[size] || sizes.md,
+      shapes[shape] || shapes.control,
       className,
     ].filter(Boolean).join(' ')}
     {...props}

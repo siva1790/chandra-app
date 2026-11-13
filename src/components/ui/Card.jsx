@@ -14,7 +14,7 @@ const Card = ({
 }) => (
   <Component
     className={[
-      'rounded-2xl border p-4',
+      'rounded-card border p-4',
       variants[variant] || variants.standard,
       className,
     ].filter(Boolean).join(' ')}

@@ -8,7 +8,7 @@ const variants = {
 const Chip = ({ variant = 'tithi', className = '', children, ...props }) => (
   <span
     className={[
-      'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium',
+      'inline-flex items-center gap-1 rounded-pill border px-2.5 py-1 text-xs font-medium',
       variants[variant] || variants.tithi,
       className,
     ].filter(Boolean).join(' ')}

@@ -244,17 +244,17 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
         aria-modal="true"
         aria-labelledby="subscribe-sheet-title"
         {...(!open && { inert: '' })}
-        className={`fixed bottom-0 left-0 right-0 z-50 bg-gray-950 rounded-t-3xl border-t border-gray-800
+        className={`fixed bottom-0 left-0 right-0 z-50 bg-gray-950 rounded-t-dialog border-t border-gray-800
           transition-transform duration-300 ease-out ${open ? 'translate-y-0' : 'translate-y-full'}`}
       >
         {/* ── Drag handle + close button row ── */}
         <div className="flex items-center justify-between pt-3 pb-1 px-4">
           <div className="w-8" />
-          <div className="w-10 h-1 bg-gray-700 rounded-full" aria-hidden="true" />
+          <div className="w-10 h-1 bg-gray-700 rounded-pill" aria-hidden="true" />
           <button
             onClick={onClose}
             aria-label="Close"
-            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all"
+            className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800 rounded-icon transition-all"
           >
             ✕
           </button>
@@ -289,7 +289,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                     placeholder="Your name"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
+                    className="w-full bg-gray-800 text-white rounded-control px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
                   />
                 </div>
 
@@ -307,7 +307,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                     onChange={e => { setEmail(e.target.value); if (error) setError('') }}
                     aria-invalid={!!error || undefined}
                     aria-describedby={error ? 'sub-email-error' : undefined}
-                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
+                    className="w-full bg-gray-800 text-white rounded-control px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-500"
                   />
                 </div>
 
@@ -330,14 +330,14 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                     onFocus={() => setShowCityList(true)}
                     onBlur={() => setTimeout(() => setShowCityList(false), 150)}
                     onKeyDown={handleCityKeyDown}
-                    className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-400"
+                    className="w-full bg-gray-800 text-white rounded-control px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-400"
                   />
                   {showCityList && citySearch.length > 0 && (
                     <ul
                       id="sub-city-listbox"
                       role="listbox"
                       aria-label="City suggestions"
-                      className="mt-1 bg-gray-800 rounded-xl border border-gray-700 max-h-40 overflow-y-auto"
+                      className="mt-1 bg-gray-800 rounded-inset border border-gray-700 max-h-40 overflow-y-auto"
                     >
                       {filteredCities.length > 0 ? filteredCities.map((city, i) => (
                         <li
@@ -376,7 +376,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
 
                 <button
                   onClick={handleSubscribe}
-                  className="w-full bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold py-4 rounded-2xl transition-all text-sm"
+                  className="w-full bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold py-4 rounded-control transition-all text-sm"
                 >
                   Subscribe
                 </button>
@@ -420,7 +420,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                 {!isEditing && !confirmUnsub && (
                   <button
                     onClick={startEdit}
-                    className="text-yellow-400 text-sm font-medium px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all"
+                    className="text-yellow-400 text-sm font-medium px-3 py-1.5 rounded-control bg-gray-800 hover:bg-gray-700 transition-all"
                   >
                     Edit
                   </button>
@@ -433,7 +433,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
 
               {/* Read-only details */}
               {!isEditing && (
-                <div className="flex flex-col mb-6 bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden">
+                <div className="flex flex-col mb-6 bg-gray-900 rounded-card border border-gray-800 overflow-hidden">
                   {subscription.name && <DetailRow label="Name" value={subscription.name} />}
                   <DetailRow label="Email" value={subscription.email} />
                   <DetailRow label="City" value={subscription.city} />
@@ -459,7 +459,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                       autoComplete="name"
                       value={editName}
                       onChange={e => setEditName(e.target.value)}
-                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none"
+                      className="w-full bg-gray-800 text-white rounded-control px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none"
                     />
                   </div>
                   <div>
@@ -472,7 +472,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                       onChange={e => { setEditEmail(e.target.value); if (editError) setEditError('') }}
                       aria-invalid={!!editError || undefined}
                       aria-describedby={editError ? 'edit-email-error' : undefined}
-                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none"
+                      className="w-full bg-gray-800 text-white rounded-control px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none"
                     />
                   </div>
 
@@ -493,14 +493,14 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                       onFocus={() => setShowEditCityList(true)}
                       onBlur={() => setTimeout(() => setShowEditCityList(false), 150)}
                       onKeyDown={handleEditCityKeyDown}
-                      className="w-full bg-gray-800 text-white rounded-xl px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-400"
+                      className="w-full bg-gray-800 text-white rounded-control px-4 py-3 text-sm border border-gray-700 focus:border-[#8EA8FF] focus-visible:ring-2 focus-visible:ring-[#8EA8FF]/40 focus:outline-none placeholder-gray-400"
                     />
                     {showEditCityList && editCitySearch.length > 0 && (
                       <ul
                         id="edit-city-listbox"
                         role="listbox"
                         aria-label="City suggestions"
-                        className="mt-1 bg-gray-800 rounded-xl border border-gray-700 max-h-40 overflow-y-auto"
+                        className="mt-1 bg-gray-800 rounded-control border border-gray-700 max-h-40 overflow-y-auto"
                       >
                         {filteredEditCities.length > 0 ? filteredEditCities.map((city, i) => (
                           <li
@@ -536,13 +536,13 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setIsEditing(false)}
-                      className="flex-1 py-3 rounded-xl border border-gray-700 text-gray-300 text-sm hover:bg-gray-800 transition-all"
+                      className="flex-1 py-3 rounded-control border border-gray-700 text-gray-300 text-sm hover:bg-gray-800 transition-all"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSaveEdit}
-                      className="flex-1 py-3 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold text-sm transition-all"
+                      className="flex-1 py-3 rounded-control bg-yellow-400 hover:bg-yellow-300 text-gray-950 font-bold text-sm transition-all"
                     >
                       Save
                     </button>
@@ -555,12 +555,12 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                 !confirmUnsub ? (
                   <button
                     onClick={() => setConfirmUnsub(true)}
-                    className="w-full py-3 rounded-xl border border-red-900 text-red-400 text-sm hover:bg-red-950 transition-all"
+                    className="w-full py-3 rounded-control border border-red-900 text-red-400 text-sm hover:bg-red-950 transition-all"
                   >
                     Unsubscribe
                   </button>
                 ) : (
-                  <div className="bg-red-950 border border-red-800 rounded-2xl p-5">
+                  <div className="bg-red-950 border border-red-800 rounded-card p-5">
                     <p className="text-red-300 text-sm font-semibold mb-1">Remove your subscription?</p>
                     <p className="text-red-400 text-xs mb-5 leading-relaxed">
                       You'll be removed from our festival updates list.
@@ -568,13 +568,13 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                     <div className="flex gap-3">
                       <button
                         onClick={() => setConfirmUnsub(false)}
-                        className="flex-1 py-3 rounded-xl border border-gray-700 text-gray-300 text-sm hover:bg-gray-800 transition-all"
+                        className="flex-1 py-3 rounded-control border border-gray-700 text-gray-300 text-sm hover:bg-gray-800 transition-all"
                       >
                         Keep it
                       </button>
                       <button
                         onClick={handleUnsubscribe}
-                        className="flex-1 py-3 rounded-xl bg-red-700 hover:bg-red-600 text-white font-bold text-sm transition-all"
+                        className="flex-1 py-3 rounded-control bg-red-700 hover:bg-red-600 text-white font-bold text-sm transition-all"
                       >
                         Yes, remove me
                       </button>

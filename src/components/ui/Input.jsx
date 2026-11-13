@@ -21,7 +21,7 @@ const Input = ({
     <input
       id={id}
       className={[
-        'min-h-[44px] w-full rounded-xl border border-white/10 bg-chandra-bg-elevated px-4 py-3 text-sm text-chandra-text-primary placeholder:text-chandra-text-disabled',
+        'min-h-[44px] w-full rounded-control border border-white/10 bg-chandra-bg-elevated px-4 py-3 text-sm text-chandra-text-primary placeholder:text-chandra-text-disabled',
         'focus:border-chandra-focus focus:outline-none focus-visible:ring-2 focus-visible:ring-chandra-focus/40',
         className,
       ].filter(Boolean).join(' ')}

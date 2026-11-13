@@ -104,17 +104,17 @@ const TodayMessageModal = ({
         aria-label="Today's message"
         className="fixed bottom-0 left-0 right-0 z-50 max-w-md mx-auto"
       >
-        <div className="bg-[#0f1526] rounded-t-2xl px-5 pt-4 pb-8 border-t border-gray-800">
+        <div className="bg-[#0f1526] rounded-t-dialog px-5 pt-4 pb-8 border-t border-gray-800">
 
           {/* Drag handle + close */}
           <div className="flex items-center justify-between mb-4">
-            <div className="w-8 h-1 bg-gray-700 rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-3" />
+            <div className="w-8 h-1 bg-gray-700 rounded-pill mx-auto absolute left-1/2 -translate-x-1/2 top-3" />
             <div className="flex-1" />
             <button
               ref={closeRef}
               onClick={onClose}
               aria-label="Close"
-              className="p-1.5 rounded-full hover:bg-gray-800 transition-colors text-gray-500 hover:text-gray-300"
+              className="p-1.5 rounded-icon hover:bg-gray-800 transition-colors text-gray-500 hover:text-gray-300"
             >
               <X size={18} strokeWidth={1.75} aria-hidden="true" />
             </button>
@@ -132,12 +132,12 @@ const TodayMessageModal = ({
 
           {/* Tithi + illumination row */}
           <div
-            className="flex items-center gap-3 mb-4 px-3 py-3 rounded-xl"
+            className="flex items-center gap-3 mb-4 px-3 py-3 rounded-inset"
             style={{ background: '#141829' }}
           >
             {/* Moon phase dot */}
             <div
-              className="w-9 h-9 rounded-full flex-shrink-0"
+              className="w-9 h-9 rounded-pill flex-shrink-0"
               style={{ background: 'radial-gradient(circle at 38% 36%, #f0ead0 0%, #c8b87a 55%, #5a4e20 100%)' }}
               aria-hidden="true"
             />
@@ -152,7 +152,7 @@ const TodayMessageModal = ({
 
           {/* Message */}
           <div
-            className="rounded-xl px-4 py-3 mb-5"
+            className="rounded-inset px-4 py-3 mb-5"
             style={{
               background: '#0B1020',
               borderLeft: '2px solid #DDBB6A',
@@ -171,7 +171,7 @@ const TodayMessageModal = ({
               onClick={handleShare}
               disabled={sharing}
               aria-label="Share via other apps"
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-opacity disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 rounded-control text-sm transition-opacity disabled:opacity-50"
               style={{
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.1)',

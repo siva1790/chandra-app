@@ -309,7 +309,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
 
       <div
         aria-label="Calendar view"
-        className="calendar-view-switch mb-4 grid grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-chandra-bg-surface p-1"
+        className="calendar-view-switch mb-4 grid grid-cols-2 gap-1 rounded-card border border-white/10 bg-chandra-bg-surface p-1"
       >
         <button
           type="button"
@@ -317,7 +317,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
           aria-pressed={activeView === 'calendar'}
           aria-controls="calendar-view-panel"
           onClick={() => setActiveView('calendar')}
-          className={`flex min-h-[44px] min-w-0 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-bold transition-all ${
+          className={`flex min-h-[44px] min-w-0 items-center justify-center gap-1.5 rounded-control px-3 text-xs font-bold transition-all ${
             activeView === 'calendar'
               ? 'bg-chandra-gold text-chandra-text-inverse'
               : 'text-chandra-text-secondary hover:bg-chandra-bg-elevated hover:text-chandra-text-primary'
@@ -333,7 +333,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
           aria-controls="events-view-panel"
           aria-label={`Events in ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`}
           onClick={() => setActiveView('events')}
-          className={`flex min-h-[44px] min-w-0 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-bold transition-all ${
+          className={`flex min-h-[44px] min-w-0 items-center justify-center gap-1.5 rounded-control px-3 text-xs font-bold transition-all ${
             activeView === 'events'
               ? 'bg-chandra-gold text-chandra-text-inverse'
               : 'text-chandra-text-secondary hover:bg-chandra-bg-elevated hover:text-chandra-text-primary'
@@ -386,7 +386,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                 aria-current={isToday ? 'date' : undefined}
                 aria-label={`${day.day} ${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}, ${day.tithi.name}${day.festivals.length > 0 ? ', ' + day.festivals[0].name : ''}${day.eclipse ? ', ' + day.eclipse.hinduName : ''}`}
                 className={`
-                  calendar-day relative flex flex-col items-center justify-start pt-1 pb-1 rounded-xl min-h-14
+                  calendar-day relative flex flex-col items-center justify-start pt-1 pb-1 rounded-inset min-h-14
                   transition-all duration-150 cursor-pointer hover:bg-chandra-bg-elevated active:bg-chandra-bg-elevated
                   ${isSelected
                       ? 'border border-chandra-focus bg-chandra-indigo-cta text-chandra-text-primary'
@@ -405,7 +405,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                 ) : (() => {
                   const major = day.festivals.find(f => f.type === 'major')
                   if (major) return <span className="calendar-festival-indicator" role="img" aria-label={major.name}><span className="calendar-festival-emoji">{major.emoji}</span></span>
-                  if (day.festivals.length > 0) return <span className="mt-0.5 inline-block h-1.5 w-1.5 rounded-full bg-chandra-warning" aria-hidden="true" />
+                  if (day.festivals.length > 0) return <span className="mt-0.5 inline-block h-1.5 w-1.5 rounded-pill bg-chandra-warning" aria-hidden="true" />
                   return null
                 })()}
               </button>
@@ -437,7 +437,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
             type="button"
             onClick={() => onLearn?.('festivals-events')}
             aria-label="Learn about calendar events"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-icon text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15"
           >
             <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" />
           </button>
@@ -458,7 +458,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                 <button
                   key={i}
                   onClick={() => openModal(day)}
-                  className="flex w-full items-center gap-4 rounded-xl border border-chandra-warning/30 px-4 py-3 text-left transition-all hover:border-chandra-warning/50 active:bg-chandra-bg-surface"
+                  className="flex w-full items-center gap-4 rounded-card border border-chandra-warning/30 px-4 py-3 text-left transition-all hover:border-chandra-warning/50 active:bg-chandra-bg-surface"
                 >
                   <div className="text-center min-w-10">
                     <p className="text-base font-semibold text-chandra-gold">{day.day}</p>
@@ -467,7 +467,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                   <div className="flex-1">
                     {day.festivals.map((f, fi) => (
                       <div key={fi} className="flex items-center gap-2">
-                        <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-chandra-warning" aria-hidden="true" />
+                        <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-pill bg-chandra-warning" aria-hidden="true" />
                         <p className="text-sm text-chandra-warning-text">{f.name}</p>
                       </div>
                     ))}
@@ -479,7 +479,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                 <button
                   key={i}
                   onClick={() => openModal(day)}
-                  className="flex w-full items-center gap-4 rounded-xl border border-white/10 bg-chandra-bg-surface p-4 text-left transition-all hover:border-chandra-gold/35 active:bg-chandra-bg-elevated"
+                  className="flex w-full items-center gap-4 rounded-card border border-white/10 bg-chandra-bg-surface p-4 text-left transition-all hover:border-chandra-gold/35 active:bg-chandra-bg-elevated"
                 >
                   <div className="text-center min-w-10">
                     <p className="text-lg font-bold text-chandra-gold">{day.day}</p>
@@ -536,7 +536,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
 
             {/* Eclipse highlight */}
             {selectedDay.eclipse && (
-              <div className="mb-4 flex items-center gap-3 rounded-2xl border border-chandra-warning/30 bg-chandra-warning/15 p-3">
+              <div className="mb-4 flex items-center gap-3 rounded-card border border-chandra-warning/30 bg-chandra-warning/15 p-3">
                 <EclipseIcon eclipse={selectedDay.eclipse} size={28} />
                 <div>
                   <p className="text-sm font-semibold text-chandra-warning-text">{selectedDay.eclipse.hinduName}</p>
@@ -549,7 +549,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
             {selectedDay.festivals.length > 0 && (
               <div className="flex flex-col gap-2 mb-4">
                 {selectedDay.festivals.map((f, i) => (
-                  <div key={i} className="flex items-center gap-2 rounded-xl border border-chandra-success/30 bg-chandra-success/15 px-3 py-2">
+                  <div key={i} className="flex items-center gap-2 rounded-card border border-chandra-success/30 bg-chandra-success/15 px-3 py-2">
                     <span className="text-lg" role="img" aria-label={f.name}>{f.emoji}</span>
                     <p className="text-sm font-medium text-chandra-text-primary">{f.name}</p>
                   </div>

@@ -123,7 +123,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                 <button
                   onClick={() => setShowYearPicker(false)}
                   aria-label="Back to month view"
-                  className="rounded-lg bg-chandra-bg-elevated px-3 py-1.5 text-sm font-medium text-chandra-gold transition-all hover:bg-chandra-bg-primary"
+                  className="rounded-control bg-chandra-bg-elevated px-3 py-1.5 text-sm font-medium text-chandra-gold transition-all hover:bg-chandra-bg-primary"
                 >
                   Back
                 </button>
@@ -135,7 +135,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                 <button
                   onClick={prevMonth}
                   aria-label="Previous month"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl text-2xl text-chandra-gold transition-all hover:bg-chandra-bg-elevated"
+                  className="flex h-10 w-10 items-center justify-center rounded-icon text-2xl text-chandra-gold transition-all hover:bg-chandra-bg-elevated"
                 >
                   ‹
                 </button>
@@ -152,7 +152,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                 <button
                   onClick={nextMonth}
                   aria-label="Next month"
-                  className="flex h-10 w-10 items-center justify-center rounded-xl text-2xl text-chandra-gold transition-all hover:bg-chandra-bg-elevated"
+                  className="flex h-10 w-10 items-center justify-center rounded-icon text-2xl text-chandra-gold transition-all hover:bg-chandra-bg-elevated"
                 >
                   ›
                 </button>
@@ -186,7 +186,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                     aria-label={cell ? dayLabel(cell) : undefined}
                     aria-pressed={cell?.isSelected || undefined}
                     className={`
-                      h-10 rounded-xl text-sm font-medium transition-all
+                      h-10 rounded-control text-sm font-medium transition-all
                       ${!cell ? 'invisible pointer-events-none' : ''}
                       ${cell?.isSelected
                         ? 'bg-chandra-gold text-chandra-text-inverse font-bold shadow-md'
@@ -228,7 +228,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                       onClick={() => handleSelectMonth(i)}
                       aria-label={`${month} ${viewYear}`}
                       aria-pressed={i === viewMonth}
-                      className={`py-3 rounded-xl text-sm font-medium transition-all ${
+                      className={`py-3 rounded-control text-sm font-medium transition-all ${
                         i === viewMonth
                           ? 'bg-chandra-gold text-chandra-text-inverse font-bold'
                           : 'bg-chandra-bg-elevated text-chandra-text-primary hover:bg-chandra-bg-primary'
@@ -250,7 +250,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                       onClick={() => handleSelectYear(y)}
                       aria-label={y === THIS_YEAR ? `${y}, current year` : `${y}`}
                       aria-pressed={y === viewYear}
-                      className={`py-3 rounded-xl text-sm font-medium transition-all ${
+                      className={`py-3 rounded-control text-sm font-medium transition-all ${
                         y === viewYear
                           ? 'bg-chandra-gold text-chandra-text-inverse font-bold'
                           : y === THIS_YEAR

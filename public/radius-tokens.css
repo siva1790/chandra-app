@@ -1,0 +1,11 @@
+/* Shared by the app, public city pages, Privacy and the design-system guide.
+   Radius follows component purpose and never changes at a breakpoint. */
+:root {
+  --radius-icon: 8px;
+  --radius-control: 12px;
+  --radius-inset: 12px;
+  --radius-card: 16px;
+  --radius-dialog: 24px;
+  --radius-pill: 9999px;
+  --radius-circle: 50%;
+}

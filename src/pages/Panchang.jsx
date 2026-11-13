@@ -669,7 +669,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
           {/* ── Eclipse Banner (always visible, outside accordions) ── */}
           {panchang.eclipse && (
-            <div className="rounded-2xl border border-chandra-focus/35 bg-chandra-indigo-cta/20 p-5">
+            <div className="rounded-card border border-chandra-focus/35 bg-chandra-indigo-cta/20 p-5">
               <div className="flex items-center gap-4">
                 <EclipseIcon eclipse={panchang.eclipse} size={44} />
                 <div className="flex-1">
@@ -694,25 +694,25 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
           {/* ── Special Day Banners (always visible) ── */}
           {panchang.isPurnima && (
-            <div className="rounded-2xl border border-chandra-gold/35 bg-chandra-gold/15 p-4 text-center">
+            <div className="rounded-card border border-chandra-gold/35 bg-chandra-gold/15 p-4 text-center">
               <p className="font-semibold text-chandra-gold"><span role="img" aria-label="Full moon">🌕</span> Purnima — Full Moon Day</p>
               <p className="mt-1 text-xs text-chandra-text-secondary">Auspicious for prayer, charity, fasting and full-moon observance</p>
             </div>
           )}
           {panchang.isAmavasya && (
-            <div className="rounded-2xl border border-chandra-focus/35 bg-chandra-indigo-cta/20 p-4 text-center">
+            <div className="rounded-card border border-chandra-focus/35 bg-chandra-indigo-cta/20 p-4 text-center">
               <p className="font-semibold text-chandra-focus"><span role="img" aria-label="New moon">🌑</span> Amavasya — New Moon Day</p>
               <p className="mt-1 text-xs text-chandra-text-secondary">Sacred for ancestral offerings (Pitru Tarpan)</p>
             </div>
           )}
           {panchang.isEkadashi && (
-            <div className="rounded-2xl border border-chandra-warning/30 bg-chandra-warning/15 p-4 text-center">
+            <div className="rounded-card border border-chandra-warning/30 bg-chandra-warning/15 p-4 text-center">
               <p className="font-semibold text-chandra-warning-text"><span role="img" aria-label="Folded hands">🙏</span> Ekadashi — Fasting Day</p>
               <p className="mt-1 text-xs text-chandra-text-secondary">Dedicated to Lord Vishnu — avoid grains today</p>
             </div>
           )}
           {panchang.isVishti && (
-            <div className="rounded-2xl border border-chandra-error/40 bg-chandra-error/15 p-4 text-center">
+            <div className="rounded-card border border-chandra-error/40 bg-chandra-error/15 p-4 text-center">
               <p className="font-semibold text-chandra-error"><span role="img" aria-label="Warning">⚠️</span> Bhadra / Vishti Karana Active</p>
               {panchang.vishtiPeriods?.length > 0 && (
                 <p className="mt-1 text-xs font-medium text-chandra-text-primary">
@@ -757,7 +757,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                   </div>
                 </div>
                 {panchang.tithiWindow?.start && panchang.tithiWindow?.end && (
-                  <div className="ml-6 mt-2 rounded-xl bg-chandra-bg-elevated px-3 py-2">
+                  <div className="ml-6 mt-2 rounded-inset bg-chandra-bg-elevated px-3 py-2">
                     <p className="text-xs font-medium text-chandra-gold">
                       {formatTime(panchang.tithiWindow.start)}, {formatShortDate(panchang.tithiWindow.start)}
                       {' → '}
@@ -774,7 +774,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                     <span className="text-sm text-chandra-text-secondary">Nakshatra</span>
                   </div>
                   {panchang.nakshatraList.map((n, i) => (
-                    <div key={i} className="mb-2 ml-6 rounded-xl bg-chandra-bg-elevated px-3 py-2">
+                    <div key={i} className="mb-2 ml-6 rounded-inset bg-chandra-bg-elevated px-3 py-2">
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-sm font-semibold text-chandra-text-primary">{n.name}</p>
                         <p className="text-xs text-chandra-text-secondary">Pada {n.pada}</p>
@@ -798,7 +798,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                     <span className="text-sm text-chandra-text-secondary">Yoga</span>
                   </div>
                   {panchang.yogaList.map((y, i) => (
-                    <div key={i} className="mb-2 ml-6 rounded-xl bg-chandra-bg-elevated px-3 py-2">
+                    <div key={i} className="mb-2 ml-6 rounded-inset bg-chandra-bg-elevated px-3 py-2">
                       <p className="mb-1 text-sm font-semibold text-chandra-text-primary">{y.name}</p>
                       <p className="text-xs font-medium text-chandra-gold">
                         {formatTime(y.start)}, {formatShortDate(y.start)}
@@ -818,7 +818,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                     <span className="text-sm text-chandra-text-secondary">Karana</span>
                   </div>
                   {panchang.karanaList.map((k, i) => (
-                    <div key={i} className="mb-2 ml-6 rounded-xl bg-chandra-bg-elevated px-3 py-2">
+                    <div key={i} className="mb-2 ml-6 rounded-inset bg-chandra-bg-elevated px-3 py-2">
                       <p className="mb-1 text-sm font-semibold text-chandra-text-primary">{k.name}</p>
                       <p className="text-xs font-medium text-chandra-gold">
                         {formatTime(k.start)}, {formatShortDate(k.start)}
@@ -957,7 +957,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           <button
             type="button"
             onClick={() => onLearn?.('basics')}
-            className="group flex min-h-[64px] w-full items-center justify-between gap-3 rounded-2xl border border-white/10 bg-chandra-bg-surface p-5 text-left transition-all hover:border-chandra-gold/35 active:bg-chandra-bg-elevated"
+            className="group flex min-h-[64px] w-full items-center justify-between gap-3 rounded-card border border-white/10 bg-chandra-bg-surface p-5 text-left transition-all hover:border-chandra-gold/35 active:bg-chandra-bg-elevated"
           >
             <span className="flex items-center gap-2 text-sm font-medium text-chandra-text-primary">
               <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" className="shrink-0 text-chandra-gold" />
@@ -981,12 +981,12 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 // ── Sub-components ────────────────────────────────────────────────
 
 const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, children, className = '' }) => (
-  <div className={`panchang-panel overflow-hidden rounded-2xl border border-white/10 bg-chandra-bg-surface ${className}`}>
+  <div className={`panchang-panel overflow-hidden rounded-card border border-white/10 bg-chandra-bg-surface ${className}`}>
     <div className="panchang-panel-heading flex min-h-[60px] items-center px-5 py-2">
       <button
         onClick={onToggle}
         aria-expanded={isOpen}
-        className="min-w-0 flex-1 rounded-lg py-2 pr-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
+        className="min-w-0 flex-1 rounded-control py-2 pr-2 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
       >
         <p className="text-xs uppercase tracking-widest leading-snug text-chandra-gold">{title}</p>
       </button>
@@ -995,7 +995,7 @@ const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, childr
           type="button"
           onClick={onLearn}
           aria-label={learnLabel || `Learn about ${title}`}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-icon text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
         >
           <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" />
         </button>
@@ -1004,7 +1004,7 @@ const AccordionSection = ({ title, isOpen, onToggle, onLearn, learnLabel, childr
         type="button"
         onClick={onToggle}
         aria-label={isOpen ? `Collapse ${title}` : `Expand ${title}`}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl hover:bg-chandra-bg-elevated active:bg-chandra-bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-icon hover:bg-chandra-bg-elevated active:bg-chandra-bg-elevated focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
       >
         <ChevronDown
           size={16}

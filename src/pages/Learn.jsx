@@ -250,7 +250,7 @@ const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' 
         <button
           type="button"
           onClick={onBack}
-          className="flex min-h-[44px] items-center gap-2 rounded-xl px-2 pr-3 text-left text-sm font-semibold text-gray-200 active:bg-gray-800"
+          className="flex min-h-[44px] items-center gap-2 rounded-control px-2 pr-3 text-left text-sm font-semibold text-gray-200 active:bg-gray-800"
           aria-label={`Back to ${returnLabel}`}
         >
           <ArrowLeft size={18} aria-hidden="true" strokeWidth={1.9} className="text-yellow-400 shrink-0" />
@@ -269,14 +269,14 @@ const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' 
         </p>
       </header>
 
-      <nav aria-label="Learning sections" className="bg-gray-900 border border-gray-800 rounded-2xl p-4 mb-5">
+      <nav aria-label="Learning sections" className="bg-gray-900 border border-gray-800 rounded-card p-4 mb-5">
         <p className="text-yellow-500 text-xs uppercase tracking-widest mb-3">Sections</p>
         <div className="grid grid-cols-1 gap-2">
           {LEARN_SECTIONS.map(section => (
             <a
               key={section.id}
               href={`#learn/${section.id}`}
-              className="flex items-center justify-between gap-3 rounded-xl bg-gray-800 border border-gray-700 px-3 py-3 min-h-[44px] active:bg-gray-700"
+              className="flex items-center justify-between gap-3 rounded-inset bg-gray-800 border border-gray-700 px-3 py-3 min-h-[44px] active:bg-gray-700"
             >
               <span className="text-gray-200 text-sm font-medium">{section.title}</span>
               <section.icon size={15} aria-hidden="true" strokeWidth={1.75} className="text-yellow-400 shrink-0" />
@@ -295,7 +295,7 @@ const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' 
         <button
           type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed right-4 bottom-24 z-30 w-11 h-11 rounded-full bg-yellow-400 text-gray-950 shadow-lg shadow-black/30 flex items-center justify-center active:bg-yellow-500"
+          className="fixed right-4 bottom-24 z-30 w-11 h-11 rounded-pill bg-yellow-400 text-gray-950 shadow-lg shadow-black/30 flex items-center justify-center active:bg-yellow-500"
           aria-label="Scroll to top"
         >
           <ArrowUp size={18} aria-hidden="true" strokeWidth={2.2} />
@@ -306,10 +306,10 @@ const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' 
 }
 
 const LearnSection = ({ section }) => (
-  <section id={section.id} tabIndex={-1} className="scroll-mt-32 bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden focus:outline-none">
+  <section id={section.id} tabIndex={-1} className="scroll-mt-32 bg-gray-900 border border-gray-800 rounded-card overflow-hidden focus:outline-none">
     <div className="p-5">
       <div className="flex items-start gap-3 mb-3">
-        <div className="w-9 h-9 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-icon bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center shrink-0">
           <section.icon size={17} aria-hidden="true" strokeWidth={1.75} className="text-yellow-300" />
         </div>
         <div className="min-w-0">
@@ -323,7 +323,7 @@ const LearnSection = ({ section }) => (
 
       <div className="mt-4 flex flex-col gap-3">
         {section.points.map(([label, body]) => (
-          <div key={label} className="rounded-xl bg-gray-800/80 border border-gray-700 px-3 py-3">
+          <div key={label} className="rounded-control bg-gray-800/80 border border-gray-700 px-3 py-3">
             <p className="text-yellow-300 text-xs font-semibold mb-1">{label}</p>
             <p className="text-gray-300 text-sm leading-relaxed">{body}</p>
           </div>
@@ -397,7 +397,7 @@ const ReferenceAccordion = ({ title, note, items, columns }) => {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="rounded-2xl bg-gray-950 border border-gray-800 overflow-hidden">
+    <div className="rounded-inset bg-gray-950 border border-gray-800 overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen(prev => !prev)}
@@ -458,7 +458,7 @@ const Visual = ({ type }) => {
 }
 
 const TithiVisual = () => (
-  <div className="mt-4 rounded-2xl bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
     <svg viewBox="0 0 280 130" role="img" aria-label="Tithi is based on Moon Sun angle" className="w-full h-auto">
       <circle cx="72" cy="66" r="18" fill="#FBBF24" />
       <circle cx="190" cy="66" r="22" fill="#DDBB6A" />
@@ -472,7 +472,7 @@ const TithiVisual = () => (
 )
 
 const DaylightVisual = () => (
-  <div className="mt-4 rounded-2xl bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
     <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
       <span>Sunrise</span>
       <span>Sunset</span>
@@ -481,7 +481,7 @@ const DaylightVisual = () => (
       {Array.from({ length: 8 }, (_, i) => (
         <div
           key={i}
-          className={`h-10 rounded-lg border ${i === 4 ? 'bg-red-500/20 border-red-500/50' : 'bg-yellow-400/10 border-yellow-400/20'}`}
+          className={`h-10 rounded-control border ${i === 4 ? 'bg-red-500/20 border-red-500/50' : 'bg-yellow-400/10 border-yellow-400/20'}`}
         />
       ))}
     </div>
@@ -490,7 +490,7 @@ const DaylightVisual = () => (
 )
 
 const NakshatraVisual = () => (
-  <div className="mt-4 rounded-2xl bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
     <svg viewBox="0 0 280 98" role="img" aria-label="Moon moving through Nakshatra sectors" className="w-full h-auto">
       <path d="M20 52 C70 18 118 78 168 40 S235 36 260 52" fill="none" stroke="#4B5563" strokeWidth="2" />
       {Array.from({ length: 9 }, (_, i) => (
@@ -504,7 +504,7 @@ const NakshatraVisual = () => (
 )
 
 const MonthVisual = () => (
-  <div className="mt-4 rounded-2xl bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
     <div className="flex items-center justify-between gap-3">
       <div className="text-center flex-1">
         <div className="text-2xl" aria-hidden="true">🌑</div>
@@ -522,7 +522,7 @@ const MonthVisual = () => (
 )
 
 const NavagrahaVisual = () => (
-  <div className="mt-4 rounded-2xl bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
     <svg viewBox="0 0 180 180" role="img" aria-label="Sidereal zodiac circle" className="w-full max-w-[210px] mx-auto h-auto">
       <circle cx="90" cy="90" r="72" fill="none" stroke="#374151" strokeWidth="2" />
       {Array.from({ length: 12 }, (_, i) => {
@@ -542,13 +542,13 @@ const NavagrahaVisual = () => (
 )
 
 const CalendarSystemVisual = () => (
-  <div className="mt-4 rounded-2xl bg-gray-950 border border-gray-800 p-4">
+  <div className="mt-4 rounded-inset bg-gray-950 border border-gray-800 p-4">
     <div className="grid grid-cols-2 gap-3">
-      <div className="rounded-xl bg-gray-800 border border-gray-700 p-3 text-center">
+      <div className="rounded-control bg-gray-800 border border-gray-700 p-3 text-center">
         <p className="text-yellow-300 text-sm font-semibold">Amavasyant</p>
         <p className="text-gray-400 text-xs mt-1">New moon closes the month</p>
       </div>
-      <div className="rounded-xl bg-gray-800 border border-gray-700 p-3 text-center">
+      <div className="rounded-control bg-gray-800 border border-gray-700 p-3 text-center">
         <p className="text-yellow-300 text-sm font-semibold">Purnimant</p>
         <p className="text-gray-400 text-xs mt-1">Full moon closes the month</p>
       </div>

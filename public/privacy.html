@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en-IN">
   <head>
+    <link rel="stylesheet" href="/radius-tokens.css" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Privacy Policy - Chandra</title>
@@ -56,7 +57,7 @@
         min-height: 44px;
         color: inherit;
         text-decoration: none;
-        border-radius: 12px;
+        border-radius: var(--radius-control);
       }
 
       .brand-link:focus-visible {
@@ -67,7 +68,7 @@
       header img {
         width: 32px;
         height: 32px;
-        border-radius: 8px;
+        border-radius: var(--radius-icon);
       }
 
       header span {
@@ -149,7 +150,7 @@
         padding: 18px;
         background: var(--panel);
         border: 1px solid var(--border);
-        border-radius: 8px;
+        border-radius: var(--radius-card);
       }
 
       .summary p:last-child,

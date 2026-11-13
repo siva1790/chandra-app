@@ -9,7 +9,7 @@
   margin: 20px 0 18px;
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
 }
 .day-view-page .calendar-datebar > div {
   flex: 1;
@@ -28,7 +28,7 @@
   min-height: 44px;
   padding-inline: 8px;
   border: 1px solid var(--border-default);
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   color: var(--gold);
   font-size: 11px;
 }
@@ -48,11 +48,11 @@
 .day-view-metrics > div > p:nth-child(2) { font-size: 13px; line-height: 1.5; }
 .day-view-metrics > div > p:nth-child(3) { font-size: 11px; }
 .day-view-snapshot { gap: 10px; }
-.day-view-snapshot > div { padding: 12px 10px; border-radius: 12px; }
+.day-view-snapshot > div { padding: 12px 10px; }
 .day-view-snapshot > div > p:first-child { font-size: 11px; }
 .day-view-snapshot > div > p:nth-child(2) { font-size: 13px; }
 .day-view-snapshot > div > p:nth-child(3) { font-size: 11px; }
-.day-view-full-panchanga { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 44px; margin-top: 16px; border-radius: 10px; font-size: 12px; font-weight: 500; }
+.day-view-full-panchanga { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 44px; margin-top: 16px; border-radius: var(--radius-control); font-size: 12px; font-weight: 500; }
 .day-view-full-panchanga:hover { background: var(--bg-elevated); }
 .day-view-cities { margin-top: 16px; }
 .day-view-cities nav > div { column-gap: 15px; }
@@ -73,7 +73,7 @@
   .day-view-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
   .day-view-layout > button,
   .day-view-my-day { grid-column: 1 / -1; }
-  .day-view-page .day-view-panel { padding: 18px; border-radius: 18px; }
+  .day-view-page .day-view-panel { padding: 18px; }
   .day-view-my-day > p:first-of-type { font-size: 14px; line-height: 1.8; }
   .day-view-my-day > p:last-child:not(:first-of-type) { font-size: 12px; }
   .day-view-cosmos-content { display: flex; flex-direction: column; gap: 8px; }
@@ -87,12 +87,12 @@
   .day-view-snapshot > div > p:nth-child(2) { font-size: 14px; }
   .day-view-page .day-view-full-panchanga { margin-top: auto; padding-top: 16px; min-height: 60px; font-size: 13px; }
   .day-view-cities { margin-top: 18px; }
-  .day-view-cities nav { padding: 18px; border-radius: 18px; }
+  .day-view-cities nav { padding: 18px; }
   .day-view-cities nav > div { column-gap: 18px; }
   .day-view-cities a { font-size: 13px; }
-  .day-view-page [role="dialog"] { top: 50%; bottom: auto; transform: translateY(-50%); max-height: calc(100dvh - 48px); overflow-y: auto; border: 1px solid var(--border-default); border-radius: 22px; transition: none; }
+  .day-view-page [role="dialog"] { top: 50%; bottom: auto; transform: translateY(-50%); max-height: calc(100dvh - 48px); overflow-y: auto; border: 1px solid var(--border-default); border-radius: var(--radius-dialog); transition: none; }
   .day-view-page [role="dialog"][aria-hidden="true"] { visibility: hidden; }
-  .day-view-page [role="dialog"] > div:first-child { border-radius: 22px; }
+  .day-view-page [role="dialog"] > div:first-child { border-radius: var(--radius-dialog); }
 }
 
 @media (min-width: 1024px) {

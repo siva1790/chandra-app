@@ -64,11 +64,11 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
     <>
       <div className={`${responsive ? 'calendar-datebar ' : ''}flex flex-col items-center gap-1 mb-6`}>
         {/* Arrows + date label row */}
-        <div className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-chandra-bg-surface px-1 py-1">
+        <div className="flex w-full items-center justify-between rounded-card border border-white/10 bg-chandra-bg-surface px-1 py-1">
           <button
             onClick={prev}
             aria-label={mode === 'day' ? 'Previous day' : 'Previous month'}
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 py-1 text-xl text-chandra-gold transition-colors hover:bg-chandra-bg-elevated"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-icon px-3 py-1 text-xl text-chandra-gold transition-colors hover:bg-chandra-bg-elevated"
           >‹</button>
 
           <button
@@ -76,7 +76,7 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
             onClick={() => setPickerOpen(true)}
             aria-label={`Selected date: ${label}. Tap to change.`}
             aria-haspopup="dialog"
-            className="flex flex-1 flex-col items-center gap-0.5 rounded-xl px-3 py-1 transition-all hover:bg-chandra-bg-elevated"
+            className="flex flex-1 flex-col items-center gap-0.5 rounded-control px-3 py-1 transition-all hover:bg-chandra-bg-elevated"
           >
             <p className="text-center text-sm font-medium text-chandra-text-primary">
               {responsive && mode === 'day' ? <>
@@ -93,7 +93,7 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
           <button
             onClick={next}
             aria-label={mode === 'day' ? 'Next day' : 'Next month'}
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 py-1 text-xl text-chandra-gold transition-colors hover:bg-chandra-bg-elevated"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-icon px-3 py-1 text-xl text-chandra-gold transition-colors hover:bg-chandra-bg-elevated"
           >›</button>
         </div>
 

@@ -280,7 +280,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
                 <button
                   type="button"
                   onClick={() => setShowModal(true)}
-                  className="flex min-h-[36px] items-center gap-1.5 rounded-full border border-white/10 bg-chandra-bg-elevated px-3 py-1.5 text-xs font-medium text-chandra-gold transition-all hover:border-chandra-gold/40"
+                  className="flex min-h-[36px] items-center gap-1.5 rounded-control border border-white/10 bg-chandra-bg-elevated px-3 py-1.5 text-xs font-medium text-chandra-gold transition-all hover:border-chandra-gold/40"
                 >
                   <Share2 size={13} aria-hidden="true" />
                   Share
@@ -289,7 +289,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
                 <Button
                   onClick={onNavigateToSettings}
                   size="sm"
-                  className="min-h-[36px] rounded-full py-1.5"
+                  className="min-h-[36px] py-1.5"
                 >
                   Personalize
                   <ArrowRight size={13} aria-hidden="true" />
@@ -407,7 +407,7 @@ const TodayHighlightCard = ({ dayHighlight, date, onNavigateToPanchang }) => {
       <button
         type="button"
         onClick={() => onNavigateToPanchang?.(date)}
-        className="flex w-full items-center gap-3 rounded-2xl border border-chandra-gold/35 bg-chandra-bg-surface p-4 text-left transition-all hover:border-chandra-gold/60 active:bg-chandra-bg-elevated"
+        className="flex w-full items-center gap-3 rounded-card border border-chandra-gold/35 bg-chandra-bg-surface p-4 text-left transition-all hover:border-chandra-gold/60 active:bg-chandra-bg-elevated"
       >
         <EclipseIcon eclipse={dayHighlight.eclipse} size={30} />
         <div className="flex-1 min-w-0">
@@ -424,7 +424,7 @@ const TodayHighlightCard = ({ dayHighlight, date, onNavigateToPanchang }) => {
       <button
         type="button"
         onClick={() => onNavigateToPanchang?.(date)}
-        className="flex w-full items-center gap-3 rounded-2xl border border-chandra-gold/35 bg-chandra-bg-surface p-4 text-left transition-all hover:border-chandra-gold/60 active:bg-chandra-bg-elevated"
+        className="flex w-full items-center gap-3 rounded-card border border-chandra-gold/35 bg-chandra-bg-surface p-4 text-left transition-all hover:border-chandra-gold/60 active:bg-chandra-bg-elevated"
       >
         <span className="flex-shrink-0 text-2xl" role="img" aria-label={dayHighlight.festivals[0].name}>{dayHighlight.festivals[0].emoji}</span>
         <div className="flex-1 min-w-0">
@@ -451,7 +451,7 @@ const Metric = ({ label, value, sub }) => (
 )
 
 const Snapshot = ({ icon: Icon, label, value, sub }) => (
-  <div className="min-w-0 rounded-xl border border-white/10 bg-chandra-bg-elevated px-3 py-3">
+  <div className="min-w-0 rounded-inset border border-white/10 bg-chandra-bg-elevated px-3 py-3">
     <p className="mb-1 flex items-center gap-1.5 text-xs text-chandra-text-secondary">
       <Icon size={12} aria-hidden="true" />
       {label}

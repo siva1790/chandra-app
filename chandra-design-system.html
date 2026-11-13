@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="/radius-tokens.css" />
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Chandra — Design System v1.0</title>
@@ -57,7 +58,7 @@ h3.subsub { font-size: 13.5px; font-weight: 600; color: var(--doc-muted); margin
   border-radius: 0;
 }
 .cover-inner { max-width: 600px; }
-.cover .badge { display: inline-block; background: rgba(221,187,106,0.15); border: 1px solid rgba(221,187,106,0.4); color: #DDBB6A; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 999px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 20px; }
+.cover .badge { display: inline-block; background: rgba(221,187,106,0.15); border: 1px solid rgba(221,187,106,0.4); color: #DDBB6A; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: var(--radius-pill); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 20px; }
 .cover h1 { font-size: 36px; font-weight: 800; color: #F5F7FA; margin-bottom: 8px; }
 .cover .tagline { font-size: 15px; color: #B5BDD1; margin-bottom: 28px; line-height: 1.5; }
 .cover-pills { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -107,7 +108,7 @@ pre .str { color: #4FAF7C; }
 .preview-label { font-size: 10px; color: #4A5585; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; margin-bottom: 16px; }
 
 /* Buttons */
-.btn { display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; border-radius: 12px; transition: all 0.2s; text-decoration: none; }
+.btn { display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; border-radius: var(--radius-control); transition: all 0.2s; text-decoration: none; }
 .btn-primary { background: #DDBB6A; color: #0B1020; font-size: 14px; padding: 12px 24px; }
 .btn-primary:hover { background: #E8C87A; }
 .btn-secondary { background: #3D4ECC; color: #F5F7FA; font-size: 14px; padding: 12px 24px; }
@@ -115,19 +116,19 @@ pre .str { color: #4FAF7C; }
 .btn-ghost { background: transparent; color: #DDBB6A; font-size: 14px; padding: 12px 24px; border: 1.5px solid rgba(221,187,106,0.5); }
 .btn-ghost:hover { background: rgba(221,187,106,0.08); }
 .btn-danger { background: #D45C5C; color: #F5F7FA; font-size: 14px; padding: 12px 24px; }
-.btn-sm { padding: 8px 16px; font-size: 13px; border-radius: 10px; }
+.btn-sm { padding: 8px 16px; font-size: 13px; border-radius: var(--radius-control); }
 .btn-disabled { background: #2A2F45; color: #4A5585; cursor: not-allowed; font-size: 14px; padding: 12px 24px; }
 .btn-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
 /* Chips */
-.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 500; }
 .chip-tithi { background: rgba(93,169,233,0.15); color: #8EC8F5; border: 1px solid rgba(93,169,233,0.3); }
 .chip-festival { background: rgba(79,175,124,0.15); color: #7ECFA6; border: 1px solid rgba(79,175,124,0.3); }
 .chip-eclipse { background: rgba(217,144,54,0.15); color: #F0B060; border: 1px solid rgba(217,144,54,0.3); }
 .chip-nakshatra { background: rgba(142,168,255,0.12); color: #8EA8FF; border: 1px solid rgba(142,168,255,0.25); }
 
 /* Card */
-.ds-card { background: #151B2F; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; }
+.ds-card { background: #151B2F; border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-card); padding: 20px; }
 .ds-card-title { color: #F5F7FA; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
 .ds-card-sub { color: #B5BDD1; font-size: 13px; }
 
@@ -136,16 +137,16 @@ pre .str { color: #4FAF7C; }
 .toggle-wrap span { color: #B5BDD1; font-size: 14px; }
 .toggle { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
 .toggle input { opacity: 0; width: 0; height: 0; }
-.toggle-track { display: block; width: 44px; height: 26px; background: #2A3050; border: 1.5px solid rgba(255,255,255,0.15); border-radius: 13px; cursor: pointer; transition: background 0.2s; }
+.toggle-track { display: block; width: 44px; height: 26px; background: #2A3050; border: 1.5px solid rgba(255,255,255,0.15); border-radius: var(--radius-pill); cursor: pointer; transition: background 0.2s; }
 .toggle-track.on { background: #DDBB6A; border-color: rgba(221,187,106,0.6); }
 /* Knob sits inside the track — position:relative on .toggle is the anchor */
-.toggle-knob { position: absolute; top: 50%; transform: translateY(-50%); left: 3px; width: 20px; height: 20px; background: #F5F7FA; border-radius: 50%; transition: left 0.2s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 1px 4px rgba(0,0,0,0.45); }
+.toggle-knob { position: absolute; top: 50%; transform: translateY(-50%); left: 3px; width: 20px; height: 20px; background: #F5F7FA; border-radius: var(--radius-circle); transition: left 0.2s cubic-bezier(0.34,1.56,0.64,1); box-shadow: 0 1px 4px rgba(0,0,0,0.45); }
 .toggle-knob.on { left: 19px; }
 
 /* Input */
 .ds-input-wrap { position: relative; }
 .ds-input-label { display: block; font-size: 12px; font-weight: 600; color: #B5BDD1; margin-bottom: 6px; letter-spacing: .04em; text-transform: uppercase; }
-.ds-input { width: 100%; background: #151B2F; color: #F5F7FA; border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 11px 14px; font-size: 14px; outline: none; font-family: inherit; }
+.ds-input { width: 100%; background: #151B2F; color: #F5F7FA; border: 1.5px solid rgba(255,255,255,0.12); border-radius: var(--radius-control); padding: 11px 14px; font-size: 14px; outline: none; font-family: inherit; }
 .ds-input::placeholder { color: #4A5585; }
 .ds-input:focus { border-color: #8EA8FF; box-shadow: 0 0 0 3px rgba(142,168,255,0.25); }
 
@@ -154,7 +155,7 @@ pre .str { color: #4FAF7C; }
 
 /* Nav preview */
 .nav-preview { background: #0D1122; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-around; padding: 12px 8px 8px; border-radius: 0 0 14px 14px; }
-.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 16px; border-radius: 10px; cursor: pointer; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 16px; border-radius: var(--radius-control); cursor: pointer; }
 .nav-item.active { background: rgba(221,187,106,0.1); }
 .nav-icon { width: 22px; height: 22px; stroke: #70778B; fill: none; stroke-width: 1.8; }
 .nav-item.active .nav-icon { stroke: #DDBB6A; }
@@ -163,7 +164,7 @@ pre .str { color: #4FAF7C; }
 
 /* Phase cards */
 .phase-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0; }
-.phase-card { border-radius: 12px; padding: 14px; border: 1px solid rgba(255,255,255,0.06); }
+.phase-card { border-radius: var(--radius-inset); padding: 14px; border: 1px solid rgba(255,255,255,0.06); }
 .phase-name { font-size: 12px; font-weight: 600; color: #F5F7FA; margin-bottom: 4px; }
 .phase-sub { font-size: 11px; color: #7B8AAA; }
 
@@ -560,12 +561,15 @@ document.head.appendChild(link);</pre>
   </div>
   <table>
     <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
-    <tr><td><code>--radius-sm</code></td><td>8px</td><td>Small inline elements, badges, tags</td></tr>
-    <tr><td><code>--radius-md</code></td><td>12px</td><td>Buttons, inputs, small cards</td></tr>
-    <tr><td><code>--radius-lg</code></td><td>16px</td><td>Standard cards, modals</td></tr>
-    <tr><td><code>--radius-xl</code></td><td>24px</td><td>Bottom sheets (top corners), large panels</td></tr>
-    <tr><td><code>--radius-full</code></td><td>999px</td><td>Chips, pill badges, avatar rings</td></tr>
+    <tr><td><code>--radius-icon</code></td><td>8px</td><td>Square icon buttons: arrows, close and help</td></tr>
+    <tr><td><code>--radius-control</code></td><td>12px</td><td>Buttons, inputs, selects and navigation items</td></tr>
+    <tr><td><code>--radius-inset</code></td><td>12px</td><td>Nested content, dropdowns and calendar date cells</td></tr>
+    <tr><td><code>--radius-card</code></td><td>16px</td><td>Cards, accordion shells and standalone status/event panels</td></tr>
+    <tr><td><code>--radius-dialog</code></td><td>24px</td><td>Centered dialogs (all corners); mobile sheets (top corners only)</td></tr>
+    <tr><td><code>--radius-pill</code></td><td>9999px</td><td>Chips, tags, toggle tracks and thumbs</td></tr>
+    <tr><td><code>--radius-circle</code></td><td>50%</td><td>Explicit circular elements</td></tr>
   </table>
+  <p>Load <code>/radius-tokens.css</code>, the single source of truth. Use semantic utilities such as <code>rounded-control</code>, <code>rounded-card</code> and <code>rounded-t-dialog</code>. Radius stays the same on mobile, tablet and desktop, including hover, selected, disabled and focus states. Flat rows inside a panel remain square. Run <code>npm run check:radii</code> before review; do not add generic radius classes or page-specific numeric overrides.</p>
 
   <h2 class="sub">Border Colors <span class="badge badge-new">NEW</span></h2>
   <p style="font-size:13px;color:var(--doc-muted);margin-bottom:12px">These were missing from the original system. Define them explicitly to prevent ad-hoc border color decisions.</p>
@@ -1177,11 +1181,13 @@ const BottomSheet = ({ open, onClose, title, children }) => {
   <span class="key">--touch-target</span>: <span class="val">44px</span>;
 
   <span class="comment">/* Border radius */</span>
-  <span class="key">--radius-sm</span>: <span class="val">8px</span>;
-  <span class="key">--radius-md</span>: <span class="val">12px</span>;
-  <span class="key">--radius-lg</span>: <span class="val">16px</span>;
-  <span class="key">--radius-xl</span>: <span class="val">24px</span>;
-  <span class="key">--radius-full</span>: <span class="val">999px</span>;
+  <span class="key">--radius-icon</span>: <span class="val">8px</span>;
+  <span class="key">--radius-control</span>: <span class="val">12px</span>;
+  <span class="key">--radius-inset</span>: <span class="val">12px</span>;
+  <span class="key">--radius-card</span>: <span class="val">16px</span>;
+  <span class="key">--radius-dialog</span>: <span class="val">24px</span>;
+  <span class="key">--radius-pill</span>: <span class="val">9999px</span>;
+  <span class="key">--radius-circle</span>: <span class="val">50%</span>;
 
   <span class="comment">/* Motion */</span>
   <span class="key">--dur-fast</span>:   <span class="val">150ms</span>;
