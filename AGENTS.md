@@ -78,7 +78,7 @@ chandra-app/
 
 ### Tithi Calculation Convention
 - Tithi is sampled at **local sunrise** (Drik Panchang convention) for display in the UI (Panchang tab, Home/Day View highlight strip).
-- Both `Panchang.jsx` and `Home.jsx` use the shared helper `getTithiAtSunrise(date, lat, lon)` from `moonUtils.js` — this is the single source of truth for which tithi belongs to a civil day.
+- Panchang, Home, Calendar summaries and public city pages use `getPanchaAngaAtSunrise()` from `panchangAnga.js`, which delegates Tithi to `getTithiAtSunrise(date, lat, lon)` from `moonUtils.js` — this remains the single source of truth for which tithi belongs to a civil day.
 - **Do NOT revert to midnight sampling** — it was the original bug.
 - **Do NOT reintroduce a noon-override** in `Home.jsx` — a previous version overrode sunrise tithi with noon tithi when they differed, causing Day View to drift from Panchang on tithi boundary days (e.g. May 17 showed Amavasya instead of Pratipada). This was removed in git `6653cb6`.
 - **For festival detection, sunrise sampling is NOT used** — the festival engine uses per-festival ritual windows instead (see Festival Engine section below).
@@ -145,7 +145,7 @@ Note: 2029 Dhanteras was missing under strict `pradosh` window; fixed by `prados
 **Known technical debt in the engine:**
 - Lahiri ayanamsha is now date/time-sensitive via `ayanamsha.js`; do not reintroduce fixed `23.15°` subtraction.
 - Window evaluation uses 20-minute interval sampling, not exact tithi-transition solving.
-- `Panchang.jsx` has its own separate panchang/masa calculation path — not yet unified with the festival engine.
+- Full app Panchang calculations live in `src/panchangCalculations.js`; Home, Calendar, full Panchang and public cities share the sunrise snapshot in `src/panchangAnga.js`. Display Masa remains separate from the festival engine's ritual-window Masa path; do not unify these by changing festival rules during a refactor. See `docs/shared-panchang-calculations.md`.
 
 ### Moon Phase Visual
 - `MoonVisual.jsx` renders a textured SVG moon using a **shadow-overlay approach** — NOT a formula that draws the lit shape directly.
@@ -161,6 +161,11 @@ Note: 2029 Dhanteras was missing under strict `pradosh` window; fixed by `prados
 - Current helper is calibrated at J2000 (`23.853055°`) and advances by `50.290966 arcseconds/year`; keep full precision internally and round only for display.
 - Tithi is unaffected in practice because it is Moon-Sun angular separation; Nakshatra, Yoga, Rashi/Navagraha, Masa, and solar ingress rules are affected.
 - The live 2026-05-19 deployment also fixed Akshaya duplicate suppression, Adhik Vat Purnima labeling, Diwali 2037 fallback, and Makar Sankranti next-day observance after post-sunset ingress.
+
+### Timing Precision
+- Keep original event timestamps, including seconds/milliseconds, throughout calculations. `getDailyTimingRanges()` accepts and returns epoch milliseconds; full Panchang exposes raw ranges in `dailyTimings`.
+- Round only a display copy to the nearest minute (30 seconds rounds forward), using `src/timeFormatting.js` and the tested backend mirror `functions/timeFormatting.js`. Display times explicitly in IST and derive accompanying event dates from the same rounded copy so midnight rollover is consistent.
+- Never use display-rounded events for sunrise sampling, festival decisions, notification scheduling, or deduplication. Moonrise search/pairing and personalized birth-time handling are separate work.
 
 ---
 
@@ -320,6 +325,8 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 
 | Date Fixed | Issue | File(s) Changed |
 |---|---|---|
+| 2026-11 | Removed premature whole-minute truncation from daily timings; keep full timestamps through slot calculations and round only at presentation. Standardized app/city sunrise, sunset, moon events, transition windows, eclipse peaks and notification/email text to nearest-minute IST display with matching event dates at midnight rollover. Updated the private calculation reference locally without publishing it. | `src/panchangAnga.js`, `src/panchangCalculations.js`, `src/timeFormatting.js`, `src/pages/Home.jsx`, `src/pages/Panchang.jsx`, `src/pages/CityPanchang.jsx`, `src/cityPanchang.js`, `functions/timeFormatting.js`, `functions/index.js`, `functions/emailTemplates.js`, `tests/timing-precision.test.mjs` |
+| 2026-11 | Extracted full Panchang calculations into a reusable module and connected Home, Calendar and public city pages to shared sunrise Pancha Anga and daily timing rules. Calendar day summaries now use the established Karana sequence instead of their incorrect modulo-11 formula. Existing full Panchang outputs, sunrise Tithi, display Masa and festival rules are preserved; added regression fixtures and shared-calculation tests. | `src/panchangCalculations.js`, `src/panchangAnga.js`, `src/cityPanchang.js`, `src/pages/Home.jsx`, `src/pages/Calendar.jsx`, `src/pages/Panchang.jsx`, `tests/shared-panchang.test.mjs`, `docs/shared-panchang-calculations.md` |
 | 2026-05 | Sep 14 showing Tritiya instead of Chaturthi — tithi was sampled at midnight instead of sunrise/noon | `Home.jsx`, `moonUtils.js` |
 | 2026-05 | Full moon visual rendering as new moon — waning phase used `cos` instead of `sin` for terminator rx | `MoonVisual.jsx` |
 | 2026-05 | Full moon rendering as half moon (and other phase errors) — entire MoonVisual rewritten with shadow-overlay approach; adds lunar maria texture, radial gradient, earthshine hint, and glow | `MoonVisual.jsx` |

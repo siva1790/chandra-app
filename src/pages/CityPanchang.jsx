@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, Clock, MapPin, Moon, Sta
 import { dateFromKey, formatIndiaTime, getCityPanchang } from '../cityPanchang.js'
 import CityPageLinks from '../components/CityPageLinks.jsx'
 import { DAY_MS, indianDateKey } from '../civilDate.js'
+import { formatEventDate, formatEventRange } from '../timeFormatting.js'
 import './CityPanchang.css'
 
 function Row({ label, value, detail, icon: Icon }) {
@@ -18,7 +19,7 @@ function Row({ label, value, detail, icon: Icon }) {
 
 function eventDate(value) {
   if (!value) return undefined
-  return new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' }).format(new Date(value))
+  return formatEventDate(value)
 }
 
 function CityNavigation({ city, position }) {
@@ -134,7 +135,7 @@ export default function CityPanchang({ initialData, city }) {
             <Row icon={Sun} label="Sunset" value={formatIndiaTime(data.sunset)} />
             <Row icon={Moon} label="Moonrise" value={formatIndiaTime(data.moonrise)} detail={eventDate(data.moonrise)} />
             <Row icon={Moon} label="Following moonset" value={data.moonset ? formatIndiaTime(data.moonset) : 'No paired moonset'} detail={eventDate(data.moonset)} />
-            <Row icon={Clock} label="Rahu Kaal" value={`${formatIndiaTime(data.rahuStart)} – ${formatIndiaTime(data.rahuEnd)}`} />
+            <Row icon={Clock} label="Rahu Kaal" value={formatEventRange(data.rahuStart, data.rahuEnd)} />
           </dl>
           <p className="mt-2 text-support leading-relaxed text-chandra-text-secondary">Moonset is paired with the moonrise above and may fall on the next day. Rahu Kaal is a traditional period generally avoided for starting important activities.</p>
         </section>

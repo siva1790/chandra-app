@@ -1,13 +1,14 @@
 import * as Astronomy from 'astronomy-engine'
-import { getSunriseForDate, getSunsetForDate, getTithiAtSunrise, getNakshatraForDate } from './moonUtils.js'
-import { getYogaAtTime, getKaranaFromPhase } from './panchangAnga.js'
+import { getSunsetForDate } from './moonUtils.js'
+import { getPanchaAngaAtSunrise, getDailyTimingRanges } from './panchangAnga.js'
 import { getFestivalsForDate } from './festivals.js'
 import { DAY_MS, INDIA_OFFSET_MINUTES, INDIA_TIME_ZONE, indianDateKey, startOfCivilDay } from './civilDate.js'
 
 import { getPublicPanchangCity } from './publicPanchangCities.js'
+import { formatEventTime } from './timeFormatting.js'
 
 export const formatIndiaTime = (value) => value
-  ? new Intl.DateTimeFormat('en-IN', { timeZone: INDIA_TIME_ZONE, hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date(value))
+  ? formatEventTime(value)
   : 'No event on this date'
 
 export const formatIndiaDate = (value) => new Intl.DateTimeFormat('en-IN', {
@@ -26,20 +27,17 @@ export function getCityPanchang(slug, dateKey = indianDateKey()) {
   if (!city) throw new Error('Unknown Panchang city')
   const start = dateFromKey(dateKey)
   const { lat, lon } = city
-  const sunrise = getSunriseForDate(start, lat, lon, INDIA_OFFSET_MINUTES)
+  const snapshot = getPanchaAngaAtSunrise(start, { lat, lon, utcOffsetMinutes: INDIA_OFFSET_MINUTES })
+  const { sunrise, tithi } = snapshot
   const sunset = getSunsetForDate(start, lat, lon, INDIA_OFFSET_MINUTES)
-  const tithi = getTithiAtSunrise(start, lat, lon, INDIA_OFFSET_MINUTES)
   const observer = new Astronomy.Observer(lat, lon, 0)
   const moonrise = Astronomy.SearchRiseSet('Moon', observer, +1, start, 1)?.date || null
   // Pair the civil day's moonrise with the setting that follows, matching Day View.
   const moonset = moonrise
     ? Astronomy.SearchRiseSet('Moon', observer, -1, moonrise, 2)?.date || null
     : null
-  const weekday = new Date(start.getTime() + INDIA_OFFSET_MINUTES * 60000).getUTCDay()
-  const slot = (sunset.getTime() - sunrise.getTime()) / 8
-  const rahuSlot = [8, 2, 7, 5, 6, 4, 3][weekday]
-  const rahuStart = new Date(sunrise.getTime() + (rahuSlot - 1) * slot)
-  const rahuEnd = new Date(sunrise.getTime() + rahuSlot * slot)
+  const timings = getDailyTimingRanges(sunrise.getTime(), sunset.getTime(), snapshot.weekday)
+  const [rahuStart, rahuEnd] = timings.rahuKaal.map(value => new Date(value))
 
   return {
     citySlug: city.slug,
@@ -47,10 +45,10 @@ export function getCityPanchang(slug, dateKey = indianDateKey()) {
     dateLabel: formatIndiaDate(start),
     tithi: tithi.name,
     paksha: `${tithi.paksha} Paksha`,
-    nakshatra: getNakshatraForDate(sunrise),
-    yoga: getYogaAtTime(sunrise),
-    karana: getKaranaFromPhase(Astronomy.MoonPhase(sunrise)),
-    vara: ['Ravivar', 'Somvar', 'Mangalvar', 'Budhvar', 'Guruvar', 'Shukravar', 'Shanivar'][weekday],
+    nakshatra: snapshot.nakshatra,
+    yoga: snapshot.yoga,
+    karana: snapshot.karana,
+    vara: snapshot.vara,
     sunrise: sunrise.toISOString(),
     sunset: sunset.toISOString(),
     moonrise: moonrise?.toISOString() || null,

@@ -1,0 +1,634 @@
+[
+  {
+    "key": "2026-05-17",
+    "lat": 12.9716,
+    "lon": 77.5946,
+    "calendarSystem": "Amavasyant",
+    "result": {
+      "tithi": "Pratipada (Prathama)",
+      "paksha": "Shukla Paksha",
+      "tithiWindow": {
+        "start": "2026-05-16T20:01:32.345Z",
+        "end": "2026-05-17T16:11:46.695Z"
+      },
+      "nakshatra": "Krittika",
+      "nakshatraPada": 3,
+      "nakshatraList": [
+        {
+          "name": "Krittika",
+          "pada": 3,
+          "start": "2026-05-16T11:59:54.862Z",
+          "end": "2026-05-17T09:01:40.227Z",
+          "endsToday": true
+        },
+        {
+          "name": "Rohini",
+          "pada": 1,
+          "start": "2026-05-17T09:01:40.227Z",
+          "end": "2026-05-18T06:01:31.249Z",
+          "endsToday": false
+        }
+      ],
+      "yoga": "Shobhana",
+      "yogaList": [
+        {
+          "name": "Shobhana",
+          "start": "2026-05-16T04:54:46.310Z",
+          "end": "2026-05-17T00:44:31.388Z",
+          "endsToday": true
+        },
+        {
+          "name": "Atiganda",
+          "start": "2026-05-17T00:44:31.388Z",
+          "end": "2026-05-17T20:28:47.743Z",
+          "endsToday": false
+        }
+      ],
+      "karana": "Kimstughna",
+      "karanaList": [
+        {
+          "name": "Naga",
+          "start": "2026-05-16T09:53:40.636Z",
+          "end": "2026-05-16T20:01:32.344Z",
+          "endsToday": true
+        },
+        {
+          "name": "Kimstughna",
+          "start": "2026-05-16T20:01:32.344Z",
+          "end": "2026-05-17T06:07:05.973Z",
+          "endsToday": true
+        },
+        {
+          "name": "Bava",
+          "start": "2026-05-17T06:07:05.973Z",
+          "end": "2026-05-17T16:11:46.694Z",
+          "endsToday": true
+        },
+        {
+          "name": "Balava",
+          "start": "2026-05-17T16:11:46.694Z",
+          "end": "2026-05-18T02:16:59.128Z",
+          "endsToday": false
+        }
+      ],
+      "vishtiPeriods": [],
+      "vara": "Ravivar",
+      "varaDeity": "Sun ☀️",
+      "rahuKaal": "5:02 PM – 6:38 PM",
+      "yamagandam": "12:16 PM – 1:51 PM",
+      "abhijitMuhurta": "11:52 AM – 12:40 PM",
+      "brahmaMuhurta": "4:17 AM – 5:05 AM",
+      "samvatsara": {
+        "name": "Parabhava",
+        "number": 40
+      },
+      "masa": "Jyeshtha",
+      "ritu": {
+        "name": "Vasanta",
+        "meaning": "Spring"
+      },
+      "ayana": "Uttarayana",
+      "calendarSystem": "amavasyant",
+      "navagraha": {
+        "Sun": 31.92,
+        "Moon": 34.52,
+        "Mars": 4.33,
+        "Mercury": 34.86,
+        "Jupiter": 87.16,
+        "Venus": 63.35,
+        "Saturn": 346.63,
+        "Rahu": 310.75,
+        "Ketu": 130.75
+      },
+      "isEkadashi": false,
+      "isPurnima": false,
+      "isAmavasya": false,
+      "isVishti": false,
+      "eclipse": null
+    }
+  },
+  {
+    "key": "2026-09-14",
+    "lat": 12.9716,
+    "lon": 77.5946,
+    "calendarSystem": "Amavasyant",
+    "result": {
+      "tithi": "Tritiya",
+      "paksha": "Shukla Paksha",
+      "tithiWindow": {
+        "start": "2026-09-13T01:39:27.195Z",
+        "end": "2026-09-14T01:38:00.991Z"
+      },
+      "nakshatra": "Chitra",
+      "nakshatraPada": 3,
+      "nakshatraList": [
+        {
+          "name": "Chitra",
+          "pada": 3,
+          "start": "2026-09-13T07:36:26.371Z",
+          "end": "2026-09-14T08:24:35.359Z",
+          "endsToday": true
+        },
+        {
+          "name": "Swati",
+          "pada": 1,
+          "start": "2026-09-14T08:24:35.359Z",
+          "end": "2026-09-15T09:50:25.788Z",
+          "endsToday": false
+        }
+      ],
+      "yoga": "Brahma",
+      "yogaList": [
+        {
+          "name": "Brahma",
+          "start": "2026-09-13T08:11:59.438Z",
+          "end": "2026-09-14T07:15:20.070Z",
+          "endsToday": true
+        },
+        {
+          "name": "Indra",
+          "start": "2026-09-14T07:15:20.070Z",
+          "end": "2026-09-15T06:48:53.479Z",
+          "endsToday": false
+        }
+      ],
+      "karana": "Garija",
+      "karanaList": [
+        {
+          "name": "Garija",
+          "start": "2026-09-13T13:33:58.553Z",
+          "end": "2026-09-14T01:38:00.992Z",
+          "endsToday": true
+        },
+        {
+          "name": "Vanija",
+          "start": "2026-09-14T01:38:00.992Z",
+          "end": "2026-09-14T13:51:46.923Z",
+          "endsToday": true
+        },
+        {
+          "name": "Vishti",
+          "start": "2026-09-14T13:51:46.923Z",
+          "end": "2026-09-15T02:15:17.374Z",
+          "endsToday": false
+        }
+      ],
+      "vishtiPeriods": [
+        {
+          "name": "Vishti",
+          "start": "2026-09-14T13:51:46.923Z",
+          "end": "2026-09-15T02:15:17.374Z",
+          "endsToday": false
+        }
+      ],
+      "vara": "Somvar",
+      "varaDeity": "Moon 🌙",
+      "rahuKaal": "7:40 AM – 9:11 AM",
+      "yamagandam": "10:43 AM – 12:15 PM",
+      "abhijitMuhurta": "11:51 AM – 12:39 PM",
+      "brahmaMuhurta": "4:32 AM – 5:20 AM",
+      "samvatsara": {
+        "name": "Parabhava",
+        "number": 40
+      },
+      "masa": "Bhadrapada",
+      "ritu": {
+        "name": "Varsha",
+        "meaning": "Monsoon"
+      },
+      "ayana": "Dakshinayana",
+      "calendarSystem": "amavasyant",
+      "navagraha": {
+        "Sun": 147.01,
+        "Moon": 182.53,
+        "Mars": 87.3,
+        "Mercury": 161.33,
+        "Jupiter": 112.14,
+        "Venus": 188.06,
+        "Saturn": 348.62,
+        "Rahu": 304.39,
+        "Ketu": 124.39
+      },
+      "isEkadashi": false,
+      "isPurnima": false,
+      "isAmavasya": false,
+      "isVishti": true,
+      "eclipse": null
+    }
+  },
+  {
+    "key": "2026-11-08",
+    "lat": 28.6139,
+    "lon": 77.209,
+    "calendarSystem": "Purnimant",
+    "result": {
+      "tithi": "Chaturdashi",
+      "paksha": "Krishna Paksha",
+      "tithiWindow": {
+        "start": "2026-11-07T05:18:57.971Z",
+        "end": "2026-11-08T05:58:57.225Z"
+      },
+      "nakshatra": "Chitra",
+      "nakshatraPada": 4,
+      "nakshatraList": [
+        {
+          "name": "Chitra",
+          "pada": 4,
+          "start": "2026-11-06T23:12:44.362Z",
+          "end": "2026-11-08T00:21:49.797Z",
+          "endsToday": true
+        },
+        {
+          "name": "Swati",
+          "pada": 2,
+          "start": "2026-11-08T00:21:49.797Z",
+          "end": "2026-11-09T01:53:28.979Z",
+          "endsToday": false
+        }
+      ],
+      "yoga": "Ayushman",
+      "yogaList": [
+        {
+          "name": "Priti",
+          "start": "2026-11-06T22:38:46.282Z",
+          "end": "2026-11-07T21:56:23.874Z",
+          "endsToday": true
+        },
+        {
+          "name": "Ayushman",
+          "start": "2026-11-07T21:56:23.874Z",
+          "end": "2026-11-08T21:31:49.879Z",
+          "endsToday": false
+        }
+      ],
+      "karana": "Shakuni",
+      "karanaList": [
+        {
+          "name": "Shakuni",
+          "start": "2026-11-07T17:36:03.814Z",
+          "end": "2026-11-08T05:58:57.224Z",
+          "endsToday": true
+        },
+        {
+          "name": "Chatushpada",
+          "start": "2026-11-08T05:58:57.224Z",
+          "end": "2026-11-08T18:27:47.111Z",
+          "endsToday": true
+        },
+        {
+          "name": "Naga",
+          "start": "2026-11-08T18:27:47.111Z",
+          "end": "2026-11-09T07:02:42.393Z",
+          "endsToday": false
+        }
+      ],
+      "vishtiPeriods": [],
+      "vara": "Ravivar",
+      "varaDeity": "Sun ☀️",
+      "rahuKaal": "4:09 PM – 5:31 PM",
+      "yamagandam": "12:05 PM – 1:26 PM",
+      "abhijitMuhurta": "11:41 AM – 12:29 PM",
+      "brahmaMuhurta": "5:02 AM – 5:50 AM",
+      "samvatsara": {
+        "name": "Parabhava",
+        "number": 40
+      },
+      "masa": "Kartika",
+      "ritu": {
+        "name": "Sharad",
+        "meaning": "Autumn"
+      },
+      "ayana": "Dakshinayana",
+      "calendarSystem": "purnimant",
+      "navagraha": {
+        "Sun": 201.41,
+        "Moon": 187.07,
+        "Mars": 117.86,
+        "Mercury": 193.8,
+        "Jupiter": 120.89,
+        "Venus": 179.36,
+        "Saturn": 344.64,
+        "Rahu": 301.47,
+        "Ketu": 121.47
+      },
+      "isEkadashi": false,
+      "isPurnima": false,
+      "isAmavasya": false,
+      "isVishti": false,
+      "eclipse": null
+    }
+  },
+  {
+    "key": "2026-06-02",
+    "lat": 19.076,
+    "lon": 72.8777,
+    "calendarSystem": "Amavasyant",
+    "result": {
+      "tithi": "Dwitiya",
+      "paksha": "Krishna Paksha",
+      "tithiWindow": {
+        "start": "2026-06-01T11:08:16.309Z",
+        "end": "2026-06-02T13:32:14.009Z"
+      },
+      "nakshatra": "Mula",
+      "nakshatraPada": 3,
+      "nakshatraList": [
+        {
+          "name": "Mula",
+          "pada": 3,
+          "start": "2026-06-01T13:38:00.180Z",
+          "end": "2026-06-02T16:35:45.621Z",
+          "endsToday": true
+        },
+        {
+          "name": "Purva Ashadha",
+          "pada": 1,
+          "start": "2026-06-02T16:35:45.621Z",
+          "end": "2026-06-03T19:29:07.853Z",
+          "endsToday": false
+        }
+      ],
+      "yoga": "Sadhya",
+      "yogaList": [
+        {
+          "name": "Sadhya",
+          "start": "2026-06-01T00:47:54.830Z",
+          "end": "2026-06-02T01:44:53.673Z",
+          "endsToday": true
+        },
+        {
+          "name": "Shubha",
+          "start": "2026-06-02T01:44:53.673Z",
+          "end": "2026-06-03T02:40:57.727Z",
+          "endsToday": false
+        }
+      ],
+      "karana": "Garija",
+      "karanaList": [
+        {
+          "name": "Taitila",
+          "start": "2026-06-01T11:08:16.310Z",
+          "end": "2026-06-02T00:20:22.024Z",
+          "endsToday": true
+        },
+        {
+          "name": "Garija",
+          "start": "2026-06-02T00:20:22.024Z",
+          "end": "2026-06-02T13:32:14.010Z",
+          "endsToday": true
+        },
+        {
+          "name": "Vanija",
+          "start": "2026-06-02T13:32:14.010Z",
+          "end": "2026-06-03T02:43:09.390Z",
+          "endsToday": false
+        }
+      ],
+      "vishtiPeriods": [],
+      "vara": "Mangalvar",
+      "varaDeity": "Mars ♂️",
+      "rahuKaal": "3:54 PM – 5:33 PM",
+      "yamagandam": "9:18 AM – 10:57 AM",
+      "abhijitMuhurta": "12:12 PM – 1:00 PM",
+      "brahmaMuhurta": "4:24 AM – 5:12 AM",
+      "samvatsara": {
+        "name": "Parabhava",
+        "number": 40
+      },
+      "masa": "Jyeshtha",
+      "ritu": {
+        "name": "Vasanta",
+        "meaning": "Spring"
+      },
+      "ayana": "Uttarayana",
+      "calendarSystem": "amavasyant",
+      "navagraha": {
+        "Sun": 47.29,
+        "Moon": 245.37,
+        "Mars": 16.29,
+        "Mercury": 66.66,
+        "Jupiter": 90.04,
+        "Venus": 82.38,
+        "Saturn": 348.11,
+        "Rahu": 309.9,
+        "Ketu": 129.9
+      },
+      "isEkadashi": false,
+      "isPurnima": false,
+      "isAmavasya": false,
+      "isVishti": false,
+      "eclipse": null
+    }
+  },
+  {
+    "key": "2027-01-15",
+    "lat": 13.0827,
+    "lon": 80.2707,
+    "calendarSystem": "Purnimant",
+    "result": {
+      "tithi": "Saptami",
+      "paksha": "Shukla Paksha",
+      "tithiWindow": {
+        "start": "2027-01-14T08:29:40.512Z",
+        "end": "2027-01-15T08:44:33.248Z"
+      },
+      "nakshatra": "Revati",
+      "nakshatraPada": 3,
+      "nakshatraList": [
+        {
+          "name": "Revati",
+          "pada": 3,
+          "start": "2027-01-14T17:48:07.345Z",
+          "end": "2027-01-16T18:08:08.011Z",
+          "endsToday": false
+        }
+      ],
+      "yoga": "Shiva",
+      "yogaList": [
+        {
+          "name": "Shiva",
+          "start": "2027-01-14T11:50:50.512Z",
+          "end": "2027-01-15T10:46:43.885Z",
+          "endsToday": true
+        },
+        {
+          "name": "Siddha",
+          "start": "2027-01-15T10:46:43.885Z",
+          "end": "2027-01-16T09:07:23.385Z",
+          "endsToday": false
+        }
+      ],
+      "karana": "Vanija",
+      "karanaList": [
+        {
+          "name": "Garija",
+          "start": "2027-01-14T08:29:40.512Z",
+          "end": "2027-01-14T20:42:37.977Z",
+          "endsToday": true
+        },
+        {
+          "name": "Vanija",
+          "start": "2027-01-14T20:42:37.977Z",
+          "end": "2027-01-15T08:44:33.247Z",
+          "endsToday": true
+        },
+        {
+          "name": "Vishti",
+          "start": "2027-01-15T08:44:33.247Z",
+          "end": "2027-01-15T20:35:05.099Z",
+          "endsToday": false
+        }
+      ],
+      "vishtiPeriods": [
+        {
+          "name": "Vishti",
+          "start": "2027-01-15T08:44:33.247Z",
+          "end": "2027-01-15T20:35:05.099Z",
+          "endsToday": false
+        }
+      ],
+      "vara": "Shukravar",
+      "varaDeity": "Venus ♀️",
+      "rahuKaal": "10:52 AM – 12:18 PM",
+      "yamagandam": "3:10 PM – 4:35 PM",
+      "abhijitMuhurta": "11:54 AM – 12:42 PM",
+      "brahmaMuhurta": "4:59 AM – 5:47 AM",
+      "samvatsara": {
+        "name": "Parabhava",
+        "number": 40
+      },
+      "masa": "Pausha",
+      "ritu": {
+        "name": "Hemanta",
+        "meaning": "Pre-Winter"
+      },
+      "ayana": "Uttarayana",
+      "calendarSystem": "purnimant",
+      "navagraha": {
+        "Sun": 270.41,
+        "Moon": 350.58,
+        "Mars": 136.07,
+        "Mercury": 278.78,
+        "Jupiter": 121.08,
+        "Venus": 223.92,
+        "Saturn": 344.8,
+        "Rahu": 297.87,
+        "Ketu": 117.87
+      },
+      "isEkadashi": false,
+      "isPurnima": false,
+      "isAmavasya": false,
+      "isVishti": true,
+      "eclipse": null
+    }
+  },
+  {
+    "key": "2026-05-31",
+    "lat": 12.9716,
+    "lon": 77.5946,
+    "calendarSystem": "Amavasyant",
+    "result": {
+      "tithi": "Purnima",
+      "paksha": "Shukla Paksha",
+      "tithiWindow": {
+        "start": "2026-05-30T06:29:02.686Z",
+        "end": "2026-05-31T08:45:48.291Z"
+      },
+      "nakshatra": "Anuradha",
+      "nakshatraPada": 3,
+      "nakshatraList": [
+        {
+          "name": "Anuradha",
+          "pada": 3,
+          "start": "2026-05-30T07:49:48.867Z",
+          "end": "2026-05-31T10:41:17.141Z",
+          "endsToday": true
+        },
+        {
+          "name": "Jyeshtha",
+          "pada": 1,
+          "start": "2026-05-31T10:41:17.141Z",
+          "end": "2026-06-01T13:38:00.181Z",
+          "endsToday": false
+        }
+      ],
+      "yoga": "Siddha",
+      "yogaList": [
+        {
+          "name": "Shiva",
+          "start": "2026-05-29T23:04:25.481Z",
+          "end": "2026-05-30T23:53:28.393Z",
+          "endsToday": true
+        },
+        {
+          "name": "Siddha",
+          "start": "2026-05-30T23:53:28.393Z",
+          "end": "2026-06-01T00:47:54.829Z",
+          "endsToday": false
+        }
+      ],
+      "karana": "Bava",
+      "karanaList": [
+        {
+          "name": "Vishti",
+          "start": "2026-05-30T06:29:02.686Z",
+          "end": "2026-05-30T19:36:28.461Z",
+          "endsToday": true
+        },
+        {
+          "name": "Bava",
+          "start": "2026-05-30T19:36:28.461Z",
+          "end": "2026-05-31T08:45:48.292Z",
+          "endsToday": true
+        },
+        {
+          "name": "Balava",
+          "start": "2026-05-31T08:45:48.292Z",
+          "end": "2026-05-31T21:56:34.136Z",
+          "endsToday": false
+        }
+      ],
+      "vishtiPeriods": [
+        {
+          "name": "Vishti",
+          "start": "2026-05-30T06:29:02.686Z",
+          "end": "2026-05-30T19:36:28.461Z",
+          "endsToday": true
+        }
+      ],
+      "vara": "Ravivar",
+      "varaDeity": "Sun ☀️",
+      "rahuKaal": "5:06 PM – 6:42 PM",
+      "yamagandam": "12:17 PM – 1:53 PM",
+      "abhijitMuhurta": "11:53 AM – 12:41 PM",
+      "brahmaMuhurta": "4:16 AM – 5:04 AM",
+      "samvatsara": {
+        "name": "Parabhava",
+        "number": 40
+      },
+      "masa": "Jyeshtha",
+      "ritu": {
+        "name": "Vasanta",
+        "meaning": "Spring"
+      },
+      "ayana": "Uttarayana",
+      "calendarSystem": "amavasyant",
+      "navagraha": {
+        "Sun": 45.37,
+        "Moon": 221.55,
+        "Mars": 14.81,
+        "Mercury": 63.21,
+        "Jupiter": 89.66,
+        "Venus": 80.01,
+        "Saturn": 347.94,
+        "Rahu": 310,
+        "Ketu": 130
+      },
+      "isEkadashi": false,
+      "isPurnima": true,
+      "isAmavasya": false,
+      "isVishti": true,
+      "eclipse": null
+    }
+  }
+]

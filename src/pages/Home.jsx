@@ -9,8 +9,9 @@ import Card from '../components/ui/Card'
 import Chip from '../components/ui/Chip'
 import { useSettings } from '../SettingsContext'
 import { useProfile } from '../ProfileContext'
-import { toSiderealLongitude } from '../ayanamsha'
-import { getNakshatraForDate, getSunriseForDate, getTithiAtSunrise, MASA_NAMES } from '../moonUtils'
+import { getPanchaAngaAtSunrise } from '../panchangAnga.js'
+import { getDisplayMasa } from '../panchangCalculations.js'
+import { formatEventTime, formatEventDate } from '../timeFormatting.js'
 import { getFestivalsForDate } from '../festivals'
 import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
@@ -31,68 +32,6 @@ import {
 } from 'lucide-react'
 
 const DEFAULT_LOCATION = { lat: 12.9716, lon: 77.5946, city: 'Bengaluru' }
-
-const YOGA_NAMES = [
-  'Vishkambha', 'Priti', 'Ayushman', 'Saubhagya', 'Shobhana',
-  'Atiganda', 'Sukarma', 'Dhriti', 'Shula', 'Ganda',
-  'Vriddhi', 'Dhruva', 'Vyaghata', 'Harshana', 'Vajra',
-  'Siddhi', 'Vyatipata', 'Variyan', 'Parigha', 'Shiva',
-  'Siddha', 'Sadhya', 'Shubha', 'Shukla', 'Brahma',
-  'Indra', 'Vaidhriti',
-]
-
-const MOVABLE_KARANAS = ['Bava', 'Balava', 'Kaulava', 'Taitila', 'Garija', 'Vanija', 'Vishti']
-
-const NAKSHATRA_MASA = [
-  6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 0, 0,
-  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 5, 11,
-]
-
-const getMoonSiderealLongitude = (date) => {
-  const moonPos = Astronomy.GeoVector('Moon', date, true)
-  const moonEcliptic = Astronomy.Ecliptic(moonPos)
-  return toSiderealLongitude(moonEcliptic.elon, date)
-}
-
-const getYogaAtTime = (date) => {
-  const sunPos = Astronomy.GeoVector('Sun', date, true)
-  const sunLon = toSiderealLongitude(Astronomy.Ecliptic(sunPos).elon, date)
-  const moonLon = getMoonSiderealLongitude(date)
-  return YOGA_NAMES[Math.floor(((sunLon + moonLon) % 360) / (360 / 27))]
-}
-
-const getKaranaFromPhase = (phaseAngle) => {
-  const n = Math.floor(((phaseAngle % 360) + 360) % 360 / 6)
-  if (n === 0) return 'Kimstughna'
-  if (n === 57) return 'Shakuni'
-  if (n === 58) return 'Chatushpada'
-  if (n === 59) return 'Naga'
-  return MOVABLE_KARANAS[(n - 1) % 7]
-}
-
-const getMasa = (date, tithiIndex, calendarSystem) => {
-  try {
-    const isKrishnaPaksha = tithiIndex >= 15
-    const purnima = isKrishnaPaksha
-      ? Astronomy.SearchMoonPhase(180, new Date(date.getTime() - 20 * 24 * 60 * 60 * 1000), 20)
-      : Astronomy.SearchMoonPhase(180, date, 20)
-
-    if (!purnima) return MASA_NAMES[0]
-
-    const moonSidLon = getMoonSiderealLongitude(purnima.date)
-    const nakshatraIdx = Math.floor(moonSidLon / (360 / 27))
-    const masaIndex = NAKSHATRA_MASA[nakshatraIdx % 27]
-
-    if (isKrishnaPaksha && calendarSystem === 'purnimant') {
-      return MASA_NAMES[(masaIndex + 1) % 12]
-    }
-
-    return MASA_NAMES[masaIndex]
-  } catch (err) {
-    console.error('getMasa error:', err)
-    return MASA_NAMES[0]
-  }
-}
 
 const getDetailedMoonPhaseLabel = (phase) => {
   if (phase < 0.03 || phase > 0.97) return 'New Moon'
@@ -155,16 +94,16 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
   function calculateMoonData() {
     try {
       const observer = new Astronomy.Observer(location.lat, location.lon, 0)
-      const sunriseTime = getSunriseForDate(date, location.lat, location.lon)
-      const phaseAngle = Astronomy.MoonPhase(sunriseTime)
+      const snapshot = getPanchaAngaAtSunrise(date, location)
+      const { sunrise: sunriseTime, phaseAngle } = snapshot
       const phase = phaseAngle / 360
       const illum = Astronomy.Illumination('Moon', sunriseTime)
       const illuminationPct = (illum.phase_fraction * 100).toFixed(1)
-      const effectiveTithi = getTithiAtSunrise(date, location.lat, location.lon)
-      const todayNakshatra = getNakshatraForDate(sunriseTime)
-      const yoga = getYogaAtTime(sunriseTime)
-      const karana = getKaranaFromPhase(phaseAngle)
-      const masa = getMasa(sunriseTime, effectiveTithi.number - 1, (settings?.calendarSystem || 'Amavasyant').toLowerCase())
+      const effectiveTithi = snapshot.tithi
+      const todayNakshatra = snapshot.nakshatra
+      const yoga = snapshot.yoga
+      const karana = snapshot.karana
+      const masa = getDisplayMasa(sunriseTime, effectiveTithi.number - 1, (settings?.calendarSystem || 'Amavasyant').toLowerCase())
 
       const startOfDay = new Date(date)
       startOfDay.setHours(0, 0, 0, 0)
@@ -207,10 +146,10 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
   }
 
   const formatTime = (value) =>
-    value ? value.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'N/A'
+    value ? formatEventTime(value) : 'N/A'
 
   const formatShortDate = (value) =>
-    value ? value.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : ''
+    value ? formatEventDate(value) : ''
 
   const vara = getVara(date)
   const moonPhaseLabel = moonData ? getDetailedMoonPhaseLabel(moonData.phase) : ''

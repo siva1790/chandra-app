@@ -12,13 +12,8 @@
 
 // ── Formatting helpers ────────────────────────────────────────────────────────
 
-const fmtTime = (date) =>
-  date
-    ? new Intl.DateTimeFormat('en-IN', {
-        hour: '2-digit', minute: '2-digit', hour12: true,
-        timeZone: 'Asia/Kolkata',
-      }).format(date)
-    : 'N/A'
+const { formatEventTime, formatEventDate } = require('./timeFormatting')
+const fmtTime = (date) => date ? formatEventTime(date) : 'N/A'
 
 const fmtDate = (date) =>
   new Intl.DateTimeFormat('en-IN', {
@@ -95,7 +90,7 @@ const wrap = (content) => `
 const festivalEmail = ({ subscriber, festival, eclipse, tithi, nakshatra, moonrise, date }) => {
   const greeting = subscriber.name ? `Namaste, ${subscriber.name}` : 'Namaste'
   const dateStr  = fmtDate(date)
-  const moonStr  = fmtTime(moonrise)
+  const moonStr  = moonrise ? `${fmtTime(moonrise)}, ${formatEventDate(moonrise)}` : 'N/A'
 
   // Eclipse takes priority in subject line
   const isEclipse = !!eclipse && !festival

@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import * as Astronomy from 'astronomy-engine'
 import { getFestivalsForDate } from '../festivals'
 import { getMoonPhaseAngle, getTithiFromAngle, getPhaseEmoji, getSunriseForDate } from '../moonUtils'
-import { toSiderealLongitude } from '../ayanamsha.js'
+import { getPanchaAngaAtSunrise } from '../panchangAnga.js'
 import { getEclipseForDate, eclipseTypeLabel } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { useSettings } from '../SettingsContext'
@@ -20,32 +19,6 @@ const COMPACT_TITHI_NAMES = {
   Shashthi: 'Shash.', Chaturthi: 'Chatur.', Ekadashi: 'Ekad.',
   Ashtami: 'Asht.', Dashami: 'Dash.', Dwitiya: 'Dwiti.', Saptami: 'Sapt.',
 }
-
-const NAKSHATRA_NAMES = [
-  'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
-  'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha', 'Magha',
-  'Purva Phalguni', 'Uttara Phalguni', 'Hasta', 'Chitra', 'Swati',
-  'Vishakha', 'Anuradha', 'Jyeshtha', 'Mula', 'Purva Ashadha',
-  'Uttara Ashadha', 'Shravana', 'Dhanishtha', 'Shatabhisha',
-  'Purva Bhadrapada', 'Uttara Bhadrapada', 'Revati',
-]
-
-const YOGA_NAMES = [
-  'Vishkambha', 'Priti', 'Ayushman', 'Saubhagya', 'Shobhana',
-  'Atiganda', 'Sukarma', 'Dhriti', 'Shula', 'Ganda',
-  'Vriddhi', 'Dhruva', 'Vyaghata', 'Harshana', 'Vajra',
-  'Siddhi', 'Vyatipata', 'Variyan', 'Parigha', 'Shiva',
-  'Siddha', 'Sadhya', 'Shubha', 'Shukla', 'Brahma',
-  'Indra', 'Vaidhriti',
-]
-
-const KARANA_NAMES = [
-  'Bava', 'Balava', 'Kaulava', 'Taitila', 'Garija',
-  'Vanija', 'Vishti', 'Shakuni', 'Chatushpada', 'Naga', 'Kimstughna',
-]
-
-const VARA_NAMES = ['Ravivar', 'Somvar', 'Mangalvar', 'Budhvar', 'Guruvar', 'Shukravar', 'Shanivar']
-const VARA_DEVA  = ['Sun ☀️', 'Moon 🌙', 'Mars ♂️', 'Mercury ☿', 'Jupiter ♃', 'Venus ♀️', 'Saturn ♄']
 
 const phaseLabel = (emoji) => ({
   '🌑': 'New moon',
@@ -196,32 +169,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
   // Compute simplified Pancha Anga for the modal (sunrise snapshot, no timed transitions)
   const calculateDayPanchang = (date) => {
     try {
-      const sunriseTime = getSunriseForDate(date, settings?.lat, settings?.lon)
-
-      // Moon sidereal longitude at sunrise
-      const moonPos = Astronomy.GeoVector('Moon', sunriseTime, true)
-      const moonEcl = Astronomy.Ecliptic(moonPos)
-      const moonLon = toSiderealLongitude(moonEcl.elon, sunriseTime)
-
-      // Nakshatra + pada
-      const nakshatraIdx = Math.floor(moonLon / (360 / 27))
-      const nakshatra = NAKSHATRA_NAMES[nakshatraIdx % 27]
-      const pada = Math.floor((moonLon % (360 / 27)) / (360 / 108)) + 1
-
-      // Yoga = (sun lon + moon lon) / (360/27)
-      const sunPos = Astronomy.GeoVector('Sun', sunriseTime, true)
-      const sunEcl = Astronomy.Ecliptic(sunPos)
-      const sunLon = toSiderealLongitude(sunEcl.elon, sunriseTime)
-      const yoga = YOGA_NAMES[Math.floor(((sunLon + moonLon) % 360) / (360 / 27)) % 27]
-
-      // Karana from phase angle
-      const phaseAngle = getMoonPhaseAngle(sunriseTime)
-      const karana = KARANA_NAMES[Math.floor((phaseAngle / 6) % 11)]
-
-      // Vara
-      const vara = VARA_NAMES[date.getDay()]
-      const varaDeity = VARA_DEVA[date.getDay()]
-
+      const { nakshatra, pada, yoga, karana, vara, varaDeity } = getPanchaAngaAtSunrise(date, settings)
       setDayPanchang({ nakshatra, pada, yoga, karana, vara, varaDeity })
     } catch (err) {
       console.error('Calendar panchang calc error:', err)

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/prerender-panchang.mjs",
-    "test:panchang": "node --test tests/bengaluru-panchang.test.mjs tests/city-panchang.test.mjs",
+    "test:panchang": "node --test tests/bengaluru-panchang.test.mjs tests/city-panchang.test.mjs tests/shared-panchang.test.mjs tests/timing-precision.test.mjs",
     "test:panchang-build": "node --test tests/bengaluru-build.test.mjs tests/learn-build.test.mjs",
     "lint": "npm run check:radii && npm run check:typography && eslint .",
     "check:radii": "node scripts/check-radii.mjs",

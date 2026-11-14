@@ -27,6 +27,7 @@ const { initializeApp } = require('firebase-admin/app')
 const { getFirestore }  = require('firebase-admin/firestore')
 const { getMessaging }  = require('firebase-admin/messaging')
 const { Resend }        = require('resend')
+const { formatEventTime } = require('./timeFormatting')
 
 const { getDayInfo, getUpcomingFestivals, getISTDateKey } = require('./astroUtils')
 const { festivalEmail, monthlyDigestEmail } = require('./emailTemplates')
@@ -274,7 +275,7 @@ exports.sendMoonrisePushNotifications = onSchedule(
 
       const sentCount = await sendMulticastNotification(messaging, tokens, {
         title: 'Moonrise in 30 minutes',
-        body: `Moonrise for ${cityDevices[0].city || 'your city'} is around ${dayInfo.moonrise.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' })}.`,
+        body: `Moonrise for ${cityDevices[0].city || 'your city'} is around ${formatEventTime(dayInfo.moonrise)}.`,
         kind: 'moonrise',
       }, invalidTokens)
 
