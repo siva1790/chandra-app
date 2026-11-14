@@ -13,6 +13,14 @@ import Card from '../components/ui/Card'
 import { Calendar as CalendarIcon, Moon, Star, Clock, BookOpen, Sparkles, MapPin } from 'lucide-react'
 import './Calendar.css'
 
+// Full names stay in the accessible day label and the day summary.
+const COMPACT_TITHI_NAMES = {
+  Chaturdashi: 'Chaturd.', Trayodashi: 'Trayod.', Pratipada: 'Pratip.',
+  Dwadashi: 'Dwad.', Amavasya: 'Amav.', Panchami: 'Panch.',
+  Shashthi: 'Shash.', Chaturthi: 'Chatur.', Ekadashi: 'Ekad.',
+  Ashtami: 'Asht.', Dashami: 'Dash.', Dwitiya: 'Dwiti.', Saptami: 'Sapt.',
+}
+
 const NAKSHATRA_NAMES = [
   'Ashwini', 'Bharani', 'Krittika', 'Rohini', 'Mrigashira',
   'Ardra', 'Punarvasu', 'Pushya', 'Ashlesha', 'Magha',
@@ -297,7 +305,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
 
       {/* Header */}
       <div className="text-center mb-6">
-        <h1 className="mb-1 flex items-center justify-center gap-2 text-2xl font-bold text-chandra-gold">
+        <h1 className="mb-1 flex items-center justify-center gap-2 text-chandra-gold text-page-title">
           Lunar Calendar
         </h1>
         <p className="text-sm text-chandra-text-secondary">Hindu Panchang Festival View</p>
@@ -395,11 +403,14 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                       : 'bg-chandra-bg-surface'}
                 `}
               >
-                <span className={`text-xs font-semibold ${isToday && !isSelected ? 'text-chandra-gold' : 'text-chandra-text-primary'}`}>
+                <span className={`text-support font-semibold tabular-nums ${isToday && !isSelected ? 'text-chandra-gold' : 'text-chandra-text-primary'}`}>
                   {day.day}
                 </span>
                 <span className="text-xs" role="img" aria-label={phaseLabel(day.phaseEmoji)}>{day.phaseEmoji}</span>
-                <span className="calendar-day-tithi">{day.tithi.name.replace(' (Prathama)', '')}</span>
+                <span className="calendar-day-tithi" aria-hidden="true">
+                  <span className="calendar-tithi-full">{day.tithi.name.replace(' (Prathama)', '')}</span>
+                  <span className="calendar-tithi-short">{COMPACT_TITHI_NAMES[day.tithi.name.replace(' (Prathama)', '')] || day.tithi.name.replace(' (Prathama)', '')}</span>
+                </span>
                 {day.eclipse ? (
                   <EclipseIcon eclipse={day.eclipse} size={13} />
                 ) : (() => {
@@ -430,7 +441,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         onTouchEnd={handleTouchEnd}
       >
         <div className="flex items-center justify-between gap-3 mb-3">
-          <h2 id="calendar-events-heading" className="text-sm font-semibold text-chandra-text-primary">
+          <h2 id="calendar-events-heading" className="text-chandra-text-primary text-card-title">
             Events in {monthNames[currentDate.getMonth()]}
           </h2>
           <button
@@ -524,11 +535,11 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
           <div className="px-5 pb-10">
             {/* Date header */}
             <div className="mb-4">
-              <p id="day-modal-title" className="text-lg font-bold text-chandra-text-primary">
+              <h2 id="day-modal-title" className="text-card-title text-chandra-text-primary">
                 {selectedDay.date.toLocaleDateString('en-IN', {
                   weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
                 })}
-              </p>
+              </h2>
               <p className="mt-0.5 text-sm text-chandra-gold">
                 <span role="img" aria-label={phaseLabel(selectedDay.phaseEmoji)}>{selectedDay.phaseEmoji}</span> {selectedDay.tithi.name} · {selectedDay.tithi.paksha}
               </p>
@@ -559,7 +570,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
 
             {/* Pancha Anga */}
             <Card className="mb-5">
-              <p className="mb-3 text-xs uppercase tracking-widest text-chandra-gold">Pancha Anga</p>
+              <h3 className="mb-3 text-body font-semibold text-chandra-gold">Pancha Anga</h3>
               {dayPanchang ? (
                 <div className="flex flex-col gap-2">
                   <ModalRow icon={Moon}        label="Tithi"     value={selectedDay.tithi.name} />
@@ -595,7 +606,7 @@ const ModalRow = ({ icon: Icon, label, value, sub }) => (
       <span className="text-sm text-chandra-text-secondary">{label}</span>
     </div>
     <div className="text-right">
-      <p className="text-sm font-semibold text-chandra-text-primary">{value}</p>
+      <p className="text-body font-semibold text-chandra-text-primary">{value}</p>
       {sub && <p className="text-xs text-chandra-text-secondary">{sub}</p>}
     </div>
   </div>

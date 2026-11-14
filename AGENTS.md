@@ -398,6 +398,8 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 
 | 2026-11 | Added a compact What you'll learn overview, 01–08 topic numbering and visible outcome descriptions to the Learn accordion preview. Topics start collapsed unless opened through a direct topic link. Approved for production deployment. | `src/pages/Learn.jsx`, `src/pages/Learn.css`, `docs/learn-responsive-review.md` |
 
+| 2026-11 | Applied approved typography roles across Day View, Calendar, Panchang, Settings, Learn, public city pages and Privacy: shared rem tokens, consistent heading weights, readable values/prose/fields, semantic accordion headings, stable diagram captions and Calendar compact-label exceptions. Simplified calendar-system choices with expandable regional guidance; added typography build/lint policy checks. Approved for production deployment. | `public/typography-tokens.css`, `src/pages/`, `src/components/`, `scripts/check-typography.mjs`, `chandra-design-system.html` |
+
 ---
 
 ## Corner Radius Policy (2026-11)
@@ -405,6 +407,11 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 - Before creating or changing a design or mockup, read [Chandra Design System](chandra-design-system.html), including its [Border Radius section](chandra-design-system.html#radius).
 - That section is the authoritative reference for corner-radius values, component usage, responsive/state rules and review checks. Update it when an approved pattern changes; keep other documents as pointers rather than duplicate policies.
 - `public/radius-tokens.css` implements the values. Follow the design system's implementation and validation instructions before sharing work for review.
+
+## Typography Policy (2026-11)
+
+- Follow [Chandra Design System — Typography](chandra-design-system.html#typography) for approved text roles, responsive exceptions, font loading and validation. It is the single reference; `public/typography-tokens.css` implements the sizes.
+- Run `npm run check:typography` and the documented responsive visual review whenever typography or page design changes. The source guard runs before builds/lint; it does not replace a rendered review.
 
 ## Iconography Policy (Established 2026-05)
 

@@ -324,8 +324,8 @@ pre .str { color: #4FAF7C; }
     <tr>
       <td><strong>Cultural Accent</strong></td>
       <td><code>Noto Serif Devanagari</code></td>
-      <td>Panchang headings, Sanskrit terms, festival names</td>
-      <td><strong>Lazy-load only when Panchang tab activates.</strong> Subset to ~200 glyphs used in app. Target ≤ 150 KB after subsetting.</td>
+      <td>Actual Devanagari-script text only; keep Latin transliterations in Inter</td>
+      <td><strong>Load only when actual Devanagari content is requested.</strong> Subset to ~200 glyphs used in app. Target ≤ 150 KB after subsetting.</td>
     </tr>
     <tr>
       <td><strong>Regional Expansion</strong></td>
@@ -346,50 +346,35 @@ pre .str { color: #4FAF7C; }
     The full Noto Serif Devanagari font is 400–900 KB. On 3G connections (common on budget Indian Android devices), this adds 2–5 seconds of delay if loaded eagerly. Always use <code>font-display: swap</code>, and load this font only when the Panchang screen is first rendered. Use Google Fonts Unicode Range subsetting to reduce to the characters actually used.
   </div>
 
-  <h2 class="sub">Type Scale</h2>
+  <h2 class="sub">Typography roles — approved November 2026</h2>
+  <p>This section is the single reference for typography on every app and public page. Inter is the primary font, including Latin transliterations such as Tithi and Nakshatra. Load weights 400, 500, 600 and 700; do not request intermediate weights such as 650. Use an appropriate regional font only for actual script content when that language is enabled.</p>
   <table>
-    <tr><th>Token</th><th>Size</th><th>Weight</th><th>Line Height</th><th>Usage</th></tr>
-    <tr><td><code>--text-hero</code></td><td>32px</td><td>700</td><td>1.2</td><td>Moon phase display name, hero numbers</td></tr>
-    <tr><td><code>--text-section</code></td><td>24px</td><td>600</td><td>1.2</td><td>Page headings (Panchang, Calendar, Settings)</td></tr>
-    <tr><td><code>--text-card-title</code></td><td>18px</td><td>600</td><td>1.3</td><td>Card titles, sheet headers</td></tr>
-    <tr><td><code>--text-body</code></td><td>16px</td><td>400</td><td>1.5</td><td>Primary body text — <strong>minimum for all readable content</strong></td></tr>
-    <tr><td><code>--text-secondary</code></td><td>14px</td><td>400</td><td>1.5</td><td>Supporting labels, descriptions</td></tr>
-    <tr><td><code>--text-meta</code></td><td>12px</td><td>500</td><td>1.3</td><td>Timestamps, captions, footnotes only — never for primary info</td></tr>
+    <tr><th>Role / token</th><th>Default size</th><th>Weight</th><th>Line height</th><th>Usage</th></tr>
+    <tr><td><code>--type-page-size</code> / <code>text-page-title</code></td><td>1.5rem mobile; 1.75rem from 768px</td><td>600</td><td>1.25</td><td>Page H1. Letter spacing -.02em.</td></tr>
+    <tr><td><code>--type-card-size</code> / <code>text-card-title</code></td><td>1.125rem</td><td>600</td><td>1.35</td><td>Card, accordion and dialog headings. Sentence case; semantic H2.</td></tr>
+    <tr><td><code>--type-body-size</code> / <code>text-body</code></td><td>1rem</td><td>400; 600 for values</td><td>1.5</td><td>Primary body content, subsection headings and Panchang values.</td></tr>
+    <tr><td><code>text-prose</code></td><td>1rem</td><td>400</td><td>1.75</td><td>Learn lessons, definitions, daily messages and Privacy reading text.</td></tr>
+    <tr><td><code>--type-support-size</code> / <code>text-support</code></td><td>.875rem</td><td>400; 500 for labels</td><td>1.5</td><td>Supporting descriptions, row/form labels and transition times. Never shrink these on desktop.</td></tr>
+    <tr><td><code>--type-meta-size</code> / <code>text-meta</code></td><td>.75rem</td><td>400–500</td><td>1.4</td><td>Captions, footnotes, dates beneath primary times, chips and compact mobile navigation.</td></tr>
+    <tr><td><code>--type-control-size</code> / <code>text-control</code></td><td>.875rem</td><td>600</td><td>1.5</td><td>Ordinary text buttons, including small buttons. Target size remains at least 44px.</td></tr>
+    <tr><td><code>--type-input-size</code> / <code>text-input</code></td><td>1rem</td><td>400</td><td>1.5</td><td>Editable fields at every breakpoint.</td></tr>
+    <tr><td><code>--type-reading-size</code></td><td>1.125rem</td><td>600</td><td>1.5</td><td>Day View primary metrics. Use tabular numerals for aligned times.</td></tr>
+    <tr><td><code>--type-date-size</code></td><td>1rem mobile; 1.125rem from 768px</td><td>600</td><td>1.5</td><td>Shared date/month control. Weekday may occupy a supporting line on mobile.</td></tr>
   </table>
-
-  <div class="callout info">
-    <strong>ℹ Accessibility note on 12px metadata text</strong>
-    WCAG 1.4.3 applies to all text including 12px. The 12px size is acceptable for truly secondary metadata (timestamps, version labels) <em>if and only if</em> the contrast ratio is ≥ 4.5:1. Never use it for primary information, time-critical data (moonrise/moonset times), or festival names.
-  </div>
-
-  <div class="preview-box">
-    <div class="preview-label">Type Scale Preview — Dark Surface</div>
-    <div style="font-family:'Inter',sans-serif">
-      <div style="font-size:32px;font-weight:700;color:#F5F7FA;line-height:1.2;margin-bottom:10px">Dashami Tithi</div>
-      <div style="font-size:24px;font-weight:600;color:#F5F7FA;line-height:1.2;margin-bottom:10px">Today's Panchang</div>
-      <div style="font-size:18px;font-weight:600;color:#F5F7FA;line-height:1.3;margin-bottom:10px">Shukla Paksha · Purnimant</div>
-      <div style="font-size:16px;font-weight:400;color:#F5F7FA;line-height:1.5;margin-bottom:8px">This is body text used for descriptions and supporting information in the app.</div>
-      <div style="font-size:14px;font-weight:400;color:#B5BDD1;line-height:1.5;margin-bottom:6px">Moonrise: 19:04 · Moonset: 06:21 · Sunrise: 05:42</div>
-      <div style="font-size:12px;font-weight:500;color:#B5BDD1;line-height:1.3">Updated 5 min ago</div>
-    </div>
-  </div>
-
-  <h2 class="sub">CSS Implementation</h2>
-  <pre>
-<span class="comment">/* In index.html &lt;head&gt; */</span>
-<span class="comment">/* Step 1: preconnect to Google Fonts */</span>
-&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
-&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
-
-<span class="comment">/* Step 2: Load Inter eagerly — subset to latin */</span>
-&lt;link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"&gt;
-
-<span class="comment">/* Step 3: Noto Serif Devanagari — loaded lazily in Panchang.jsx */</span>
-<span class="comment">// In Panchang.jsx useEffect:</span>
-const link = document.createElement('link');
-link.href = 'https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600&amp;display=swap';
-link.rel = 'stylesheet';
-document.head.appendChild(link);</pre>
+  <p>Sizes above are 12, 14, 16, 18, 24 and 28px at the browser default of 16px. Preserve user font preferences: never set a fixed root font size, disable zoom or scale body text with viewport percentages.</p>
+  <h2 class="sub">Responsive rules and deliberate exceptions</h2>
+  <ul>
+    <li>Below 768px use stacked content. From 768px use two columns where readable; from 1024px expand spacing. Body, labels and controls retain their sizes. Let cards grow and text wrap; avoid fixed card heights.</li>
+    <li>Calendar cells are a dense-data exception: day numbers 14px equivalent, weekday/Tithi labels 12px equivalent. Mobile may omit Tithi labels; tablet uses readable abbreviations with full accessible day labels, desktop shows full names. Event names remain at least 14px.</li>
+    <li>Uppercase 12px eyebrows may label categories; they must not replace the heading of a major card. Use semantic H1/H2/H3 in order, with accordion buttons inside headings.</li>
+    <li>Keep Learn/Privacy prose in a capped reading column. Illustration labels should be HTML text so they do not shrink with SVG geometry. Decorative celestial symbols and icon geometry are not body typography.</li>
+    <li>Calendar system options contain a 16px semibold name and 14px description, with 16px padding and an 8px gap. Place regional state lists in the separate Which should I choose? disclosure, collapsed by default. Keep a brief regional summary visible when closed.</li>
+    <li>Settings card pairs stretch to the taller card in each tablet/desktop row. Expanded guidance increases both cards naturally; mobile remains independent.</li>
+  </ul>
+  <h2 class="sub">Implementation and verification</h2>
+  <p><code>public/typography-tokens.css</code> implements the shared values, consumed by the app stylesheet, Tailwind semantic type utilities and standalone Privacy. Privacy loads the same Inter weights as the app. Keep the token stylesheet available offline.</p>
+  <p><code>npm run check:typography</code> runs before builds and lint. It rejects page-specific CSS font sizes, unrequested Inter weights and off-scale arbitrary small text sizes. It does not assess correct role selection, clipping, contrast, semantic headings or legibility; inspect those in the rendered site.</p>
+  <p>Before sharing changes, review 320, 390, 767, 768, 800, 1023, 1024 and 1440px, plus enlarged text. Check Calendar event names and dialogs, date/month pickers, Settings validation and radio controls, expanded guidance, Learn references and diagram captions. Verify card alignment and horizontal overflow. Hidden features remain disabled.</p>
 </section>
 
 <!-- ── 3. COLOR SYSTEM ────────────────────────────────────────── -->

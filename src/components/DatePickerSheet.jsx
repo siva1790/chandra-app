@@ -127,7 +127,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                 >
                   Back
                 </button>
-                <p className="text-base font-semibold text-chandra-text-primary" aria-live="polite">Select Month &amp; Year</p>
+                <h2 className="text-card-title text-chandra-text-primary" aria-live="polite">Select Month &amp; Year</h2>
                 <div className="w-20" />
               </>
             ) : (

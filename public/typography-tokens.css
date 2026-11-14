@@ -1,0 +1,23 @@
+/* Chandra Design System #typography owns the usage rules for these tokens.
+ * rem units preserve browser text preferences; layout breakpoints do not shrink body text. */
+:root {
+  --font-ui: 'Inter', -apple-system, 'Segoe UI', Arial, sans-serif;
+  --type-page-size: 1.5rem;
+  --type-page-line: 1.25;
+  --type-card-size: 1.125rem;
+  --type-card-line: 1.35;
+  --type-body-size: 1rem;
+  --type-body-line: 1.5;
+  --type-prose-line: 1.75;
+  --type-support-size: .875rem;
+  --type-support-line: 1.5;
+  --type-meta-size: .75rem;
+  --type-meta-line: 1.4;
+  --type-control-size: .875rem;
+  --type-input-size: 1rem;
+  --type-reading-size: 1.125rem;
+  --type-date-size: 1rem;
+}
+@media (min-width: 768px) {
+  :root { --type-page-size: 1.75rem; --type-date-size: 1.125rem; }
+}

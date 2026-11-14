@@ -10,7 +10,7 @@ function Row({ label, value, detail, icon: Icon }) {
     <dt className="flex items-center gap-2 text-sm text-chandra-text-secondary">
       {Icon && <Icon size={16} strokeWidth={1.75} aria-hidden="true" />}{label}
     </dt>
-    <dd className="text-right text-sm font-medium text-chandra-text-primary">
+    <dd className="text-right text-body font-semibold tabular-nums text-chandra-text-primary">
       {value}{detail && <span className="mt-1 block text-xs font-normal text-chandra-text-secondary">{detail}</span>}
     </dd>
   </div>
@@ -90,12 +90,12 @@ export default function CityPanchang({ initialData, city }) {
     </header>
     <main id="main-content" className="city-main mx-auto max-w-md px-4 pb-32 pt-20">
       <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-chandra-gold"><MapPin size={14} aria-hidden="true" /> {city.name}, {city.state}</p>
-      <h1 className="city-title text-2xl font-bold text-chandra-text-primary">{city.name} Panchang</h1>
+      <h1 className="city-title text-chandra-text-primary text-page-title">{city.name} Panchang</h1>
       <p className="mt-3 text-sm leading-relaxed text-chandra-text-secondary">Daily Tithi, Nakshatra, moonrise and Rahu Kaal for {city.displayName}. All times are Indian Standard Time (IST).</p>
 
       <section aria-labelledby="date-heading" className="city-datebar mt-6 rounded-card border border-white/10 bg-chandra-bg-surface p-4">
         <div className="city-date-summary">
-          <h2 id="date-heading" className="text-base font-semibold text-chandra-text-primary"><time dateTime={data.dateKey}>{data.dateLabel}</time></h2>
+          <h2 id="date-heading" className="text-chandra-text-primary text-card-title"><time dateTime={data.dateKey}>{data.dateLabel}</time></h2>
           <p className="mt-1 text-xs text-chandra-text-secondary">Amavasyant calendar · {city.name} city centre</p>
         </div>
         <div className="city-date-controls mt-3 flex items-center gap-2">
@@ -113,8 +113,8 @@ export default function CityPanchang({ initialData, city }) {
 
       <div className="city-primary-grid">
         <section aria-labelledby="anga-heading" className="city-panel mt-6 rounded-card border border-white/10 bg-chandra-bg-surface p-4">
-          <h2 id="anga-heading" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-chandra-gold"><Star size={16} aria-hidden="true" /> Pancha Anga</h2>
-          <p className="city-panel-intro mt-2 text-xs leading-relaxed text-chandra-text-secondary">The five elements of the day, sampled at {city.name} sunrise.</p>
+          <h2 id="anga-heading" className="flex items-center gap-2 text-chandra-gold text-card-title"><Star size={16} aria-hidden="true" /> Pancha Anga</h2>
+          <p className="city-panel-intro mt-2 text-support leading-relaxed text-chandra-text-secondary">The five elements of the day, sampled at {city.name} sunrise.</p>
           <dl className="mt-1">
             <Row icon={Moon} label="Tithi" value={data.tithi} detail={data.paksha} />
             <Row icon={Star} label="Nakshatra" value={data.nakshatra} />
@@ -123,12 +123,12 @@ export default function CityPanchang({ initialData, city }) {
             <Row icon={CalendarDays} label="Vara" value={data.vara} />
           </dl>
           <a href="/learn/panchang-basics#pancha-anga" className="mt-2 flex min-h-[44px] items-center gap-2 text-sm text-chandra-focus"><BookOpen size={16} aria-hidden="true" /> Understand the five elements</a>
-          <p className="mt-2 text-xs leading-relaxed text-chandra-text-secondary">Tithi and Nakshatra can change later in the day.</p>
+          <p className="mt-2 text-support leading-relaxed text-chandra-text-secondary">Tithi and Nakshatra can change later in the day.</p>
         </section>
 
         <section aria-labelledby="timings-heading" className="city-panel mt-4 rounded-card border border-white/10 bg-chandra-bg-surface p-4">
-          <h2 id="timings-heading" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-chandra-gold"><Clock size={16} aria-hidden="true" /> Daily timings · IST</h2>
-          <p className="city-panel-intro mt-2 text-xs leading-relaxed text-chandra-text-secondary">Local sunrise, sunset and moon timings for the selected date.</p>
+          <h2 id="timings-heading" className="flex items-center gap-2 text-chandra-gold text-card-title"><Clock size={16} aria-hidden="true" /> Daily timings · IST</h2>
+          <p className="city-panel-intro mt-2 text-support leading-relaxed text-chandra-text-secondary">Local sunrise, sunset and moon timings for the selected date.</p>
           <dl className="mt-2">
             <Row icon={Sunrise} label="Sunrise" value={formatIndiaTime(data.sunrise)} />
             <Row icon={Sun} label="Sunset" value={formatIndiaTime(data.sunset)} />
@@ -136,19 +136,19 @@ export default function CityPanchang({ initialData, city }) {
             <Row icon={Moon} label="Following moonset" value={data.moonset ? formatIndiaTime(data.moonset) : 'No paired moonset'} detail={eventDate(data.moonset)} />
             <Row icon={Clock} label="Rahu Kaal" value={`${formatIndiaTime(data.rahuStart)} – ${formatIndiaTime(data.rahuEnd)}`} />
           </dl>
-          <p className="mt-2 text-xs leading-relaxed text-chandra-text-secondary">Moonset is paired with the moonrise above and may fall on the next day. Rahu Kaal is a traditional period generally avoided for starting important activities.</p>
+          <p className="mt-2 text-support leading-relaxed text-chandra-text-secondary">Moonset is paired with the moonrise above and may fall on the next day. Rahu Kaal is a traditional period generally avoided for starting important activities.</p>
         </section>
 
       </div>
 
       <div className="city-secondary-grid">
         <section aria-labelledby="events-heading" className="city-panel mt-4 rounded-card border border-white/10 bg-chandra-bg-surface p-4">
-          <h2 id="events-heading" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-chandra-gold"><Sparkles size={16} aria-hidden="true" /> Festivals &amp; observances</h2>
+          <h2 id="events-heading" className="flex items-center gap-2 text-chandra-gold text-card-title"><Sparkles size={16} aria-hidden="true" /> Festivals &amp; observances</h2>
           {data.festivals.length ? <ul className="mt-3 space-y-3">{data.festivals.map(event => <li key={event.name}>
-            <h3 className="text-sm font-semibold text-chandra-text-primary">{event.name}</h3>
+            <h3 className="text-chandra-text-primary text-body font-semibold">{event.name}</h3>
             <p className="mt-1 text-sm leading-relaxed text-chandra-text-secondary">{event.description}</p>
           </li>)}</ul> : <p className="mt-3 text-sm leading-relaxed text-chandra-text-secondary">No major festival or monthly observance is listed for this date.</p>}
-          <p className="mt-3 text-xs leading-relaxed text-chandra-text-secondary">Festival dates use each observance’s ritual window, which can differ from the sunrise Tithi. Regional traditions may vary.</p>
+          <p className="mt-3 text-support leading-relaxed text-chandra-text-secondary">Festival dates use each observance’s ritual window, which can differ from the sunrise Tithi. Regional traditions may vary.</p>
         </section>
 
         <div id="cities" className="city-cities-panel mt-6 scroll-mt-24"><CityPageLinks currentSlug={city.slug} /></div>
@@ -156,7 +156,7 @@ export default function CityPanchang({ initialData, city }) {
 
       <section aria-labelledby="about-heading" className="city-about mt-6 text-sm leading-relaxed text-chandra-text-secondary">
         <div className="city-about-copy">
-          <h2 id="about-heading" className="font-semibold text-chandra-text-primary">About this {city.name} Panchang</h2>
+          <h2 id="about-heading" className="text-chandra-text-primary text-card-title">About this {city.name} Panchang</h2>
           <p className="mt-2">Timings use {city.name} city-centre coordinates ({city.lat.toFixed(4)}° N, {city.lon.toFixed(4)}° E), sunrise-based daily Tithi, and Lahiri sidereal calculations for Nakshatra and Yoga.</p>
           <p className="mt-3">This page always shows {city.name}. Your saved app city stays the same. Open the app for detailed transitions, the festival calendar, or another city.</p>
         </div>

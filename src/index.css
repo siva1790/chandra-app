@@ -1,3 +1,5 @@
+@import '../public/typography-tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -62,7 +64,6 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Typography */
-  --font-ui:   'Inter', -apple-system, 'Segoe UI', Arial, sans-serif;
   --font-deva: 'Noto Serif Devanagari', serif;
 }
 
@@ -77,7 +78,19 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-ui);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
   min-height: 100vh;
+}
+
+/* Editable text stays readable in every form, including feature-disabled sheets.
+ * Radio/checkbox geometry and compact date-picker day cells are separate roles. */
+input:not([type]),
+input[type="text"], input[type="email"], input[type="search"],
+input[type="date"], input[type="time"], input[type="number"],
+select, textarea {
+  font-size: var(--type-input-size);
+  line-height: var(--type-body-line);
 }
 
 /* ── Global focus ring ──────────────────────────────────────────────── */
@@ -97,7 +110,7 @@ body {
   background: var(--gold);
   color: var(--text-inverse);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--type-support-size);
   border-radius: 0 0 var(--radius-icon) var(--radius-icon);
   text-decoration: none;
   transition: top 0.15s;

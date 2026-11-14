@@ -158,7 +158,7 @@ const TodayMessageModal = ({
               borderLeft: '2px solid #DDBB6A',
             }}
           >
-            <p className="text-sm leading-relaxed italic" style={{ color: '#B5BDD1' }}>
+            <p className="text-prose italic" style={{ color: '#B5BDD1' }}>
               "{message}"
             </p>
           </div>
@@ -189,7 +189,7 @@ const TodayMessageModal = ({
                 <polyline points="16 6 12 2 8 6"/>
                 <line x1="12" y1="2" x2="12" y2="15"/>
               </svg>
-              <span className="text-xs">Share</span>
+              <span className="text-control">Share</span>
             </button>
 
           </div>

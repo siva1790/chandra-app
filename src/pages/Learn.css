@@ -1,9 +1,5 @@
 /* One continuous reading column, with the same 760px cap as Privacy. */
-.learn-page {
-  width: 100%;
-  max-width: 760px;
-  scroll-margin-top: 56px;
-}
+.learn-page { width: 100%; max-width: 760px; scroll-margin-top: 56px; }
 
 .learn-page p,
 .learn-page a,
@@ -11,27 +7,28 @@
 .learn-topic-heading { list-style: none; }
 .learn-topic-heading::-webkit-details-marker { display: none; }
 .learn-section[open] > summary .learn-topic-caret { transform: rotate(180deg); }
+.learn-page > header > p { font-size: var(--type-body-size); line-height: var(--type-prose-line); }
+.learn-topic-content .text-prose { line-height: var(--type-prose-line); }
+.learn-reference-columns p { overflow-wrap: normal; }
+.learn-diagram { max-width: 280px; margin-inline: auto; }
+.learn-diagram-caption { font-size: var(--type-support-size); line-height: var(--type-support-line); text-align: center; }
+@media (max-width: 479px) {
+  .learn-reference-columns { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}
 
 @media (min-width: 768px) {
-  .learn-page {
-    padding: 16px 24px 56px;
-    scroll-margin-top: 72px;
-  }
+  .learn-page { padding: 16px 24px 56px; scroll-margin-top: 72px; }
 
-  .learn-backbar {
-    top: 72px;
-    margin-inline: -24px;
-    padding-inline: 24px;
-  }
+  .learn-backbar { top: 72px; margin-inline: -24px; padding-inline: 24px; }
 
-  .learn-page > header h1 { font-size: 30px; }
-  .learn-page > header > p { font-size: 16px; line-height: 1.75; }
+  .learn-page > header h1 { font-size: var(--type-page-size); }
+  .learn-page > header > p { font-size: var(--type-body-size); line-height: 1.75; }
   .learn-page > nav { padding: 24px; }
   .learn-overview { padding: 24px; }
   .learn-section { scroll-margin-top: 144px; }
   .learn-topic-heading { padding: 24px; }
   .learn-topic-content { padding: 0 24px 24px; }
   .learn-section > div > p,
-  .learn-section .text-chandra-text-primary.text-sm { font-size: 16px; line-height: 1.75; }
+  .learn-section .text-chandra-text-primary.text-sm { font-size: var(--type-body-size); line-height: 1.75; }
   .learn-scroll-top { bottom: 24px; right: max(24px, calc((100vw - 760px) / 2 - 60px)); }
 }

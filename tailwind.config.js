@@ -40,6 +40,16 @@ export default {
         ui: ['Inter', 'system-ui', 'Arial', 'sans-serif'],
         deva: ['Noto Serif Devanagari', 'serif'],
       },
+      fontSize: {
+        'page-title': ['var(--type-page-size)', { lineHeight: 'var(--type-page-line)', letterSpacing: '-.02em', fontWeight: '600' }],
+        'card-title': ['var(--type-card-size)', { lineHeight: 'var(--type-card-line)', fontWeight: '600' }],
+        body: ['var(--type-body-size)', { lineHeight: 'var(--type-body-line)' }],
+        prose: ['var(--type-body-size)', { lineHeight: 'var(--type-prose-line)' }],
+        support: ['var(--type-support-size)', { lineHeight: 'var(--type-support-line)' }],
+        meta: ['var(--type-meta-size)', { lineHeight: 'var(--type-meta-line)' }],
+        control: ['var(--type-control-size)', { lineHeight: 'var(--type-support-line)', fontWeight: '600' }],
+        input: ['var(--type-input-size)', { lineHeight: 'var(--type-body-line)' }],
+      },
       borderRadius: {
         icon: 'var(--radius-icon)',
         control: 'var(--radius-control)',

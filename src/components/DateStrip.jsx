@@ -78,7 +78,7 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
             aria-haspopup="dialog"
             className="flex flex-1 flex-col items-center gap-0.5 rounded-control px-3 py-1 transition-all hover:bg-chandra-bg-elevated"
           >
-            <p className="text-center text-sm font-medium text-chandra-text-primary">
+            <p className="text-center text-body font-semibold text-chandra-text-primary">
               {responsive && mode === 'day' ? <>
                 <span className="date-strip-weekday">{date.toLocaleDateString('en-IN', { weekday: 'long' })}</span>
                 <span className="date-strip-comma">, </span>

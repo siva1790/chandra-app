@@ -8,10 +8,11 @@
     "build": "vite build && node scripts/prerender-panchang.mjs",
     "test:panchang": "node --test tests/bengaluru-panchang.test.mjs tests/city-panchang.test.mjs",
     "test:panchang-build": "node --test tests/bengaluru-build.test.mjs tests/learn-build.test.mjs",
-    "lint": "npm run check:radii && eslint .",
+    "lint": "npm run check:radii && npm run check:typography && eslint .",
     "check:radii": "node scripts/check-radii.mjs",
+    "check:typography": "node scripts/check-typography.mjs",
     "preview": "vite preview",
-    "prebuild": "npm run check:radii && node scripts/prepare-city-pages.mjs",
+    "prebuild": "npm run check:radii && npm run check:typography && node scripts/prepare-city-pages.mjs",
     "predev": "node scripts/prepare-city-pages.mjs"
   },
   "dependencies": {

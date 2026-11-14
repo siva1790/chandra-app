@@ -55,7 +55,7 @@ export default defineConfig({
       manifest: false,
       injectManifest: {
         // Only precache the app shell
-        globPatterns: ['index.html', 'radius-tokens.css', 'assets/**/*.{js,css}'],
+        globPatterns: ['index.html', 'radius-tokens.css', 'typography-tokens.css', 'assets/**/*.{js,css}'],
       },
       devOptions: {
         enabled: true,

@@ -2,6 +2,10 @@
 <html lang="en-IN">
   <head>
     <link rel="stylesheet" href="/radius-tokens.css" />
+    <link rel="stylesheet" href="/typography-tokens.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Privacy Policy - Chandra</title>
@@ -32,8 +36,9 @@
         min-height: 100vh;
         background: var(--bg);
         color: var(--text);
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        line-height: 1.65;
+        font-family: var(--font-ui);
+        font-size: var(--type-body-size);
+        line-height: var(--type-prose-line);
       }
 
       header {
@@ -73,7 +78,7 @@
 
       header span {
         color: var(--gold);
-        font-size: 18px;
+        font-size: var(--type-card-size);
         font-weight: 700;
       }
 
@@ -86,7 +91,7 @@
       .eyebrow {
         margin: 0 0 8px;
         color: var(--gold);
-        font-size: 12px;
+        font-size: var(--type-meta-size);
         font-weight: 700;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -94,15 +99,16 @@
 
       h1 {
         margin: 0 0 8px;
-        font-size: clamp(30px, 7vw, 44px);
-        line-height: 1.12;
-        letter-spacing: 0;
+        font-size: var(--type-page-size);
+        line-height: var(--type-page-line);
+        font-weight: 600;
+        letter-spacing: -.02em;
       }
 
       .updated {
         margin: 0 0 24px;
         color: var(--muted);
-        font-size: 14px;
+        font-size: var(--type-support-size);
       }
 
       section {
@@ -113,14 +119,15 @@
       h2 {
         margin: 0 0 10px;
         color: var(--gold);
-        font-size: 18px;
-        line-height: 1.3;
+        font-size: var(--type-card-size);
+        line-height: var(--type-card-line);
+        font-weight: 600;
       }
 
       p, ul {
         margin: 0 0 12px;
         color: var(--muted);
-        font-size: 15px;
+        font-size: var(--type-body-size);
       }
 
       ul {
@@ -133,7 +140,7 @@
 
       strong {
         color: var(--text);
-        font-weight: 650;
+        font-weight: 600;
       }
 
       a {
@@ -165,7 +172,7 @@
         min-height: 44px;
         margin-top: 18px;
         color: var(--link);
-        font-weight: 650;
+        font-weight: 600;
       }
     </style>
   </head>
@@ -178,8 +185,8 @@
     </header>
 
     <main>
-      <p class="eyebrow">Privacy Policy</p>
-      <h1>Chandra - Indian Moon Tracker</h1>
+      <p class="eyebrow">Chandra - Indian Moon Tracker</p>
+      <h1>Privacy Policy</h1>
       <p class="updated">Last updated: May 15, 2026</p>
 
       <div class="summary">

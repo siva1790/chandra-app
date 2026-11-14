@@ -273,14 +273,14 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
 
           <Card className="day-view-panel day-view-my-day">
             <div className="flex items-center justify-between gap-3 mb-3">
-              <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
+              <h2 className="flex items-center gap-1.5 text-chandra-gold text-card-title">
                 <Sparkles size={13} aria-hidden="true" /> My Day
               </h2>
               {hasPersonalMessage ? (
                 <button
                   type="button"
                   onClick={() => setShowModal(true)}
-                  className="flex min-h-[36px] items-center gap-1.5 rounded-control border border-white/10 bg-chandra-bg-elevated px-3 py-1.5 text-xs font-medium text-chandra-gold transition-all hover:border-chandra-gold/40"
+                  className="flex min-h-[44px] items-center gap-1.5 rounded-control border border-white/10 bg-chandra-bg-elevated px-3 py-1.5 text-xs font-medium text-chandra-gold transition-all hover:border-chandra-gold/40"
                 >
                   <Share2 size={13} aria-hidden="true" />
                   Share
@@ -289,7 +289,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
                 <Button
                   onClick={onNavigateToSettings}
                   size="sm"
-                  className="min-h-[36px] py-1.5"
+                  className="min-h-[44px] py-1.5"
                 >
                   Personalize
                   <ArrowRight size={13} aria-hidden="true" />
@@ -320,7 +320,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
+            <h2 className="mb-3 flex items-center gap-1.5 text-chandra-gold text-card-title">
               <Moon size={13} aria-hidden="true" /> Today's Cosmos
             </h2>
             <div className="day-view-cosmos-content">
@@ -341,7 +341,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
 
           <Card className="day-view-panel day-view-panchanga">
             <div className="flex items-center justify-between gap-3 mb-3">
-              <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-chandra-gold">
+              <h2 className="flex items-center gap-1.5 text-chandra-gold text-card-title">
                 <CalendarClock size={13} aria-hidden="true" /> Today's Panchanga
               </h2>
             </div>

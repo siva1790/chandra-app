@@ -279,7 +279,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
 
                 {/* Name */}
                 <div>
-                  <label htmlFor="sub-name" className="text-gray-400 text-xs mb-1.5 block">
+                  <label htmlFor="sub-name" className="text-gray-400 text-support mb-1.5 block">
                     Name <span className="text-gray-400">— optional</span>
                   </label>
                   <input
@@ -295,7 +295,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="sub-email" className="text-gray-400 text-xs mb-1.5 block">
+                  <label htmlFor="sub-email" className="text-gray-400 text-support mb-1.5 block">
                     Email address
                   </label>
                   <input
@@ -313,7 +313,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
 
                 {/* City combobox */}
                 <div>
-                  <label htmlFor="sub-city-input" className="text-gray-400 text-xs mb-1.5 block">
+                  <label htmlFor="sub-city-input" className="text-gray-400 text-support mb-1.5 block">
                     City
                   </label>
                   <input
@@ -452,7 +452,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
               {isEditing && (
                 <div className="flex flex-col gap-4 mb-6">
                   <div>
-                    <label htmlFor="edit-name" className="text-gray-400 text-xs mb-1.5 block">Name</label>
+                    <label htmlFor="edit-name" className="text-gray-400 text-support mb-1.5 block">Name</label>
                     <input
                       id="edit-name"
                       type="text"
@@ -463,7 +463,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
                     />
                   </div>
                   <div>
-                    <label htmlFor="edit-email" className="text-gray-400 text-xs mb-1.5 block">Email</label>
+                    <label htmlFor="edit-email" className="text-gray-400 text-support mb-1.5 block">Email</label>
                     <input
                       id="edit-email"
                       type="email"
@@ -478,7 +478,7 @@ const SubscribeSheet = ({ open, onClose, triggerRef }) => {
 
                   {/* Edit city combobox */}
                   <div>
-                    <label htmlFor="edit-city-input" className="text-gray-400 text-xs mb-1.5 block">City</label>
+                    <label htmlFor="edit-city-input" className="text-gray-400 text-support mb-1.5 block">City</label>
                     <input
                       id="edit-city-input"
                       type="text"

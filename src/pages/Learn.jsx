@@ -288,8 +288,8 @@ const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' 
           <BookOpen size={20} aria-hidden="true" strokeWidth={1.75} />
           <p className="text-xs uppercase tracking-widest font-semibold">Learn Chandra</p>
         </div>
-        <h1 ref={titleRef} tabIndex={-1} className="text-2xl font-bold text-chandra-text-primary leading-tight focus:outline-none">A Gentle Guide To Panchang Terms</h1>
-        <p className="text-chandra-text-secondary text-sm leading-relaxed mt-3">
+        <h1 ref={titleRef} tabIndex={-1} className="text-chandra-text-primary focus:outline-none text-page-title">A Gentle Guide To Panchang Terms</h1>
+        <p className="text-chandra-text-secondary text-prose mt-3">
           Learn the science and cultural meaning behind the words you see in Chandra.
           Open a topic below, or expand all to read the complete guide.
         </p>
@@ -297,7 +297,7 @@ const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' 
 
       <section aria-labelledby="learn-overview-heading" className="learn-overview mb-5 rounded-card border border-[color:var(--border-default)] bg-chandra-bg-surface p-5">
         <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-chandra-gold">8 topics · Learn at your own pace</p>
-        <h2 id="learn-overview-heading" className="text-lg font-semibold text-chandra-text-primary">What you’ll learn</h2>
+        <h2 id="learn-overview-heading" className="text-chandra-text-primary text-card-title">What you’ll learn</h2>
         <p className="mt-3 text-base leading-relaxed text-chandra-text-secondary">
           Understand Panchang basics, the five daily elements, daily timings, Nakshatras,
           months and years, planetary positions, festivals, and calendar traditions.
@@ -339,21 +339,21 @@ const LearnSection = ({ section, number, open, onToggle }) => (
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-chandra-gold text-xs uppercase tracking-widest font-semibold">{String(number).padStart(2, '0')} · {section.eyebrow}</p>
-          <h2 className="text-chandra-text-primary text-lg font-bold leading-snug mt-1">{section.title}</h2>
+          <h2 className="text-chandra-text-primary mt-1 text-card-title">{section.title}</h2>
           <p className="mt-2 text-sm leading-relaxed text-chandra-text-secondary">{section.summary}</p>
         </div>
         <ChevronDown size={18} className="learn-topic-caret shrink-0 text-chandra-gold" aria-hidden="true" />
       </summary>
 
     <div className="learn-topic-content px-5 pb-5">
-      <p className="text-chandra-text-primary text-sm leading-relaxed">{section.intro}</p>
+      <p className="text-chandra-text-primary text-prose">{section.intro}</p>
       {section.visual && <Visual type={section.visual} />}
 
       <div className="mt-4 flex flex-col gap-3">
         {section.points.map(([label, body]) => (
           <div key={label} className="rounded-control bg-chandra-bg-elevated border border-[color:var(--border-default)] px-3 py-3">
             <p className="text-chandra-gold text-xs font-semibold mb-1">{label}</p>
-            <p className="text-chandra-text-primary text-sm leading-relaxed">{body}</p>
+            <p className="text-chandra-text-primary text-prose">{body}</p>
           </div>
         ))}
       </div>
@@ -441,7 +441,7 @@ const ReferenceAccordion = ({ title, note, items, columns }) => {
       {open && (
         <div className="border-t border-[color:var(--border-default)]">
           {columns && (
-            <div className="grid grid-cols-[0.9fr_0.9fr_1.4fr] gap-2 px-4 py-2 bg-chandra-bg-surface text-chandra-text-secondary text-[11px] uppercase tracking-wider">
+            <div className="learn-reference-columns grid grid-cols-[0.9fr_0.9fr_1.4fr] gap-2 px-4 py-2 bg-chandra-bg-surface text-chandra-text-secondary text-meta uppercase tracking-wider">
               {columns.map(column => <span key={column}>{column}</span>)}
             </div>
           )}
@@ -459,10 +459,10 @@ const ReferenceAccordion = ({ title, note, items, columns }) => {
 const ReferenceItem = ({ item, columns }) => {
   if (columns) {
     return (
-      <div className="grid grid-cols-[0.9fr_0.9fr_1.4fr] gap-2 px-4 py-3">
-        <p className="text-chandra-text-primary text-xs font-semibold">{item[0]}</p>
-        <p className="text-chandra-gold text-xs">{item[1]}</p>
-        <p className="text-chandra-text-primary text-xs leading-relaxed">{item[2]}</p>
+      <div className="learn-reference-columns grid grid-cols-[0.9fr_0.9fr_1.4fr] gap-2 px-4 py-3">
+        <p className="text-chandra-text-primary text-support font-semibold">{item[0]}</p>
+        <p className="text-chandra-gold text-support">{item[1]}</p>
+        <p className="text-chandra-text-primary text-prose">{item[2]}</p>
       </div>
     )
   }
@@ -470,7 +470,7 @@ const ReferenceItem = ({ item, columns }) => {
   return (
     <div className="px-4 py-3">
       <p className="text-chandra-text-primary text-sm font-semibold">{item[0]}</p>
-      <p className="text-chandra-text-primary text-xs leading-relaxed mt-1">{item[1]}</p>
+      <p className="text-chandra-text-primary text-prose mt-1">{item[1]}</p>
     </div>
   )
 }
@@ -487,15 +487,14 @@ const Visual = ({ type }) => {
 
 const TithiVisual = () => (
   <div className="mt-4 rounded-inset bg-chandra-bg-primary border border-[color:var(--border-default)] p-4">
-    <svg viewBox="0 0 280 130" role="img" aria-label="Tithi is based on Moon Sun angle" className="w-full h-auto">
+    <p className="learn-diagram-caption mb-3 text-chandra-gold">12 degrees = 1 Tithi</p>
+    <svg viewBox="0 0 280 100" role="img" aria-label="Tithi is based on Moon Sun angle" className="learn-diagram w-full h-auto">
       <circle cx="72" cy="66" r="18" fill="var(--gold)" />
       <circle cx="190" cy="66" r="22" fill="var(--gold)" />
       <path d="M192 44 A22 22 0 0 1 192 88 A13 22 0 0 0 192 44" fill="var(--bg-primary)" opacity="0.76" />
       <path d="M72 66 C110 24 151 24 190 66" fill="none" stroke="var(--focus-ring)" strokeWidth="2" strokeDasharray="4 5" />
-      <text x="72" y="105" fill="var(--text-secondary)" fontSize="12" textAnchor="middle">Sun</text>
-      <text x="190" y="105" fill="var(--text-secondary)" fontSize="12" textAnchor="middle">Moon</text>
-      <text x="132" y="38" fill="var(--gold)" fontSize="12" textAnchor="middle">12 degrees = 1 Tithi</text>
     </svg>
+    <div className="learn-diagram grid grid-cols-2 text-center text-support text-chandra-text-secondary"><span>Sun</span><span>Moon</span></div>
   </div>
 )
 
@@ -519,15 +518,15 @@ const DaylightVisual = () => (
 
 const NakshatraVisual = () => (
   <div className="mt-4 rounded-inset bg-chandra-bg-primary border border-[color:var(--border-default)] p-4">
-    <svg viewBox="0 0 280 98" role="img" aria-label="Moon moving through Nakshatra sectors" className="w-full h-auto">
+    <svg viewBox="0 0 280 80" role="img" aria-label="Moon moving through Nakshatra sectors" className="learn-diagram w-full h-auto">
       <path d="M20 52 C70 18 118 78 168 40 S235 36 260 52" fill="none" stroke="var(--text-secondary)" strokeWidth="2" />
       {Array.from({ length: 9 }, (_, i) => (
         <circle key={i} cx={28 + i * 28} cy={i % 2 ? 34 : 60} r="2.4" fill="var(--gold)" />
       ))}
       <circle cx="139" cy="50" r="13" fill="var(--gold)" />
       <path d="M141 37 A13 13 0 0 1 141 63 A8 13 0 0 0 141 37" fill="var(--bg-primary)" opacity="0.72" />
-      <text x="140" y="90" fill="var(--text-secondary)" fontSize="12" textAnchor="middle">27 equal star sectors</text>
     </svg>
+    <p className="learn-diagram-caption text-chandra-text-secondary">27 equal star sectors</p>
   </div>
 )
 
@@ -564,8 +563,8 @@ const NavagrahaVisual = () => (
       <circle cx="90" cy="90" r="19" fill="var(--gold)" />
       <text x="90" y="96" textAnchor="middle" fill="var(--text-inverse)" fontSize="17" fontWeight="700">☉</text>
       <circle cx="132" cy="59" r="7" fill="var(--focus-ring)" />
-      <text x="90" y="166" textAnchor="middle" fill="var(--text-secondary)" fontSize="11">12 Rashi of 30 degrees</text>
     </svg>
+    <p className="learn-diagram-caption text-chandra-text-secondary">12 Rashi of 30 degrees</p>
   </div>
 )
 

@@ -7,9 +7,9 @@ const variants = {
 }
 
 const sizes = {
-  sm: 'min-h-[44px] px-3 py-2 text-xs',
-  md: 'min-h-[44px] px-4 py-2.5 text-sm',
-  lg: 'min-h-[48px] px-5 py-3 text-sm',
+  sm: 'min-h-[44px] px-3 py-2 text-control',
+  md: 'min-h-[44px] px-4 py-2.5 text-control',
+  lg: 'min-h-[48px] px-5 py-3 text-control',
 }
 
 const shapes = {
