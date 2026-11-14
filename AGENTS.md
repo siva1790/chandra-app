@@ -400,6 +400,8 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 
 | 2026-11 | Applied approved typography roles across Day View, Calendar, Panchang, Settings, Learn, public city pages and Privacy: shared rem tokens, consistent heading weights, readable values/prose/fields, semantic accordion headings, stable diagram captions and Calendar compact-label exceptions. Simplified calendar-system choices with expandable regional guidance; added typography build/lint policy checks. Approved for production deployment. | `public/typography-tokens.css`, `src/pages/`, `src/components/`, `scripts/check-typography.mjs`, `chandra-design-system.html` |
 
+| 2026-11 | Implemented approved Planetary Positions grouping: horizontal mobile rows preserved; tablet uses two columns and desktop three, with each longitude left-aligned beneath its planet name, 8px internal spacing and 32px column gaps. Calculation data and accordion behavior are unchanged. Approved for production deployment. | `src/pages/Panchang.css`, `chandra-design-system.html` |
+
 ---
 
 ## Corner Radius Policy (2026-11)

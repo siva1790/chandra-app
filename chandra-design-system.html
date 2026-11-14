@@ -370,6 +370,7 @@ pre .str { color: #4FAF7C; }
     <li>Keep Learn/Privacy prose in a capped reading column. Illustration labels should be HTML text so they do not shrink with SVG geometry. Decorative celestial symbols and icon geometry are not body typography.</li>
     <li>Calendar system options contain a 16px semibold name and 14px description, with 16px padding and an 8px gap. Place regional state lists in the separate Which should I choose? disclosure, collapsed by default. Keep a brief regional summary visible when closed.</li>
     <li>Settings card pairs stretch to the taller card in each tablet/desktop row. Expanded guidance increases both cards naturally; mobile remains independent.</li>
+    <li>Planetary Positions keeps horizontal planet/value rows below 768px. From 768px, use two columns with each value left-aligned beneath its planet name and secondary name; from 1024px use three columns. Keep an 8px name/value gap and 32px between columns. Retain the shared row separators; do not add a separate card around each planet.</li>
   </ul>
   <h2 class="sub">Implementation and verification</h2>
   <p><code>public/typography-tokens.css</code> implements the shared values, consumed by the app stylesheet, Tailwind semantic type utilities and standalone Privacy. Privacy loads the same Inter weights as the app. Keep the token stylesheet available offline.</p>
