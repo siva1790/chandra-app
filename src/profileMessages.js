@@ -1,6 +1,7 @@
 import * as Astronomy from 'astronomy-engine'
 import { toSiderealLongitude } from './ayanamsha.js'
 import { TITHI_MESSAGES } from './tithiMessages.js'
+import { indianDateKey } from './civilDate.js'
 
 const RASI_NAMES = [
   'Mesha', 'Vrishabha', 'Mithuna', 'Karka', 'Simha', 'Kanya',
@@ -61,14 +62,22 @@ const NAKSHATRA_THEMES = {
   Revati: 'care, completion, and gentle protection',
 }
 
-const toBirthDate = (profile) => {
-  if (!profile?.dob || !profile?.birthTime) return null
-  const parsed = new Date(`${profile.dob}T${profile.birthTime}:00`)
-  return Number.isNaN(parsed.getTime()) ? null : parsed
+// Birthplaces currently come from the Indian city picker. Saved fields are the
+// entered Indian wall-clock date/time, not a device-local instant. Interpret
+// existing and new profiles as IST without rewriting their saved values.
+export const getBirthInstant = (profile) => {
+  const dob = profile?.dob
+  const time = profile?.birthTime
+  if (typeof dob !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(dob)) return null
+  if (typeof time !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) return null
+  const parsed = new Date(`${dob}T${time}:00+05:30`)
+  // Date parsing can normalize an impossible date such as 30 February.
+  if (!Number.isFinite(parsed.getTime()) || indianDateKey(parsed) !== dob) return null
+  return parsed
 }
 
 export const getBirthMoonProfile = (profile) => {
-  const birthDate = toBirthDate(profile)
+  const birthDate = getBirthInstant(profile)
   if (!birthDate) return null
 
   const moonPos = Astronomy.GeoVector('Moon', birthDate, true)

@@ -468,7 +468,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                 <span className="text-sm font-medium text-chandra-text-primary">{profile.dob || 'Not added'}</span>
               </div>
               <div className="flex justify-between gap-3">
-                <span className="text-sm text-chandra-text-secondary">Time of birth</span>
+                <span className="text-sm text-chandra-text-secondary">Time of birth (IST)</span>
                 <span className="text-sm font-medium text-chandra-text-primary">{profile.birthTime || 'Not added'}</span>
               </div>
               <div className="flex justify-between gap-3">
@@ -510,7 +510,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
 
                 <div>
                   <label htmlFor="profile-birth-time" className="flex items-center gap-1.5 text-sm font-medium text-chandra-text-primary">
-                    <Clock size={13} aria-hidden="true" /> Time of birth
+                    <Clock size={13} aria-hidden="true" /> Time of birth (IST)
                   </label>
                   <input
                     id="profile-birth-time"

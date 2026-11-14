@@ -167,6 +167,11 @@ Note: 2029 Dhanteras was missing under strict `pradosh` window; fixed by `prados
 - Round only a display copy to the nearest minute (30 seconds rounds forward), using `src/timeFormatting.js` and the tested backend mirror `functions/timeFormatting.js`. Display times explicitly in IST and derive accompanying event dates from the same rounded copy so midnight rollover is consistent.
 - Never use display-rounded events for sunrise sampling, festival decisions, notification scheduling, or deduplication. Moonrise search/pairing and personalized birth-time handling are separate work.
 
+### Personalized Birth Time
+- The supported birthplaces are Indian cities. Interpret profile `dob` + `birthTime` as IST (`+05:30`) through `getBirthInstant()` in `src/profileMessages.js`, regardless of the device timezone.
+- Existing stored values are entered clock dates/times; recompute their instant without rewriting or shifting the saved fields. Do not round birth instants for calculation. Settings labels the birth time as IST.
+- Birth Rashi, Nakshatra and Pada remain geocentric calculations. The timezone fix does not add location-based chart calculations or change message templates.
+
 ---
 
 ## Deployment
@@ -325,6 +330,7 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 
 | Date Fixed | Issue | File(s) Changed |
 |---|---|---|
+| 2026-11 | Fixed birth profiles changing with the device timezone: interpret entered Indian birth dates/times explicitly as IST, reject invalid dates/times, preserve stored profile fields, and label birth time as IST in Settings. Tested exact UTC instants, existing IST behavior and identical Moon profiles/messages across six device timezones. | `src/profileMessages.js`, `src/pages/Settings.jsx`, `tests/profile-timezone.test.mjs` |
 | 2026-11 | Removed premature whole-minute truncation from daily timings; keep full timestamps through slot calculations and round only at presentation. Standardized app/city sunrise, sunset, moon events, transition windows, eclipse peaks and notification/email text to nearest-minute IST display with matching event dates at midnight rollover. Updated the private calculation reference locally without publishing it. | `src/panchangAnga.js`, `src/panchangCalculations.js`, `src/timeFormatting.js`, `src/pages/Home.jsx`, `src/pages/Panchang.jsx`, `src/pages/CityPanchang.jsx`, `src/cityPanchang.js`, `functions/timeFormatting.js`, `functions/index.js`, `functions/emailTemplates.js`, `tests/timing-precision.test.mjs` |
 | 2026-11 | Extracted full Panchang calculations into a reusable module and connected Home, Calendar and public city pages to shared sunrise Pancha Anga and daily timing rules. Calendar day summaries now use the established Karana sequence instead of their incorrect modulo-11 formula. Existing full Panchang outputs, sunrise Tithi, display Masa and festival rules are preserved; added regression fixtures and shared-calculation tests. | `src/panchangCalculations.js`, `src/panchangAnga.js`, `src/cityPanchang.js`, `src/pages/Home.jsx`, `src/pages/Calendar.jsx`, `src/pages/Panchang.jsx`, `tests/shared-panchang.test.mjs`, `docs/shared-panchang-calculations.md` |
 | 2026-05 | Sep 14 showing Tritiya instead of Chaturthi — tithi was sampled at midnight instead of sunrise/noon | `Home.jsx`, `moonUtils.js` |
