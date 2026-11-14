@@ -172,6 +172,11 @@ Note: 2029 Dhanteras was missing under strict `pradosh` window; fixed by `prados
 - Existing stored values are entered clock dates/times; recompute their instant without rewriting or shifting the saved fields. Do not round birth instants for calculation. Settings labels the birth time as IST.
 - Birth Rashi, Nakshatra and Pada remain geocentric calculations. The timezone fix does not add location-based chart calculations or change message templates.
 
+### Moon Events On A Selected Date
+- Home and public city pages use `src/moonEvents.js`: moonrise must be within the selected midnight-to-midnight IST day, excluding the next midnight. Never borrow tomorrow's moonrise to fill an absent event.
+- If there is no moonrise, display “No moonrise on this date” and still show any moonset within that same civil day. If there is a moonrise, preserve the following-moonset pair and show its actual date, including next-day sets.
+- Search errors must not be presented as a genuine absent event. This display policy does not change backend scheduler searches or festival moonrise-window rules.
+
 ---
 
 ## Deployment
@@ -330,6 +335,7 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 
 | Date Fixed | Issue | File(s) Changed |
 |---|---|---|
+| 2026-11 | Fixed no-moonrise dates borrowing the following day's rise in Home and hiding the same-day moonset on public pages. Shared IST moon-event helper now keeps the rise absent, displays the selected day's moonset independently, and preserves dated following-moonset pairing when a rise exists. Bengaluru 2026-12-01 shows no moonrise and moonset 12:27 PM IST. | `src/moonEvents.js`, `src/pages/Home.jsx`, `src/pages/CityPanchang.jsx`, `src/cityPanchang.js`, `tests/moon-events.test.mjs` |
 | 2026-11 | Fixed birth profiles changing with the device timezone: interpret entered Indian birth dates/times explicitly as IST, reject invalid dates/times, preserve stored profile fields, and label birth time as IST in Settings. Tested exact UTC instants, existing IST behavior and identical Moon profiles/messages across six device timezones. | `src/profileMessages.js`, `src/pages/Settings.jsx`, `tests/profile-timezone.test.mjs` |
 | 2026-11 | Removed premature whole-minute truncation from daily timings; keep full timestamps through slot calculations and round only at presentation. Standardized app/city sunrise, sunset, moon events, transition windows, eclipse peaks and notification/email text to nearest-minute IST display with matching event dates at midnight rollover. Updated the private calculation reference locally without publishing it. | `src/panchangAnga.js`, `src/panchangCalculations.js`, `src/timeFormatting.js`, `src/pages/Home.jsx`, `src/pages/Panchang.jsx`, `src/pages/CityPanchang.jsx`, `src/cityPanchang.js`, `functions/timeFormatting.js`, `functions/index.js`, `functions/emailTemplates.js`, `tests/timing-precision.test.mjs` |
 | 2026-11 | Extracted full Panchang calculations into a reusable module and connected Home, Calendar and public city pages to shared sunrise Pancha Anga and daily timing rules. Calendar day summaries now use the established Karana sequence instead of their incorrect modulo-11 formula. Existing full Panchang outputs, sunrise Tithi, display Masa and festival rules are preserved; added regression fixtures and shared-calculation tests. | `src/panchangCalculations.js`, `src/panchangAnga.js`, `src/cityPanchang.js`, `src/pages/Home.jsx`, `src/pages/Calendar.jsx`, `src/pages/Panchang.jsx`, `tests/shared-panchang.test.mjs`, `docs/shared-panchang-calculations.md` |

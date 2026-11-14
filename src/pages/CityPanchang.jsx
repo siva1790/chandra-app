@@ -133,11 +133,11 @@ export default function CityPanchang({ initialData, city }) {
           <dl className="mt-2">
             <Row icon={Sunrise} label="Sunrise" value={formatIndiaTime(data.sunrise)} />
             <Row icon={Sun} label="Sunset" value={formatIndiaTime(data.sunset)} />
-            <Row icon={Moon} label="Moonrise" value={formatIndiaTime(data.moonrise)} detail={eventDate(data.moonrise)} />
-            <Row icon={Moon} label="Following moonset" value={data.moonset ? formatIndiaTime(data.moonset) : 'No paired moonset'} detail={eventDate(data.moonset)} />
+            <Row icon={Moon} label="Moonrise" value={data.moonrise ? formatIndiaTime(data.moonrise) : 'No moonrise on this date'} detail={eventDate(data.moonrise)} />
+            <Row icon={Moon} label={data.moonrise ? 'Following moonset' : 'Moonset'} value={data.moonset ? formatIndiaTime(data.moonset) : (data.moonrise ? 'No following moonset found' : 'No moonset on this date')} detail={eventDate(data.moonset)} />
             <Row icon={Clock} label="Rahu Kaal" value={formatEventRange(data.rahuStart, data.rahuEnd)} />
           </dl>
-          <p className="mt-2 text-support leading-relaxed text-chandra-text-secondary">Moonset is paired with the moonrise above and may fall on the next day. Rahu Kaal is a traditional period generally avoided for starting important activities.</p>
+          <p className="mt-2 text-support leading-relaxed text-chandra-text-secondary">{data.moonrise ? 'Moonset is paired with the moonrise above and may fall on the next day.' : 'When no moonrise occurs on this date, any moonset shown is within this date.'} Rahu Kaal is a traditional period generally avoided for starting important activities.</p>
         </section>
 
       </div>

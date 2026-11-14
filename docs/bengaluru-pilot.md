@@ -10,7 +10,7 @@ Run `npm run build`, then `npm run preview`. Open `/panchang/bengaluru` on the p
 - The homepage continues to use the saved city. Links to `/#calendar`, `/#panchang`, `/#settings`, and the existing `/#learn/...` links open the corresponding app screen.
 - All public-page day boundaries and displayed times are explicitly Indian time, independent of device/build-server timezone.
 - Tithi, Nakshatra, Yoga and Karana are sampled at sunrise. The shared festival engine retains ritual-window rules. The page uses Amavasyant consistently and labels it.
-- Moonset follows the selected civil day's moonrise and includes its date. A day without moonrise does not fabricate a moonrise or paired moonset.
+- Moonrise is restricted to the selected Indian civil day. If none occurs, show “No moonrise on this date” and independently show any moonset within that same date. When a moonrise exists, moonset still follows that rise and includes its actual date, possibly the next day. Home and public pages share this policy in `src/moonEvents.js`.
 - The static page has its own title, description, canonical, social metadata, headings and content. It has a separate client entry, so it does not load Firebase or the full app UI.
 - Vercel explicitly rewrites the extensionless public URL to its generated HTML and redirects slash/index.html variants to the canonical URL. Vite dev/preview middleware mirrors the public-page mapping. The service worker no longer falls back to the personalised homepage for this page; it uses the network with a previously visited page as an offline fallback.
 

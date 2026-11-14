@@ -12,6 +12,7 @@ import { useProfile } from '../ProfileContext'
 import { getPanchaAngaAtSunrise } from '../panchangAnga.js'
 import { getDisplayMasa } from '../panchangCalculations.js'
 import { formatEventTime, formatEventDate } from '../timeFormatting.js'
+import { getMoonEventsForDate } from '../moonEvents.js'
 import { getFestivalsForDate } from '../festivals'
 import { getEclipseForDate } from '../eclipseUtils'
 import { EclipseIcon } from '../components/EclipseIcons'
@@ -93,7 +94,6 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
 
   function calculateMoonData() {
     try {
-      const observer = new Astronomy.Observer(location.lat, location.lon, 0)
       const snapshot = getPanchaAngaAtSunrise(date, location)
       const { sunrise: sunriseTime, phaseAngle } = snapshot
       const phase = phaseAngle / 360
@@ -105,22 +105,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
       const karana = snapshot.karana
       const masa = getDisplayMasa(sunriseTime, effectiveTithi.number - 1, (settings?.calendarSystem || 'Amavasyant').toLowerCase())
 
-      const startOfDay = new Date(date)
-      startOfDay.setHours(0, 0, 0, 0)
-      let moonrise = null
-      let moonset = null
-      try {
-        moonrise = Astronomy.SearchRiseSet('Moon', observer, +1, startOfDay, 2)
-      } catch {
-        moonrise = null
-      }
-      try {
-        moonset = moonrise
-          ? Astronomy.SearchRiseSet('Moon', observer, -1, moonrise.date, 2)
-          : Astronomy.SearchRiseSet('Moon', observer, -1, startOfDay, 2)
-      } catch {
-        moonset = null
-      }
+      const { moonrise, moonset } = getMoonEventsForDate(date, location)
 
       const festivals = getFestivalsForDate(date, {
         tithiNumber: effectiveTithi.adjustedNumber,
@@ -135,12 +120,13 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
       setMoonData({
         phase,
         illuminationPct,
-        moonriseDate: moonrise?.date ?? null,
-        moonsetDate: moonset?.date ?? null,
+        moonriseDate: moonrise,
+        moonsetDate: moonset,
       })
       setLoading(false)
     } catch (err) {
       console.error('Moon calculation error:', err)
+      setMoonData(null)
       setLoading(false)
     }
   }
@@ -272,8 +258,8 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
               <div className="day-view-metrics grid grid-cols-2 gap-4 min-w-0">
                 <Metric label="Moon phase" value={moonPhaseLabel} />
                 <Metric label="Illumination" value={`${moonData.illuminationPct}%`} />
-                <Metric label="Moonrise" value={formatTime(moonData.moonriseDate)} sub={formatShortDate(moonData.moonriseDate)} />
-                <Metric label="Moonset" value={formatTime(moonData.moonsetDate)} sub={formatShortDate(moonData.moonsetDate)} />
+                <Metric label="Moonrise" value={moonData.moonriseDate ? formatTime(moonData.moonriseDate) : 'No moonrise on this date'} sub={formatShortDate(moonData.moonriseDate)} />
+                <Metric label="Moonset" value={moonData.moonsetDate ? formatTime(moonData.moonsetDate) : (moonData.moonriseDate ? 'No following moonset found' : 'No moonset on this date')} sub={formatShortDate(moonData.moonsetDate)} />
               </div>
             </div>
           </Card>

@@ -7,7 +7,7 @@ const html = (await readFile(new URL('../dist/panchang/bengaluru/index.html', im
 test('production HTML contains the answer and exact snapshot date before JavaScript', () => {
   assert.match(html, /<h1[^>]*>Bengaluru Panchang<\/h1>/)
   assert.match(html, /Pancha Anga/)
-  assert.match(html, /Following moonset/)
+  assert.match(html, /Following moonset|Moonset/)
   assert.match(html, /<time dateTime="\d{4}-\d{2}-\d{2}">/)
   assert.ok(!html.includes('<!--panchang-html-->'))
   const json = html.match(/<script id="panchang-data" type="application\/json">([\s\S]*?)<\/script>/)[1]
@@ -21,6 +21,18 @@ test('public page has a single self canonical and unique metadata', () => {
   assert.match(html, /rel="canonical" href="https:\/\/chandrapanchang.app\/panchang\/bengaluru"/)
   assert.match(html, /<title>Bengaluru Panchang/)
   assert.match(html, /property="og:url" content="https:\/\/chandrapanchang.app\/panchang\/bengaluru"/)
+})
+
+test('rendered no-moonrise day still shows its civil-day moonset', async () => {
+  const { render } = await import('../dist-ssr/city-panchang.js')
+  const { html: markup, data } = render('bengaluru', '2026-12-01')
+  const snapshot = JSON.parse(data)
+  assert.equal(snapshot.moonrise, null)
+  assert.ok(snapshot.moonset)
+  assert.ok(markup.includes('No moonrise on this date'))
+  assert.ok(markup.includes('12:27 PM'))
+  assert.ok(markup.includes('1 Dec'))
+  assert.ok(!markup.includes('Following moonset'))
 })
 
 test('built local asset references resolve', async () => {

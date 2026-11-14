@@ -1,4 +1,3 @@
-import * as Astronomy from 'astronomy-engine'
 import { getSunsetForDate } from './moonUtils.js'
 import { getPanchaAngaAtSunrise, getDailyTimingRanges } from './panchangAnga.js'
 import { getFestivalsForDate } from './festivals.js'
@@ -6,6 +5,7 @@ import { DAY_MS, INDIA_OFFSET_MINUTES, INDIA_TIME_ZONE, indianDateKey, startOfCi
 
 import { getPublicPanchangCity } from './publicPanchangCities.js'
 import { formatEventTime } from './timeFormatting.js'
+import { getMoonEventsForDate } from './moonEvents.js'
 
 export const formatIndiaTime = (value) => value
   ? formatEventTime(value)
@@ -30,12 +30,7 @@ export function getCityPanchang(slug, dateKey = indianDateKey()) {
   const snapshot = getPanchaAngaAtSunrise(start, { lat, lon, utcOffsetMinutes: INDIA_OFFSET_MINUTES })
   const { sunrise, tithi } = snapshot
   const sunset = getSunsetForDate(start, lat, lon, INDIA_OFFSET_MINUTES)
-  const observer = new Astronomy.Observer(lat, lon, 0)
-  const moonrise = Astronomy.SearchRiseSet('Moon', observer, +1, start, 1)?.date || null
-  // Pair the civil day's moonrise with the setting that follows, matching Day View.
-  const moonset = moonrise
-    ? Astronomy.SearchRiseSet('Moon', observer, -1, moonrise, 2)?.date || null
-    : null
+  const { moonrise, moonset } = getMoonEventsForDate(start, city)
   const timings = getDailyTimingRanges(sunrise.getTime(), sunset.getTime(), snapshot.weekday)
   const [rahuStart, rahuEnd] = timings.rahuKaal.map(value => new Date(value))
 

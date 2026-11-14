@@ -49,11 +49,12 @@ test('paired moonset retains the next civil day', () => {
   assert.ok(new Date(result.moonset) > new Date(result.moonrise))
 })
 
-test('days without moonrise do not fabricate an event', () => {
+test('days without moonrise keep the selected day moonset', () => {
   const results = Array.from({ length: 30 }, (_, index) => getBengaluruPanchang(`2026-06-${String(index + 1).padStart(2, '0')}`))
   const noRise = results.find(value => !value.moonrise)
   assert.ok(noRise)
-  assert.equal(noRise.moonset, null)
+  assert.ok(noRise.moonset)
+  assert.equal(indianDateKey(new Date(noRise.moonset)), noRise.dateKey)
 })
 
 test('Rahu Kaal follows the correct weekday slot', () => {

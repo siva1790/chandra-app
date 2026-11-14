@@ -24,18 +24,26 @@ system explicitly.
   explicit IST, moonrise/following moonset, festivals, serialization and labels.
   Public pages use the lightweight snapshot without running the full transition
   scans or planetary calculations.
+- `src/moonEvents.js` provides the shared Home/public-page policy: moonrise must
+  fall within the selected midnight-to-midnight IST day. If none occurs, keep it
+  absent and independently calculate that day's moonset. Otherwise retain the
+  moonset following the rise, including its actual date. Search errors propagate
+  instead of being labelled as an absent event. Backend scheduler searches are
+  unchanged by this display fix.
 
 ## Preserved behavior
 
 Tithi continues to use `getTithiAtSunrise`. Public snapshots pass an explicit
-`utcOffsetMinutes: 330`; app screens retain their existing device-local day
-boundaries. Applying explicit IST throughout the app is separate work.
+`utcOffsetMinutes: 330`; existing app Panchang calculations retain device-local
+day boundaries. Moon events in both Home and public pages now use explicit IST.
+Applying explicit IST throughout all other app date calculations is separate work.
 
 The full Panchang's detailed Nakshatra list still begins with the Nakshatra active
 at the start of the civil day, whereas summary cards show the sunrise snapshot.
 Its transition scans and calendar/year formulas are preserved. Timing precision
 now retains seconds until presentation, with a consistent nearest-minute display.
-Home retains its existing moonrise search/pairing behavior. Festival detection
+Home now restricts moonrise to the selected day while retaining its following
+moonset pairing when a rise exists. Festival detection
 continues to use the existing ritual-window engine; display Masa and festival Masa
 are distinct paths, and this extraction does not change festival rules.
 
