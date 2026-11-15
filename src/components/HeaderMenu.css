@@ -1,0 +1,32 @@
+.chandra-header-menu { position: relative; flex-shrink: 0; }
+.chandra-more-button,.chandra-about-close { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-width: 44px; border-radius: var(--radius-icon); color: var(--text-secondary); }
+.chandra-more-button:hover,.chandra-more-button[aria-expanded="true"],.chandra-about-close:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.chandra-overflow-menu { position: absolute; right: 0; top: calc(100% + 10px); width: 216px; max-width: calc(100vw - 32px); padding: 6px; border: 1px solid var(--border-default); border-radius: var(--radius-inset); background: var(--bg-surface); box-shadow: 0 8px 24px var(--bg-overlay); }
+.chandra-overflow-menu > button,.chandra-overflow-menu > a { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 10px 12px; border-radius: var(--radius-icon); color: var(--text-primary); text-align: left; font-size: var(--type-control-size); font-weight: 500; line-height: var(--type-support-line); overflow-wrap: anywhere; }
+.chandra-overflow-menu > :is(button,a):hover { background: var(--bg-elevated); }
+.chandra-overflow-menu svg { flex-shrink: 0; color: var(--text-secondary); }
+.chandra-about-dialog { width: min(540px, calc(100% - 24px)); max-height: calc(100dvh - 32px); margin: auto; padding: 0; overflow-y: auto; border: 1px solid var(--border-default); border-radius: var(--radius-dialog); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-ui); }
+.chandra-about-dialog::backdrop { background: var(--bg-overlay); }
+.chandra-about-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 1; padding: 14px 16px 12px 20px; border-bottom: 1px solid var(--border-default); background: var(--bg-surface); }
+.chandra-about-heading h2 { min-width: 0; font-size: var(--type-card-size); font-weight: 600; line-height: var(--type-card-line); overflow-wrap: anywhere; }
+.chandra-about-content { padding: 20px; }
+.chandra-about-brand { display: flex; align-items: center; gap: 12px; }
+.chandra-about-brand img { flex-shrink: 0; border-radius: var(--radius-control); }
+.chandra-about-brand h3 { color: var(--gold); font-size: var(--type-card-size); font-weight: 600; line-height: var(--type-card-line); }
+.chandra-about-brand p { margin-top: 3px; color: var(--text-secondary); font-size: var(--type-support-size); line-height: var(--type-support-line); }
+.chandra-about-intro { margin-top: 16px; color: var(--text-secondary); font-size: var(--type-body-size); line-height: var(--type-prose-line); }
+.chandra-about-facts { margin-top: 16px; }
+.chandra-about-facts > div { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-default); }
+.chandra-about-facts dt { padding-top: 2px; color: var(--text-secondary); font-size: var(--type-support-size); line-height: var(--type-support-line); }
+.chandra-about-facts dd { font-size: var(--type-body-size); font-weight: 600; line-height: var(--type-body-line); }
+.chandra-about-facts small { display: block; margin-top: 3px; color: var(--text-secondary); font-size: var(--type-support-size); font-weight: 400; line-height: var(--type-support-line); }
+.chandra-about-dialog :is(p,dt,dd) { overflow-wrap: anywhere; }
+.chandra-about-calculations { margin-top: 16px; color: var(--text-secondary); font-size: var(--type-support-size); line-height: var(--type-prose-line); }
+.chandra-about-learn { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 16px; border-radius: var(--radius-control); color: var(--focus-ring); font-size: var(--type-control-size); font-weight: 600; line-height: var(--type-support-line); }
+.chandra-about-learn svg { flex-shrink: 0; }
+.chandra-about-learn svg:last-child { margin-left: auto; }
+@media (min-width: 768px) {
+  .chandra-about-heading { padding-left: 24px; }
+  .chandra-about-content { padding: 24px; }
+  .chandra-about-facts > div { grid-template-columns: 112px minmax(0, 1fr); gap: 16px; }
+}

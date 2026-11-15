@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, Clock, MapPin, Moon, Sta
 import { dateFromKey, formatIndiaTime, getCityPanchang } from '../cityPanchang.js'
 import CityPageLinks from '../components/CityPageLinks.jsx'
 import PanchangIcon from '../components/PanchangIcon.jsx'
+import HeaderMenu from '../components/HeaderMenu.jsx'
 import { DAY_MS, indianDateKey } from '../civilDate.js'
 import { formatEventDate, formatEventRange } from '../timeFormatting.js'
 import './CityPanchang.css'
@@ -86,7 +87,7 @@ export default function CityPanchang({ initialData, city }) {
           <span className="text-lg font-bold tracking-wide text-chandra-gold">Chandra</span>
         </a>
         <CityNavigation city={city} position="top" />
-        <a href="#cities" className="flex min-h-[44px] items-center gap-1.5 text-sm text-chandra-focus"><MapPin size={16} aria-hidden="true" /> Change city</a>
+        <div className="city-header-actions"><a href="#cities" aria-label="Change city" className="flex min-h-[44px] items-center gap-1.5 text-sm text-chandra-focus"><MapPin size={16} aria-hidden="true" /><span>Change city</span></a><HeaderMenu /></div>
       </div>
     </header>
     <main id="main-content" className="city-main mx-auto max-w-md px-4 pb-32 pt-20">

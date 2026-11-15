@@ -996,33 +996,10 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Panchang', 
         </div>
         )}
 
-        {/* About */}
-        <div className={`settings-about ${CARD_CLASS}`}>
-          <div className="settings-about-grid">
-          <div className="settings-about-info">
-          <h2 className="mb-3 text-chandra-gold text-card-title">About</h2>
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between">
-              <span className="text-sm text-chandra-text-secondary">App</span>
-              <span className="text-sm text-chandra-text-primary">Chandra</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-chandra-text-secondary">Version</span>
-              <span className="text-sm text-chandra-text-primary">1.0.0 MVP</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-chandra-text-secondary">Data source</span>
-              <span className="text-sm text-chandra-text-primary">NASA Astronomy Engine</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-chandra-text-secondary">Calculations</span>
-              <span className="text-sm text-chandra-text-primary">On-device, no API</span>
-            </div>
-          </div>
-          </div>
+        {/* City links and learning resources; About lives in the header menu. */}
+        <div className={`settings-resources ${CARD_CLASS}`}>
           <div className="settings-cities"><CityPageLinks /></div>
-          </div>
-          <div className="settings-about-links">
+          <div className="settings-resource-links">
             <button type="button" onClick={() => onLearn?.('pancha-anga')} className="flex min-h-[44px] items-center gap-2 text-sm text-chandra-focus">
               <BookOpen size={16} strokeWidth={1.75} aria-hidden="true" className="text-chandra-gold" />Learn Panchang basics
             </button>

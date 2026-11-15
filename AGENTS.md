@@ -325,7 +325,7 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
   - Panchang accordions: Pancha Anga, Daily Timings, Nakshatra Details, Month & Year, Planetary Positions.
   - Calendar: Events in the viewed month.
   - Settings: Calendar System.
-  - Settings > About: general "Learn Panchang basics" entry.
+  - Settings resources and the shared header About modal: general "Learn Panchang basics" entry.
 - The page includes collapsed reference accordions for 15 Tithi names (repeated across both Pakshas), 11 Karanas, 12 Rashis with English zodiac equivalents, 27 Nakshatras, and key monthly observances.
 - Keep `calculation-spec.private.html` private and unmodified; it can be used as source reference, but user-facing Learn content should stay narrative, concise, and app-styled.
 
@@ -352,6 +352,7 @@ are in the design system. Public city/Learn URLs and sitemap entries are retaine
 
 | Date Fixed | Issue | File(s) Changed |
 |---|---|---|
+| 2026-11 | Added the approved vertical-ellipsis header menu to the app, all public city pages and public Learn. About opens a centered, scrollable native dialog with app/version/data-source/calculation details, a close button, keyboard focus loop and focus restoration. Privacy continues to open `/privacy.html` in the same tab. Settings now keeps city links and Learn/Privacy shortcuts without duplicate About facts. Date/Calendar scroll state and public-page rendering are preserved. | `src/components/HeaderMenu.jsx`, `src/components/HeaderMenu.css`, `src/App.jsx`, `src/pages/CityPanchang.jsx`, `src/pages/CityPanchang.css`, `src/pages/PublicLearn.jsx`, `src/pages/Settings.jsx`, `src/pages/Settings.css`, `chandra-design-system.html` |
 | 2026-11 | Replaced Panchang identity icons with the approved shared book-and-swastika mark in app navigation, Calendar date actions, public city/Learn navigation, Panchang loading/error presentation and the retained legacy Day View heading. Shared 24px grid and normalized book bounds match the standard Calendar icon; existing per-context sizes, inherited colors, 1.75 outline and lighter 1.25 symbol are preserved. | `src/components/PanchangIcon.jsx`, `src/App.jsx`, `src/pages/Calendar.jsx`, `src/pages/CityPanchang.jsx`, `src/pages/PublicLearn.jsx`, `src/pages/Panchang.jsx`, `src/pages/Home.jsx`, `chandra-design-system.html` |
 | 2026-11 | Calendar events now open the existing Panchang summary modal in both Grid and List instead of jumping to a list date. Each list row includes a 44px Panchang clock-icon action with a date-specific accessible label, opening the full Panchang for that date directly. Event selections preserve the active tab and list scroll position; compact rows and independent scrolling are retained. | `src/pages/Calendar.jsx`, `src/pages/Calendar.css`, `chandra-design-system.html` |
 | 2026-11 | Month & Year now expands when the right Panchang column is shorter, aligning its bottom with the left column. Sunrise & Sunset continues to fill a shorter left column; Pancha Anga, Daily Timings and Nakshatra Details retain content height. Collapsed cards and mobile cards stay at natural height. | `src/pages/Panchang.css`, `chandra-design-system.html` |

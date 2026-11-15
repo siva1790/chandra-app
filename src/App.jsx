@@ -12,6 +12,7 @@ import OfflineBanner from './components/OfflineBanner'
 import { trackPageView } from './analytics'
 import { indianDateKey } from './civilDate.js'
 import PanchangIcon from './components/PanchangIcon.jsx'
+import HeaderMenu from './components/HeaderMenu.jsx'
 import { Bell, Calendar as CalendarIcon, Settings as SettingsIcon } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -187,6 +188,7 @@ function App() {
             )}
           </button>
         )}
+        <HeaderMenu onLearn={navigateToLearn} />
       </div>
 
       <OfflineBanner sheetOpen={sheetOpen} />

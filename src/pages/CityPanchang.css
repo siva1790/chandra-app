@@ -1,5 +1,6 @@
 /* Scoped to public city pages. The personalised app retains its own layout. */
 .city-page .city-header-content { display: flex; align-items: center; justify-content: space-between; height: 100%; margin: auto; padding-inline: 16px; }
+.city-page .city-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 .city-page .city-top-navigation { display: none; }
 .city-page .city-bottom-navigation { position: fixed; inset: auto 0 0; z-index: 40; display: flex; justify-content: space-around; align-items: center; padding: 12px 8px; border-top: 1px solid var(--border-default); background: var(--bg-primary); }

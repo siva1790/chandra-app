@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { CalendarDays, Settings } from 'lucide-react'
 import PanchangIcon from '../components/PanchangIcon.jsx'
+import HeaderMenu from '../components/HeaderMenu.jsx'
 import Learn from './Learn.jsx'
 import './PublicLearn.css'
 
@@ -27,6 +28,7 @@ export default function PublicLearn() {
       <div className="learn-public-header-content">
         <a href="/" aria-label="Go to Chandra Panchang" className="flex min-h-[44px] items-center gap-2 rounded-control text-lg font-bold text-chandra-gold"><img src="/icons/chandra-mark-topbar-96.png" width="32" height="32" alt="" className="rounded-icon" />Chandra</a>
         <PublicNavigation position="top" />
+        <HeaderMenu />
       </div>
     </header>
     <main id="main-content" className="pt-14 pb-20">
