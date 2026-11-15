@@ -18,11 +18,13 @@ for (const { key, lat, lon, calendarSystem, result } of baseline) {
     const actual = getPanchang(date, location)
     // Old fixtures contain timing strings calculated from truncated inputs.
     // Everything else must retain the exact pre-extraction output.
-    const { dailyTimings, ...unchanged } = actual
+    const { dailyTimings, sunrise, sunset, ...unchanged } = actual
     const expected = { ...result }
     for (const field of ['rahuKaal', 'yamagandam', 'abhijitMuhurta', 'brahmaMuhurta']) delete expected[field]
     assert.deepEqual(JSON.parse(JSON.stringify(unchanged)), expected)
     assert.ok(Object.values(dailyTimings).flat().every(Number.isFinite))
+    assert.ok(sunrise instanceof Date && sunset instanceof Date)
+    assert.ok(sunset > sunrise)
     assert.equal(date.getTime(), originalDate, 'calculation must not mutate the selected date')
   })
 }

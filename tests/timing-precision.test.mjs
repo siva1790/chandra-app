@@ -29,6 +29,8 @@ test('all city pages and full Panchang retain the same raw Rahu boundaries', () 
     for (const key of ['2026-11-01', '2026-09-14']) {
       const page = getCityPanchang(city.slug, key)
       const full = getPanchang(dateFromKey(key), city)
+      assert.equal(full.sunrise.toISOString(), page.sunrise)
+      assert.equal(full.sunset.toISOString(), page.sunset)
       const [start, end] = full.dailyTimings.rahuKaal
       // The public JSON stores ISO timestamps, which have millisecond resolution.
       assert.ok(Math.abs(Date.parse(page.rahuStart) - start) < 1)

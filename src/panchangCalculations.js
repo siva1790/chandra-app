@@ -513,6 +513,7 @@ export function getPanchang(date, location = {}) {
     nakshatra: nakshatraName, nakshatraPada, nakshatraList,
     yoga: yogaName, yogaList, karana: karanaName, karanaList, vishtiPeriods,
     vara: snapshot.vara, varaDeity: snapshot.varaDeity,
+    sunrise: sunriseTime, sunset: sunsetTime,
     dailyTimings,
     samvatsara, masa, ritu, ayana, calendarSystem,
     navagraha,

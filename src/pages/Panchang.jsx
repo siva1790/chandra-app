@@ -4,7 +4,7 @@ import DateStrip from '../components/DateStrip'
 import { getPanchang } from '../panchangCalculations.js'
 import { formatEventTime, formatEventDate, formatEventRange } from '../timeFormatting.js'
 import { EclipseIcon } from '../components/EclipseIcons'
-import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sparkles, AlertTriangle, Timer, ChevronDown, BookOpen, MapPin } from 'lucide-react'
+import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sunset, Sparkles, AlertTriangle, Timer, ChevronDown, BookOpen, MapPin } from 'lucide-react'
 import './Panchang.css'
 
 const RASI_NAMES = [
@@ -23,6 +23,7 @@ const formatLongitude = (lon) => {
 
 const DEFAULT_SECTIONS = {
   panchaAnga: true,
+  sunTimings: true,
   dailyTimings: true,
   nakshatraDetails: true,
   monthYear: true,
@@ -163,7 +164,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
           {/* ── Collapse / Expand All ── */}
           <div className="panchang-tools">
-            <span>All times in local time · Tithi at sunrise</span>
+            <span>All times in IST · Tithi at sunrise</span>
             <button
               onClick={toggleAll}
               className="panchang-toggle-all flex min-h-[44px] items-center px-2 py-1 text-support text-chandra-gold underline underline-offset-2"
@@ -174,6 +175,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
           {/* ── 1. Pancha Anga ── */}
           <div className="panchang-primary-grid">
+          <div className="panchang-main">
           <AccordionSection
             className="panchang-anga"
             title="Pancha Anga — Five Limbs"
@@ -272,6 +274,17 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
               <PanchangRow icon={CalendarIcon}  label="Vara"   value={panchang.vara} sub={panchang.varaDeity} />
             </div>
           </AccordionSection>
+
+          <AccordionSection
+            className="panchang-sun"
+            title="Sunrise & Sunset"
+            isOpen={sections.sunTimings}
+            onToggle={() => toggleSection('sunTimings')}
+          >
+            <PanchangRow icon={Sunrise} label="Sunrise" value={`${formatTime(panchang.sunrise)} IST`} />
+            <PanchangRow icon={Sunset} label="Sunset" value={`${formatTime(panchang.sunset)} IST`} />
+          </AccordionSection>
+          </div>
 
           {/* ── 2. Daily Timings ── */}
           <div className="panchang-side">
