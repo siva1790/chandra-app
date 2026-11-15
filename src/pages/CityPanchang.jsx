@@ -4,6 +4,7 @@ import { dateFromKey, formatIndiaTime, getCityPanchang } from '../cityPanchang.j
 import CityPageLinks from '../components/CityPageLinks.jsx'
 import PanchangIcon from '../components/PanchangIcon.jsx'
 import HeaderMenu from '../components/HeaderMenu.jsx'
+import { ENABLE_SETTINGS } from '../featureFlags.js'
 import { DAY_MS, indianDateKey } from '../civilDate.js'
 import { formatEventDate, formatEventRange } from '../timeFormatting.js'
 import './CityPanchang.css'
@@ -28,7 +29,7 @@ function CityNavigation({ position }) {
   return <nav aria-label="Main navigation" className={`city-navigation city-${position}-navigation`}>
     {[
       ['/', 'Panchang', PanchangIcon], ['/#calendar', 'Calendar', CalendarDays], ['/#settings', 'Settings', Settings],
-    ].map(([href, label, Icon]) => <a key={label} href={href} aria-current={label === 'Panchang' ? 'page' : undefined} className={`city-navigation-link ${label === 'Panchang' ? 'city-navigation-active' : ''}`}>
+    ].filter(([, label]) => ENABLE_SETTINGS || label !== 'Settings').map(([href, label, Icon]) => <a key={label} href={href} aria-current={label === 'Panchang' ? 'page' : undefined} className={`city-navigation-link ${label === 'Panchang' ? 'city-navigation-active' : ''}`}>
       <Icon size={22} strokeWidth={1.75} aria-hidden="true" /><span>{label}</span>
     </a>)}
   </nav>

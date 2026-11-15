@@ -44,7 +44,8 @@ test('built local asset references resolve', async () => {
 test('public entry does not pull the personalised app or Firebase bundle', () => {
   assert.ok(!/\/assets\/main-/.test(html))
   assert.match(html, /\/assets\/entry-city-panchang-/)
-  assert.match(html, /href="\/#settings"/)
+  assert.doesNotMatch(html, /href="\/#settings"/)
+  assert.match(html, /href="\/#calendar"/)
   assert.match(html, /href="\/learn\/panchang-basics#pancha-anga"/)
 })
 

@@ -39,7 +39,7 @@ It shows daily moon phase, Tithi, Panchang, Nakshatra, moonrise/moonset times, a
 chandra-app/
 ├── src/
 │   ├── main.jsx               # React entry point, wraps app in SettingsProvider
-│   ├── App.jsx                # Root component; Panchang homepage; nav (Panchang / Calendar / Settings)
+│   ├── App.jsx                # Root component; Panchang homepage; nav (Panchang / Calendar; Settings hidden)
 │   ├── SettingsContext.jsx    # Global settings state (city, lat, lon, language, calendarSystem)
 │   ├── moonUtils.js           # Core astronomy helpers (tithi, nakshatra, sunrise, festivals)
 │   ├── festivals.js           # Festival rule engine (window-based tithi evaluation, Amanta/Purnimanta masa)
@@ -334,7 +334,7 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 ## Known Issues Fixed (History)
 
 Merged homepage (2026-11): Day View and Panchang are now one Panchang landing page.
-Main navigation is **Panchang / Calendar / Settings**, including public city and Learn
+Main navigation is **Panchang / Calendar** (Settings hidden), including public city and Learn
 pages. Legacy `#panchang`, `#home` and `#today` links open the merged page. My Day and
 Personalize are hidden; saved profiles remain untouched. `PanchangMoon.jsx` places
 the sunrise moon image, moonrise and moonset at the top of Pancha Anga with uniform
@@ -352,6 +352,7 @@ are in the design system. Public city/Learn URLs and sitemap entries are retaine
 
 | Date Fixed | Issue | File(s) Changed |
 |---|---|---|
+| 2026-11 | Hid Settings from app and public city/Learn navigation behind `ENABLE_SETTINGS = false`. Navigation now shows Panchang and Calendar; legacy `#settings` links return to Panchang. Settings/profile code and saved preferences remain intact for future features. City/system selectors and header About/Privacy remain available; GPS detection is retained in the hidden Settings screen. | `src/featureFlags.js`, `src/App.jsx`, `src/pages/CityPanchang.jsx`, `src/pages/PublicLearn.jsx` |
 | 2026-11 | Added the approved vertical-ellipsis header menu to the app, all public city pages and public Learn. About opens a centered, scrollable native dialog with app/version/data-source/calculation details, a close button, keyboard focus loop and focus restoration. Privacy continues to open `/privacy.html` in the same tab. Settings now keeps city links and Learn/Privacy shortcuts without duplicate About facts. Date/Calendar scroll state and public-page rendering are preserved. | `src/components/HeaderMenu.jsx`, `src/components/HeaderMenu.css`, `src/App.jsx`, `src/pages/CityPanchang.jsx`, `src/pages/CityPanchang.css`, `src/pages/PublicLearn.jsx`, `src/pages/Settings.jsx`, `src/pages/Settings.css`, `chandra-design-system.html` |
 | 2026-11 | Replaced Panchang identity icons with the approved shared book-and-swastika mark in app navigation, Calendar date actions, public city/Learn navigation, Panchang loading/error presentation and the retained legacy Day View heading. Shared 24px grid and normalized book bounds match the standard Calendar icon; existing per-context sizes, inherited colors, 1.75 outline and lighter 1.25 symbol are preserved. | `src/components/PanchangIcon.jsx`, `src/App.jsx`, `src/pages/Calendar.jsx`, `src/pages/CityPanchang.jsx`, `src/pages/PublicLearn.jsx`, `src/pages/Panchang.jsx`, `src/pages/Home.jsx`, `chandra-design-system.html` |
 | 2026-11 | Calendar events now open the existing Panchang summary modal in both Grid and List instead of jumping to a list date. Each list row includes a 44px Panchang clock-icon action with a date-specific accessible label, opening the full Panchang for that date directly. Event selections preserve the active tab and list scroll position; compact rows and independent scrolling are retained. | `src/pages/Calendar.jsx`, `src/pages/Calendar.css`, `chandra-design-system.html` |

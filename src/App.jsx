@@ -6,7 +6,7 @@ import Settings from './pages/Settings'
 import Learn from './pages/Learn'
 import { useSettings } from './SettingsContext'
 import { useSubscription } from './SubscriptionContext'
-import { ENABLE_SUBSCRIPTIONS } from './featureFlags'
+import { ENABLE_SETTINGS, ENABLE_SUBSCRIPTIONS } from './featureFlags'
 import SubscribeSheet from './components/SubscribeSheet'
 import OfflineBanner from './components/OfflineBanner'
 import { trackPageView } from './analytics'
@@ -19,7 +19,7 @@ const NAV_ITEMS = [
   { id: 'panchang', label: 'Panchang', Icon: PanchangIcon },
   { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
   { id: 'settings', label: 'Settings', Icon: SettingsIcon },
-]
+].filter(item => ENABLE_SETTINGS || item.id !== 'settings')
 const TAB_NAMES = { calendar: 'Calendar', panchang: 'Panchang', settings: 'Settings', learn: 'Learn' }
 
 // Feature flag — set to true to re-enable the subscription UI
@@ -37,6 +37,12 @@ function App() {
   useEffect(() => {
     const syncFromHash = () => {
       const hash = window.location.hash.replace(/^#/, '')
+      if (hash === 'settings' && !ENABLE_SETTINGS) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search)
+        setScreen('panchang')
+        trackPageView('Panchang')
+        return
+      }
       if (['calendar', 'panchang', 'settings'].includes(hash)) {
         setScreen(hash)
         trackPageView(TAB_NAMES[hash])
