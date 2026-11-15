@@ -12,6 +12,8 @@
 .panchang-preferences-fields fieldset { min-width: 0; }
 .panchang-preferences-fields legend { margin-bottom: 12px; font-size: var(--type-body-size); font-weight: 600; }
 .panchang-city-search { display: flex; align-items: center; gap: 8px; padding-inline: 12px; border: 1px solid var(--border-default); border-radius: var(--radius-control); background: var(--bg-primary); color: var(--text-secondary); }
+.panchang-city-search:focus-within { outline: var(--focus-ring-width) solid var(--focus-ring); outline-offset: var(--focus-ring-offset); }
+.panchang-city-search input:focus-visible { outline: none; }
 .panchang-city-search > svg { flex-shrink: 0; }
 .panchang-city-search input { min-height: 48px; width: 100%; min-width: 0; padding-block: 12px; border-radius: var(--radius-control); color: var(--text-primary); background: var(--bg-primary); }
 .panchang-city-search input::placeholder { color: var(--text-secondary); }
