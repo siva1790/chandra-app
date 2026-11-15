@@ -21,6 +21,13 @@
 .panchang-city-option { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 8px; border-radius: var(--radius-control); font-size: var(--type-support-size); overflow-wrap: anywhere; }
 .panchang-city-option:has(input:checked) { background: var(--bg-elevated); }
 .panchang-city-option small { display: block; color: var(--text-secondary); font-size: var(--type-meta-size); }
+.panchang-use-location { width: 100%; text-align: left; color: var(--gold); }
+.panchang-use-location > svg { flex-shrink: 0; }
+.panchang-use-location:hover { background: var(--bg-elevated); }
+.panchang-use-location:disabled { opacity: .65; cursor: wait; }
+.panchang-selected-extra { grid-column: 1 / -1; }
+.panchang-location-status { margin-top: 12px; color: var(--text-secondary); font-size: var(--type-support-size); line-height: var(--type-support-line); }
+.panchang-location-error { color: var(--error); }
 .panchang-preferences input[type="radio"] { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--gold); }
 .panchang-system-option { display: flex; align-items: start; gap: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border-default); border-radius: var(--radius-control); background: var(--bg-primary); }
 .panchang-system-option:has(input:checked) { border-color: var(--gold); background: var(--bg-elevated); }
