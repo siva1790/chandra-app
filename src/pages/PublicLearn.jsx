@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
-import { CalendarDays, Clock, Settings } from 'lucide-react'
+import { CalendarDays, Settings } from 'lucide-react'
+import PanchangIcon from '../components/PanchangIcon.jsx'
 import Learn from './Learn.jsx'
 import './PublicLearn.css'
 
@@ -9,11 +10,11 @@ const subscribe = callback => {
 }
 const getHash = () => window.location.hash
 const getServerHash = () => ''
-const links = [['/', 'Panchang', Clock], ['/#calendar', 'Calendar', CalendarDays], ['/#settings', 'Settings', Settings]]
+const links = [['/', 'Panchang', PanchangIcon], ['/#calendar', 'Calendar', CalendarDays], ['/#settings', 'Settings', Settings]]
 
 const PublicNavigation = ({ position }) => (
   <nav aria-label="Main navigation" className={`learn-public-navigation learn-public-navigation-${position}`}>
-    {links.map(([href, label, Icon]) => <a key={label} href={href} className="min-h-[44px] rounded-control text-chandra-text-secondary hover:bg-chandra-bg-elevated hover:text-chandra-text-primary"><Icon size={18} aria-hidden="true" /><span>{label}</span></a>)}
+    {links.map(([href, label, Icon]) => <a key={label} href={href} className="min-h-[44px] rounded-control text-chandra-text-secondary hover:bg-chandra-bg-elevated hover:text-chandra-text-primary"><Icon size={18} strokeWidth={1.75} aria-hidden="true" /><span>{label}</span></a>)}
   </nav>
 )
 

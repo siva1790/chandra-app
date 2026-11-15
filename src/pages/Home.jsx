@@ -1,4 +1,5 @@
 import CityPageLinks from '../components/CityPageLinks.jsx'
+import PanchangIcon from '../components/PanchangIcon.jsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as Astronomy from 'astronomy-engine'
 import MoonVisual from '../components/MoonVisual'
@@ -267,7 +268,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
           <Card className="day-view-panel day-view-panchanga">
             <div className="flex items-center justify-between gap-3 mb-3">
               <h2 className="flex items-center gap-1.5 text-chandra-gold text-card-title">
-                <CalendarClock size={13} aria-hidden="true" /> Today's Panchanga
+                <PanchangIcon size={13} aria-hidden="true" /> Today's Panchanga
               </h2>
             </div>
             <div className="day-view-snapshot grid grid-cols-2 gap-2">

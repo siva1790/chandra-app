@@ -8,6 +8,7 @@ import { getFestivalsForDate } from '../festivals.js'
 import { indianDateKey } from '../civilDate.js'
 import PanchangPreferences from '../components/PanchangPreferences.jsx'
 import PanchangMoon from '../components/PanchangMoon.jsx'
+import PanchangIcon from '../components/PanchangIcon.jsx'
 import CityPageLinks from '../components/CityPageLinks.jsx'
 import Button from '../components/ui/Button.jsx'
 import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sunset, Sparkles, AlertTriangle, Timer, ChevronDown, BookOpen } from 'lucide-react'
@@ -439,7 +440,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
         </div>
       ) : (
         <div aria-live="polite" aria-busy={!error || undefined} className="mt-20 text-center text-chandra-text-secondary">
-          <Clock size={36} aria-hidden="true" strokeWidth={1.25} className="mx-auto mb-4 text-chandra-gold/45" />
+          <PanchangIcon size={36} aria-hidden="true" className="mx-auto mb-4 text-chandra-gold/45" />
           <p role="alert">{error ? 'Could not calculate Panchang for this date. Please try again or choose another date.' : 'Calculating Panchang...'}</p>
           {error && <Button className="mt-4" onClick={() => changeDate(new Date(selectedDate))}>Try again</Button>}
         </div>

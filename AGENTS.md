@@ -352,6 +352,7 @@ are in the design system. Public city/Learn URLs and sitemap entries are retaine
 
 | Date Fixed | Issue | File(s) Changed |
 |---|---|---|
+| 2026-11 | Replaced Panchang identity icons with the approved shared book-and-swastika mark in app navigation, Calendar date actions, public city/Learn navigation, Panchang loading/error presentation and the retained legacy Day View heading. Shared 24px grid and normalized book bounds match the standard Calendar icon; existing per-context sizes, inherited colors, 1.75 outline and lighter 1.25 symbol are preserved. | `src/components/PanchangIcon.jsx`, `src/App.jsx`, `src/pages/Calendar.jsx`, `src/pages/CityPanchang.jsx`, `src/pages/PublicLearn.jsx`, `src/pages/Panchang.jsx`, `src/pages/Home.jsx`, `chandra-design-system.html` |
 | 2026-11 | Calendar events now open the existing Panchang summary modal in both Grid and List instead of jumping to a list date. Each list row includes a 44px Panchang clock-icon action with a date-specific accessible label, opening the full Panchang for that date directly. Event selections preserve the active tab and list scroll position; compact rows and independent scrolling are retained. | `src/pages/Calendar.jsx`, `src/pages/Calendar.css`, `chandra-design-system.html` |
 | 2026-11 | Month & Year now expands when the right Panchang column is shorter, aligning its bottom with the left column. Sunrise & Sunset continues to fill a shorter left column; Pancha Anga, Daily Timings and Nakshatra Details retain content height. Collapsed cards and mobile cards stay at natural height. | `src/pages/Panchang.css`, `chandra-design-system.html` |
 | 2026-11 | Fixed stretched Daily Timings and Nakshatra Details cards on tablet/desktop. Both Panchang columns now stack independently with content-height cards; only expanded Sunrise & Sunset grows if needed to fill a shorter left column. Collapsed cards and the mobile reading order retain their natural height. | `src/pages/Panchang.css`, `chandra-design-system.html` |
@@ -463,6 +464,7 @@ are in the design system. Public city/Learn URLs and sitemap entries are retaine
 
 ## Iconography Policy (Established 2026-05)
 
+- **Panchang identity icon:** Use `src/components/PanchangIcon.jsx` (closed book with simple upright swastika) in navigation and Panchang date actions. It matches the standard Calendar icon's 24px grid and visual bounds, inherits currentColor and the caller's existing size, and uses a 1.75 outline with a lighter 1.25 inner symbol. Timing, Yoga and birth-time icons keep their existing meaning.
 - **UI chrome emoji → Lucide React**: All emoji used as UI icons (navigation, labels, status) are replaced with Lucide components at `size={22} strokeWidth={1.75}` for nav, `size={16} strokeWidth={1.75}` for inline row icons.
 - **Moon phase emoji → KEEP**: 🌑🌒🌓🌔🌕🌖🌗🌘 have no Lucide equivalents and carry semantic meaning for Hindu users. Always retain them in content contexts.
 - **Decorative emoji** (e.g. 🌙 in InstallPrompt): add `aria-hidden="true"`.

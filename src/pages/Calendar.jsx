@@ -10,6 +10,7 @@ import DateStrip from '../components/DateStrip'
 import BottomSheet from '../components/ui/BottomSheet'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
+import PanchangIcon from '../components/PanchangIcon.jsx'
 import { Calendar as CalendarIcon, Moon, Star, Clock, BookOpen, Sparkles, MapPin, List } from 'lucide-react'
 import './Calendar.css'
 
@@ -486,7 +487,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                     aria-label={`View full Panchang for ${day.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`}
                     title="View full Panchang"
                   >
-                    <Clock size={16} strokeWidth={1.75} aria-hidden="true" />
+                    <PanchangIcon size={16} strokeWidth={1.75} aria-hidden="true" />
                   </button>
                 </div>
               </div>
