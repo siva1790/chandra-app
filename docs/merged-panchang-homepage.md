@@ -5,6 +5,10 @@ date navigation, a conditional Day's highlight, the main Panchang grid through
 Month & Year, Cosmos, Planetary Positions, city links and the learning-guide link. Legacy Day View remains in
 source but is not mounted. Existing birth profiles remain stored.
 
+Day's highlight shows each event name and description upfront, including any
+eclipse timings or observance guidance. There is no details dropdown; monthly
+observance guidance is not repeated when the festival list already describes it.
+
 The city/calendar control expands an editor above the date bar. It shows popular
 public cities initially and searches every supported Indian city by name/state.
 City and calendar-system choices remain drafts until Apply changes is pressed.

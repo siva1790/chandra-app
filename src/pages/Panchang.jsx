@@ -115,8 +115,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
         <div className="flex flex-col gap-4">
           {highlights.length > 0 && <section className="panchang-highlight" aria-labelledby="panchang-highlight-heading">
             <h2 id="panchang-highlight-heading"><Sparkles size={16} aria-hidden="true" />Day's highlight</h2>
-            <p className="panchang-highlight-names">{highlights.join(' · ')}</p>
-            <details className="panchang-highlight-details"><summary>View observance details<ChevronDown size={16} aria-hidden="true" /></summary>
+            <div className="panchang-highlight-content">
               {festivals.map(festival => <div key={festival.name} className="panchang-festival-description"><h3>{festival.name}</h3><p>{festival.description}</p></div>)}
 
           {/* Eclipse and observance details share the day's highlight. */}
@@ -145,19 +144,19 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           )}
 
           {/* Traditional observance guidance for the selected date. */}
-          {panchang.isPurnima && (
+          {panchang.isPurnima && !festivals.some(festival => /purnima/i.test(festival.name)) && (
             <div className="rounded-card border border-chandra-gold/35 bg-chandra-gold/15 p-4 text-center">
               <p className="font-semibold text-chandra-gold"><span role="img" aria-label="Full moon">🌕</span> Purnima — Full Moon Day</p>
               <p className="mt-1 text-support text-chandra-text-secondary">Auspicious for prayer, charity, fasting and full-moon observance</p>
             </div>
           )}
-          {panchang.isAmavasya && (
+          {panchang.isAmavasya && !festivals.some(festival => /amavasya/i.test(festival.name)) && (
             <div className="rounded-card border border-chandra-focus/35 bg-chandra-indigo-cta/20 p-4 text-center">
               <p className="font-semibold text-chandra-focus"><span role="img" aria-label="New moon">🌑</span> Amavasya — New Moon Day</p>
               <p className="mt-1 text-support text-chandra-text-secondary">Sacred for ancestral offerings (Pitru Tarpan)</p>
             </div>
           )}
-          {panchang.isEkadashi && (
+          {panchang.isEkadashi && !festivals.some(festival => /ekadashi/i.test(festival.name)) && (
             <div className="rounded-card border border-chandra-warning/30 bg-chandra-warning/15 p-4 text-center">
               <p className="font-semibold text-chandra-warning-text"><span role="img" aria-label="Folded hands">🙏</span> Ekadashi — Fasting Day</p>
               <p className="mt-1 text-support text-chandra-text-secondary">Dedicated to Lord Vishnu — avoid grains today</p>
@@ -174,7 +173,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
               <p className="mt-1 text-support leading-relaxed text-chandra-text-secondary">Avoid starting new auspicious work during this Karana. Prayer, fasting and charity observances still apply.</p>
             </div>
           )}
-            </details>
+            </div>
           </section>}
 
           {/* ── Collapse / Expand All ── */}

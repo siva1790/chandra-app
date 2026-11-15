@@ -350,6 +350,7 @@ are in the design system. Public city/Learn URLs and sitemap entries are retaine
 
 | Date Fixed | Issue | File(s) Changed |
 |---|---|---|
+| 2026-11 | Day's highlight now shows event descriptions, eclipse timings and observance guidance upfront. Removed the details dropdown and duplicate event headings/monthly observance guidance. | `src/pages/Panchang.jsx`, `src/pages/Panchang.css` |
 | 2026-11 | Moved Cosmos below the main Panchang grid (ending with Month & Year) and immediately above Planetary Positions on every screen size. | `src/pages/Panchang.jsx` |
 | 2026-11 | Fixed the Panchang city-search focus ring outlining only the inner input. The shared blue focus ring now follows the entire search control, including its icon, through focus-within; the redundant inner outline is suppressed only for this field. | `src/components/PanchangPreferences.css` |
 | 2026-11 | Merged Day View and Panchang into the Panchang landing page with three-item navigation, larger evenly spaced Cosmos, coordinated highlights, all-expanded accordions, matched two-column card heights and an inline city/calendar editor. Apply saves shared settings atomically; Cancel/Escape discards drafts. Profiles and astronomy rules are preserved. | `src/App.jsx`, `src/pages/Panchang.jsx`, `src/pages/Panchang.css`, `src/components/PanchangCosmos.jsx`, `src/components/PanchangPreferences.jsx`, `src/SettingsContext.jsx` |

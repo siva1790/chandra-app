@@ -58,7 +58,9 @@ try {
   await root.getByRole('button', { name: 'Expand all', exact: true }).click()
 
   await pick('24 November 2026')
-  assert.match(await root.locator('.panchang-highlight-names').textContent(), /Dev Diwali/)
+  assert.match(await root.locator('.panchang-highlight').textContent(), /Dev Diwali/)
+  assert.equal(await root.locator('.panchang-festival-description p').first().isVisible(), true, 'Event description must be visible without another tap')
+  assert.equal(await root.locator('.panchang-highlight summary').count(), 0, 'Highlights should not have a details dropdown')
   assert.equal(await root.getByRole('heading', { name: 'Cosmos', exact: true }).count(), 1)
   const priorSunrise = await root.locator('.panchang-sun .font-semibold').first().textContent()
   await root.locator('.panchang-context-picker').click()

@@ -6,10 +6,7 @@
 .panchang-page [role="dialog"][aria-hidden="true"] { display: none; }
 .panchang-highlight { padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-emphasis); border-radius: var(--radius-card); }
 .panchang-highlight > h2 { display: flex; align-items: center; gap: 8px; color: var(--gold); font-size: var(--type-card-size); font-weight: 600; }
-.panchang-highlight-names { margin-top: 8px; color: var(--text-primary); font-size: var(--type-body-size); font-weight: 600; }
-.panchang-highlight-details > summary { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 4px; border-radius: var(--radius-control); color: var(--focus-ring); font-size: var(--type-support-size); cursor: pointer; }
-.panchang-highlight-details[open] > summary > svg { transform: rotate(180deg); }
-.panchang-highlight-details > div { margin-top: 12px; }
+.panchang-highlight-content > div { margin-top: 12px; }
 .panchang-festival-description h3 { font-size: var(--type-body-size); font-weight: 600; }
 .panchang-festival-description p { margin-top: 4px; font-size: var(--type-support-size); line-height: 1.75; color: var(--text-secondary); }
 .panchang-cosmos { padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-card); }
