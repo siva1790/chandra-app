@@ -350,6 +350,7 @@ are in the design system. Public city/Learn URLs and sitemap entries are retaine
 
 | Date Fixed | Issue | File(s) Changed |
 |---|---|---|
+| 2026-11 | Added Calendar Grid/List switching with compact daily sunrise Pancha Anga and Masa rows. Selecting List starts at today for the current month and the 1st for other months. Dates and Events scroll independently; mobile tabs retain their scroll positions, and selecting an event in List jumps to its date. Short windows and enlarged text fall back to natural page scrolling. Build, shared-calculation regressions and responsive browser checks passed, including month-end positioning. Approved for production deployment. | `src/pages/Calendar.jsx`, `src/pages/Calendar.css`, `src/App.jsx` |
 | 2026-11 | Day's highlight now shows event descriptions, eclipse timings and observance guidance upfront. Removed the details dropdown and duplicate event headings/monthly observance guidance. | `src/pages/Panchang.jsx`, `src/pages/Panchang.css` |
 | 2026-11 | Moved Cosmos below the main Panchang grid (ending with Month & Year) and immediately above Planetary Positions on every screen size. | `src/pages/Panchang.jsx` |
 | 2026-11 | Fixed the Panchang city-search focus ring outlining only the inner input. The shared blue focus ring now follows the entire search control, including its icon, through focus-within; the redundant inner outline is suppressed only for this field. | `src/components/PanchangPreferences.css` |

@@ -133,7 +133,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen responsive-app-shell">
+    <div className={`min-h-screen responsive-app-shell ${screen === 'calendar' ? 'calendar-screen' : ''}`}>
       <a href="#main-content" className="skip-link">Skip to content</a>
 
       {/* ── Persistent Top Bar ── */}
@@ -197,7 +197,7 @@ function App() {
         aria-hidden={sheetOpen || undefined}
         {...(sheetOpen ? { inert: '' } : {})}
       >
-        <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} onLearn={navigateToLearn} /></div>
+        <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar active={screen === 'calendar'} selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'settings' ? 'block' : 'none' }}>
           <Settings
