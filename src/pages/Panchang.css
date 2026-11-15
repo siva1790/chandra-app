@@ -70,8 +70,9 @@
   .panchang-primary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
   .panchang-main,.panchang-side { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
   .panchang-main > .panchang-panel,.panchang-side > .panchang-panel { flex: 0 0 auto; }
-  /* Only the expanded solar card absorbs a shorter left column's spare height. */
+  /* The last expanded card absorbs spare height in its own column. */
   .panchang-main > .panchang-sun:has(> .panchang-panel-content) { flex-grow: 1; }
+  .panchang-side > .panchang-month:has(> .panchang-panel-content) { flex-grow: 1; }
   .panchang-planet-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-xl); }
   .panchang-page .panchang-planet { flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: var(--space-sm); padding-block: 18px; border-top: 1px solid var(--border-default); border-bottom: 0; }
   .panchang-planet > div { flex: initial; }
