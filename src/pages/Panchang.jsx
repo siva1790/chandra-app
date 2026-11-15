@@ -7,7 +7,7 @@ import { EclipseIcon } from '../components/EclipseIcons'
 import { getFestivalsForDate } from '../festivals.js'
 import { indianDateKey } from '../civilDate.js'
 import PanchangPreferences from '../components/PanchangPreferences.jsx'
-import PanchangCosmos from '../components/PanchangCosmos.jsx'
+import PanchangMoon from '../components/PanchangMoon.jsx'
 import CityPageLinks from '../components/CityPageLinks.jsx'
 import Button from '../components/ui/Button.jsx'
 import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sunset, Sparkles, AlertTriangle, Timer, ChevronDown, BookOpen } from 'lucide-react'
@@ -198,6 +198,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
             onLearn={() => onLearn?.('pancha-anga')}
             learnLabel="Learn about Pancha Anga"
           >
+            <PanchangMoon date={selectedDate} sunrise={panchang.sunrise} lat={lat} lon={lon} />
             <div className="flex flex-col gap-3">
               <div className="border-b border-white/10 py-2">
                 <div className="flex items-center justify-between">
@@ -386,7 +387,6 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           {/* ── 5. Planetary Positions ── */}
           </div>
           </div>
-          <PanchangCosmos date={selectedDate} sunrise={panchang.sunrise} lat={lat} lon={lon} isToday={isToday} />
           <AccordionSection
             className="panchang-planets"
             title="Planetary Positions — Navagraha"

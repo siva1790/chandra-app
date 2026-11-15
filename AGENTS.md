@@ -50,7 +50,7 @@ chandra-app/
 │   ├── pages/
 │   │   ├── Home.jsx           # Retained legacy Day View; no longer mounted (personalization hidden)
 │   │   ├── Calendar.jsx       # Monthly calendar with tithi + festivals
-│   │   ├── Panchang.jsx       # Merged homepage: highlights, Cosmos, full Panchang, city links
+│   │   ├── Panchang.jsx       # Merged homepage: highlights, moon/timings within Pancha Anga, full Panchang, city links
 │   │   ├── Learn.jsx          # Panchang terminology learning guide; section-level BookOpen entry points and #learn/<section> deep links
 │   │   └── Settings.jsx       # City picker, language, calendar system, notifications; default notif prefs: { festivals:true, eclipses:true, moonrise:true, ekadashi:true }; passes calendarSystem to initDevice(); syncs moonrise + ekadashi + notifPrefsVersion:2 on toggle
 │   └── components/
@@ -336,8 +336,10 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 Merged homepage (2026-11): Day View and Panchang are now one Panchang landing page.
 Main navigation is **Panchang / Calendar / Settings**, including public city and Learn
 pages. Legacy `#panchang`, `#home` and `#today` links open the merged page. My Day and
-Personalize are hidden; saved profiles remain untouched. Cosmos reuses sunrise phase
-and the shared moon-event helper, with larger moons and uniform column gaps.
+Personalize are hidden; saved profiles remain untouched. `PanchangMoon.jsx` places
+the sunrise moon image, moonrise and moonset at the top of Pancha Anga with uniform
+column gaps. The separate Cosmos card, visible phase text and illumination are removed;
+the shared moon-event helper and dated IST presentation are preserved.
 
 `PanchangPreferences.jsx` changes city and calendar system on-page. Apply uses
 `updateSettings({ city, lat, lon, calendarSystem, usingGps })` as one atomic update;
@@ -350,6 +352,7 @@ are in the design system. Public city/Learn URLs and sitemap entries are retaine
 
 | Date Fixed | Issue | File(s) Changed |
 |---|---|---|
+| 2026-11 | Integrated the moon image, moonrise and moonset at the top of Pancha Anga before the five limbs. Removed the separate Cosmos card, phase text and illumination. Uniform compact spacing, existing moon rendering, IST event dates, absent-rise handling, following-moonset pairing and accordion controls are preserved. Approved for production deployment. | `src/components/PanchangMoon.jsx`, `src/pages/Panchang.jsx`, `src/pages/Panchang.css`, `chandra-design-system.html` |
 | 2026-11 | Added Calendar Grid/List switching with compact daily sunrise Pancha Anga and Masa rows. Selecting List starts at today for the current month and the 1st for other months. Dates and Events scroll independently; mobile tabs retain their scroll positions, and selecting an event in List jumps to its date. Short windows and enlarged text fall back to natural page scrolling. Build, shared-calculation regressions and responsive browser checks passed, including month-end positioning. Approved for production deployment. | `src/pages/Calendar.jsx`, `src/pages/Calendar.css`, `src/App.jsx` |
 | 2026-11 | Day's highlight now shows event descriptions, eclipse timings and observance guidance upfront. Removed the details dropdown and duplicate event headings/monthly observance guidance. | `src/pages/Panchang.jsx`, `src/pages/Panchang.css` |
 | 2026-11 | Moved Cosmos below the main Panchang grid (ending with Month & Year) and immediately above Planetary Positions on every screen size. | `src/pages/Panchang.jsx` |
