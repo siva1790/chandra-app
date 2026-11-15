@@ -1,0 +1,40 @@
+.panchang-preferences { margin-bottom: 16px; }
+.panchang-context-picker { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; margin: 0 auto; padding: 8px 12px; border-radius: var(--radius-control); color: var(--gold); font-size: var(--type-support-size); text-align: left; }
+.panchang-context-picker:hover,.panchang-context-picker[aria-expanded="true"] { background: var(--bg-elevated); }
+.panchang-context-picker > svg { flex-shrink: 0; }
+.panchang-context-picker[aria-expanded="true"] > svg:last-child { transform: rotate(180deg); }
+.panchang-preferences-editor { margin-top: 14px; padding: 16px; border: 1px solid var(--border-emphasis); border-radius: var(--radius-card); background: var(--bg-surface); }
+.panchang-preferences-heading { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.panchang-preferences-heading h2 { color: var(--gold); font-size: var(--type-card-size); font-weight: 600; line-height: var(--type-card-line); }
+.panchang-preferences-heading p { margin-top: 6px; color: var(--text-secondary); font-size: var(--type-support-size); }
+.panchang-preferences-heading > button { flex-shrink: 0; }
+.panchang-preferences-fields { display: grid; gap: 24px; }
+.panchang-preferences-fields fieldset { min-width: 0; }
+.panchang-preferences-fields legend { margin-bottom: 12px; font-size: var(--type-body-size); font-weight: 600; }
+.panchang-city-search { display: flex; align-items: center; gap: 8px; padding-inline: 12px; border: 1px solid var(--border-default); border-radius: var(--radius-control); background: var(--bg-primary); color: var(--text-secondary); }
+.panchang-city-search > svg { flex-shrink: 0; }
+.panchang-city-search input { min-height: 48px; width: 100%; min-width: 0; padding-block: 12px; border-radius: var(--radius-control); color: var(--text-primary); background: var(--bg-primary); }
+.panchang-city-search input::placeholder { color: var(--text-secondary); }
+.panchang-city-options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px 8px; margin-top: 12px; }
+.panchang-city-option { display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 8px; border-radius: var(--radius-control); font-size: var(--type-support-size); overflow-wrap: anywhere; }
+.panchang-city-option:has(input:checked) { background: var(--bg-elevated); }
+.panchang-city-option small { display: block; color: var(--text-secondary); font-size: var(--type-meta-size); }
+.panchang-preferences input[type="radio"] { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--gold); }
+.panchang-system-option { display: flex; align-items: start; gap: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border-default); border-radius: var(--radius-control); background: var(--bg-primary); }
+.panchang-system-option:has(input:checked) { border-color: var(--gold); background: var(--bg-elevated); }
+.panchang-system-option input { margin-top: 3px; }
+.panchang-system-option strong { display: block; font-size: var(--type-body-size); font-weight: 600; }
+.panchang-system-option small { display: block; margin-top: 8px; font-size: var(--type-support-size); color: var(--text-secondary); }
+.panchang-system-guide summary { display: flex; align-items: center; gap: 8px; min-height: 44px; border-radius: var(--radius-control); color: var(--focus-ring); font-size: var(--type-support-size); cursor: pointer; }
+.panchang-system-guide summary > svg { flex-shrink: 0; }
+.panchang-system-guide p { margin-top: 8px; color: var(--text-secondary); font-size: var(--type-support-size); line-height: 1.75; }
+.panchang-preferences-actions { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-default); }
+.panchang-preferences-actions p { color: var(--text-secondary); font-size: var(--type-support-size); }
+.panchang-preferences-actions > div { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; width: 100%; }
+.panchang-preferences-feedback:not(:empty),.panchang-preferences-empty { margin-top: 12px; font-size: var(--type-support-size); color: var(--text-secondary); }
+@media (min-width:768px) {
+  .panchang-context-picker { margin: 0 0 0 auto; }
+  .panchang-preferences-editor { padding: 20px; }
+  .panchang-preferences-fields { grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); }
+  .panchang-preferences-actions > div { width: auto; }
+}

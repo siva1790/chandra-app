@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
 import './index.css'
-import Home from './pages/Home'
 import Calendar from './pages/Calendar'
 import Panchang from './pages/Panchang'
 import Settings from './pages/Settings'
@@ -11,28 +10,27 @@ import { ENABLE_SUBSCRIPTIONS } from './featureFlags'
 import SubscribeSheet from './components/SubscribeSheet'
 import OfflineBanner from './components/OfflineBanner'
 import { trackPageView } from './analytics'
-import { Bell, Moon, Calendar as CalendarIcon, Clock, Settings as SettingsIcon } from 'lucide-react'
+import { indianDateKey } from './civilDate.js'
+import { Bell, Calendar as CalendarIcon, Clock, Settings as SettingsIcon } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { id: 'home', label: 'Day View', Icon: Moon },
-  { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
   { id: 'panchang', label: 'Panchang', Icon: Clock },
+  { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
   { id: 'settings', label: 'Settings', Icon: SettingsIcon },
 ]
+const TAB_NAMES = { calendar: 'Calendar', panchang: 'Panchang', settings: 'Settings', learn: 'Learn' }
 
 // Feature flag — set to true to re-enable the subscription UI
 function App() {
-  const [screen, setScreen] = useState('home')
+  const [screen, setScreen] = useState('panchang')
   const [learnTarget, setLearnTarget] = useState(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [globalDate, setGlobalDate] = useState(new Date())
   const [learnReturnContext, setLearnReturnContext] = useState(null)
-  const [settingsReturnContext, setSettingsReturnContext] = useState(null)
+  const todayRef = useRef(indianDateKey())
   const bellButtonRef = useRef(null)
   const { settings } = useSettings()
   const { subscription } = useSubscription()
-
-  const TAB_NAMES = { home: 'Day View', calendar: 'Calendar', panchang: 'Panchang', settings: 'Settings', learn: 'Learn' }
 
   useEffect(() => {
     const syncFromHash = () => {
@@ -42,7 +40,12 @@ function App() {
         trackPageView(TAB_NAMES[hash])
         return
       }
-      if (!hash.startsWith('learn')) return
+      if (!hash.startsWith('learn')) {
+        if (!['', 'home', 'today'].includes(hash)) return
+        setScreen('panchang')
+        trackPageView('Panchang')
+        return
+      }
       const [, target] = hash.split('/')
       setLearnTarget(target || null)
       setScreen('learn')
@@ -54,33 +57,41 @@ function App() {
     return () => window.removeEventListener('hashchange', syncFromHash)
   }, [])
 
-  // Track initial page view when no direct Learn hash is present.
+  // Follow an open Today's page across midnight; deliberately selected dates stay put.
   useEffect(() => {
-    if (!/^#(learn|calendar|panchang|settings)/.test(window.location.hash)) trackPageView('Day View')
+    const refreshToday = () => {
+      const today = indianDateKey()
+      if (today === todayRef.current) return
+      const previousToday = todayRef.current
+      todayRef.current = today
+      setGlobalDate(previous => indianDateKey(previous) === previousToday ? new Date() : previous)
+    }
+    const interval = window.setInterval(refreshToday, 60000)
+    window.addEventListener('focus', refreshToday)
+    document.addEventListener('visibilitychange', refreshToday)
+    return () => {
+      window.clearInterval(interval)
+      window.removeEventListener('focus', refreshToday)
+      document.removeEventListener('visibilitychange', refreshToday)
+    }
   }, [])
 
   // Direct tab tap — preserves current globalDate (no reset)
   const navigate = (tab) => {
     setScreen(tab)
     if (tab !== 'learn') setLearnReturnContext(null)
-    if (tab !== 'settings') setSettingsReturnContext(null)
-    if (tab !== 'learn' && /^#(learn|calendar|panchang|settings)/.test(window.location.hash)) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    if (tab !== 'learn') {
+      const hash = tab === 'panchang' ? '' : `#${tab}`
+      if (window.location.hash !== hash) window.history.pushState(null, '', window.location.pathname + window.location.search + hash)
     }
     window.scrollTo(0, 0)
     trackPageView(TAB_NAMES[tab])
   }
 
-  // Called from Home highlight strip or Calendar day tap — jumps to a specific date in Panchang
+  // Calendar opens the same homepage at the selected date.
   const navigateToPanchang = (date) => {
     setGlobalDate(new Date(date))
-    setScreen('panchang')
-    setLearnReturnContext(null)
-    setSettingsReturnContext(null)
-    if (window.location.hash.startsWith('#learn')) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search)
-    }
-    window.scrollTo(0, 0)
+    navigate('panchang')
   }
 
   const navigateToLearn = (target) => {
@@ -101,43 +112,14 @@ function App() {
 
   const navigateBackFromLearn = () => {
     const context = learnReturnContext
-    const returnScreen = context?.screen || 'home'
+    const returnScreen = context?.screen || 'panchang'
 
     setScreen(returnScreen)
     setLearnTarget(null)
     setLearnReturnContext(null)
     if (window.location.hash.startsWith('#learn')) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search)
-    }
-
-    window.requestAnimationFrame(() => {
-      window.scrollTo(0, context?.scrollY ?? 0)
-      if (context?.focusElement?.isConnected) {
-        context.focusElement.focus({ preventScroll: true })
-      }
-    })
-
-    trackPageView(TAB_NAMES[returnScreen])
-  }
-
-  const navigateToSettingsFromPersonalize = () => {
-    setSettingsReturnContext({
-      screen,
-      scrollY: window.scrollY,
-      focusElement: document.activeElement instanceof HTMLElement ? document.activeElement : null,
-      reason: 'personalize',
-    })
-    navigate('settings')
-  }
-
-  const navigateBackFromSettings = () => {
-    const context = settingsReturnContext
-    const returnScreen = context?.screen || 'home'
-
-    setScreen(returnScreen)
-    setSettingsReturnContext(null)
-    if (window.location.hash.startsWith('#learn')) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+      const hash = returnScreen === 'panchang' ? '' : `#${returnScreen}`
+      window.history.replaceState(null, '', window.location.pathname + window.location.search + hash)
     }
 
     window.requestAnimationFrame(() => {
@@ -151,7 +133,7 @@ function App() {
   }
 
   return (
-    <div className={`min-h-screen${['home', 'calendar', 'panchang', 'settings', 'learn'].includes(screen) ? ' responsive-app-shell' : ''}`}>
+    <div className="min-h-screen responsive-app-shell">
       <a href="#main-content" className="skip-link">Skip to content</a>
 
       {/* ── Persistent Top Bar ── */}
@@ -163,8 +145,8 @@ function App() {
 
         {/* Logo — left */}
         <button
-          onClick={() => navigate('home')}
-          aria-label="Go to Day View"
+          onClick={() => navigate('panchang')}
+          aria-label="Go to Panchang home"
           className="flex items-center gap-2 rounded-control transition-opacity active:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-chandra-focus"
         >
           <img
@@ -215,16 +197,12 @@ function App() {
         aria-hidden={sheetOpen || undefined}
         {...(sheetOpen ? { inert: '' } : {})}
       >
-        <div style={{ display: screen === 'home'     ? 'block' : 'none' }}><Home location={settings} date={globalDate} onDateChange={setGlobalDate} onNavigateToPanchang={navigateToPanchang} onNavigateToSettings={navigateToSettingsFromPersonalize} /></div>
         <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'settings' ? 'block' : 'none' }}>
           <Settings
             onOpenSubscribe={ENABLE_SUBSCRIPTIONS ? () => setSheetOpen(true) : undefined}
             onLearn={navigateToLearn}
-            onBack={settingsReturnContext ? navigateBackFromSettings : undefined}
-            returnLabel={TAB_NAMES[settingsReturnContext?.screen] || 'Day View'}
-            entryReason={settingsReturnContext?.reason}
           />
         </div>
         <div style={{ display: screen === 'learn'    ? 'block' : 'none' }}>
@@ -232,7 +210,7 @@ function App() {
             targetSection={learnTarget}
             active={screen === 'learn'}
             onBack={navigateBackFromLearn}
-            returnLabel={TAB_NAMES[learnReturnContext?.screen] || 'Day View'}
+            returnLabel={TAB_NAMES[learnReturnContext?.screen] || 'Panchang'}
           />
         </div>
       </main>

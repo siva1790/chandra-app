@@ -1,10 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DateStrip from '../components/DateStrip'
 import { getPanchang } from '../panchangCalculations.js'
 import { formatEventTime, formatEventDate, formatEventRange } from '../timeFormatting.js'
 import { EclipseIcon } from '../components/EclipseIcons'
-import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sunset, Sparkles, AlertTriangle, Timer, ChevronDown, BookOpen, MapPin } from 'lucide-react'
+import { getFestivalsForDate } from '../festivals.js'
+import { indianDateKey } from '../civilDate.js'
+import PanchangPreferences from '../components/PanchangPreferences.jsx'
+import PanchangCosmos from '../components/PanchangCosmos.jsx'
+import CityPageLinks from '../components/CityPageLinks.jsx'
+import Button from '../components/ui/Button.jsx'
+import { Clock, Moon, Star, Sun, Calendar as CalendarIcon, Sunrise, Sunset, Sparkles, AlertTriangle, Timer, ChevronDown, BookOpen } from 'lucide-react'
 import './Panchang.css'
 
 const RASI_NAMES = [
@@ -33,42 +39,50 @@ const DEFAULT_SECTIONS = {
 // ── Component ─────────────────────────────────────────────────────
 
 const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
-  const [panchang, setPanchang] = useState(null)
-  const [selectedDate, setSelectedDate] = useState(initialDate ? new Date(initialDate) : new Date())
+  const [fallbackDate, setFallbackDate] = useState(() => new Date())
+  const selectedDate = initialDate || fallbackDate
   const [sections, setSections] = useState(() => {
     try {
       const saved = localStorage.getItem('chandra-panchang-accordion')
-      if (saved) return { ...DEFAULT_SECTIONS, ...JSON.parse(saved) }
-    } catch (_) {}
+      const parsed = saved && JSON.parse(saved)
+      if (parsed?.version === 2) return { ...DEFAULT_SECTIONS, ...parsed.sections }
+    } catch {
+      return { ...DEFAULT_SECTIONS }
+    }
     return { ...DEFAULT_SECTIONS }
   })
 
-  // Sync from global date — loop guard prevents circular updates
-  useEffect(() => {
-    if (!initialDate) return
-    const incoming = new Date(initialDate)
-    if (incoming.toDateString() !== selectedDate.toDateString()) {
-      setSelectedDate(incoming)
+  const lat = location?.lat ?? 12.9716
+  const lon = location?.lon ?? 77.5946
+  const calendarSystem = location?.calendarSystem || 'Amavasyant'
+  const { panchang, festivals, error } = useMemo(() => {
+    try {
+      const options = { lat, lon, calendarSystem }
+      return { panchang: getPanchang(selectedDate, options), festivals: getFestivalsForDate(selectedDate, options), error: null }
+    } catch (error) {
+      return { panchang: null, festivals: [], error }
     }
-  }, [initialDate])
-
-  useEffect(() => {
-    calculatePanchang(selectedDate)
-  }, [selectedDate, location])
+  }, [selectedDate, lat, lon, calendarSystem])
+  const isToday = indianDateKey(selectedDate) === indianDateKey()
+  const highlights = [...festivals.map(festival => festival.name)]
+  if (panchang?.eclipse) highlights.unshift(panchang.eclipse.hinduName)
+  for (const [active, name] of [[panchang?.isPurnima, 'Purnima'], [panchang?.isAmavasya, 'Amavasya'], [panchang?.isEkadashi, 'Ekadashi'], [panchang?.isVishti, 'Bhadra / Vishti Karana']]) {
+    if (active && !highlights.some(highlight => highlight.toLowerCase().includes(name.toLowerCase()))) highlights.push(name)
+  }
 
   const formatTime = formatEventTime
   const formatShortDate = formatEventDate
   const formatWindow = formatEventRange
 
   const changeDate = (d) => {
-    setSelectedDate(d)
+    if (!initialDate) setFallbackDate(d)
     onDateChange?.(d)
   }
 
   const toggleSection = (key) => {
     setSections(prev => {
       const next = { ...prev, [key]: !prev[key] }
-      localStorage.setItem('chandra-panchang-accordion', JSON.stringify(next))
+      localStorage.setItem('chandra-panchang-accordion', JSON.stringify({ version: 2, sections: next }))
       return next
     })
   }
@@ -77,36 +91,35 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
   const toggleAll = () => {
     const next = Object.fromEntries(Object.keys(sections).map(k => [k, !allExpanded]))
     setSections(next)
-    localStorage.setItem('chandra-panchang-accordion', JSON.stringify(next))
-  }
-
-  const calculatePanchang = (date) => {
-    try {
-      setPanchang(getPanchang(date, location))
-    } catch (err) {
-      console.error('Panchang calculation error:', err)
-    }
+    localStorage.setItem('chandra-panchang-accordion', JSON.stringify({ version: 2, sections: next }))
   }
 
   return (
     <div className="panchang-page min-h-screen px-4 py-8 pb-28 max-w-md mx-auto">
 
       {/* Header */}
-      <div className="panchang-heading text-center mb-6">
+      <header className="panchang-home-header">
+      <div className="panchang-heading text-center">
         <h1 className="mb-1 flex items-center justify-center gap-2 text-chandra-gold text-page-title">
           Panchang
         </h1>
-        <p className="text-sm text-chandra-text-secondary">Daily Hindu Almanac</p>
-        <p className="panchang-context"><MapPin size={14} strokeWidth={1.75} aria-hidden="true" /><span>{location?.city || 'Bengaluru'}</span><span aria-hidden="true">·</span><span>{location?.calendarSystem || 'Amavasyant'}</span></p>
+        <p className="text-sm text-chandra-text-secondary">Your daily Hindu almanac</p>
       </div>
+      <PanchangPreferences />
+      </header>
 
       {/* Date Navigator */}
       <DateStrip date={selectedDate} onDateChange={changeDate} mode="day" responsive />
 
       {panchang ? (
         <div className="flex flex-col gap-4">
+          {highlights.length > 0 && <section className="panchang-highlight" aria-labelledby="panchang-highlight-heading">
+            <h2 id="panchang-highlight-heading"><Sparkles size={16} aria-hidden="true" />Day's highlight</h2>
+            <p className="panchang-highlight-names">{highlights.join(' · ')}</p>
+            <details className="panchang-highlight-details"><summary>View observance details<ChevronDown size={16} aria-hidden="true" /></summary>
+              {festivals.map(festival => <div key={festival.name} className="panchang-festival-description"><h3>{festival.name}</h3><p>{festival.description}</p></div>)}
 
-          {/* ── Eclipse Banner (always visible, outside accordions) ── */}
+          {/* Eclipse and observance details share the day's highlight. */}
           {panchang.eclipse && (
             <div className="rounded-card border border-chandra-focus/35 bg-chandra-indigo-cta/20 p-5">
               <div className="flex items-center gap-4">
@@ -131,7 +144,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
             </div>
           )}
 
-          {/* ── Special Day Banners (always visible) ── */}
+          {/* Traditional observance guidance for the selected date. */}
           {panchang.isPurnima && (
             <div className="rounded-card border border-chandra-gold/35 bg-chandra-gold/15 p-4 text-center">
               <p className="font-semibold text-chandra-gold"><span role="img" aria-label="Full moon">🌕</span> Purnima — Full Moon Day</p>
@@ -161,15 +174,19 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
               <p className="mt-1 text-support leading-relaxed text-chandra-text-secondary">Avoid starting new auspicious work during this Karana. Prayer, fasting and charity observances still apply.</p>
             </div>
           )}
+            </details>
+          </section>}
+
+          <PanchangCosmos date={selectedDate} sunrise={panchang.sunrise} lat={lat} lon={lon} isToday={isToday} />
 
           {/* ── Collapse / Expand All ── */}
           <div className="panchang-tools">
-            <span>All times in IST · Tithi at sunrise</span>
+            <div><h2 className="text-card-title text-chandra-text-primary">{isToday ? "Today's Panchang" : 'Panchang details'}</h2><p>Local sunrise snapshot · All times in IST</p></div>
             <button
               onClick={toggleAll}
               className="panchang-toggle-all flex min-h-[44px] items-center px-2 py-1 text-support text-chandra-gold underline underline-offset-2"
             >
-              {allExpanded ? 'Collapse All' : 'Expand All'}
+              {allExpanded ? 'Collapse all' : 'Expand all'}
             </button>
           </div>
 
@@ -306,6 +323,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
           {/* ── 3. Nakshatra Details ── */}
           <AccordionSection
+            className="panchang-nakshatra"
             title="Nakshatra Details"
             isOpen={sections.nakshatraDetails}
             onToggle={() => toggleSection('nakshatraDetails')}
@@ -319,7 +337,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                     {n.name}
                     {panchang.nakshatraList.length > 1
                       ? ` · ${formatTime(n.start)}, ${formatShortDate(n.start)} – ${formatTime(n.end)}, ${formatShortDate(n.end)}`
-                      : " — Today's Nakshatra"
+                      : ' — Nakshatra for the selected date'
                     }
                   </p>
                   <p className="text-sm leading-relaxed text-chandra-text-primary">{getNakshatraDescription(n.name)}</p>
@@ -333,6 +351,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
           {/* ── 4. Month & Year ── */}
           <AccordionSection
+            className="panchang-month"
             title="Month & Year"
             isOpen={sections.monthYear}
             onToggle={() => toggleSection('monthYear')}
@@ -405,6 +424,8 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
             </div>
           </AccordionSection>
 
+          <CityPageLinks />
+
           <button
             type="button"
             onClick={() => onLearn?.('basics')}
@@ -419,9 +440,10 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
         </div>
       ) : (
-        <div aria-live="polite" aria-busy="true" className="mt-20 text-center text-chandra-text-secondary">
+        <div aria-live="polite" aria-busy={!error || undefined} className="mt-20 text-center text-chandra-text-secondary">
           <Clock size={36} aria-hidden="true" strokeWidth={1.25} className="mx-auto mb-4 text-chandra-gold/45" />
-          <p>Calculating Panchang...</p>
+          <p role="alert">{error ? 'Could not calculate Panchang for this date. Please try again or choose another date.' : 'Calculating Panchang...'}</p>
+          {error && <Button className="mt-4" onClick={() => changeDate(new Date(selectedDate))}>Try again</Button>}
         </div>
       )}
       <footer className="panchang-footer"><span>Calculated for {location?.city || 'Bengaluru'} · {location?.calendarSystem || 'Amavasyant'}</span><span>Chandra · Indian Moon Tracker</span></footer>

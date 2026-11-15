@@ -26,7 +26,8 @@ export const SettingsProvider = ({ children }) => {
   }, [settings])
 
   const updateSettings = (key, value) => {
-    setSettings(prev => ({ ...prev, [key]: value }))
+    // A page can apply a city, coordinates and calendar system atomically.
+    setSettings(prev => ({ ...prev, ...(typeof key === 'object' ? key : { [key]: value }) }))
   }
 
   return (

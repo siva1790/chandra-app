@@ -5,12 +5,13 @@
  * so nothing in the app will break if analytics is unavailable.
  *
  * Events tracked:
- *   page_view          — tab switch (Today / Calendar / Panchang / Settings)
+ *   page_view          — tab switch (Panchang / Calendar / Settings)
  *   subscribe          — user completes email sign-up  { city }
  *   unsubscribe        — user removes their subscription
  *   notification_enabled  — push permission granted    { city }
  *   notification_disabled — master push toggle off
  *   city_changed       — user picks a city in Settings { city_name }
+ *   calendar_system_changed — user applies a calendar system on Panchang
  */
 
 const g = (...args) => {

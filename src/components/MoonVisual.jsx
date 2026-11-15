@@ -80,7 +80,7 @@ const shadowPath = (phase) => {
   )
 }
 
-const MoonVisual = ({ phase, tithiLabel, showLabel = true }) => {
+const MoonVisual = ({ phase, tithiLabel, showLabel = true, compact = false }) => {
   const isNewMoon  = phase < 0.02 || phase > 0.98
   const isFullMoon = phase > 0.48 && phase < 0.52
   const shadow     = shadowPath(phase)
@@ -95,7 +95,7 @@ const MoonVisual = ({ phase, tithiLabel, showLabel = true }) => {
       <svg
         width={SIZE}
         height={SIZE}
-        viewBox={`0 0 ${SIZE} ${SIZE}`}
+        viewBox={compact ? '17 17 166 166' : `0 0 ${SIZE} ${SIZE}`}
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-label={getPhaseName(phase).replace(/[\u{1F300}-\u{1F9FF}]/gu, '').trim()}

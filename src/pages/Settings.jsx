@@ -45,7 +45,7 @@ const loadNotifEnabled = () => {
   } catch { return true }
 }
 
-const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', entryReason }) => {
+const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Panchang', entryReason }) => {
   const { settings, updateSettings } = useSettings()
   const { profile, profileComplete, saveProfile } = useProfile()
   const { subscription, updateFrequency } = useSubscription()
@@ -439,7 +439,7 @@ const Settings = ({ onOpenSubscribe, onLearn, onBack, returnLabel = 'Day View', 
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-chandra-text-primary">Your details are saved</p>
                     <p className="mt-1 text-support leading-relaxed text-chandra-text-secondary">
-                      Chandra will personalize Day View with your Rasi and Nakshatra context.
+                      Your birth details are saved for future personalized features.
                     </p>
                     <button
                       type="button"

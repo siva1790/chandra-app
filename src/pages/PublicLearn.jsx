@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { CalendarDays, Clock, Moon, Settings } from 'lucide-react'
+import { CalendarDays, Clock, Settings } from 'lucide-react'
 import Learn from './Learn.jsx'
 import './PublicLearn.css'
 
@@ -9,7 +9,7 @@ const subscribe = callback => {
 }
 const getHash = () => window.location.hash
 const getServerHash = () => ''
-const links = [['/', 'Day View', Moon], ['/#calendar', 'Calendar', CalendarDays], ['/#panchang', 'Panchang', Clock], ['/#settings', 'Settings', Settings]]
+const links = [['/', 'Panchang', Clock], ['/#calendar', 'Calendar', CalendarDays], ['/#settings', 'Settings', Settings]]
 
 const PublicNavigation = ({ position }) => (
   <nav aria-label="Main navigation" className={`learn-public-navigation learn-public-navigation-${position}`}>
@@ -24,7 +24,7 @@ export default function PublicLearn() {
     <a href="#main-content" className="skip-link">Skip to content</a>
     <header className="learn-public-topbar fixed inset-x-0 top-0 z-40 border-b border-[color:var(--border-default)] bg-chandra-bg-primary">
       <div className="learn-public-header-content">
-        <a href="/" aria-label="Go to Chandra Day View" className="flex min-h-[44px] items-center gap-2 rounded-control text-lg font-bold text-chandra-gold"><img src="/icons/chandra-mark-topbar-96.png" width="32" height="32" alt="" className="rounded-icon" />Chandra</a>
+        <a href="/" aria-label="Go to Chandra Panchang" className="flex min-h-[44px] items-center gap-2 rounded-control text-lg font-bold text-chandra-gold"><img src="/icons/chandra-mark-topbar-96.png" width="32" height="32" alt="" className="rounded-icon" />Chandra</a>
         <PublicNavigation position="top" />
       </div>
     </header>

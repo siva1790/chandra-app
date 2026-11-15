@@ -22,11 +22,10 @@ function eventDate(value) {
   return formatEventDate(value)
 }
 
-function CityNavigation({ city, position }) {
+function CityNavigation({ position }) {
   return <nav aria-label="Main navigation" className={`city-navigation city-${position}-navigation`}>
     {[
-      ['/', 'Day View', Moon], ['/#calendar', 'Calendar', CalendarDays],
-      [city.path, 'Panchang', Clock], ['/#settings', 'Settings', Settings],
+      ['/', 'Panchang', Clock], ['/#calendar', 'Calendar', CalendarDays], ['/#settings', 'Settings', Settings],
     ].map(([href, label, Icon]) => <a key={label} href={href} aria-current={label === 'Panchang' ? 'page' : undefined} className={`city-navigation-link ${label === 'Panchang' ? 'city-navigation-active' : ''}`}>
       <Icon size={22} strokeWidth={1.75} aria-hidden="true" /><span>{label}</span>
     </a>)}

@@ -39,7 +39,7 @@ It shows daily moon phase, Tithi, Panchang, Nakshatra, moonrise/moonset times, a
 chandra-app/
 ├── src/
 │   ├── main.jsx               # React entry point, wraps app in SettingsProvider
-│   ├── App.jsx                # Root component, bottom nav (Today / Calendar / Panchang / Settings)
+│   ├── App.jsx                # Root component; Panchang homepage; nav (Panchang / Calendar / Settings)
 │   ├── SettingsContext.jsx    # Global settings state (city, lat, lon, language, calendarSystem)
 │   ├── moonUtils.js           # Core astronomy helpers (tithi, nakshatra, sunrise, festivals)
 │   ├── festivals.js           # Festival rule engine (window-based tithi evaluation, Amanta/Purnimanta masa)
@@ -48,9 +48,9 @@ chandra-app/
 │   ├── notifications.js       # FCM device registration — initDevice(calendarSystem), updateDevice(), deactivateDevice(); writes to Firestore `devices` collection with notifPrefs (festivals/eclipses/moonrise/ekadashi), calendarSystem, notifPrefsVersion:2; uses merge:true to avoid wiping backend dedupe fields
 │   ├── sw.js                  # Service worker — push handler supports both root payload fields and nested FCM notification payloads (payload.notification || {}, payload.data || notification.data || {})
 │   ├── pages/
-│   │   ├── Home.jsx           # "Today" screen — moon visual, tithi, moonrise/set
+│   │   ├── Home.jsx           # Retained legacy Day View; no longer mounted (personalization hidden)
 │   │   ├── Calendar.jsx       # Monthly calendar with tithi + festivals
-│   │   ├── Panchang.jsx       # Full daily Panchang (tithi, nakshatra, yoga, karana)
+│   │   ├── Panchang.jsx       # Merged homepage: highlights, Cosmos, full Panchang, city links
 │   │   ├── Learn.jsx          # Panchang terminology learning guide; section-level BookOpen entry points and #learn/<section> deep links
 │   │   └── Settings.jsx       # City picker, language, calendar system, notifications; default notif prefs: { festivals:true, eclipses:true, moonrise:true, ekadashi:true }; passes calendarSystem to initDevice(); syncs moonrise + ekadashi + notifPrefsVersion:2 on toggle
 │   └── components/
@@ -333,8 +333,24 @@ Then deploy frontend/SW via normal git push (Vercel auto-deploys).
 
 ## Known Issues Fixed (History)
 
+Merged homepage (2026-11): Day View and Panchang are now one Panchang landing page.
+Main navigation is **Panchang / Calendar / Settings**, including public city and Learn
+pages. Legacy `#panchang`, `#home` and `#today` links open the merged page. My Day and
+Personalize are hidden; saved profiles remain untouched. Cosmos reuses sunrise phase
+and the shared moon-event helper, with larger moons and uniform column gaps.
+
+`PanchangPreferences.jsx` changes city and calendar system on-page. Apply uses
+`updateSettings({ city, lat, lon, calendarSystem, usingGps })` as one atomic update;
+the original `(key, value)` form remains supported. Cancel/Escape discards drafts and
+the selected date is preserved. Settings stays mounted with its existing feature-gated
+notification sync. All six accordions default open; subsequent choices persist as
+`{ version: 2, sections }` under `chandra-panchang-accordion`. Pre-merge saved closed
+states do not override this release's defaults. Approved layout/card-height rules
+are in the design system. Public city/Learn URLs and sitemap entries are retained.
+
 | Date Fixed | Issue | File(s) Changed |
 |---|---|---|
+| 2026-11 | Merged Day View and Panchang into the Panchang landing page with three-item navigation, larger evenly spaced Cosmos, coordinated highlights, all-expanded accordions, matched two-column card heights and an inline city/calendar editor. Apply saves shared settings atomically; Cancel/Escape discards drafts. Profiles and astronomy rules are preserved. | `src/App.jsx`, `src/pages/Panchang.jsx`, `src/pages/Panchang.css`, `src/components/PanchangCosmos.jsx`, `src/components/PanchangPreferences.jsx`, `src/SettingsContext.jsx` |
 | 2026-11 | Added a Sunrise & Sunset accordion immediately after Pancha Anga in Panchang, using existing raw sunrise/sunset events and shared nearest-minute IST presentation. At 768px and above, Pancha Anga and solar timings stack on the left; Daily Timings, Nakshatra Details and Month & Year stack on the right; Navagraha remains below both. New accordion state participates in saved settings and Expand/Collapse All. Responsive browser review completed at eight widths from 320px to 1440px; no horizontal overflow and the requested column grouping is preserved. | `src/pages/Panchang.jsx`, `src/pages/Panchang.css`, `src/panchangCalculations.js`, `chandra-design-system.html` |
 | 2026-11 | Fixed no-moonrise dates borrowing the following day's rise in Home and hiding the same-day moonset on public pages. Shared IST moon-event helper now keeps the rise absent, displays the selected day's moonset independently, and preserves dated following-moonset pairing when a rise exists. Bengaluru 2026-12-01 shows no moonrise and moonset 12:27 PM IST. | `src/moonEvents.js`, `src/pages/Home.jsx`, `src/pages/CityPanchang.jsx`, `src/cityPanchang.js`, `tests/moon-events.test.mjs` |
 | 2026-11 | Fixed birth profiles changing with the device timezone: interpret entered Indian birth dates/times explicitly as IST, reject invalid dates/times, preserve stored profile fields, and label birth time as IST in Settings. Tested exact UTC instants, existing IST behavior and identical Moon profiles/messages across six device timezones. | `src/profileMessages.js`, `src/pages/Settings.jsx`, `tests/profile-timezone.test.mjs` |

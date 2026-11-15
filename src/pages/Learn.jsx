@@ -222,7 +222,7 @@ const MONTHLY_OBSERVANCE_REFERENCE = [
   ['Skanda Shashthi', 'Shukla Shashthi, associated with Lord Subrahmanya or Murugan in many traditions.'],
 ]
 
-const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Day View' }) => {
+const Learn = ({ targetSection, active = true, onBack, returnLabel = 'Panchang' }) => {
   const [showTop, setShowTop] = useState(false)
   const titleRef = useRef(null)
   const sectionIds = useMemo(() => new Set(LEARN_SECTIONS.map(section => section.id)), [])
