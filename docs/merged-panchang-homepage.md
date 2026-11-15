@@ -1,8 +1,8 @@
 # Merged Panchang homepage
 
 The primary navigation is Panchang, Calendar and Settings. The root page contains
-date navigation, a conditional Day's highlight, Cosmos, the full six Panchang
-accordions, city links and the learning-guide link. Legacy Day View remains in
+date navigation, a conditional Day's highlight, the main Panchang grid through
+Month & Year, Cosmos, Planetary Positions, city links and the learning-guide link. Legacy Day View remains in
 source but is not mounted. Existing birth profiles remain stored.
 
 The city/calendar control expands an editor above the date bar. It shows popular

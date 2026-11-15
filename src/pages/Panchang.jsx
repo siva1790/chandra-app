@@ -177,8 +177,6 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
             </details>
           </section>}
 
-          <PanchangCosmos date={selectedDate} sunrise={panchang.sunrise} lat={lat} lon={lon} isToday={isToday} />
-
           {/* ── Collapse / Expand All ── */}
           <div className="panchang-tools">
             <div><h2 className="text-card-title text-chandra-text-primary">{isToday ? "Today's Panchang" : 'Panchang details'}</h2><p>Local sunrise snapshot · All times in IST</p></div>
@@ -389,6 +387,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           {/* ── 5. Planetary Positions ── */}
           </div>
           </div>
+          <PanchangCosmos date={selectedDate} sunrise={panchang.sunrise} lat={lat} lon={lon} isToday={isToday} />
           <AccordionSection
             className="panchang-planets"
             title="Planetary Positions — Navagraha"
