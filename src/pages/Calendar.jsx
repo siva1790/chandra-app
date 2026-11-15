@@ -47,7 +47,6 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
   const [activeView, setActiveView] = useState('calendar')
   const [displayMode, setDisplayMode] = useState('grid')
   const [listJump, setListJump] = useState({ day: null, sequence: 0 })
-  const [highlightedDay, setHighlightedDay] = useState(null)
   const pageRef = useRef(null)
   const listRef = useRef(null)
   const eventsRef = useRef(null)
@@ -133,13 +132,6 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
     if (mode === 'list') setListJump(previous => ({ day: null, sequence: previous.sequence + 1 }))
   }
 
-  const handleEventSelect = (day) => {
-    if (displayMode === 'grid') { openModal(day); return }
-    setHighlightedDay(day.day)
-    setActiveView('calendar')
-    setListJump(previous => ({ day: day.day, sequence: previous.sequence + 1 }))
-  }
-
   useEffect(() => {
     buildCalendar()
   }, [currentDate, settings])
@@ -152,7 +144,6 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
     ) {
       setCurrentDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1))
       setTapSelectedDate(null)
-      setHighlightedDay(null)
       setListJump(previous => ({ day: null, sequence: previous.sequence + 1 }))
     }
   }, [selectedDate])
@@ -162,7 +153,6 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
   const handleMonthChange = (date) => {
     setCurrentDate(new Date(date.getFullYear(), date.getMonth(), 1))
     setTapSelectedDate(null)
-    setHighlightedDay(null)
     setListJump(previous => ({ day: null, sequence: previous.sequence + 1 }))
   }
 
@@ -295,7 +285,6 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
     setSelectedDay(null)
     setDayPanchang(null)
     setActiveView('calendar')
-    setHighlightedDay(null)
     setListJump(previous => ({ day: todayDate.getDate(), sequence: previous.sequence + 1 }))
     onDateChange?.(todayDate)
   }
@@ -484,11 +473,22 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         </div>
         <div id="calendar-list-content" ref={listRef} className="calendar-date-list calendar-scroll-area" hidden={displayMode !== 'list'} onScroll={event => rememberScroll('list', event)} tabIndex={0} role="region" aria-label="Daily Panchang for every date in the month">
           {calendarDays.filter(Boolean).map(day => (
-            <Card key={day.day} as="article" className={`calendar-list-day ${day.isToday ? 'calendar-list-today' : ''} ${highlightedDay === day.day ? 'calendar-list-highlighted' : ''}`} data-list-day={day.day} aria-label={day.date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}>
+            <Card key={day.day} as="article" className={`calendar-list-day ${day.isToday ? 'calendar-list-today' : ''}`} data-list-day={day.day} aria-label={day.date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}>
               <div className="calendar-list-date">
                 <h3 className="text-body font-semibold"><time dateTime={`${day.date.getFullYear()}-${String(day.date.getMonth() + 1).padStart(2, '0')}-${String(day.day).padStart(2, '0')}`}>{day.day} {monthNames[day.date.getMonth()].slice(0, 3)}</time></h3>
                 <span className="text-support text-chandra-text-secondary">{day.date.toLocaleDateString('en-IN', { weekday: 'long' })}</span>
-                {day.isToday && <span className="calendar-list-today-label text-meta text-chandra-gold" aria-current="date">Today</span>}
+                <div className="calendar-list-actions">
+                  {day.isToday && <span className="text-meta text-chandra-gold" aria-current="date">Today</span>}
+                  <button
+                    type="button"
+                    className="calendar-list-panchang flex h-11 w-11 shrink-0 items-center justify-center rounded-icon text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15"
+                    onClick={() => onSelectDate?.(new Date(day.date))}
+                    aria-label={`View full Panchang for ${day.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`}
+                    title="View full Panchang"
+                  >
+                    <Clock size={16} strokeWidth={1.75} aria-hidden="true" />
+                  </button>
+                </div>
               </div>
               <dl className="calendar-list-anga">
                 {[
@@ -541,7 +541,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                 /* ── Monthly observance row — amber, muted, dot-prefixed ── */
                 <button
                   key={i}
-                  onClick={() => handleEventSelect(day)}
+                  onClick={() => openModal(day)}
                   className="flex w-full items-center gap-4 rounded-card border border-chandra-warning/30 px-4 py-3 text-left transition-all hover:border-chandra-warning/50 active:bg-chandra-bg-surface"
                 >
                   <div className="text-center min-w-10">
@@ -562,7 +562,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                 /* ── Major festival / eclipse row — prominent, emoji, full card ── */
                 <button
                   key={i}
-                  onClick={() => handleEventSelect(day)}
+                  onClick={() => openModal(day)}
                   className="flex w-full items-center gap-4 rounded-card border border-white/10 bg-chandra-bg-surface p-4 text-left transition-all hover:border-chandra-gold/35 active:bg-chandra-bg-elevated"
                 >
                   <div className="text-center min-w-10">

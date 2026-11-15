@@ -108,12 +108,11 @@
 .calendar-page .calendar-grid-content { padding: 4px; }
 .calendar-page .calendar-date-list { display: grid; align-content: start; flex: 1; gap: 8px; padding: 4px 10px 6px 4px; }
 .calendar-page [hidden] { display: none !important; }
-.calendar-page .calendar-list-day { padding: 10px 12px; min-width: 0; }
+.calendar-page .calendar-list-day { padding: 6px 12px; min-width: 0; }
 .calendar-page .calendar-list-today { border-color: var(--border-emphasis); }
-.calendar-page .calendar-list-highlighted { outline: 2px solid var(--gold); outline-offset: 1px; }
-.calendar-page .calendar-list-date { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
-.calendar-page .calendar-list-today-label { margin-left: auto; }
-.calendar-page .calendar-list-anga { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 8px; }
+.calendar-page .calendar-list-date { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-height: 44px; }
+.calendar-page .calendar-list-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.calendar-page .calendar-list-anga { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 8px; }
 .calendar-page .calendar-list-anga > div { min-width: 0; }
 .calendar-page .calendar-list-anga :is(dt, dd) { overflow-wrap: anywhere; }
 .calendar-page .calendar-events-panel > div:first-child { flex-shrink: 0; }
