@@ -117,7 +117,7 @@
 .calendar-page .calendar-list-anga :is(dt, dd) { overflow-wrap: anywhere; }
 .calendar-page .calendar-list-day :is(h3, dd) { color: var(--text-primary); }
 .calendar-page .calendar-list-day[data-completed] :is(h3, dd) { color: var(--text-secondary); font-weight: 400; }
-.calendar-page .calendar-list-day[data-list-day="1"] time { color: var(--gold); font-weight: 700; }
+.calendar-page .calendar-list-day[data-lunar-month-start] time { color: var(--gold); font-weight: 700; }
 .calendar-page .calendar-list-day dd[data-lunar-phase] { color: var(--info); font-weight: 700; }
 .calendar-page .calendar-events-panel > div:first-child { flex-shrink: 0; }
 .calendar-page .calendar-events-scroll { flex: 1; padding: 3px 8px 6px 3px; }

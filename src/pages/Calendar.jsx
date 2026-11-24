@@ -1,6 +1,6 @@
 import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { getFestivalsForDate } from '../festivals'
-import { getPhaseEmoji } from '../moonUtils'
+import { getPhaseEmoji, getTithiAtSunrise } from '../moonUtils'
 import { getPanchaAngaAtSunrise } from '../panchangAnga.js'
 import { getDisplayMasa } from '../panchangCalculations.js'
 import { getEclipseForDate, eclipseTypeLabel } from '../eclipseUtils'
@@ -242,9 +242,15 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
       days.push(null)
     }
 
+    const monthStartPaksha = settings.calendarSystem?.toLowerCase() === 'purnimant' ? 'Krishna' : 'Shukla'
+    // Compare consecutive sunrises, even across the boundary of the displayed month.
+    // Pratipada can be skipped at sunrise or appear on two consecutive dates.
+    let previousPaksha = getTithiAtSunrise(new Date(year, month, 0), settings.lat, settings.lon).paksha
     for (let d = 1; d <= daysInMonth; d++) {
-      const date = new Date(year, month, d)
-      days.push(buildCalendarDay(date))
+      const day = buildCalendarDay(new Date(year, month, d))
+      const paksha = day.tithi.paksha
+      days.push({ ...day, startsLunarMonth: paksha === monthStartPaksha && paksha !== previousPaksha })
+      previousPaksha = paksha
     }
     setCalendarDays(days)
   }
@@ -477,11 +483,15 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
           {calendarDays.filter(Boolean).map(day => {
             const isToday = day.dateKey === todayKey
             const isCompleted = day.dateKey < todayKey
-            const dateLabel = day.date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+            const dateLabel = [
+              day.date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+              day.startsLunarMonth && 'start of lunar month',
+              isCompleted && 'completed',
+            ].filter(Boolean).join(', ')
             const isLunarPhase = day.tithi.name === 'Amavasya' || day.tithi.name === 'Purnima'
 
             return (
-              <Card key={day.day} as="article" className={`calendar-list-day ${isToday ? 'calendar-list-today' : ''}`} data-list-day={day.day} data-completed={isCompleted || undefined} aria-label={isCompleted ? `${dateLabel}, completed` : dateLabel}>
+              <Card key={day.day} as="article" className={`calendar-list-day ${isToday ? 'calendar-list-today' : ''}`} data-list-day={day.day} data-completed={isCompleted || undefined} data-lunar-month-start={day.startsLunarMonth || undefined} aria-label={dateLabel}>
                 <div className="calendar-list-date">
                   <h3 className="text-body font-semibold"><time dateTime={day.dateKey}>{day.day} {monthNames[day.date.getMonth()].slice(0, 3)}</time></h3>
                   <span className="text-support text-chandra-text-secondary">{day.date.toLocaleDateString('en-IN', { weekday: 'long' })}</span>
