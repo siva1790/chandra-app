@@ -225,7 +225,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
       isToday,
       eclipse,
       anga: snapshot,
-      masa: getDisplayMasa(date, tithi.number - 1, (settings.calendarSystem || 'Amavasyant').toLowerCase()),
+      masa: getDisplayMasa(snapshot, (settings.calendarSystem || 'Amavasyant').toLowerCase()),
     }
   }
 
@@ -495,7 +495,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
                 {[
                   ['Tithi', day.tithi.name.replace(' (Prathama)', '')],
                   ['Nakshatra', day.anga.nakshatra], ['Yoga', day.anga.yoga],
-                  ['Karana', day.anga.karana], ['Vara', day.anga.vara], ['Masa', day.masa],
+                  ['Karana', day.anga.karana], ['Vara', day.anga.vara], ['Masa', day.masa ?? 'Unavailable'],
                 ].map(([label, value]) => <div key={label}><dt className="text-meta text-chandra-text-secondary">{label}</dt><dd className="text-support font-semibold text-chandra-text-primary">{value}</dd></div>)}
               </dl>
             </Card>

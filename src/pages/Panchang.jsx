@@ -367,7 +367,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
               <PanchangRow
                 icon={Moon}
                 label="Masa"
-                value={panchang.masa}
+                value={panchang.masa ?? 'Unavailable'}
                 sub="Lunar month"
               />
               <PanchangRow

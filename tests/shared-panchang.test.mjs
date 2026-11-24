@@ -59,9 +59,32 @@ test('shared summary Karana follows all 60 half-tithis, including the four fixed
 
 test('display masa retains the Krishna Paksha calendar-system adjustment', () => {
   const date = dateFromKey('2026-11-08')
-  const { tithi } = getPanchaAngaAtSunrise(date, { lat: 12.9716, lon: 77.5946 })
-  assert.equal(getDisplayMasa(date, tithi.number - 1, 'amavasyant'), 'Ashwin')
-  assert.equal(getDisplayMasa(date, tithi.number - 1, 'purnimant'), 'Kartika')
+  const snapshot = getPanchaAngaAtSunrise(date, { lat: 12.9716, lon: 77.5946 })
+  assert.equal(getDisplayMasa(snapshot, 'amavasyant'), 'Ashwin')
+  assert.equal(getDisplayMasa(snapshot, 'purnimant'), 'Kartika')
+})
+
+test('display masa and Paksha use the same city sunrise across full-moon boundaries', () => {
+  const cases = [
+    { key: '2027-02-21', cityName: 'Bengaluru', paksha: 'Krishna', amavasyant: 'Magha', purnimant: 'Phalguna' },
+    { key: '2026-08-28', cityName: 'Bengaluru', paksha: 'Shukla', amavasyant: 'Bhadrapada', purnimant: 'Bhadrapada' },
+    { key: '2026-06-30', cityName: 'Bengaluru', paksha: 'Krishna', amavasyant: 'Ashadha', purnimant: 'Shravana' },
+    { key: '2026-06-30', cityName: 'Kolkata', paksha: 'Shukla', amavasyant: 'Ashadha', purnimant: 'Ashadha' },
+  ]
+
+  for (const { key, cityName, paksha, amavasyant, purnimant } of cases) {
+    const city = PUBLIC_PANCHANG_CITIES.find(({ name }) => name === cityName)
+    for (const time of ['00:00', '12:00']) {
+      const date = new Date(`${key}T${time}:00+05:30`)
+      const snapshot = getPanchaAngaAtSunrise(date, city)
+      const context = `${cityName}, ${key} at ${time}`
+      assert.equal(snapshot.tithi.paksha, paksha, context)
+      for (const [calendarSystem, expected] of [['Amavasyant', amavasyant], ['Purnimant', purnimant]]) {
+        assert.equal(getDisplayMasa(snapshot, calendarSystem.toLowerCase()), expected, context)
+        assert.equal(getPanchang(date, { ...city, calendarSystem }).masa, expected, context)
+      }
+    }
+  }
 })
 
 test('daily timing rules preserve weekday slots and fixed durations in timestamps', () => {

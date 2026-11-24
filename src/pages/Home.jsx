@@ -104,7 +104,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
       const todayNakshatra = snapshot.nakshatra
       const yoga = snapshot.yoga
       const karana = snapshot.karana
-      const masa = getDisplayMasa(sunriseTime, effectiveTithi.number - 1, (settings?.calendarSystem || 'Amavasyant').toLowerCase())
+      const masa = getDisplayMasa(snapshot, (settings?.calendarSystem || 'Amavasyant').toLowerCase())
 
       const { moonrise, moonset } = getMoonEventsForDate(date, location)
 
@@ -277,7 +277,7 @@ const Home = ({ date = new Date(), onDateChange, onNavigateToPanchang, onNavigat
               <Snapshot icon={Sparkles} label="Yoga" value={dayHighlight.yoga} />
               <Snapshot icon={CalendarClock} label="Karana" value={dayHighlight.karana} />
               <Snapshot icon={Sun} label="Vara" value={vara} />
-              <Snapshot icon={CalendarDays} label="Masa" value={dayHighlight.masa} />
+              <Snapshot icon={CalendarDays} label="Masa" value={dayHighlight.masa ?? 'Unavailable'} />
             </div>
             <button type="button" onClick={() => onNavigateToPanchang?.(date)} className="day-view-full-panchanga text-chandra-focus">
               View full panchanga<ArrowRight size={14} aria-hidden="true" />

@@ -186,27 +186,14 @@ const NAKSHATRA_MASA = [
 //   Shukla Paksha → upcoming Purnima; Krishna Paksha → most recent Purnima.
 // Purnimant: same base month; but during Krishna Paksha the month name advances by one
 //   (the waning half belongs to the NEXT Purnimant month).
-export const getDisplayMasa = (date, tithiIndex, calendarSystem) => {
+export const getDisplayMasa = ({ sunrise, tithi }, calendarSystem) => {
   try {
-    const isKrishnaPaksha = tithiIndex >= 15
-
-    // Find the Purnima that defines this lunar month
-    let purnima
-    if (isKrishnaPaksha) {
-      // Search backward: most recent full moon (within the last ~20 days)
-      const searchStart = new Date(date.getTime() - 20 * 24 * 60 * 60 * 1000)
-      purnima = Astronomy.SearchMoonPhase(180, searchStart, 20)
-    } else {
-      // Search forward: next full moon (within the next ~20 days)
-      purnima = Astronomy.SearchMoonPhase(180, date, 20)
-    }
-
-    if (!purnima) return MASA_NAMES[0]
+    const isKrishnaPaksha = tithi.paksha === 'Krishna'
+    const purnima = Astronomy.SearchMoonPhase(180, sunrise, isKrishnaPaksha ? -20 : 20)
+    if (!purnima) return null
 
     // Moon's sidereal longitude at that Purnima
-    const moonPos = Astronomy.GeoVector('Moon', purnima.date, true)
-    const moonEcl = Astronomy.Ecliptic(moonPos)
-    const moonSidLon = toSiderealLongitude(moonEcl.elon, purnima.date)
+    const moonSidLon = getMoonSiderealLongitude(purnima.date)
 
     // Nakshatra → masa
     const nakshatraIdx = Math.floor(moonSidLon / (360 / 27))
@@ -220,7 +207,7 @@ export const getDisplayMasa = (date, tithiIndex, calendarSystem) => {
     return MASA_NAMES[masaIndex]
   } catch (err) {
     console.error('getMasa error:', err)
-    return MASA_NAMES[0]
+    return null
   }
 }
 
@@ -248,7 +235,6 @@ export function getPanchang(date, location = {}) {
 
   // --- Tithi ---
   const tithi = snapshot.tithi
-  const tithiIndex = tithi.number - 1
   const tithiName = tithi.name
   const paksha = `${tithi.paksha} Paksha`
   const tithiWindow = getTithiWindowAtTime(sunriseTime)
@@ -482,7 +468,7 @@ export function getPanchang(date, location = {}) {
   // --- Month & Year ---
   const calendarSystem = (location?.calendarSystem || 'amavasyant').toLowerCase()
   const samvatsara = getSamvatsara(date)
-  const masa       = getDisplayMasa(date, tithiIndex, calendarSystem)
+  const masa       = getDisplayMasa(snapshot, calendarSystem)
   const ritu       = getRitu(sunLongitude)
   const ayana      = getAyana(sunLongitude)
 
