@@ -35,7 +35,7 @@ const phaseLabel = (emoji) => ({
 
 // ─────────────────────────────────────────────────────────────────
 
-const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLearn, active = true }) => {
+const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectDate, onLearn, active = true }) => {
   const { settings } = useSettings()
   // currentDate tracks which month is displayed; initialised from selectedDate
   const [currentDate, setCurrentDate] = useState(
@@ -112,13 +112,13 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
       pane.scrollTop = scrollPositions.current.get(`${monthKey}:list`) || 0
       return
     }
-    const targetDay = listJump.day || calendarDays.find(day => day?.isToday)?.day || 1
+    const targetDay = listJump.day || calendarDays.find(day => day?.dateKey === todayKey)?.day || 1
     const row = pane.querySelector(`[data-list-day="${targetDay}"]`)
     if (!row) return
     pane.scrollTop += row.getBoundingClientRect().top - pane.getBoundingClientRect().top - 4
     scrollPositions.current.set(`${monthKey}:list`, pane.scrollTop)
     handledJump.current = signature
-  }, [active, activeView, displayMode, calendarDays, currentDate, monthKey, listJump])
+  }, [active, activeView, displayMode, calendarDays, currentDate, monthKey, listJump, todayKey])
 
   useLayoutEffect(() => {
     if (active && eventsRef.current?.clientHeight) eventsRef.current.scrollTop = scrollPositions.current.get(`${monthKey}:events`) || 0
@@ -218,6 +218,7 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
     return {
       day: d,
       date,
+      dateKey: `${String(year).padStart(4, '0')}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
       phaseAngle,
       phaseEmoji: getPhaseEmoji(phaseAngle),
       tithi,
@@ -473,33 +474,45 @@ const Calendar = ({ selectedDate = new Date(), onDateChange, onSelectDate, onLea
         </div>
         </div>
         <div id="calendar-list-content" ref={listRef} className="calendar-date-list calendar-scroll-area" hidden={displayMode !== 'list'} onScroll={event => rememberScroll('list', event)} tabIndex={0} role="region" aria-label="Daily Panchang for every date in the month">
-          {calendarDays.filter(Boolean).map(day => (
-            <Card key={day.day} as="article" className={`calendar-list-day ${day.isToday ? 'calendar-list-today' : ''}`} data-list-day={day.day} aria-label={day.date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}>
-              <div className="calendar-list-date">
-                <h3 className="text-body font-semibold"><time dateTime={`${day.date.getFullYear()}-${String(day.date.getMonth() + 1).padStart(2, '0')}-${String(day.day).padStart(2, '0')}`}>{day.day} {monthNames[day.date.getMonth()].slice(0, 3)}</time></h3>
-                <span className="text-support text-chandra-text-secondary">{day.date.toLocaleDateString('en-IN', { weekday: 'long' })}</span>
-                <div className="calendar-list-actions">
-                  {day.isToday && <span className="text-meta text-chandra-gold" aria-current="date">Today</span>}
-                  <button
-                    type="button"
-                    className="calendar-list-panchang flex h-11 w-11 shrink-0 items-center justify-center rounded-icon text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15"
-                    onClick={() => onSelectDate?.(new Date(day.date))}
-                    aria-label={`View full Panchang for ${day.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`}
-                    title="View full Panchang"
-                  >
-                    <PanchangIcon size={16} strokeWidth={1.75} aria-hidden="true" />
-                  </button>
+          {calendarDays.filter(Boolean).map(day => {
+            const isToday = day.dateKey === todayKey
+            const isCompleted = day.dateKey < todayKey
+            const dateLabel = day.date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+            const isLunarPhase = day.tithi.name === 'Amavasya' || day.tithi.name === 'Purnima'
+
+            return (
+              <Card key={day.day} as="article" className={`calendar-list-day ${isToday ? 'calendar-list-today' : ''}`} data-list-day={day.day} data-completed={isCompleted || undefined} aria-label={isCompleted ? `${dateLabel}, completed` : dateLabel}>
+                <div className="calendar-list-date">
+                  <h3 className="text-body font-semibold"><time dateTime={day.dateKey}>{day.day} {monthNames[day.date.getMonth()].slice(0, 3)}</time></h3>
+                  <span className="text-support text-chandra-text-secondary">{day.date.toLocaleDateString('en-IN', { weekday: 'long' })}</span>
+                  <div className="calendar-list-actions">
+                    {isToday && <span className="text-meta text-chandra-gold" aria-current="date">Today</span>}
+                    <button
+                      type="button"
+                      className="calendar-list-panchang flex h-11 w-11 shrink-0 items-center justify-center rounded-icon text-chandra-gold hover:bg-chandra-gold/10 active:bg-chandra-gold/15"
+                      onClick={() => onSelectDate?.(new Date(day.date))}
+                      aria-label={`View full Panchang for ${day.date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`}
+                      title="View full Panchang"
+                    >
+                      <PanchangIcon size={16} strokeWidth={1.75} aria-hidden="true" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <dl className="calendar-list-anga">
-                {[
-                  ['Tithi', day.tithi.name.replace(' (Prathama)', '')],
-                  ['Nakshatra', day.anga.nakshatra], ['Yoga', day.anga.yoga],
-                  ['Karana', day.anga.karana], ['Vara', day.anga.vara], ['Masa', day.masa ?? 'Unavailable'],
-                ].map(([label, value]) => <div key={label}><dt className="text-meta text-chandra-text-secondary">{label}</dt><dd className="text-support font-semibold text-chandra-text-primary">{value}</dd></div>)}
-              </dl>
-            </Card>
-          ))}
+                <dl className="calendar-list-anga">
+                  {[
+                    ['Tithi', day.tithi.name.replace(' (Prathama)', '')],
+                    ['Nakshatra', day.anga.nakshatra], ['Yoga', day.anga.yoga],
+                    ['Karana', day.anga.karana], ['Vara', day.anga.vara], ['Masa', day.masa ?? 'Unavailable'],
+                  ].map(([label, value]) => (
+                    <div key={label}>
+                      <dt className="text-meta text-chandra-text-secondary">{label}</dt>
+                      <dd className="text-support font-semibold" data-lunar-phase={(label === 'Tithi' && isLunarPhase) || undefined}>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </Card>
+            )
+          })}
         </div>
       </div>
 

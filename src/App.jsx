@@ -29,7 +29,7 @@ function App() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [globalDate, setGlobalDate] = useState(new Date())
   const [learnReturnContext, setLearnReturnContext] = useState(null)
-  const todayRef = useRef(indianDateKey())
+  const [todayKey, setTodayKey] = useState(indianDateKey)
   const bellButtonRef = useRef(null)
   const { settings } = useSettings()
   const { subscription } = useSubscription()
@@ -69,10 +69,9 @@ function App() {
   useEffect(() => {
     const refreshToday = () => {
       const today = indianDateKey()
-      if (today === todayRef.current) return
-      const previousToday = todayRef.current
-      todayRef.current = today
-      setGlobalDate(previous => indianDateKey(previous) === previousToday ? new Date() : previous)
+      if (today === todayKey) return
+      setTodayKey(today)
+      setGlobalDate(previous => indianDateKey(previous) === todayKey ? new Date() : previous)
     }
     const interval = window.setInterval(refreshToday, 60000)
     window.addEventListener('focus', refreshToday)
@@ -82,7 +81,7 @@ function App() {
       window.removeEventListener('focus', refreshToday)
       document.removeEventListener('visibilitychange', refreshToday)
     }
-  }, [])
+  }, [todayKey])
 
   // Direct tab tap — preserves current globalDate (no reset)
   const navigate = (tab) => {
@@ -206,7 +205,7 @@ function App() {
         aria-hidden={sheetOpen || undefined}
         {...(sheetOpen ? { inert: '' } : {})}
       >
-        <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar active={screen === 'calendar'} selectedDate={globalDate} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} onLearn={navigateToLearn} /></div>
+        <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar active={screen === 'calendar'} selectedDate={globalDate} todayKey={todayKey} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'settings' ? 'block' : 'none' }}>
           <Settings
