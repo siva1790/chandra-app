@@ -6,7 +6,8 @@ import { getPanchaAngaAtSunrise, getKaranaFromPhase, getDailyTimingRanges } from
 import { getCityPanchang, dateFromKey } from '../src/cityPanchang.js'
 import { PUBLIC_PANCHANG_CITIES } from '../src/publicPanchangCities.js'
 import { getCalendarTithiName, getRegionalFestivals, getRegionalMonth } from '../src/regionalCalendar.js'
-import { DAY_MS } from '../src/civilDate.js'
+import { DAY_MS, pickerDateFromKey } from '../src/civilDate.js'
+import { getCalendarEvents } from '../src/calendarEvents.js'
 import { getTamilSolarDate } from '../src/tamilSolarCalendar.js'
 import { cities } from '../src/cities.js'
 import { getMoonPhaseAngle, getSunriseForDate, getTithiFromAngle } from '../src/moonUtils.js'
@@ -142,6 +143,133 @@ test('regional festivals retain the chosen city and handle sunrise and intercala
     const entries = getRegionalFestivals(date, snapshot, location, tradition, month)
     assert.equal(entries.some(entry => entry.name === festival), expected, `${name} ${key}`)
   }
+})
+
+test('a festival and sunset-based Pradosh both appear when sunrise is Dwadashi', () => {
+  const key = '2026-11-06'
+  const city = { lat: 12.9716, lon: 77.5946 }
+  const sunrise = getPanchaAngaAtSunrise(dateFromKey(key), { ...city, utcOffsetMinutes: 330 })
+  assert.equal(sunrise.tithi.adjustedNumber, 12)
+  const matches = getCalendarEvents(pickerDateFromKey(key), city, sunrise)
+  assert.deepEqual(matches.map(event => [event.name, event.filters]), [
+    ['Dhanteras', ['festival']],
+    ['Shukra Pradosh Vrat', ['pradosh']],
+  ])
+  assert.deepEqual(getCalendarEvents(pickerDateFromKey(key), { ...city, calendarSystem: 'Purnimant' }), matches)
+  const fallback = getCalendarEvents(pickerDateFromKey('2029-11-04'), city)
+  assert.ok(fallback.some(event => event.id === 'dhanteras'))
+  assert.equal(fallback.find(event => event.id === 'pradosh')?.description, 'Trayodashi observance for Lord Shiva')
+  assert.ok(!getCalendarEvents(pickerDateFromKey('2029-11-03'), city).some(event => event.id === 'pradosh'))
+})
+
+test('Smarta Ekadashi handles repeated, skipped and Adhik Masa tithis', () => {
+  const city = { lat: 13.6288, lon: 79.4192, calendarTradition: 'telugu' }
+  const cases = [
+    ['2026-05-26', 11, undefined],
+    ['2026-05-27', 11, 'Padmini Ekadashi'],
+    ['2026-06-11', 11, 'Parama Ekadashi'],
+    ['2026-11-20', 10, 'Devutthana Ekadashi'],
+    ['2026-11-21', 11, undefined],
+    ['2027-07-29', 10, 'Kamika Ekadashi'],
+    ['2027-07-30', 12, undefined],
+  ]
+  for (const [key, tithi, expected] of cases) {
+    const snapshot = getPanchaAngaAtSunrise(dateFromKey(key), { ...city, utcOffsetMinutes: 330 })
+    assert.equal(snapshot.tithi.adjustedNumber, tithi, key)
+    const event = getCalendarEvents(pickerDateFromKey(key), city).find(event => event.id === 'ekadashi')
+    assert.equal(event?.name, expected, key)
+  }
+})
+
+test('event IDs and filters follow festival and observance rules across traditions', () => {
+  const chennai = { lat: 13.0827, lon: 80.2707, calendarTradition: 'tamil' }
+  const tirupati = { lat: 13.6288, lon: 79.4192, calendarTradition: 'telugu' }
+  const ujjain = { lat: 23.18239, lon: 75.77643, calendarTradition: 'ujjain' }
+  const cases = [
+    [tirupati, '2026-09-14', 'ganesh-chaturthi', 'Vinayaka Chavithi'],
+    [chennai, '2027-09-04', 'ganesh-chaturthi', 'Vinayagar Chathurthi'],
+    [ujjain, '2028-10-17', 'diwali-deepavali', 'Diwali'],
+    [ujjain, '2029-04-22', 'ram-navami', 'Ram Navami'],
+    [chennai, '2029-04-23', 'ram-navami', 'Rama Navami'],
+    [chennai, '2030-10-26', 'diwali-deepavali', 'Deepavali'],
+    [chennai, '2030-08-03', 'aadi-perukku', 'Aadi Perukku'],
+  ]
+  for (const [city, date, id, name] of cases) {
+    const matches = getCalendarEvents(pickerDateFromKey(date), city)
+    const event = matches.find(event => event.id === id)
+    assert.equal(event?.name, name, date)
+    assert.equal(event?.key, `${date}-${id}`)
+    assert.deepEqual(event?.filters, ['festival'])
+  }
+  const bengaluru = { lat: 12.9716, lon: 77.5946 }
+  const eventsOn = date => getCalendarEvents(pickerDateFromKey(date), bengaluru)
+  assert.equal(eventsOn('2027-01-14').some(event => event.id === 'makar-sankranti-pongal'), false)
+  assert.equal(eventsOn('2027-01-15').some(event => event.id === 'makar-sankranti-pongal'), true)
+  assert.deepEqual(eventsOn('2026-08-12').find(event => event.eclipse)?.filters, ['astronomical'])
+})
+
+test('regional observances use the same IDs and dates in monthly lists and day summaries', () => {
+  const tamil = { lat: 13.0827, lon: 80.2707, calendarTradition: 'tamil' }
+  const telugu = { lat: 13.6288, lon: 79.4192, calendarTradition: 'telugu' }
+  const on = (key, city) => getCalendarEvents(pickerDateFromKey(key), city)
+  const finds = (key, city, id) => on(key, city).find(event => event.id === id)
+  assert.equal(finds('2026-02-22', tamil, 'sashti')?.name, 'Sashti')
+  assert.equal(finds('2026-02-23', tamil, 'sashti'), undefined)
+  assert.equal(finds('2026-02-22', telugu, 'sashti'), undefined)
+  assert.deepEqual(finds('2026-12-15', telugu, 'sashti')?.filters, ['sashti', 'festival'])
+  assert.deepEqual(finds('2026-12-01', telugu, 'kalashtami')?.filters, ['kalashtami', 'festival'])
+  assert.equal(finds('2026-12-30', telugu, 'kalashtami')?.name, 'Kalabhairava Ashtami')
+  assert.equal(finds('2026-11-07', tamil, 'masik-shivaratri')?.name, 'Maadha Shivaratri')
+  assert.equal(finds('2026-11-07', telugu, 'masik-shivaratri')?.name, 'Masa Shivaratri')
+  assert.equal(finds('2026-11-27', tamil, 'sankashti-chaturthi')?.name, 'Sankatahara Chaturthi')
+  assert.equal(finds('2026-11-27', telugu, 'sankashti-chaturthi')?.name, 'Sankatahara Chaturthi')
+  for (const city of [tamil, telugu, { ...tamil, calendarTradition: null }]) {
+    assert.equal(finds('2026-11-13', city, 'vinayaka-chaturthi'), undefined)
+  }
+})
+
+test('Krithigai follows Krittika Nakshatra once per transit in the Tamil tradition', () => {
+  const chennai = { lat: 13.0827, lon: 80.2707, calendarTradition: 'tamil' }
+  for (const key of ['2026-11-24', '2027-11-14', '2028-12-01', '2029-11-20', '2030-11-10']) {
+    const date = pickerDateFromKey(key)
+    const hasKrithigai = (date, city) => getCalendarEvents(date, city).some(event => event.filters.includes('krithigai'))
+    assert.ok(hasKrithigai(date, chennai), key)
+    assert.ok(!hasKrithigai(new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1), chennai), key)
+    assert.ok(!hasKrithigai(new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1), chennai), key)
+    assert.ok(!hasKrithigai(date, { ...chennai, calendarTradition: 'telugu' }), key)
+  }
+})
+
+test('Ujjain lists waxing Vinayaka Chaturti and Durgashtami under their own filters', () => {
+  const city = { lat: 23.18239, lon: 75.77643, calendarTradition: 'ujjain' }
+  const on = key => getCalendarEvents(pickerDateFromKey(key), city)
+  assert.deepEqual(on('2026-11-13').find(event => event.name === 'Vinayaka Chaturti')?.filters, ['vinayaka-chaturthi'])
+  assert.deepEqual(on('2026-11-17').find(event => event.name === 'Masik Durgashtami')?.filters, ['masik-durgashtami'])
+  assert.deepEqual(on('2026-11-27').find(event => event.name === 'Sankashti Chaturthi')?.filters, ['sankashti-chaturthi'])
+  assert.deepEqual(on('2026-09-14').find(event => event.id === 'ganesh-chaturthi')?.filters, ['festival'])
+  assert.ok(!on('2026-09-14').some(event => event.id === 'vinayaka-chaturthi'))
+  assert.ok(!getCalendarEvents(pickerDateFromKey('2026-11-17'), { ...city, calendarTradition: 'tamil' })
+    .some(event => event.id === 'masik-durgashtami'))
+})
+
+test('Moon phases shows localized Purnima and Amavasya, including a skipped sunrise tithi', () => {
+  const city = { lat: 23.18239, lon: 75.77643 }
+  const phases = (key, calendarTradition) => getCalendarEvents(pickerDateFromKey(key), { ...city, calendarTradition })
+    .filter(event => event.filters.includes('moon-phases'))
+    .map(event => event.name)
+  for (const [tradition, fullMoon, newMoon] of [
+    [null, 'Purnima', 'Amavasya'],
+    ['tamil', 'Pournami', 'Amavasai'],
+    ['telugu', 'Pournami', 'Amavasya'],
+    ['ujjain', 'Purnima', 'Amavasya'],
+  ]) {
+    assert.deepEqual(phases('2026-11-24', tradition), [fullMoon])
+    assert.deepEqual(phases('2026-11-09', tradition), [newMoon])
+  }
+  const skipped = getPanchaAngaAtSunrise(dateFromKey('2026-12-23'), { ...city, utcOffsetMinutes: 330 })
+  assert.equal(skipped.tithi.adjustedNumber, 14)
+  assert.deepEqual(phases('2026-12-23', 'ujjain'), ['Purnima'])
+  assert.deepEqual(phases('2026-12-24', 'ujjain'), [])
 })
 
 test('Calendar sunrise tithi can repeat or pass entirely between sunrises', () => {

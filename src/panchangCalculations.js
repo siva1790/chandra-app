@@ -2,6 +2,7 @@ import * as Astronomy from 'astronomy-engine'
 import { toSiderealLongitude } from './ayanamsha.js'
 import { getSunsetForDate, getTithiFromAngle } from './moonUtils.js'
 import { getEclipseForDate } from './eclipseUtils.js'
+import { DAY_MS, startOfCivilDay } from './civilDate.js'
 import { getYogaAtTime, getKaranaFromPhase, getMoonSiderealLongitude, getPanchaAngaAtSunrise, getDailyTimingRanges } from './panchangAnga.js'
 
 // Pure calculation layer: no React, settings storage, or browser APIs.
@@ -291,8 +292,10 @@ export function getPanchang(date, location = {}) {
   const tithiWindow = getTithiWindowAtTime(sunriseTime)
 
   // --- Nakshatra with start/end times (full-day scan) ---
-  const dayStart = new Date(date); dayStart.setHours(0, 0, 0, 0)
-  const dayEnd   = new Date(date); dayEnd.setHours(23, 59, 59, 999)
+  const dayStart = startOfCivilDay(date, location.utcOffsetMinutes)
+  const dayEnd = location.utcOffsetMinutes === undefined
+    ? new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999)
+    : new Date(+dayStart + DAY_MS - 1)
   const nakshatraList = []
   let cursor = new Date(dayStart)
   let currentIdx = getNakshatraIndex(cursor)
@@ -513,7 +516,7 @@ export function getPanchang(date, location = {}) {
   const karanaName = snapshot.karana
 
   // --- Daily Timings (actual sunrise/sunset) ---
-  const sunsetTime   = getSunsetForDate(date, location?.lat, location?.lon)
+  const sunsetTime   = getSunsetForDate(date, location.lat, location.lon, location.utcOffsetMinutes)
   const dailyTimings = getDailyTimingRanges(sunriseTime.getTime(), sunsetTime.getTime(), snapshot.weekday)
 
   // --- Month & Year ---
@@ -543,7 +546,7 @@ export function getPanchang(date, location = {}) {
   const isAmavasya = tithiName === 'Amavasya'
   const vishtiPeriods = karanaList.filter(k => k.name === 'Vishti')
   const isVishti   = vishtiPeriods.length > 0
-  const eclipse    = getEclipseForDate(date)
+  const eclipse    = getEclipseForDate(date, location.utcOffsetMinutes)
 
   return ({
     tithi: tithiName, paksha, tithiWindow,

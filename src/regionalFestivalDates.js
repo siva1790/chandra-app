@@ -53,16 +53,16 @@ const RAM_NAVAMI = { angle: 96, masa: 'Chaitra' }
 const RAKSHA_BANDHAN = { angle: 168, masa: 'Shravana', isRakshaBandhan: true }
 const GANESH_CHATURTHI = { angle: 36, masa: 'Bhadrapada' }
 
-export function getRegionalLunarFestivalNames(date, snapshot, location, tradition) {
-  const names = []
+export function getRegionalLunarFestivals(date, snapshot, location, tradition) {
+  const festivals = []
   if (matchesFestivalDate(date, snapshot, location, RAM_NAVAMI)) {
-    names.push({ tamil: 'Rama Navami', telugu: 'Sri Rama Navami', ujjain: 'Ram Navami' }[tradition])
+    festivals.push({ id: 'ram-navami', name: { tamil: 'Rama Navami', telugu: 'Sri Rama Navami', ujjain: 'Ram Navami' }[tradition] })
   }
   if (tradition !== 'tamil' && matchesFestivalDate(date, snapshot, location, RAKSHA_BANDHAN)) {
-    names.push('Raksha Bandhan')
+    festivals.push({ id: 'raksha-bandhan', name: 'Raksha Bandhan' })
   }
   if (matchesFestivalDate(date, snapshot, location, GANESH_CHATURTHI)) {
-    names.push({ tamil: 'Vinayagar Chathurthi', telugu: 'Vinayaka Chavithi', ujjain: 'Ganesh Chaturthi' }[tradition])
+    festivals.push({ id: 'ganesh-chaturthi', name: { tamil: 'Vinayagar Chathurthi', telugu: 'Vinayaka Chavithi', ujjain: 'Ganesh Chaturthi' }[tradition] })
   }
-  return names
+  return festivals
 }

@@ -12,7 +12,7 @@ const DAY_NAMES = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const THIS_YEAR = new Date().getFullYear()
 const YEARS = Array.from({ length: 201 }, (_, i) => THIS_YEAR - 100 + i)
 
-const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) => {
+const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef, monthOnly = false }) => {
   const selectedYearRef  = useRef(null)
   const touchStartX      = useRef(null)
   const touchStartY      = useRef(null)
@@ -26,7 +26,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
     if (open) {
       setViewYear(selectedDate.getFullYear())
       setViewMonth(selectedDate.getMonth())
-      setShowYearPicker(false)
+      setShowYearPicker(monthOnly)
     }
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -89,6 +89,11 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
   }
 
   const handleSelectMonth = (m) => {
+    if (monthOnly) {
+      onSelect(new Date(viewYear, m, 1))
+      onClose()
+      return
+    }
     setViewMonth(m)
     setShowYearPicker(false)
   }
@@ -113,11 +118,11 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
     viewYear === THIS_YEAR && viewMonth === new Date().getMonth()
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="Select date" triggerRef={triggerRef}>
+    <BottomSheet open={open} onClose={onClose} title={monthOnly ? 'Select month and year' : 'Select date'} triggerRef={triggerRef}>
         <div className="px-5 pb-10">
 
           {/* ── Header ── */}
-          <div className="flex items-center justify-between mb-5 mt-1">
+          {!monthOnly && <div className="flex items-center justify-between mb-5 mt-1">
             {showYearPicker ? (
               <>
                 <button
@@ -158,12 +163,12 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                 </button>
               </>
             )}
-          </div>
+          </div>}
 
           {/* ════════════════════
               MONTH GRID VIEW
           ════════════════════ */}
-          {!showYearPicker && (
+          {!monthOnly && !showYearPicker && (
             <>
               {/* Day-of-week headers */}
               <div className="grid grid-cols-7 mb-1" role="row" aria-hidden="true">
@@ -217,8 +222,17 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
           {/* ════════════════════
               MONTH & YEAR PICKER VIEW
           ════════════════════ */}
-          {showYearPicker && (
+          {(monthOnly || showYearPicker) && (
             <div className="max-h-96 overflow-y-auto pb-2">
+              {monthOnly && (
+                <label className="mb-4 flex items-center justify-between gap-3 text-support text-chandra-text-secondary">
+                  Year
+                  <select value={viewYear} onChange={event => handleSelectYear(Number(event.target.value))}
+                    className="min-h-[44px] rounded-control border border-white/10 bg-chandra-bg-elevated px-3 text-body text-chandra-text-primary">
+                    {(!YEARS.includes(viewYear) ? [...YEARS, viewYear].sort((a, b) => a - b) : YEARS).map(year => <option key={year}>{year}</option>)}
+                  </select>
+                </label>
+              )}
               <div className="mb-5">
                 <p className="mb-2 text-xs uppercase tracking-widest text-chandra-text-secondary">Month</p>
                 <div className="grid grid-cols-3 gap-2">
@@ -240,7 +254,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                 </div>
               </div>
 
-              <div>
+              {!monthOnly && <div>
                 <p className="mb-2 text-xs uppercase tracking-widest text-chandra-text-secondary">Year</p>
                 <div className="grid grid-cols-4 gap-2">
                   {YEARS.map(y => (
@@ -262,7 +276,7 @@ const DatePickerSheet = ({ open, onClose, selectedDate, onSelect, triggerRef }) 
                     </button>
                   ))}
                 </div>
-              </div>
+              </div>}
             </div>
           )}
 

@@ -364,17 +364,18 @@ pre .str { color: #4FAF7C; }
   <p>Sizes above are 12, 14, 16, 18, 24 and 28px at the browser default of 16px. Preserve user font preferences: never set a fixed root font size, disable zoom or scale body text with viewport percentages.</p>
   <h2 class="sub">Responsive rules and deliberate exceptions</h2>
   <ul>
-    <li>Settings is currently hidden behind <code>ENABLE_SETTINGS = false</code>. App and public navigation show only Panchang and Calendar, with equal-width mobile tabs. Old <code>#settings</code> links return to Panchang. Keep saved settings/profiles and the Settings implementation for future features; city selection remains on Panchang and About/Privacy stay in the header menu.</li>
+    <li>Settings is currently hidden behind <code>ENABLE_SETTINGS = false</code>. App and public navigation show Panchang, Calendar and Events, with equal-width mobile tabs. Old <code>#settings</code> links return to Panchang. Keep saved settings/profiles and the Settings implementation for future features; city selection remains on Panchang and About/Privacy stay in the header menu.</li>
     <li>Below 768px use stacked content. From 768px use two columns where readable; from 1024px expand spacing. Body, labels and controls retain their sizes. Let cards grow and text wrap; avoid fixed card heights.</li>
     <li>Calendar cells are a dense-data exception: day numbers 14px equivalent, weekday/Tithi labels 12px equivalent. Mobile may omit Tithi labels; tablet uses readable abbreviations with full accessible day labels, desktop shows full names. Event names remain at least 14px.</li>
     <li>Place Calendar tradition beside the Gregorian date controls and keep the calculation city visible. Grid shows the moon phase and a festival or event marker with a visible legend and accessible event names. List shows date, weekday, the five sunrise Pancha Anga, the selected tradition’s month, and up to two entries using 12px labels and 14px values. Grid dates and entire List cards open the day summary. The summary shows all entries, a tithi timeline between local sunrises with dated IST end times, and a View Full Panchang action for the selected date. Selecting List places today at the top in the current month. Other months start at the 1st. Short windows and enlarged text use natural page scrolling.</li>
+    <li>Events and Calendar share the same heading, subtitle and gold city pin layout. Calendar tradition sits above the full-width date or month picker. Below 768px, keep All, Festivals, Moon phases and Astronomical events visible in that order within two rows. Add observance chips as space permits and use a horizontal ellipsis to reveal the rest. From 768px, show all chips. Festival cards use a gold leading border, gold title and tinted surface. The entire card opens the shared Calendar day summary. Close returns focus to the card, and View Full Panchang opens the selected date.</li>
     <li>In Calendar List, completed dates in IST use a darker card surface, a subtler border and regular-weight Mist Grey for the date and Panchang values. Include the completed status in the row’s accessible name. On the first civil date of a Tamil solar month or the first sunrise of a lunar month in the selected tradition, use bold Soft Moon Gold for both the date and the displayed month value, with the month start in the accessible name. Use bold Sky Blue for the Amavasya and Purnima Tithi values, including on completed days and under their regional names. Keep the Today badge and date actions visible.</li>
     <li>Show a secondary “Between sunrises” line in Calendar List and in Pancha Anga on the full Panchang for a tithi that begins and ends between local sunrises. When one tithi spans two sunrises, show the next tithi as “After sunrise” on the second date. At 768px and wider, mark either secondary line with a plus in Grid and explain it in the legend. Below 768px, hide all visible tithi labels in Grid to keep date cells uniform. Grid’s accessible date names include the tithis at every width. Keep the sunrise tithi as the primary value and use the selected tradition’s terms in Calendar views.</li>
     <li>Uppercase 12px eyebrows may label categories; they must not replace the heading of a major card. Use semantic H1/H2/H3 in order, with accordion buttons inside headings.</li>
     <li>Keep Learn/Privacy prose in a capped reading column. Illustration labels should be HTML text so they do not shrink with SVG geometry. Decorative celestial symbols and icon geometry are not body typography.</li>
     <li>Calendar system options contain a 16px semibold name and 14px description, with 16px padding and an 8px gap. Place regional state lists in the separate Which should I choose? disclosure, collapsed by default. Keep a brief regional summary visible when closed.</li>
     <li>Settings card pairs stretch to the taller card in each tablet/desktop row. Expanded guidance increases both cards naturally; mobile remains independent.</li>
-    <li>The merged Panchang homepage has date navigation, a conditional Day's highlight, the main Panchang grid through Month &amp; Year, Planetary Positions and Panchang by city. Pancha Anga begins with the moon image, moonrise and moonset inside the same card, followed by a divider and the five limbs. Remove the separate Cosmos card, phase text and illumination. Main navigation is Panchang / Calendar / Settings. My Day and Personalize are hidden; stored profiles are retained.</li>
+    <li>The merged Panchang homepage has date navigation, a conditional Day's highlight, the main Panchang grid through Month &amp; Year, Planetary Positions and Panchang by city. Pancha Anga begins with the moon image, moonrise and moonset inside the same card, followed by a divider and the five limbs. Remove the separate Cosmos card, phase text and illumination. Main navigation shows Panchang, Calendar and Events. My Day and Personalize are hidden; stored profiles are retained.</li>
     <li>Align the Panchang title and city control above the date bar. On tablet and desktop, place Calendar tradition alongside the Calendar heading and city. Keep the Calendar controls stacked on narrow screens. Reduce space between these controls while preserving 44px touch targets and readable text.</li>
     <li>The app, public city pages and public Learn guide share a 44px vertical-ellipsis menu at the far right of the fixed header. Use the icon radius for its trigger and the inset radius for its dropdown. The menu contains About Chandra and Privacy policy; Privacy uses the existing <code>/privacy.html</code> page in the same tab. About opens a centered, 24px-radius modal at every breakpoint: nearly full width on mobile, capped at 540px on tablet/desktop. Show app, existing version, Astronomy Engine data source and on-device calculations, plus concise sunrise/IST/Lahiri context and a Learn link. Keep a visible close button, Escape/backdrop dismissal, a keyboard focus loop and focus restoration to the ellipsis. Allow internal modal scrolling on short screens/enlarged text while keeping the close header visible. Settings retains city links, Learn and Privacy shortcuts; About facts live only in the shared modal.</li>
     <li>The compact moon row uses one moon column and two equal timing columns, with uniform gaps: 12px below 360px, 16px from 360px through tablet and 24px from 1024px. The visible moon is 88px below 360px, 96px on larger mobile/tablet and 104px on desktop. Preserve the shadow-overlay renderer and sunrise phase calculation; keep an accessible image description. Moonrise and moonset retain their rounded IST times and dates, absent-event messages and dated following-moonset pairing.</li>
@@ -1003,24 +1004,20 @@ const BottomSheet = ({ open, onClose, title, children }) => {
 
   <div class="preview-box" style="padding:0;overflow:hidden">
     <div style="padding:20px 20px 0">
-      <div class="preview-label">Bottom Navigation — Active: Home</div>
+      <div class="preview-label">Bottom Navigation · Panchang active</div>
     </div>
     <div class="nav-preview">
       <div class="nav-item active">
-        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
-        <span class="nav-text">Today</span>
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19.5V5a3 3 0 0 1 3-3h15v15H5.5a2.5 2.5 0 0 0 0 5H19v-5"/><path d="M12 6h3.5M12 6v7H8.5M8.5 6v3.5h7V13" stroke-width="1.25"/></svg>
+        <span class="nav-text">Panchang</span>
       </div>
       <div class="nav-item">
         <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <span class="nav-text">Calendar</span>
       </div>
       <div class="nav-item">
-        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-        <span class="nav-text">Panchang</span>
-      </div>
-      <div class="nav-item">
-        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
-        <span class="nav-text">Settings</span>
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M8 2v4m8-4v4M3 9h18M12 12l1 2.5 2.5 1-2.5 1L12 19l-1-2.5-2.5-1 2.5-1Z"/></svg>
+        <span class="nav-text">Events</span>
       </div>
     </div>
   </div>

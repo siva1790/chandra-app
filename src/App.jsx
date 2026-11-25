@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import './index.css'
 import Calendar from './pages/Calendar'
+import Events from './pages/Events'
 import Panchang from './pages/Panchang'
 import Settings from './pages/Settings'
 import Learn from './pages/Learn'
@@ -10,24 +11,27 @@ import { ENABLE_SETTINGS, ENABLE_SUBSCRIPTIONS } from './featureFlags'
 import SubscribeSheet from './components/SubscribeSheet'
 import OfflineBanner from './components/OfflineBanner'
 import { trackPageView } from './analytics'
-import { indianDateKey } from './civilDate.js'
+import { indianDateKey, indianDayFromPicker, pickerDateFromKey } from './civilDate.js'
 import PanchangIcon from './components/PanchangIcon.jsx'
+import EventsIcon from './components/EventsIcon.jsx'
 import HeaderMenu from './components/HeaderMenu.jsx'
 import { Bell, Calendar as CalendarIcon, Settings as SettingsIcon } from 'lucide-react'
 
 const NAV_ITEMS = [
   { id: 'panchang', label: 'Panchang', Icon: PanchangIcon },
   { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
+  { id: 'events', label: 'Events', Icon: EventsIcon },
   { id: 'settings', label: 'Settings', Icon: SettingsIcon },
 ].filter(item => ENABLE_SETTINGS || item.id !== 'settings')
-const TAB_NAMES = { calendar: 'Calendar', panchang: 'Panchang', settings: 'Settings', learn: 'Learn' }
+const TAB_NAMES = { calendar: 'Calendar', events: 'Events', panchang: 'Panchang', settings: 'Settings', learn: 'Learn' }
 
 // Feature flag — set to true to re-enable the subscription UI
 function App() {
   const [screen, setScreen] = useState('panchang')
   const [learnTarget, setLearnTarget] = useState(null)
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [globalDate, setGlobalDate] = useState(new Date())
+  const [globalDate, setGlobalDate] = useState(() => pickerDateFromKey(indianDateKey()))
+  const [eventTarget, setEventTarget] = useState(null)
   const [learnReturnContext, setLearnReturnContext] = useState(null)
   const [todayKey, setTodayKey] = useState(indianDateKey)
   const bellButtonRef = useRef(null)
@@ -37,13 +41,26 @@ function App() {
   useEffect(() => {
     const syncFromHash = () => {
       const hash = window.location.hash.replace(/^#/, '')
+      const eventLink = /^panchang\/(\d{4}-\d{2}-\d{2})\/([a-z0-9-]+)$/.exec(hash)
+      setEventTarget(null)
+      if (eventLink) {
+        const [, key, id] = eventLink
+        const date = pickerDateFromKey(key)
+        if (!Number.isNaN(+date) && indianDateKey(indianDayFromPicker(date)) === key) {
+          setGlobalDate(date)
+          setEventTarget(`${key}-${id}`)
+          setScreen('panchang')
+          trackPageView('Panchang')
+          return
+        }
+      }
       if (hash === 'settings' && !ENABLE_SETTINGS) {
         window.history.replaceState(null, '', window.location.pathname + window.location.search)
         setScreen('panchang')
         trackPageView('Panchang')
         return
       }
-      if (['calendar', 'panchang', 'settings'].includes(hash)) {
+      if (['calendar', 'events', 'panchang', 'settings'].includes(hash)) {
         setScreen(hash)
         trackPageView(TAB_NAMES[hash])
         return
@@ -71,7 +88,9 @@ function App() {
       const today = indianDateKey()
       if (today === todayKey) return
       setTodayKey(today)
-      setGlobalDate(previous => indianDateKey(previous) === todayKey ? new Date() : previous)
+      if (!eventTarget) {
+        setGlobalDate(previous => indianDateKey(indianDayFromPicker(previous)) === todayKey ? pickerDateFromKey(today) : previous)
+      }
     }
     const interval = window.setInterval(refreshToday, 60000)
     window.addEventListener('focus', refreshToday)
@@ -81,11 +100,12 @@ function App() {
       window.removeEventListener('focus', refreshToday)
       document.removeEventListener('visibilitychange', refreshToday)
     }
-  }, [todayKey])
+  }, [todayKey, eventTarget])
 
   // Direct tab tap — preserves current globalDate (no reset)
   const navigate = (tab) => {
     setScreen(tab)
+    setEventTarget(null)
     if (tab !== 'learn') setLearnReturnContext(null)
     if (tab !== 'learn') {
       const hash = tab === 'panchang' ? '' : `#${tab}`
@@ -99,6 +119,13 @@ function App() {
   const navigateToPanchang = (date) => {
     setGlobalDate(new Date(date))
     navigate('panchang')
+  }
+
+  const changePanchangDate = date => {
+    setGlobalDate(date)
+    if (!eventTarget) return
+    setEventTarget(null)
+    window.history.replaceState(null, '', window.location.pathname + window.location.search)
   }
 
   const navigateToLearn = (target) => {
@@ -206,7 +233,8 @@ function App() {
         {...(sheetOpen ? { inert: '' } : {})}
       >
         <div style={{ display: screen === 'calendar' ? 'block' : 'none' }}><Calendar active={screen === 'calendar'} selectedDate={globalDate} todayKey={todayKey} onDateChange={setGlobalDate} onSelectDate={navigateToPanchang} /></div>
-        <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} onDateChange={setGlobalDate} onLearn={navigateToLearn} /></div>
+        <div hidden={screen !== 'events'}><Events active={screen === 'events'} todayKey={todayKey} onSelectDate={navigateToPanchang} /></div>
+        <div style={{ display: screen === 'panchang' ? 'block' : 'none' }}><Panchang location={settings} initialDate={globalDate} eventTarget={eventTarget} onDateChange={changePanchangDate} onLearn={navigateToLearn} /></div>
         <div style={{ display: screen === 'settings' ? 'block' : 'none' }}>
           <Settings
             onOpenSubscribe={ENABLE_SUBSCRIPTIONS ? () => setSheetOpen(true) : undefined}

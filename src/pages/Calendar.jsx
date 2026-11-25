@@ -1,18 +1,15 @@
-import { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import { getPhaseEmoji, getSunriseForDate, getTithiAtSunrise } from '../moonUtils'
-import { getPanchaAngaAtSunrise } from '../panchangAnga.js'
-import { getAdditionalTithi, getTithiTimeline } from '../panchangCalculations.js'
-import { CALENDAR_TRADITIONS, getCalendarTithiName, getRegionalFestivals, getRegionalMonth } from '../regionalCalendar.js'
-import { DAY_MS, INDIA_OFFSET_MINUTES, indianDateKey, indianDayFromPicker } from '../civilDate.js'
-import { formatEventDate, formatEventTime, roundTimeForDisplay } from '../timeFormatting.js'
-import { getEclipseForDate, eclipseTypeLabel } from '../eclipseUtils'
-import { EclipseIcon } from '../components/EclipseIcons'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { getTithiAtSunrise } from '../moonUtils.js'
+import { getAdditionalTithi } from '../panchangCalculations.js'
+import { CALENDAR_TRADITIONS, getCalendarTithiName } from '../regionalCalendar.js'
+import { INDIA_OFFSET_MINUTES, indianDayFromPicker } from '../civilDate.js'
+import { formatRegionalMonth, getCalendarDay, phaseLabel } from '../calendarDay.js'
 import { useSettings } from '../SettingsContext'
 import DateStrip from '../components/DateStrip'
-import BottomSheet from '../components/ui/BottomSheet'
-import Button from '../components/ui/Button'
+import CalendarDaySummary from '../components/CalendarDaySummary.jsx'
+import CalendarMasthead from '../components/CalendarMasthead.jsx'
 import Card from '../components/ui/Card'
-import { Calendar as CalendarIcon, Star, Clock, MapPin, List } from 'lucide-react'
+import { Calendar as CalendarIcon, List } from 'lucide-react'
 import './Calendar.css'
 
 // Full names stay in the accessible day label and the day summary.
@@ -23,23 +20,8 @@ const COMPACT_TITHI_NAMES = {
   Ashtami: 'Asht.', Dashami: 'Dash.', Dwitiya: 'Dwiti.', Saptami: 'Sapt.',
 }
 
-const phaseLabel = (emoji) => ({
-  '🌑': 'New moon',
-  '🌒': 'Waxing crescent',
-  '🌓': 'First quarter',
-  '🌔': 'Waxing gibbous',
-  '🌕': 'Full moon',
-  '🌖': 'Waning gibbous',
-  '🌗': 'Last quarter',
-  '🌘': 'Waning crescent',
-})[emoji] || 'Moon phase'
-
-// ─────────────────────────────────────────────────────────────────
-
-const formatRegionalMonth = ({ name, day }) => (name && day ? `${day} ${name}` : name ?? 'Unavailable')
-
 const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectDate, active = true }) => {
-  const { settings, updateSettings } = useSettings()
+  const { settings } = useSettings()
   const tradition = Object.hasOwn(CALENDAR_TRADITIONS, settings.calendarTradition) ? settings.calendarTradition : ''
   // currentDate tracks which month is displayed; initialised from selectedDate
   const [currentDate, setCurrentDate] = useState(
@@ -47,12 +29,6 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
   )
   const [calendarDays, setCalendarDays] = useState([])
   const [selectedDay, setSelectedDay] = useState(null)       // for modal
-  const tithiTimeline = useMemo(() => {
-    if (!selectedDay) return []
-    const nextDay = new Date(+indianDayFromPicker(selectedDay.date) + DAY_MS)
-    const nextSunrise = getSunriseForDate(nextDay, settings.lat, settings.lon, INDIA_OFFSET_MINUTES)
-    return getTithiTimeline(selectedDay.anga.sunrise, nextSunrise)
-  }, [selectedDay, settings.lat, settings.lon])
   const [tapSelectedDate, setTapSelectedDate] = useState(null) // set only on explicit tap
   const [displayMode, setDisplayMode] = useState('grid')
   const [listJump, setListJump] = useState({ day: null, sequence: 0 })
@@ -160,58 +136,6 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
     setListJump(previous => ({ day: null, sequence: previous.sequence + 1 }))
   }
 
-  // Close modal on Escape key
-  useEffect(() => {
-    if (!selectedDay) return
-    const onKey = (e) => { if (e.key === 'Escape') closeModal() }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [selectedDay])
-
-  useEffect(() => {
-    if (!selectedDay) return
-
-    const scrollY = window.scrollY
-    const previousStyles = {
-      position: document.body.style.position,
-      top: document.body.style.top,
-      width: document.body.style.width,
-      overflow: document.body.style.overflow,
-    }
-
-    document.body.style.position = 'fixed'
-    document.body.style.top = `-${scrollY}px`
-    document.body.style.width = '100%'
-    document.body.style.overflow = 'hidden'
-
-    return () => {
-      document.body.style.position = previousStyles.position
-      document.body.style.top = previousStyles.top
-      document.body.style.width = previousStyles.width
-      document.body.style.overflow = previousStyles.overflow
-      window.scrollTo(0, scrollY)
-    }
-  }, [selectedDay])
-
-  const buildCalendarDay = (date, includeEvents = true) => {
-    const day = date.getDate()
-    const indiaDate = indianDayFromPicker(date)
-    const dateKey = indianDateKey(indiaDate)
-    const location = { lat: settings.lat, lon: settings.lon, utcOffsetMinutes: INDIA_OFFSET_MINUTES, calendarSystem: settings.calendarSystem }
-    const anga = getPanchaAngaAtSunrise(indiaDate, location)
-    const regionalMonth = getRegionalMonth(indiaDate, anga, location, tradition, settings.calendarSystem)
-    if (!includeEvents) return { regionalMonth, tithi: anga.tithi }
-
-    const festivals = getRegionalFestivals(indiaDate, anga, location, tradition, regionalMonth)
-    const eclipse = getEclipseForDate(date)
-    const entryNames = [...(eclipse ? [eclipse.hinduName] : []), ...festivals.map(event => event.name)]
-    return {
-      day, date, dateKey, anga, festivals, eclipse, regionalMonth, entryNames,
-      tithi: anga.tithi,
-      tithiName: getCalendarTithiName(anga.tithi, tradition),
-      phaseEmoji: getPhaseEmoji(anga.phaseAngle),
-    }
-  }
   const buildCalendar = () => {
     const year = currentDate.getFullYear()
     const month = currentDate.getMonth()
@@ -224,10 +148,10 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
       days.push(null)
     }
 
-    const lastDayOfPreviousMonth = buildCalendarDay(new Date(year, month, 0), false)
+    const lastDayOfPreviousMonth = getCalendarDay(new Date(year, month, 0), settings, false)
     let previousMonth = lastDayOfPreviousMonth.regionalMonth.name
     for (let d = 1; d <= daysInMonth; d++) {
-      const day = buildCalendarDay(new Date(year, month, d))
+      const day = getCalendarDay(new Date(year, month, d), settings)
       const { name, day: solarDay } = day.regionalMonth
       const startsMonth = tradition === 'tamil' ? solarDay === 1 : Boolean(name && previousMonth && name !== previousMonth)
       days.push({ ...day, startsMonth })
@@ -241,17 +165,17 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
     }))
   }
 
-  const openModal = (day) => {
-    dayTriggerRef.current = document.activeElement
+  const openModal = (day, trigger) => {
+    dayTriggerRef.current = trigger
     setSelectedDay(day)
     setTapSelectedDate(new Date(day.date))  // mark this date as explicitly selected
     onDateChange?.(new Date(day.date))       // update global date on tap
   }
 
   const handlePickerSelect = (date) => {
-    dayTriggerRef.current = document.querySelector('.calendar-datebar [aria-haspopup="dialog"]')
+    dayTriggerRef.current = pageRef.current?.querySelector('.calendar-datebar [aria-haspopup="dialog"]')
     const pickedDate = new Date(date)
-    const pickedDay = buildCalendarDay(pickedDate)
+    const pickedDay = getCalendarDay(pickedDate, settings)
 
     setCurrentDate(new Date(pickedDate.getFullYear(), pickedDate.getMonth(), 1))
     setSelectedDay(pickedDay)
@@ -270,12 +194,6 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
 
   const closeModal = () => {
     setSelectedDay(null)
-  }
-
-  const goToPanchang = () => {
-    const date = selectedDay.date
-    closeModal()
-    onSelectDate?.(date)
   }
 
   const prevMonth = () => {
@@ -308,25 +226,7 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
   return (
     <div ref={pageRef} className="calendar-page px-4 py-8 max-w-md mx-auto">
 
-      <header className="calendar-masthead">
-        <div className="calendar-header">
-          <h1 className="text-chandra-gold text-page-title">Calendar</h1>
-          <div className="calendar-header-details">
-            <p className="calendar-subtitle text-sm text-chandra-text-secondary">Hindu Panchang &amp; festival calendar</p>
-            <p className="calendar-context">
-              <MapPin size={14} strokeWidth={1.75} aria-hidden="true" />
-              <span>{settings.city}</span>
-            </p>
-          </div>
-        </div>
-        <label className="calendar-tradition">
-          <span>Calendar tradition</span>
-          <select value={tradition} onChange={event => updateSettings('calendarTradition', event.target.value || null)}>
-            <option value="">Shared festivals</option>
-            {Object.entries(CALENDAR_TRADITIONS).map(([id, item]) => <option key={id} value={id}>{item.name}</option>)}
-          </select>
-        </label>
-      </header>
+      <CalendarMasthead title="Calendar" subtitle="Hindu Panchang & festival calendar" city={settings.city} />
 
       {/* Gregorian month and date controls */}
       <DateStrip
@@ -376,7 +276,7 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
                 return (
               <button
                 key={idx}
-                onClick={() => openModal(day)}
+                onClick={event => openModal(day, event.currentTarget)}
                 aria-haspopup="dialog"
                 aria-pressed={isSelected}
                 aria-current={isToday ? 'date' : undefined}
@@ -432,7 +332,7 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
               <Card key={day.day} as="article" className={`calendar-list-day ${isToday ? 'calendar-list-today' : ''}`} data-list-day={day.day} data-completed={isCompleted || undefined} data-month-start={day.startsMonth || undefined} aria-label={dateLabel}>
                 <div className="calendar-list-date">
                   <h3 className="text-body font-semibold">
-                    <button type="button" className="calendar-list-summary" onClick={() => openModal(day)} aria-label={`Open day summary for ${dateLabel}`} aria-haspopup="dialog">
+                    <button type="button" className="calendar-list-summary" onClick={event => openModal(day, event.currentTarget)} aria-label={`Open day summary for ${dateLabel}`} aria-haspopup="dialog">
                       <time dateTime={day.dateKey}>{day.day} {monthNames[day.date.getMonth()].slice(0, 3)}</time>
                     </button>
                   </h3>
@@ -484,107 +384,10 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
         <span>Chandra · Indian Moon Tracker</span>
       </footer>
 
-      {/* ── Day Detail Modal (bottom sheet) ─────────────────────── */}
-        <BottomSheet
-          open={Boolean(selectedDay)}
-          onClose={closeModal}
-          labelledBy="day-modal-title"
-          className="calendar-day-sheet mx-auto max-w-md"
-          triggerRef={dayTriggerRef}
-        >
-          {selectedDay && (
-          <div className="px-5 pb-10">
-            {/* Date header */}
-            <div className="mb-4">
-              <h2 id="day-modal-title" className="text-card-title text-chandra-text-primary">
-                {selectedDay.date.toLocaleDateString('en-IN', {
-                  weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-                })}
-              </h2>
-              <p className="mt-0.5 text-sm text-chandra-gold">
-                <span role="img" aria-label={phaseLabel(selectedDay.phaseEmoji)}>{selectedDay.phaseEmoji}</span> {selectedDay.tithiName} · {selectedDay.tithi.paksha}
-              </p>
-              <p className="text-support text-chandra-text-secondary">
-                {formatRegionalMonth(selectedDay.regionalMonth)}{tradition && ` · ${CALENDAR_TRADITIONS[tradition].name}`}
-              </p>
-            </div>
-
-            {/* Eclipse highlight */}
-            {selectedDay.eclipse && (
-              <div className="mb-4 flex items-center gap-3 rounded-card border border-chandra-warning/30 bg-chandra-warning/15 p-3">
-                <EclipseIcon eclipse={selectedDay.eclipse} size={28} />
-                <div>
-                  <p className="text-sm font-semibold text-chandra-warning-text">{selectedDay.eclipse.hinduName}</p>
-                  <p className="mt-0.5 text-xs text-chandra-warning">{eclipseTypeLabel(selectedDay.eclipse)}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Festival highlights */}
-            {selectedDay.festivals.length > 0 && (
-              <div className="flex flex-col gap-2 mb-4">
-                {selectedDay.festivals.map((f, i) => (
-                  <div key={i} className="flex items-center gap-2 rounded-card border border-chandra-success/30 bg-chandra-success/15 px-3 py-2">
-                    {f.emoji && <span className="text-lg" aria-hidden="true">{f.emoji}</span>}
-                    <p className="text-sm font-medium text-chandra-text-primary">{f.name}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Pancha Anga */}
-            <Card className="mb-5">
-              <h3 className="mb-3 text-body font-semibold text-chandra-gold">Pancha Anga</h3>
-              <div className="flex flex-col gap-2">
-                <div className="calendar-tithi-timeline">
-                  <h4 className="text-support font-semibold">Tithi timeline</h4>
-                  <p className="text-meta text-chandra-text-secondary">Sunrise to next sunrise · IST</p>
-                  <ol className="mt-2 flex flex-col gap-1">
-                    {tithiTimeline.map(({ tithi, end }) => {
-                      const endDate = end && indianDateKey(roundTimeForDisplay(end)) !== selectedDay.dateKey
-                        ? `, ${formatEventDate(end)}` : ''
-                      return (
-                        <li key={tithi.number} className="calendar-tithi-timeline-entry text-support">
-                          <span className="font-semibold">{tithi.paksha} {getCalendarTithiName(tithi, tradition)}</span>
-                          <span className="text-chandra-text-secondary">{end ? <>Until <time dateTime={end.toISOString()}>{formatEventTime(end)}{endDate}</time></> : 'End time unavailable'}</span>
-                        </li>
-                      )
-                    })}
-                  </ol>
-                </div>
-                <ModalRow icon={Star} label="Nakshatra" value={selectedDay.anga.nakshatra} sub={`Pada ${selectedDay.anga.pada}`} />
-                <ModalRow icon={Clock} label="Yoga" value={selectedDay.anga.yoga} />
-                <ModalRow icon="½" label="Karana" value={selectedDay.anga.karana} />
-                <ModalRow icon={CalendarIcon} label="Vara" value={selectedDay.anga.vara} sub={selectedDay.anga.varaDeity} />
-              </div>
-            </Card>
-
-            {/* CTA */}
-            <Button onClick={goToPanchang} className="w-full">
-              View Full Panchang
-            </Button>
-          </div>
-          )}
-        </BottomSheet>
+      <CalendarDaySummary day={active ? selectedDay : null} settings={settings} triggerRef={dayTriggerRef}
+        onClose={closeModal} onSelectDate={onSelectDate} />
     </div>
   )
 }
-
-// Compact row for modal Pancha Anga — icon can be a Lucide component or emoji string
-const ModalRow = ({ icon: Icon, label, value, sub }) => (
-  <div className="flex items-center justify-between border-b border-white/10 py-1.5 last:border-0">
-    <div className="flex items-center gap-2">
-      {typeof Icon === 'string'
-        ? <span className="text-sm" aria-hidden="true">{Icon}</span>
-        : <Icon size={14} aria-hidden="true" strokeWidth={1.75} className="shrink-0 text-chandra-text-secondary" />
-      }
-      <span className="text-sm text-chandra-text-secondary">{label}</span>
-    </div>
-    <div className="text-right">
-      <p className="text-body font-semibold text-chandra-text-primary">{value}</p>
-      {sub && <p className="text-xs text-chandra-text-secondary">{sub}</p>}
-    </div>
-  </div>
-)
 
 export default Calendar

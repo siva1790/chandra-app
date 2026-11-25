@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import DatePickerSheet from './DatePickerSheet'
 import Button from './ui/Button'
+import { indianDateKey, pickerDateFromKey } from '../civilDate.js'
 
 /**
  * DateStrip — shared date navigation bar used on Day View, Calendar, and Panchang.
@@ -12,11 +13,11 @@ import Button from './ui/Button'
  *                   'day'   — arrows step ±1 day   (Day View, Panchang)
  *                   'month' — arrows step ±1 month with day clamping (Calendar)
  */
-const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = 'day', responsive = false }) => {
+const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = 'day', monthOnly = false, responsive = false }) => {
   const [pickerOpen, setPickerOpen] = useState(false)
   const pickerTriggerRef = useRef(null)
 
-  const today = new Date()
+  const today = pickerDateFromKey(indianDateKey())
   const isToday = mode === 'month'
     ? date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()
     : date.toDateString() === today.toDateString()
@@ -48,7 +49,7 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
   }
 
   const goToToday = () => {
-    const todayDate = new Date()
+    const todayDate = today
     if (onTodaySelect) onTodaySelect(todayDate)
     else onDateChange(todayDate)
   }
@@ -74,7 +75,7 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
           <button
             ref={pickerTriggerRef}
             onClick={() => setPickerOpen(true)}
-            aria-label={`Selected date: ${label}. Tap to change.`}
+            aria-label={`Selected ${monthOnly ? 'month' : 'date'}: ${label}. Tap to change.`}
             aria-haspopup="dialog"
             className="flex flex-1 flex-col items-center gap-0.5 rounded-control px-3 py-1 transition-all hover:bg-chandra-bg-elevated"
           >
@@ -120,6 +121,7 @@ const DateStrip = ({ date, onDateChange, onPickerSelect, onTodaySelect, mode = '
           setPickerOpen(false)
         }}
         triggerRef={pickerTriggerRef}
+        monthOnly={monthOnly}
       />
     </>
   )

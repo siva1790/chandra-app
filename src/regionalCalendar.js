@@ -3,7 +3,7 @@ import { ANNUAL_FESTIVALS, getFestivalsForDate } from './festivals.js'
 import { getMoonPhaseAngle, getSunriseForDate } from './moonUtils.js'
 import { getLunarMonthLabels } from './panchangCalculations.js'
 import { getTamilSolarDate } from './tamilSolarCalendar.js'
-import { getRegionalLunarFestivalNames } from './regionalFestivalDates.js'
+import { getRegionalLunarFestivals } from './regionalFestivalDates.js'
 
 export const CALENDAR_TRADITIONS = {
   tamil: { name: 'Tamil · Solar', highlightLabel: 'Tamil tradition' },
@@ -42,19 +42,19 @@ export function getRegionalMonth(date, snapshot, location, tradition, calendarSy
   return { name: tradition === 'telugu' ? name?.replace(/\w+$/, word => TELUGU_MONTHS[word] ?? word) : name }
 }
 
-const major = name => ({ name, type: 'major' })
+const major = (id, name) => ({ id, name, type: 'major' })
 
 const TELUGU_FESTIVALS = {
-  'Dussehra (Vijayadashami)': 'Vijayadashami',
-  'Diwali (Deepavali)': 'Deepavali',
+  'dussehra-vijayadashami': 'Vijayadashami',
+  'diwali-deepavali': 'Deepavali',
 }
 const UJJAIN_FESTIVALS = {
-  'Dussehra (Vijayadashami)': 'Vijayadashami',
-  'Diwali (Deepavali)': 'Diwali',
+  'dussehra-vijayadashami': 'Vijayadashami',
+  'diwali-deepavali': 'Diwali',
 }
 const regionalRules = {
-  telugu: ANNUAL_FESTIVALS.filter(rule => Object.hasOwn(TELUGU_FESTIVALS, rule.name)),
-  ujjain: ANNUAL_FESTIVALS.filter(rule => Object.hasOwn(UJJAIN_FESTIVALS, rule.name)),
+  telugu: ANNUAL_FESTIVALS.filter(rule => Object.hasOwn(TELUGU_FESTIVALS, rule.id)),
+  ujjain: ANNUAL_FESTIVALS.filter(rule => Object.hasOwn(UJJAIN_FESTIVALS, rule.id)),
 }
 
 const sunriseNear = (date, days, { lat, lon, utcOffsetMinutes }) =>
@@ -91,24 +91,27 @@ function isTamilDeepavali(date, snapshot, location) {
 
 export function getRegionalFestivals(date, snapshot, location, tradition, regionalMonth) {
   const options = { ...location, tithiNumber: snapshot.tithi.adjustedNumber, paksha: snapshot.tithi.paksha }
-  if (!Object.hasOwn(CALENDAR_TRADITIONS, tradition)) return getFestivalsForDate(date, options)
-  const regionalFestivals = getRegionalLunarFestivalNames(date, snapshot, location, tradition).map(major)
+  if (!Object.hasOwn(CALENDAR_TRADITIONS, tradition)) return getFestivalsForDate(date, { ...options, includeObservances: false })
+  const regionalFestivals = getRegionalLunarFestivals(date, snapshot, location, tradition)
+    .map(({ id, name }) => major(id, name))
 
   if (tradition === 'tamil') {
     const festivals = regionalFestivals
-    if (regionalMonth.name === 'Chithirai' && regionalMonth.day === 1) festivals.push(major('Puthandu'))
-    if (regionalMonth.name === 'Thai' && regionalMonth.day === 1) festivals.push(major('Thai Pongal'))
-    if (regionalMonth.name === 'Aadi' && regionalMonth.day === 18) festivals.push(major('Aadi Perukku'))
-    if (isTamilDeepavali(date, snapshot, location)) festivals.push(major('Deepavali'))
+    if (regionalMonth.name === 'Chithirai' && regionalMonth.day === 1) festivals.push(major('puthandu', 'Puthandu'))
+    if (regionalMonth.name === 'Thai' && regionalMonth.day === 1) festivals.push(major('makar-sankranti-pongal', 'Thai Pongal'))
+    if (regionalMonth.name === 'Aadi' && regionalMonth.day === 18) festivals.push(major('aadi-perukku', 'Aadi Perukku'))
+    if (isTamilDeepavali(date, snapshot, location)) festivals.push(major('diwali-deepavali', 'Deepavali'))
     return festivals
   }
 
   const names = tradition === 'telugu' ? TELUGU_FESTIVALS : UJJAIN_FESTIVALS
   const calendarSystem = tradition === 'ujjain' ? 'Purnimant' : 'Amavasyant'
   const festivals = getFestivalsForDate(date, { ...options, calendarSystem, annualRules: regionalRules[tradition], includeObservances: false })
-    .map(festival => ({ ...festival, name: names[festival.name] }))
+    .map(festival => ({ ...festival, name: names[festival.id] }))
   if (isChaitraPratipadaObservance(date, snapshot.sunrise, location)) {
-    festivals.unshift(major(tradition === 'telugu' ? 'Ugadi' : 'Chaitra Navratri Begins'))
+    festivals.unshift(tradition === 'telugu'
+      ? major('ugadi-gudi-padwa', 'Ugadi')
+      : major('chaitra-navratri-begins', 'Chaitra Navratri Begins'))
   }
   return [...festivals, ...regionalFestivals]
 }

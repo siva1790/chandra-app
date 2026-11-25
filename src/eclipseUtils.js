@@ -1,4 +1,5 @@
 import * as Astronomy from 'astronomy-engine'
+import { DAY_MS, startOfCivilDay } from './civilDate.js'
 
 /**
  * Eclipse utilities for Chandra app.
@@ -77,20 +78,19 @@ export const getEclipsesForYear = (year) => {
  * Checks the year of the date and, for Jan dates, also the prior year
  * to handle UTC/IST boundary edge cases.
  */
-export const getEclipseForDate = (date) => {
-  const ds = localMidnight(date)
-  const year = date.getFullYear()
-
-  // Check current year (and prior year for Jan 1 boundary safety)
-  const yearsToCheck = year === date.getMonth() === 0 ? [year - 1, year] : [year]
-
-  for (const y of [year]) {
-    const found = getEclipsesForYear(y).find(e => {
-      return localMidnight(e.peakTime).getTime() === ds.getTime()
-    })
-    if (found) return found
+export const getEclipseForDate = (date, utcOffsetMinutes) => {
+  const ds = startOfCivilDay(date, utcOffsetMinutes)
+  if (utcOffsetMinutes !== undefined) {
+    const lastInstant = new Date(+ds + DAY_MS - 1)
+    const years = new Set([ds.getFullYear(), lastInstant.getFullYear()])
+    for (const year of years) {
+      const found = getEclipsesForYear(year).find(e => e.peakTime >= ds && e.peakTime <= lastInstant)
+      if (found) return found
+    }
+    return null
   }
-  return null
+  const year = date.getFullYear()
+  return getEclipsesForYear(year).find(e => +localMidnight(e.peakTime) === +ds) ?? null
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────

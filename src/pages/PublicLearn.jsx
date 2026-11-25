@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { CalendarDays, Settings } from 'lucide-react'
 import PanchangIcon from '../components/PanchangIcon.jsx'
+import EventsIcon from '../components/EventsIcon.jsx'
 import HeaderMenu from '../components/HeaderMenu.jsx'
 import { ENABLE_SETTINGS } from '../featureFlags.js'
 import Learn from './Learn.jsx'
@@ -12,7 +13,7 @@ const subscribe = callback => {
 }
 const getHash = () => window.location.hash
 const getServerHash = () => ''
-const links = [['/', 'Panchang', PanchangIcon], ['/#calendar', 'Calendar', CalendarDays], ['/#settings', 'Settings', Settings]].filter(([, label]) => ENABLE_SETTINGS || label !== 'Settings')
+const links = [['/', 'Panchang', PanchangIcon], ['/#calendar', 'Calendar', CalendarDays], ['/#events', 'Events', EventsIcon], ['/#settings', 'Settings', Settings]].filter(([, label]) => ENABLE_SETTINGS || label !== 'Settings')
 
 const PublicNavigation = ({ position }) => (
   <nav aria-label="Main navigation" className={`learn-public-navigation learn-public-navigation-${position}`}>
