@@ -128,8 +128,8 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
       {/* Header */}
       <header className="panchang-home-header">
-      <div className="panchang-heading text-center">
-        <h1 className="mb-1 flex items-center justify-center gap-2 text-chandra-gold text-page-title">
+      <div className="panchang-heading">
+        <h1 className="mb-1 text-chandra-gold text-page-title">
           Panchang
         </h1>
         <p className="text-sm text-chandra-text-secondary">Your daily Hindu almanac</p>

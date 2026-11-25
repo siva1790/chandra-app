@@ -308,25 +308,25 @@ const Calendar = ({ selectedDate = new Date(), todayKey, onDateChange, onSelectD
   return (
     <div ref={pageRef} className="calendar-page px-4 py-8 max-w-md mx-auto">
 
-      {/* Header */}
-      <div className="calendar-header text-center mb-6">
-        <h1 className="mb-1 flex items-center justify-center gap-2 text-chandra-gold text-page-title">
-          Calendar
-        </h1>
-        <p className="calendar-subtitle text-sm text-chandra-text-secondary">Hindu Panchang &amp; festival calendar</p>
-        <p className="calendar-context">
-          <MapPin size={14} strokeWidth={1.75} aria-hidden="true" />
-          <span>{settings.city}</span>
-        </p>
-      </div>
-
-      <label className="calendar-tradition">
-        <span>Calendar tradition</span>
-        <select value={tradition} onChange={event => updateSettings('calendarTradition', event.target.value || null)}>
-          <option value="">Shared festivals</option>
-          {Object.entries(CALENDAR_TRADITIONS).map(([id, item]) => <option key={id} value={id}>{item.name}</option>)}
-        </select>
-      </label>
+      <header className="calendar-masthead">
+        <div className="calendar-header">
+          <h1 className="text-chandra-gold text-page-title">Calendar</h1>
+          <div className="calendar-header-details">
+            <p className="calendar-subtitle text-sm text-chandra-text-secondary">Hindu Panchang &amp; festival calendar</p>
+            <p className="calendar-context">
+              <MapPin size={14} strokeWidth={1.75} aria-hidden="true" />
+              <span>{settings.city}</span>
+            </p>
+          </div>
+        </div>
+        <label className="calendar-tradition">
+          <span>Calendar tradition</span>
+          <select value={tradition} onChange={event => updateSettings('calendarTradition', event.target.value || null)}>
+            <option value="">Shared festivals</option>
+            {Object.entries(CALENDAR_TRADITIONS).map(([id, item]) => <option key={id} value={id}>{item.name}</option>)}
+          </select>
+        </label>
+      </header>
 
       {/* Gregorian month and date controls */}
       <DateStrip

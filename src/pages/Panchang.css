@@ -1,6 +1,9 @@
 /* Panchang layout only; shared calculations are in panchangCalculations.js. */
-.panchang-page { padding-top: 24px; }
+.panchang-page { padding-top: 14px; }
+.panchang-home-header { display: grid; grid-template-columns: minmax(0, 1fr) fit-content(46%); align-items: center; gap: 8px; }
 .panchang-home-header .panchang-preferences { display: contents; }
+.panchang-home-header .panchang-context-picker { justify-self: end; max-width: 100%; min-width: 0; margin: 0; padding-inline: 8px; }
+.panchang-home-header .panchang-context-picker > span { min-width: 0; overflow-wrap: anywhere; }
 .panchang-home-header .panchang-preferences-editor,.panchang-home-header .panchang-preferences-feedback { grid-column: 1 / -1; }
 .panchang-preferences-feedback:empty { display: none; }
 .panchang-page [role="dialog"][aria-hidden="true"] { display: none; }
@@ -20,7 +23,7 @@
 .panchang-page .panchang-context { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 7px; margin-top: 12px; font-size: var(--type-support-size); color: var(--text-secondary); }
 .panchang-context svg { color: var(--gold); }
 .panchang-page .panchang-planet span, .panchang-page button { overflow-wrap: anywhere; }
-.panchang-page .calendar-datebar { flex-direction: row; gap: 4px; padding: 4px; margin: 20px 0 14px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-card); }
+.panchang-page .calendar-datebar { flex-direction: row; gap: 4px; padding: 4px; margin: 8px 0 8px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-card); }
 .panchang-page .calendar-datebar > div { flex: 1; width: auto; min-width: 0; padding: 0; border: 0; background: transparent; }
 .panchang-page .calendar-datebar [aria-haspopup="dialog"] { min-width: 0; min-height: 44px; justify-content: center; padding-inline: 2px; }
 .panchang-page .calendar-datebar [aria-haspopup="dialog"] p { font-size: var(--type-date-size); }
@@ -54,15 +57,12 @@
 .panchang-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-default); color: var(--text-secondary); font-size: var(--type-meta-size); }
 
 @media (min-width: 768px) {
-  .panchang-page { max-width: 1000px; padding: 30px 24px 32px; min-height: calc(100dvh - 72px); }
-  .panchang-heading { text-align: left; }
-  .panchang-home-header { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,auto); align-items: center; gap: 8px 20px; }
-  .panchang-context-picker { max-width: 100%; }
-  .panchang-context-picker > span { min-width: 0; overflow-wrap: anywhere; }
+  .panchang-page { max-width: 1000px; padding: 20px 24px 32px; min-height: calc(100dvh - 72px); }
+  .panchang-home-header { column-gap: 20px; }
   .panchang-highlight { padding: 20px; }
-  .panchang-heading h1 { justify-content: flex-start; color: var(--text-primary); font-size: var(--type-page-size); letter-spacing: -.02em; }
+  .panchang-heading h1 { color: var(--text-primary); font-size: var(--type-page-size); letter-spacing: -.02em; }
   .panchang-page .panchang-context { justify-content: flex-start; font-size: var(--type-support-size); margin-top: 16px; }
-  .panchang-page .calendar-datebar { padding: 10px 14px; gap: 10px; margin: 24px 0 14px; }
+  .panchang-page .calendar-datebar { padding: 6px 14px; gap: 10px; margin: 12px 0 10px; }
   .panchang-page .calendar-datebar [aria-haspopup="dialog"] p { font-size: var(--type-date-size); }
   .panchang-page .date-strip-weekday { display: inline; color: inherit; font-size: inherit; }
   .panchang-page .date-strip-comma { display: inline; }
