@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BookOpen, ChevronDown, LocateFixed, MapPin, Search, X } from 'lucide-react'
+import { ChevronDown, LocateFixed, MapPin, Search, X } from 'lucide-react'
 import { cities } from '../cities.js'
 import { PUBLIC_PANCHANG_CITIES } from '../publicPanchangCities.js'
 import { useSettings } from '../SettingsContext.jsx'
@@ -48,18 +48,16 @@ export default function PanchangPreferences() {
     setOpen(true)
   }
   const cityChanged = draft.city !== settings.city || draft.lat !== settings.lat || draft.lon !== settings.lon
-  const systemChanged = draft.calendarSystem !== settings.calendarSystem
   const gpsSourceChanged = Boolean(draft.usingGps) !== Boolean(settings.usingGps)
+  const canApply = !gpsLoading && (cityChanged || gpsSourceChanged)
   const apply = () => {
-    if (gpsLoading || (!cityChanged && !systemChanged && !gpsSourceChanged)) return
+    if (!canApply) return
     updateSettings({
       city: draft.city, lat: draft.lat, lon: draft.lon,
-      calendarSystem: draft.calendarSystem,
       usingGps: Boolean(draft.usingGps),
     })
     if (cityChanged || gpsSourceChanged) trackEvent('city_changed', { city_name: draft.city, via: draft.usingGps ? 'gps' : 'panchang' })
-    if (systemChanged) trackEvent('calendar_system_changed', { calendar_system: draft.calendarSystem, via: 'panchang' })
-    setFeedback(`Panchang updated for ${draft.city} · ${draft.calendarSystem}.`)
+    setFeedback(`Panchang updated for ${draft.city}.`)
     close()
   }
   const useMyLocation = () => {
@@ -110,49 +108,33 @@ export default function PanchangPreferences() {
   return <div className="panchang-preferences">
     <button ref={triggerRef} type="button" className="panchang-context-picker" aria-expanded={open} aria-controls="panchang-preferences-editor" onClick={toggle}>
       <MapPin size={16} strokeWidth={1.75} aria-hidden="true" />
-      <span>{settings.city} <span aria-hidden="true">·</span> {settings.calendarSystem}</span>
+      <span>{settings.city}</span>
       <ChevronDown size={16} strokeWidth={1.75} aria-hidden="true" />
     </button>
     {open && <section id="panchang-preferences-editor" className="panchang-preferences-editor" aria-labelledby="panchang-preferences-title" onKeyDown={event => {
       if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close() }
     }}>
       <div className="panchang-preferences-heading">
-        <div><h2 id="panchang-preferences-title">Location &amp; calendar</h2><p>Choose how your Panchang is calculated.</p></div>
+        <h2 id="panchang-preferences-title">Change city</h2>
         <Button shape="icon" variant="quiet" onClick={close} aria-label="Cancel changes and close picker"><X size={18} aria-hidden="true" /></Button>
       </div>
-      <div className="panchang-preferences-fields">
-        <fieldset>
-          <legend>Your city</legend>
-          <label className="panchang-city-search"><Search size={18} aria-hidden="true" /><input ref={searchRef} type="search" aria-label="Search by city or state" placeholder="Search by city or state" autoComplete="off" value={query} onChange={event => setQuery(event.target.value)} /></label>
-          <div className="panchang-city-options">
-            {visibleCities.map(city => renderCity(city))}
-            <button type="button" className="panchang-city-option panchang-use-location" onClick={useMyLocation} disabled={gpsLoading} aria-busy={gpsLoading}>
-              <LocateFixed size={18} strokeWidth={1.75} aria-hidden="true" />
-              <span>{gpsLoading ? 'Detecting location…' : 'Use my location'}<small>Nearest supported city</small></span>
-            </button>
-            {selectedExtra && renderCity(selectedExtra, true)}
-          </div>
-          {gpsStatus && <p className={`panchang-location-status ${gpsStatus.error ? 'panchang-location-error' : ''}`} role={gpsStatus.error ? 'alert' : 'status'}>{gpsStatus.message}</p>}
-          {!visibleCities.length && <p role="status" className="panchang-preferences-empty">No matching cities. Try another city or state.</p>}
-        </fieldset>
-        <fieldset>
-          <legend>Calendar system</legend>
-          {[
-            ['Amavasyant', 'Month ends at Amavasya (new moon).'],
-            ['Purnimant', 'Month ends at Purnima (full moon).'],
-          ].map(([system, description]) => <label key={system} className="panchang-system-option">
-            <input type="radio" name="panchang-calendar-system" value={system} checked={draft.calendarSystem === system} onChange={() => setDraft(previous => ({ ...previous, calendarSystem: system }))} />
-            <span><strong>{system}</strong><small>{description}</small></span>
-          </label>)}
-          <details className="panchang-system-guide">
-            <summary><BookOpen size={16} aria-hidden="true" />Which should I choose?<ChevronDown size={16} aria-hidden="true" /></summary>
-            <p>Choose the system followed by your family or local Panchang. Amavasyant is common in South and West India; Purnimant in North and Central India. Your city determines local timings.</p>
-          </details>
-        </fieldset>
-      </div>
+      <fieldset className="panchang-preferences-fields">
+        <legend className="sr-only">Your city</legend>
+        <label className="panchang-city-search"><Search size={18} aria-hidden="true" /><input ref={searchRef} type="search" aria-label="Search by city or state" placeholder="Search by city or state" autoComplete="off" value={query} onChange={event => setQuery(event.target.value)} /></label>
+        <div className="panchang-city-options">
+          {visibleCities.map(city => renderCity(city))}
+          <button type="button" className="panchang-city-option panchang-use-location" onClick={useMyLocation} disabled={gpsLoading} aria-busy={gpsLoading}>
+            <LocateFixed size={18} strokeWidth={1.75} aria-hidden="true" />
+            <span>{gpsLoading ? 'Detecting location…' : 'Use my location'}<small>Nearest supported city</small></span>
+          </button>
+          {selectedExtra && renderCity(selectedExtra, true)}
+        </div>
+        {gpsStatus && <p className={`panchang-location-status ${gpsStatus.error ? 'panchang-location-error' : ''}`} role={gpsStatus.error ? 'alert' : 'status'}>{gpsStatus.message}</p>}
+        {!visibleCities.length && <p role="status" className="panchang-preferences-empty">No matching cities. Try another city or state.</p>}
+      </fieldset>
       <div className="panchang-preferences-actions">
-        <p>{draft.city} · {draft.calendarSystem}</p>
-        <div><Button variant="quiet" onClick={close}>Cancel</Button><Button variant="secondary" disabled={gpsLoading || (!cityChanged && !systemChanged && !gpsSourceChanged)} onClick={apply}>Apply changes</Button></div>
+        <p>{draft.city}</p>
+        <div><Button variant="quiet" onClick={close}>Cancel</Button><Button variant="secondary" disabled={!canApply} onClick={apply}>Apply changes</Button></div>
       </div>
     </section>}
     <p className="panchang-preferences-feedback" role="status">{feedback}</p>

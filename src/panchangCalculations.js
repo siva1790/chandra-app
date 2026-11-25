@@ -211,6 +211,29 @@ export const getDisplayMasa = ({ sunrise, tithi }, calendarSystem) => {
   }
 }
 
+// A lunar month takes the name following the Sun's sign at its opening new moon.
+// An Adhik month contains no solar ingress and keeps both fortnights in both systems.
+export const getLunarMonthLabels = (sunrise, paksha) => {
+  const opening = Astronomy.SearchMoonPhase(0, sunrise, -35)
+  const closing = Astronomy.SearchMoonPhase(0, sunrise, 35)
+  if (!opening || !closing) return { amavasyant: null, purnimant: null }
+
+  const openingSign = Math.floor(getPlanetSiderealLongitude('Sun', opening.date) / 30)
+  const closingSign = Math.floor(getPlanetSiderealLongitude('Sun', closing.date) / 30)
+  const monthForSign = sign => MASA_NAMES[(sign + 1) % MASA_NAMES.length]
+  const name = monthForSign(openingSign)
+  if (openingSign === closingSign) {
+    const adhikName = `Adhik ${name}`
+    return { amavasyant: adhikName, purnimant: adhikName }
+  }
+
+  // In the regular cycle, Purnimant counts the waning half with the next month.
+  return {
+    amavasyant: name,
+    purnimant: paksha === 'Krishna Paksha' ? monthForSign(closingSign) : name,
+  }
+}
+
 // Six Hindu seasons (2 solar months each)
 const getRitu = (sunLongitude) => {
   const ritus = [

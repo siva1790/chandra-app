@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DateStrip from '../components/DateStrip'
-import { getPanchang } from '../panchangCalculations.js'
+import { getLunarMonthLabels, getPanchang } from '../panchangCalculations.js'
 import { formatEventTime, formatEventDate, formatEventRange } from '../timeFormatting.js'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { getFestivalsForDate } from '../festivals.js'
@@ -55,15 +55,20 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
   const lat = location?.lat ?? 12.9716
   const lon = location?.lon ?? 77.5946
-  const calendarSystem = location?.calendarSystem || 'Amavasyant'
-  const { panchang, festivals, error } = useMemo(() => {
+  const { panchang, lunarMonths, festivals, error } = useMemo(() => {
     try {
-      const options = { lat, lon, calendarSystem }
-      return { panchang: getPanchang(selectedDate, options), festivals: getFestivalsForDate(selectedDate, options), error: null }
+      const options = { lat, lon }
+      const panchang = getPanchang(selectedDate, options)
+      return {
+        panchang,
+        lunarMonths: getLunarMonthLabels(panchang.sunrise, panchang.paksha),
+        festivals: getFestivalsForDate(selectedDate, options),
+        error: null,
+      }
     } catch (error) {
-      return { panchang: null, festivals: [], error }
+      return { panchang: null, lunarMonths: null, festivals: [], error }
     }
-  }, [selectedDate, lat, lon, calendarSystem])
+  }, [selectedDate, lat, lon])
   const isToday = indianDateKey(selectedDate) === indianDateKey()
   const highlights = [...festivals.map(festival => festival.name)]
   if (panchang?.eclipse) highlights.unshift(panchang.eclipse.hinduName)
@@ -362,13 +367,17 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                 icon={CalendarIcon}
                 label="Samvatsara"
                 value={panchang.samvatsara.name}
-                sub={`${panchang.samvatsara.number}th year of 60-year cycle`}
+                sub={`Year ${panchang.samvatsara.number} of the South Indian 60-year cycle`}
               />
               <PanchangRow
                 icon={Moon}
-                label="Masa"
-                value={panchang.masa ?? 'Unavailable'}
-                sub="Lunar month"
+                label="Masa · Amavasyant"
+                value={lunarMonths.amavasyant ?? 'Unavailable'}
+              />
+              <PanchangRow
+                icon={Moon}
+                label="Masa · Purnimant"
+                value={lunarMonths.purnimant ?? 'Unavailable'}
               />
               <PanchangRow
                 icon={Sun}
@@ -445,7 +454,7 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
           {error && <Button className="mt-4" onClick={() => changeDate(new Date(selectedDate))}>Try again</Button>}
         </div>
       )}
-      <footer className="panchang-footer"><span>Calculated for {location?.city || 'Bengaluru'} · {location?.calendarSystem || 'Amavasyant'}</span><span>Chandra · Indian Moon Tracker</span></footer>
+      <footer className="panchang-footer"><span>Calculated for {location?.city || 'Bengaluru'}</span><span>Chandra · Indian Moon Tracker</span></footer>
     </div>
   )
 }

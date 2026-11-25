@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { getPanchang, getDisplayMasa } from '../src/panchangCalculations.js'
+import { getPanchang, getDisplayMasa, getLunarMonthLabels } from '../src/panchangCalculations.js'
 import { getPanchaAngaAtSunrise, getKaranaFromPhase, getDailyTimingRanges } from '../src/panchangAnga.js'
 import { getCityPanchang, dateFromKey } from '../src/cityPanchang.js'
 import { PUBLIC_PANCHANG_CITIES } from '../src/publicPanchangCities.js'
@@ -84,6 +84,21 @@ test('display masa and Paksha use the same city sunrise across full-moon boundar
         assert.equal(getPanchang(date, { ...city, calendarSystem }).masa, expected, context)
       }
     }
+  }
+})
+
+test('homepage lunar months share sunrise and retain both Adhik fortnights', () => {
+  const cases = [
+    ['2026-05-02', 'Vaishakha', 'Jyeshtha'],
+    ['2026-05-31', 'Adhik Jyeshtha', 'Adhik Jyeshtha'],
+    ['2026-06-01', 'Adhik Jyeshtha', 'Adhik Jyeshtha'],
+    ['2026-06-16', 'Jyeshtha', 'Jyeshtha'],
+    ['2026-11-08', 'Ashwin', 'Kartika'],
+    ['2027-02-21', 'Magha', 'Phalguna'],
+  ]
+  for (const [key, amavasyant, purnimant] of cases) {
+    const { sunrise, paksha } = getPanchang(dateFromKey(key), { lat: 12.9716, lon: 77.5946 })
+    assert.deepEqual(getLunarMonthLabels(sunrise, paksha), { amavasyant, purnimant }, key)
   }
 })
 
