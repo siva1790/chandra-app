@@ -265,8 +265,9 @@ const crossedLongitude = (prevLon, nextLon, targetLon) => {
   return prev > next
 }
 
-const findSolarIngressTime = (start, end, targetLon) => {
-  if (!crossedLongitude(sunSiderealLongitude(start), sunSiderealLongitude(end), targetLon)) {
+export const findSolarIngressTime = (start, end, targetLon, longitudeAt = sunSiderealLongitude) => {
+  const startLongitude = longitudeAt(start)
+  if (!crossedLongitude(startLongitude, longitudeAt(end), targetLon)) {
     return null
   }
 
@@ -274,7 +275,7 @@ const findSolarIngressTime = (start, end, targetLon) => {
   let high = end.getTime()
   for (let i = 0; i < 40; i++) {
     const mid = new Date((low + high) / 2)
-    if (crossedLongitude(sunSiderealLongitude(start), sunSiderealLongitude(mid), targetLon)) {
+    if (crossedLongitude(startLongitude, longitudeAt(mid), targetLon)) {
       high = mid.getTime()
     } else {
       low = mid.getTime()
@@ -299,8 +300,8 @@ const isSolarIngressObservedOnDate = (date, festival, lat, lon, offset) => {
   return previousIngress ? previousIngress > getSunsetForDate(previousStart, lat, lon, offset) : false
 }
 
-const getSolarFestivalsForDate = (date, lat, lon, offset) => {
-  return ANNUAL_FESTIVALS.filter(
+const getSolarFestivalsForDate = (date, lat, lon, offset, rules) => {
+  return rules.filter(
     f => f.kind === 'solarIngress' && isSolarIngressObservedOnDate(date, f, lat, lon, offset)
   )
 }
@@ -521,13 +522,14 @@ export const getFestivalsForDate = (date, tithiNumberOrOptions, pakshaArg) => {
   const lon = options.lon
   const calendarSystem = options.calendarSystem
   const offset = options.utcOffsetMinutes
+  const rules = options.annualRules ?? ANNUAL_FESTIVALS
 
-  const solar = getSolarFestivalsForDate(date, lat, lon, offset)
-  const annual = ANNUAL_FESTIVALS
+  const solar = getSolarFestivalsForDate(date, lat, lon, offset, rules)
+  const annual = rules
     .map(f => resolveAnnualFestivalForDate(date, f, lat, lon, calendarSystem, offset))
     .filter(Boolean)
   const major = [...solar, ...annual]
-  const observances = major.length > 0 ? [] : getObservancesForDate(date, tithiNumber, paksha, lat, lon, offset)
+  const observances = major.length > 0 || options.includeObservances === false ? [] : getObservancesForDate(date, tithiNumber, paksha, lat, lon, offset)
 
   return [...major, ...observances]
 }

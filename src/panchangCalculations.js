@@ -78,30 +78,58 @@ const findTithiTransition = (startTime, endTime, startIdx) => {
   return new Date((lo + hi) / 2)
 }
 
+const TITHI_SCAN_STEP = 30 * 60 * 1000
+const TITHI_SCAN_LIMIT = 36 * 60 * 60 * 1000
+
+const findTithiEnd = (date, tithiIndex) => {
+  for (let offset = TITHI_SCAN_STEP; offset <= TITHI_SCAN_LIMIT; offset += TITHI_SCAN_STEP) {
+    const scan = new Date(+date + offset)
+    if (getTithiIndexAtTime(scan) !== tithiIndex) {
+      return findTithiTransition(new Date(+scan - TITHI_SCAN_STEP), scan, tithiIndex)
+    }
+  }
+  return null
+}
+
 const getTithiWindowAtTime = (date) => {
   const tithiIndex = getTithiIndexAtTime(date)
-  const step = 30 * 60 * 1000
-  const limit = 36 * 60 * 60 * 1000
-
   let start = null
-  for (let offset = step; offset <= limit; offset += step) {
+  for (let offset = TITHI_SCAN_STEP; offset <= TITHI_SCAN_LIMIT; offset += TITHI_SCAN_STEP) {
     const scan = new Date(date.getTime() - offset)
     if (getTithiIndexAtTime(scan) !== tithiIndex) {
-      start = findTithiTransition(scan, new Date(scan.getTime() + step), getTithiIndexAtTime(scan))
+      start = findTithiTransition(scan, new Date(+scan + TITHI_SCAN_STEP), getTithiIndexAtTime(scan))
       break
     }
   }
 
-  let end = null
-  for (let offset = step; offset <= limit; offset += step) {
-    const scan = new Date(date.getTime() + offset)
-    if (getTithiIndexAtTime(scan) !== tithiIndex) {
-      end = findTithiTransition(new Date(scan.getTime() - step), scan, tithiIndex)
-      break
-    }
-  }
+  return { start, end: findTithiEnd(date, tithiIndex) }
+}
 
-  return { start, end }
+export function getAdditionalTithi(previousTithi, tithi, nextTithi) {
+  const steps = (nextTithi.number - tithi.number + 30) % 30
+  if (steps === 2) {
+    return { tithi: getTithiFromAngle((tithi.number % 30) * 12), label: 'Between sunrises' }
+  }
+  if (steps === 1 && previousTithi.number === tithi.number) {
+    return { tithi: nextTithi, label: 'After sunrise' }
+  }
+  return null
+}
+
+// Include each tithi active from sunrise to the next sunrise. The final
+// tithi's actual end may be later, which explains a repeated sunrise label.
+export function getTithiTimeline(sunrise, nextSunrise) {
+  const timeline = []
+  let cursor = sunrise
+  while (cursor < nextSunrise) {
+    const tithi = getTithiFromAngle(Astronomy.MoonPhase(cursor))
+    const end = findTithiEnd(cursor, tithi.number - 1)
+    timeline.push({ tithi, end })
+    if (!end) break
+    // The binary search can return the last millisecond of the outgoing tithi.
+    cursor = new Date(+end + 1)
+  }
+  return timeline
 }
 
 // ── Yoga helpers ──────────────────────────────────────────────────

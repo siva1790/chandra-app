@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react'
 import { eclipseTypeLabel, lunarTotalityLabel } from '../eclipseUtils'
 import DateStrip from '../components/DateStrip'
-import { getLunarMonthLabels, getPanchang } from '../panchangCalculations.js'
+import { getAdditionalTithi, getLunarMonthLabels, getPanchang } from '../panchangCalculations.js'
 import { formatEventTime, formatEventDate, formatEventRange } from '../timeFormatting.js'
 import { EclipseIcon } from '../components/EclipseIcons'
 import { getFestivalsForDate } from '../festivals.js'
-import { indianDateKey } from '../civilDate.js'
+import { CALENDAR_TRADITIONS, getCalendarTithiName, getRegionalFestivals, getRegionalMonth } from '../regionalCalendar.js'
+import { getPanchaAngaAtSunrise } from '../panchangAnga.js'
+import { DAY_MS, INDIA_OFFSET_MINUTES, indianDateKey, indianDayFromPicker, startOfCivilDay } from '../civilDate.js'
+import { getMoonPhaseAngle, getTithiAtSunrise, getTithiFromAngle } from '../moonUtils.js'
 import PanchangPreferences from '../components/PanchangPreferences.jsx'
 import PanchangMoon from '../components/PanchangMoon.jsx'
 import PanchangIcon from '../components/PanchangIcon.jsx'
@@ -55,20 +58,40 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
 
   const lat = location?.lat ?? 12.9716
   const lon = location?.lon ?? 77.5946
-  const { panchang, lunarMonths, festivals, error } = useMemo(() => {
+  const tradition = Object.hasOwn(CALENDAR_TRADITIONS, location?.calendarTradition) ? location.calendarTradition : ''
+  const traditionLabel = CALENDAR_TRADITIONS[tradition]?.highlightLabel
+  const { panchang, lunarMonths, festivals, additionalTithi, error } = useMemo(() => {
     try {
       const options = { lat, lon }
       const panchang = getPanchang(selectedDate, options)
+      const civilDay = +startOfCivilDay(panchang.sunrise, INDIA_OFFSET_MINUTES)
+      const previousDay = new Date(civilDay - DAY_MS)
+      const nextDay = new Date(civilDay + DAY_MS)
+      const sunriseTithi = getTithiFromAngle(getMoonPhaseAngle(panchang.sunrise))
+      const previousSunriseTithi = getTithiAtSunrise(previousDay, lat, lon, INDIA_OFFSET_MINUTES)
+      const nextSunriseTithi = getTithiAtSunrise(nextDay, lat, lon, INDIA_OFFSET_MINUTES)
+      const additionalTithi = getAdditionalTithi(previousSunriseTithi, sunriseTithi, nextSunriseTithi)
+      let festivals
+      if (tradition) {
+        const indiaDate = indianDayFromPicker(selectedDate)
+        const indianLocation = { ...options, utcOffsetMinutes: INDIA_OFFSET_MINUTES }
+        const snapshot = getPanchaAngaAtSunrise(indiaDate, indianLocation)
+        const regionalMonth = tradition === 'tamil' ? getRegionalMonth(indiaDate, snapshot, indianLocation, tradition) : null
+        festivals = getRegionalFestivals(indiaDate, snapshot, indianLocation, tradition, regionalMonth)
+      } else {
+        festivals = getFestivalsForDate(selectedDate, options)
+      }
       return {
         panchang,
         lunarMonths: getLunarMonthLabels(panchang.sunrise, panchang.paksha),
-        festivals: getFestivalsForDate(selectedDate, options),
+        festivals,
+        additionalTithi,
         error: null,
       }
     } catch (error) {
-      return { panchang: null, lunarMonths: null, festivals: [], error }
+        return { panchang: null, lunarMonths: null, festivals: [], additionalTithi: null, error }
     }
-  }, [selectedDate, lat, lon])
+  }, [selectedDate, lat, lon, tradition])
   const isToday = indianDateKey(selectedDate) === indianDateKey()
   const highlights = [...festivals.map(festival => festival.name)]
   if (panchang?.eclipse) highlights.unshift(panchang.eclipse.hinduName)
@@ -121,8 +144,9 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
         <div className="flex flex-col gap-4">
           {highlights.length > 0 && <section className="panchang-highlight" aria-labelledby="panchang-highlight-heading">
             <h2 id="panchang-highlight-heading"><Sparkles size={16} aria-hidden="true" />Day's highlight</h2>
+            {traditionLabel && <p className="mt-1 text-support text-chandra-text-secondary">{traditionLabel}</p>}
             <div className="panchang-highlight-content">
-              {festivals.map(festival => <div key={festival.name} className="panchang-festival-description"><h3>{festival.name}</h3><p>{festival.description}</p></div>)}
+              {festivals.map(festival => <div key={festival.name} className="panchang-festival-description"><h3>{festival.name}</h3>{festival.description && <p>{festival.description}</p>}</div>)}
 
           {/* Eclipse and observance details share the day's highlight. */}
           {panchang.eclipse && (
@@ -225,6 +249,11 @@ const Panchang = ({ location, initialDate, onDateChange, onLearn }) => {
                       {formatTime(panchang.tithiWindow.end)}, {formatShortDate(panchang.tithiWindow.end)}
                     </p>
                   </div>
+                )}
+                {additionalTithi && (
+                  <p className="ml-6 mt-2 text-support text-chandra-text-secondary">
+                    {additionalTithi.label} · <strong className="text-chandra-text-primary">{additionalTithi.tithi.paksha} {getCalendarTithiName(additionalTithi.tithi)}</strong>
+                  </p>
                 )}
               </div>
 

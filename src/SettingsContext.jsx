@@ -14,6 +14,7 @@ export const SettingsProvider = ({ children }) => {
       lon: 77.5946,
       language: 'English',
       calendarSystem: 'Amavasyant',
+      calendarTradition: null,
       notifications: false,
       usingGps: false,
     }
